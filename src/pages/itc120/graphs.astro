@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import MatrixLab from '../../components/MatrixLab.astro';
 import Quiz from '../../components/Quiz.astro';
@@ -101,6 +102,7 @@ public class ListGraph {
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Graphs</p>
     <p class="kicker">Graphs · Lesson 1 of 3</p>
     <h1>Graphs, and How to Store Them</h1>
+    <KindChips />
     <p class="lede">Trees let each node have one parent. Graphs remove that rule: anything can connect to anything.</p>
     <div class="goals">
       <p class="note-label">By the end, you can:</p>

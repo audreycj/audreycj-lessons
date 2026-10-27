@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import LinkedLab from '../../components/LinkedLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
@@ -123,6 +124,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Linked lists</p>
     <p class="kicker">Linear data structures · Lesson 2 of 3</p>
     <h1>Linked lists</h1>
+    <KindChips />
     <p class="lede">A chain of nodes. Nothing shifts: we change the arrows instead.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>
@@ -145,7 +147,7 @@ const quiz = [
       <p>The array's one real weakness: to insert 25 at index 2 of 10, 20, 30, 40, both 30 and 40 had to move. The more values after the gap, the more work. So what if the values did not have to sit side by side at all?</p>
       <div class="def">
         <p class="note-label">Linked list</p>
-        <p>A <b>linked list</b> is a chain of <b>nodes</b>. Each node stores two things: the value (<code>data</code>), and where to find the next node (<code>next</code>). A variable called <code>head</code> refers to the first node. The last node's <code>next</code> is <code>null</code>: the end.</p>
+        <p>A <b>linked list</b> is a linear <b>data structure</b>: a chain of <b>nodes</b>. Each node stores two things: the value (<code>data</code>), and where to find the next node (<code>next</code>). A variable called <code>head</code> refers to the first node. The last node's <code>next</code> is <code>null</code>: the end.</p>
       </div>
       <div class="mini-ll" aria-label="head, then A to B to C to null"><span class="small muted" style="font-weight:800">head →</span><b>A</b>→<b>B</b>→<b>C</b>→<i>null</i></div>
       <div class="plain">

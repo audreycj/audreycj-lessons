@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
@@ -82,6 +83,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 6 of 6</p>
     <h1>BST Deletion</h1>
+    <KindChips />
     <p class="lede">Removing a value by hand, then in Java.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>

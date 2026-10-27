@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import ArrayLab from '../../components/ArrayLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
@@ -93,6 +94,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Arrays</p>
     <p class="kicker">Linear data structures · Lesson 1 of 3</p>
     <h1>Arrays: the four operations</h1>
+    <KindChips />
     <p class="lede">Access, traversal, insertion, and deletion, and why some of them cost more than others.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>
@@ -114,7 +116,7 @@ const quiz = [
       <div class="mini-arr" aria-label="An array with values 19, 3, 42, 7, 56 at indexes 0 to 4">
         {[19, 3, 42, 7, 56].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
       </div>
-      <p>An <b>array</b> is a row of numbered slots. Each slot holds one value, and its number is its <b>index</b>, starting at 0. Above, <code>arr[2]</code> is 42. Think of a <b>piso-net shop</b>: a fixed row of numbered units, one user per PC.</p>
+      <p>An <b>array</b> is a linear <b>data structure</b>: a row of numbered slots. Each slot holds one value, and its number is its <b>index</b>, starting at 0. Above, <code>arr[2]</code> is 42. Think of a <b>piso-net shop</b>: a fixed row of numbered units, one user per PC.</p>
       <p>Every data structure in this course is judged by how well it does these four operations:</p>
       <table class="tbl">
         <thead><tr><th>Operation</th><th>What it means</th></tr></thead>

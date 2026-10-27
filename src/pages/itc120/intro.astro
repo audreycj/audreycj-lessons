@@ -1,10 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import GuessGame from '../../components/GuessGame.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import Quiz from '../../components/Quiz.astro';
-import { course } from '../../data/itc120.js';
+import { course, kindInfo, kindLessons } from '../../data/itc120.js';
 import { small } from '../../data/graphs.js';
 import { hi, hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -226,6 +227,22 @@ const quiz = [
             <tr><th>Program</th><td><b>Code</b> in a programming language that a computer can run to carry out those steps.</td></tr>
             <tr><th>Coding</th><td>Writing the instructions in a programming language.</td></tr>
             <tr><th>Programming</th><td>The whole process: define the problem → plan → write code → test → debug → improve.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub" id="ds-or-algo">
+        <h3>Data structure, algorithm, or both?</h3>
+        <p>This course is called Data Structures <i>and</i> Algorithms, and its lessons teach both. A <b>data structure</b> is a way to store and organize data (Part 2). An <b>algorithm</b> is a list of steps for doing a task (above). Many lessons teach both at once: a data structure, plus the algorithms that search it, add to it, or remove from it.</p>
+        <p>Two more words appear in later lessons:</p>
+        <ul>
+          <li>An <b>abstract data type (ADT)</b> says <i>what</i> a collection can do (its operations), not <i>how</i> it is stored. A set is an ADT; a hash table is one data structure that can store a set.</li>
+          <li>A <b>technique</b> is a way of building many algorithms, like recursion (a method that calls itself) or hashing.</li>
+        </ul>
+        <p>Every lesson shows these labels under its title. Here is the whole course at a glance:</p>
+        <table class="tbl small">
+          <thead><tr><th>Lesson</th><th>Teaches</th></tr></thead>
+          <tbody>
+            {kindLessons().map((l) => <tr><td><a href={base + l.href}>{l.title}</a></td><td><KindChips href={l.href} small /></td></tr>)}
           </tbody>
         </table>
       </div>

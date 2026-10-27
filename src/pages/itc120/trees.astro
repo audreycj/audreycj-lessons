@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import TermsLab from '../../components/TermsLab.astro';
 import GenTree from '../../components/GenTree.astro';
@@ -50,6 +51,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 1 of 6</p>
     <h1>Trees and Binary Trees</h1>
+    <KindChips />
     <p class="lede">Our first non-linear data structure: nodes that branch out, like folders inside folders.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>

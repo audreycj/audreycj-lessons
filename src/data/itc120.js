@@ -16,9 +16,9 @@ export const terms = [
         { title: 'Introduction to DSA', href: '/itc120/intro/', status: 'live', blurb: 'A Java refresher, linear vs. non-linear structures, and what makes an algorithm. Race simple search against binary search.' },
       ] },
       { name: 'Linear data structures', icon: 'list', lessons: [
-        { title: 'Arrays: the four operations', href: '/itc120/arrays/', status: 'live', blurb: 'Access, traversal, insertion, and deletion. Watch values shift, step by step.' },
-        { title: 'Linked lists', href: '/itc120/linked-lists/', status: 'live', blurb: 'Nodes and references in Java. Insert and delete by changing arrows, and see what goes wrong in the wrong order.' },
-        { title: 'Stacks and queues', href: '/itc120/stacks-queues/', status: 'live', blurb: 'LIFO and FIFO, with traces and Java code. Push, pop, enqueue, and dequeue in the lab.' },
+        { title: 'Arrays: the four operations', href: '/itc120/arrays/', status: 'live', kind: ['ds', 'algo'], blurb: 'Access, traversal, insertion, and deletion. Watch values shift, step by step.' },
+        { title: 'Linked lists', href: '/itc120/linked-lists/', status: 'live', kind: ['ds', 'algo'], blurb: 'Nodes and references in Java. Insert and delete by changing arrows, and see what goes wrong in the wrong order.' },
+        { title: 'Stacks and queues', href: '/itc120/stacks-queues/', status: 'live', kind: ['ds'], blurb: 'LIFO and FIFO, with traces and Java code. Push, pop, enqueue, and dequeue in the lab.' },
       ] },
     ],
   },
@@ -29,25 +29,25 @@ export const terms = [
     note: 'Everything you need for the midterm exam. Go in order: each lesson builds on the one before it.',
     units: [
       { name: 'Trees and binary search trees', icon: 'tree', lessons: [
-        { title: 'Trees and binary trees', href: '/itc120/trees/', status: 'live', blurb: 'Root, parent, child, leaf, depth, height. Tap any node to see its family.' },
-        { title: 'Binary search trees and BST search', href: '/itc120/bst/', status: 'live', blurb: 'The BST rule, searching by hand, and the search method in Java.' },
-        { title: 'BST insertion', href: '/itc120/bst-insert/', status: 'live', blurb: 'Inserting by hand, then the insert method in Java. Search, then attach at the null spot. Move current vs. connect a new node.' },
-        { title: 'Tree traversals', href: '/itc120/traversals/', status: 'live', blurb: 'Pre-order, in-order, and post-order, step by step.' },
-        { title: 'Recursion and traversal code', href: '/itc120/recursion/', status: 'live', blurb: 'Base case, recursive case, and the call stack. Traversals and insert in Java.' },
-        { title: 'BST deletion', href: '/itc120/bst-delete/', status: 'live', blurb: 'The three cases, the next value, and deleteRec in Java.' },
+        { title: 'Trees and binary trees', href: '/itc120/trees/', status: 'live', kind: ['ds'], blurb: 'Root, parent, child, leaf, depth, height. Tap any node to see its family.' },
+        { title: 'Binary search trees and BST search', href: '/itc120/bst/', status: 'live', kind: ['ds', 'algo'], blurb: 'The BST rule, searching by hand, and the search method in Java.' },
+        { title: 'BST insertion', href: '/itc120/bst-insert/', status: 'live', kind: ['algo'], blurb: 'Inserting by hand, then the insert method in Java. Search, then attach at the null spot. Move current vs. connect a new node.' },
+        { title: 'Tree traversals', href: '/itc120/traversals/', status: 'live', kind: ['algo'], blurb: 'Pre-order, in-order, and post-order, step by step.' },
+        { title: 'Recursion and traversal code', href: '/itc120/recursion/', status: 'live', kind: ['tech'], blurb: 'Base case, recursive case, and the call stack. Traversals and insert in Java.' },
+        { title: 'BST deletion', href: '/itc120/bst-delete/', status: 'live', kind: ['algo'], blurb: 'The three cases, the next value, and deleteRec in Java.' },
       ] },
       { name: 'Balanced trees', icon: 'balance', lessons: [
-        { title: 'AVL trees', href: '/itc120/avl-trees/', status: 'live', blurb: 'Why a BST can lean, balance factors, and the four rotations. Insert your own numbers and watch the tree fix itself.' },
-        { title: 'Red-black trees', href: '/itc120/red-black-trees/', status: 'live', blurb: 'The five color rules, and how to fix an insert: red uncle means recolor, black uncle means rotate.' },
+        { title: 'AVL trees', href: '/itc120/avl-trees/', status: 'live', kind: ['ds', 'algo'], blurb: 'Why a BST can lean, balance factors, and the four rotations. Insert your own numbers and watch the tree fix itself.' },
+        { title: 'Red-black trees', href: '/itc120/red-black-trees/', status: 'live', kind: ['ds', 'algo'], blurb: 'The five color rules, and how to fix an insert: red uncle means recolor, black uncle means rotate.' },
       ] },
       { name: 'Graphs', icon: 'graph', lessons: [
-        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: 'live', blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
-        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: 'live', blurb: 'Visit a graph level by level with a queue. Find levels, shortest paths, and what can be reached.' },
-        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: 'live', blurb: 'Go deep with a stack, backtrack at dead ends. Find what is reachable, find a path, and compare with BFS.' },
+        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: 'live', kind: ['ds'], blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
+        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: 'live', kind: ['algo'], blurb: 'Visit a graph level by level with a queue. Find levels, shortest paths, and what can be reached.' },
+        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: 'live', kind: ['algo'], blurb: 'Go deep with a stack, backtrack at dead ends. Find what is reachable, find a path, and compare with BFS.' },
       ] },
       { name: 'Sets and maps', icon: 'venn', lessons: [
-        { title: 'Sets in Java', href: '/itc120/sets/', status: 'live', blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },
-        { title: 'Maps and hashing in Java', href: '/itc120/maps/', status: 'live', blurb: 'Key-value pairs with put, get, remove. Compute a hashCode and bucket index by hand, and look inside a HashMap.' },
+        { title: 'Sets in Java', href: '/itc120/sets/', status: 'live', kind: ['adt'], blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },
+        { title: 'Maps and hashing in Java', href: '/itc120/maps/', status: 'live', kind: ['adt', 'tech'], blurb: 'Key-value pairs with put, get, remove. Compute a hashCode and bucket index by hand, and look inside a HashMap.' },
       ] },
     ],
   },
@@ -58,3 +58,13 @@ export const terms = [
     units: [],
   },
 ];
+
+/** What each lesson teaches (chips under the lesson title and on the course page). */
+export const kindInfo = { ds: 'Data structure', algo: 'Algorithm', adt: 'Abstract data type (ADT)', tech: 'Technique' };
+const allLessons = terms.flatMap((t) => t.units.flatMap((u) => u.lessons));
+const trim = (p) => String(p).replace(/\/+$/, '');
+export function kindOf(path) {
+  const l = allLessons.find((x) => trim(path).endsWith(trim(x.href)));
+  return (l && l.kind) || [];
+}
+export function kindLessons() { return allLessons.filter((l) => l.status === 'live' && l.kind); }

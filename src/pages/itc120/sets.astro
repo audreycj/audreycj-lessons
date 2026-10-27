@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import SetLab from '../../components/SetLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
@@ -109,6 +110,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Sets and maps</p>
     <p class="kicker">Sets and maps · Lesson 1 of 2</p>
     <h1>Sets in Java</h1>
+    <KindChips />
     <p class="lede">A collection with one simple promise: no duplicates.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>

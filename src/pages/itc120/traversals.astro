@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
@@ -49,6 +50,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 4 of 6</p>
     <h1>Tree Traversals by Hand</h1>
+    <KindChips />
     <p class="lede">Visiting every node of a binary tree, in three different orders.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>
@@ -71,7 +73,7 @@ const quiz = [
       <p>Imagine the nurse at your barangay health center has to print a list of <b>every</b> patient in the records. She must not skip anyone, and she must not print anyone twice. If the records are stored in a tree, she needs a plan for moving through it, node by node. That plan is called a traversal.</p>
       <div class="def">
         <p class="note-label">Tree traversal</p>
-        <p>A <b>tree traversal</b> is the process of <b>visiting every node</b> of a tree <b>exactly once</b>, following a <b>fixed rule</b> that decides which node comes next.</p>
+        <p>A <b>tree traversal</b> is an <b>algorithm</b> (a step-by-step process) for <b>visiting every node</b> of a tree <b>exactly once</b>, following a <b>fixed rule</b> that decides which node comes next.</p>
         <p>To <b>visit</b> a node means to do the job on it: print it, count it, copy it, delete it, or anything else the program needs.</p>
       </div>
       <p>Each part of the definition matters. This table explains them one by one:</p>

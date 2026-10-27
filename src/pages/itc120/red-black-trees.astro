@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import AvlLab from '../../components/AvlLab.astro';
 import RbRules from '../../components/RbRules.astro';
@@ -62,6 +63,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Balanced trees</p>
     <p class="kicker">Balanced trees · Lesson 2 of 2</p>
     <h1>Red-Black Trees</h1>
+    <KindChips />
     <p class="lede">Another self-balancing BST. Instead of measuring heights, it paints each node red or black and follows a few color rules.</p>
     <div class="goals">
       <p class="note-label">By the end, you can:</p>

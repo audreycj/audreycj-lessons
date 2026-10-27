@@ -1,0 +1,12 @@
+---
+// "This lesson teaches: Data structure / Algorithm / ..." chips. Labels live in src/data/itc120.js (kind field).
+import { kindOf, kindInfo } from '../data/itc120.js';
+const { href, small = false } = Astro.props;
+const kinds = kindOf(href ?? Astro.url.pathname);
+---
+{kinds.length > 0 && (
+  <span class:list={['kind-row', { 'is-small': small }]}>
+    {!small && <span class="kind-lead">This lesson teaches:</span>}
+    {kinds.map((k) => <span class={`kind-chip k-${k}`}>{kindInfo[k]}</span>)}
+  </span>
+)}

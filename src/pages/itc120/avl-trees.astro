@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import AvlLab from '../../components/AvlLab.astro';
 import BfExplorer from '../../components/BfExplorer.astro';
@@ -124,6 +125,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Balanced trees</p>
     <p class="kicker">Balanced trees · Lesson 1 of 2</p>
     <h1>AVL Trees</h1>
+    <KindChips />
     <p class="lede">A binary search tree that fixes its own shape, so searching stays fast.</p>
     <div class="goals">
       <p class="note-label">By the end, you can:</p>

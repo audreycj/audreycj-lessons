@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import { course, terms } from '../../data/itc120.js';
 import { dsDoodles } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -59,7 +60,7 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
                     {l.status === 'live' ? (
                       <a href={href(l.href)} data-lesson={href(l.href)}>
                         <span class="num">{i + 1}</span>
-                        <span class="txt"><span class="l-title">{l.title}</span>{l.blurb && <span class="l-blurb">{l.blurb}</span>}</span>
+                        <span class="txt"><span class="l-title">{l.title}</span><KindChips href={l.href} small />{l.blurb && <span class="l-blurb">{l.blurb}</span>}</span>
                         <span class="prog" aria-live="polite"></span>
                         <span class="go" aria-hidden="true">→</span>
                       </a>

@@ -877,3 +877,14 @@ pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95)
 .peek-card pre.code .code-bar { display: none; }
 /* Lab "Start at" buttons: phones (iOS Safari) paint button text blue unless a color is set (Oct 28) */
 .trlab .tr-start-btns button { color: var(--ink); -webkit-appearance: none; appearance: none; padding: 0; }
+
+/* Lesson kind chips: Data structure / Algorithm / ADT / Technique (KindChips.astro) */
+.kind-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-top: 0.4rem; }
+.kind-row.is-small { gap: 0.25rem; margin: 0.2rem 0 0.15rem; }
+.kind-lead { font-size: var(--step--1); font-weight: 700; color: var(--ink-soft); }
+.kind-chip { font-family: var(--font-body); font-size: var(--step--1); font-weight: 800; line-height: 1.3; padding: 0.12rem 0.6rem; border-radius: 999px; border: 1.5px solid; white-space: nowrap; }
+.kind-row.is-small .kind-chip { font-size: 0.75rem; padding: 0.05rem 0.45rem; }
+.kind-chip.k-ds { background: #d7ece9; color: #0b4f49; border-color: #0e6b63; }
+.kind-chip.k-algo { background: #fbdccc; color: #8a3510; border-color: #e8662e; }
+.kind-chip.k-adt { background: #f8dc95; color: #5c3f05; border-color: #c98a1c; }
+.kind-chip.k-tech { background: #ffffff; color: #1b2a2e; border-color: #37474a; }

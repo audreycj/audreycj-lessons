@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import Peek from '../../components/Peek.astro';
@@ -148,6 +149,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 5 of 6</p>
     <h1>Recursion and Traversal Code</h1>
+    <KindChips />
     <p class="lede">A method that calls itself, and how it walks a tree.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>

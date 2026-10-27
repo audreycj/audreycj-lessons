@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import SQLab from '../../components/SQLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
@@ -133,6 +134,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Stacks and queues</p>
     <p class="kicker">Linear data structures · Lesson 3 of 3</p>
     <h1>Stacks and queues</h1>
+    <KindChips />
     <p class="lede">Two rules about which item leaves next: the newest first, or the oldest first.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>
