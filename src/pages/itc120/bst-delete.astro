@@ -63,7 +63,7 @@ const leafPeek = figs.case1;
 const case2Peek = figs.case2;
 const sortedPeek = figs.sorted;
 const del20Peek = shows.del20[4].pic + `<p class="small">After deleting 20: 30 is in 20's old spot, and the old 30 is gone.</p>`;
-const ruleCard = `<p class="hand" style="font-size:1.25rem">Go right once. Then go left, left, left… until there is no left child.</p>`;
+const ruleCard = `<p class="hand" style="font-size:1.25rem">Go right once. Then go left, left, left… until there is no left child.</p><p style="font-size:1rem;margin-top:.4rem">This works when the node has a right child, which is always true for a node with two children.</p>`;
 const leaderPeek = `<div class="illus">${leaderLeaves()}</div>`;
 
 const quiz = [
@@ -106,7 +106,7 @@ const quiz = [
       <figure class="fig illus-fig illus"><Fragment set:html={leaderLeaves()} /><figcaption>Three situations, three fixes. Deleting from a BST works the same way, with one more rule: the values must stay in order.</figcaption></figure>
       <div class="def">
         <p class="note-label">Deleting from a BST</p>
-        <p><b>Deleting</b> a value from a binary search tree means removing the node that holds it, so that every other node <b>stays connected</b> and the <b>BST rule still holds</b>.</p>
+        <p><b>Deleting</b> a value from a binary search tree means taking that value out of the tree, so that every other node <b>stays connected</b> and the <b>BST rule still holds</b>. Usually the node that holds it is removed. In one case (Part 4), that node stays and gets a new value instead.</p>
       </div>
       <p>Here are the words this lesson uses, in plain terms:</p>
       <table class="tbl">
@@ -333,7 +333,7 @@ const quiz = [
       </div>
       <div class="sub">
         <h3>Finding the node (lines 3–10)</h3>
-        <pre class="code"><code set:html={hiC(findPart, { 'rg-base': [1, 2, 3], 'rg-rec': [4, 5, 6, 7], 'rg-found': [8] })} /></pre>
+        <pre class="code"><code set:html={hiC(findPart, { 'rg-base': [3, 4, 5], 'rg-rec': [6, 7, 8, 9], 'rg-found': [10] }, 3)} /></pre>
         <ul>
           <li><b class="c-rec">Blue, lines 6–9:</b> exactly like <code>insertRec</code>. Go left or right, and save what the call returns.</li>
           <li><b class="c-base">Green, lines 3–5:</b> we reached an empty spot, so the value is not in the tree. Return <code>null</code>: the empty spot stays empty. Nothing is deleted.</li>

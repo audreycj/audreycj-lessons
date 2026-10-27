@@ -100,7 +100,7 @@ const quiz = [
           <li>all values in its <b>right subtree</b> are <b>larger</b> than its value.</li>
         </ul>
       </div>
-      <p>Migs never guessed randomly: he always picked the <b>middle</b>, so every answer threw away half. A BST is built the same way. Each node is like a guess: smaller values go to one side, larger values to the other.</p>
+      <p>Migs never guessed randomly: he always picked the <b>middle</b>, so every answer threw away half. A BST works in a similar way. Each node is like a guess: smaller values go to one side, larger values to the other, so each comparison lets us skip a whole subtree. One difference: the two sides are not always the same size. A BST built from values in sorted order can even become one long chain (you will see this in BST Insertion).</p>
       <figure class="fig"><div set:html={sidesPic} /></figure>
       <p>At 50: <span class="w-left">everything on the left (20, 30, 40) is smaller</span>; <span class="w-right">everything on the right (60, 70, 80) is larger</span>. At 30: 20 is smaller, 40 is larger. At 70: 60 is smaller, 80 is larger. <span class="w-key">The rule holds at every node.</span></p>
       <div class="sub">
