@@ -846,3 +846,5 @@ pre, pre.code { max-width: 100%; overflow-x: auto; white-space: pre; -webkit-ove
 pre.code > code { display: block; width: max-content; min-width: 100%; }
 .cw-grid > *, .ns-code, .peek-card, .ba, .sub, .paper, .two-col > *, .flow > * { min-width: 0; }
 .ba-run { overflow-x: auto; }
+/* CodeWalk: tall panels don't stick on one-column screens (set by CodeWalk script) */
+.cw-side.no-stick { position: static; }

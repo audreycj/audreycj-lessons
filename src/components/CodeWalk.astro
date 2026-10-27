@@ -52,6 +52,11 @@ const used = new Set(steps.flatMap((s) => s.lines));
     const count = fig.querySelector<HTMLElement>('.cw-count')!;
     const reset = fig.querySelector<HTMLButtonElement>('[data-go="reset"]')!;
     const hover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    // A sticky panel taller than half the screen would cover the code on one-column screens: let it scroll away instead.
+    const side = fig.querySelector<HTMLElement>('.cw-side')!;
+    const twoCols = matchMedia('(min-width: 60rem)');
+    const fit = () => side.classList.toggle('no-stick', !twoCols.matches && side.offsetHeight > innerHeight * 0.5);
+    fit(); addEventListener('resize', fit); addEventListener('load', fit);
     let at = 0;
     function show(i: number) {
       panes.forEach((p, k) => { p.classList.toggle('is-hidden', k !== i); p.setAttribute('aria-hidden', String(k !== i)); });
