@@ -98,16 +98,16 @@ const quiz = [
     <h1>Breadth-First Search (BFS)</h1>
     <p class="lede">Visit a graph in waves: first the start, then everything one step away, then two steps away, and so on.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
         <li>explain what a <b>graph traversal</b> is and why it needs a "seen" list;</li>
-        <li>run BFS by hand using a <b>queue</b>, and write the BFS order;</li>
-        <li>find each vertex's <b>level</b> and the <b>shortest path</b> (fewest edges) from the start;</li>
-        <li>use BFS to check if a graph is <b>connected</b>, and what can be reached;</li>
-        <li>read BFS in Java.</li>
+        <li>run BFS by hand with a <b>queue</b> (neighbors in alphabetical order) and write the BFS order, for undirected and directed graphs;</li>
+        <li>give each vertex's <b>level</b> and recover a <b>shortest path</b> (fewest edges) from the start using the "found by" table;</li>
+        <li>use BFS to tell whether an undirected graph is <b>connected</b>, count its pieces, and list what a directed graph can reach;</li>
+        <li>match each line of a Java BFS to the steps of the procedure.</li>
       </ol>
     </div>
-    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/graphs/'}>Graphs lesson</a>, the queues lesson, and scratch paper.</p>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/graphs/'}>Graphs lesson</a>, the <a href={base + '/itc120/stacks-queues/'}>queues lesson</a>, and scratch paper.</p>
   </header>
 
   <!-- 1 -->
@@ -132,7 +132,7 @@ const quiz = [
       </div>
       <div class="remember">
         <p class="note-label">Where you see BFS in IT</p>
-        <p><b>"People you may know"</b> suggestions come from level 2: friends of your friends. In <b>networks</b>, BFS finds the route with the fewest hops between two computers. Web crawlers that collect pages for search engines can also explore links level by level.</p>
+        <p><b>"People you may know"</b> suggestions often come from level 2: friends of your friends. In <b>networks</b>, BFS can find the route with the fewest hops between two computers. Web crawlers that collect pages for search engines can also explore links level by level.</p>
       </div>
     </div>
   </section>
@@ -199,7 +199,7 @@ const quiz = [
       <figure class="fig">
         <p class="fig-cap">Fewest edges from A to G</p>
         <GraphFig g={city} labels={levelLabels} edgeMarks={pathMarks} nodeMarks={pathNodes} label="Main example with levels; the path A, B, E, G is highlighted" />
-        <p class="small">Each L-number is the vertex's level. G is at level 3, so the shortest path from A to G uses 3 edges: <b>{pathG.join(' → ')}</b>.</p>
+        <p class="small">Each L-number is the vertex's level. G is at level 3, so a shortest path from A to G uses 3 edges: <b>{pathG.join(' → ')}</b>.</p>
       </figure>
       <div class="sub">
         <h3>How to recover the path</h3>
@@ -209,7 +209,8 @@ const quiz = [
           <tbody><tr><td><b>Found by</b></td>{Object.keys(cityRun.parent).sort().map((k) => <td>{cityRun.parent[k]}</td>)}</tr></tbody>
         </table>
         <p>G was found by E, E by B, B by A. Reversed: A → B → E → G.</p>
-        <p>The vertex with the highest level is the one <b>furthest</b> from the start (here, F and G, at level 3).</p>
+        <p>A → D → E → G also uses 3 edges, so there are two shortest paths. BFS gives the one through B because B left the queue before D and reached E first. On an exam, any path with the fewest edges is correct unless the question asks for the BFS path.</p>
+        <p>The vertex with the highest level is the one <b>farthest</b> from the start (here, F and G, at level 3).</p>
       </div>
       <div class="trap">
         <p class="note-label">Careful</p>
@@ -264,7 +265,7 @@ const quiz = [
         <ol>
           <li>Do a BFS starting at <b>D</b> (neighbors in alphabetical order). Write the BFS order.</li>
           <li>Give the level of every vertex.</li>
-          <li>Which vertex or vertices are furthest from D?</li>
+          <li>Which vertex or vertices are farthest from D?</li>
         </ol>
         <details class="reveal">
           <summary>Show the answer</summary>
@@ -272,7 +273,7 @@ const quiz = [
             <p><b>BFS order:</b> <span class="mono">{r1.order.join(', ')}</span></p>
             <table class="tbl"><thead><tr><th>Level</th><th>Vertices</th></tr></thead>
               <tbody>{r1Levels.map((l) => <tr><td>{l.level}</td><td>{l.nodes.join(', ')}</td></tr>)}</tbody></table>
-            <p><b>Furthest:</b> {r1Max.nodes.join(' and ')} (level {r1Max.level}). D's neighbors B, C, F, G all go in the queue first; A and E are found only on the second wave.</p>
+            <p><b>Farthest:</b> {r1Max.nodes.join(' and ')} (level {r1Max.level}). D's neighbors B, C, F, G all go in the queue first; A and E are found only on the second wave.</p>
           </div>
         </details>
       </div>
@@ -328,7 +329,7 @@ const quiz = [
           <li>BFS visits a graph level by level, starting from one vertex.</li>
           <li>It uses a <b>queue</b>: dequeue the front, enqueue unseen neighbors at the rear.</li>
           <li>Mark vertices as seen when you enqueue them, so nothing is visited twice.</li>
-          <li>In an unweighted graph, BFS levels give the fewest edges from the start (shortest path).</li>
+          <li>In an unweighted graph, BFS levels give the fewest edges from the start, and the "found by" table gives a shortest path.</li>
           <li>Anything BFS does not visit cannot be reached from the start.</li>
         </ol>
       </div>
