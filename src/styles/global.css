@@ -854,3 +854,10 @@ pre.code > code { display: block; width: max-content; min-width: 100%; }
 .cw-run-k { margin: 0; font-size: var(--step--1); font-weight: 800; color: var(--ink-soft); }
 .cw-run-code { margin: 0; padding: 0.4rem 0; font-size: 0.84rem; }
 .cw-run-code .cw-l { cursor: default; }
+/* Walk / StepShow buttons: step counter on its own line, buttons never wrap their labels */
+.cw-nav, .ss .cw-nav { grid-template-columns: auto auto 1fr; grid-template-areas: "count count count" "reset back next"; row-gap: 0.45rem; }
+.cw-nav .cw-count { grid-area: count; white-space: nowrap; }
+.cw-nav [data-go="reset"] { grid-area: reset; }
+.cw-nav [data-go="back"] { grid-area: back; }
+.cw-nav [data-go="next"] { grid-area: next; }
+.cw-nav .btn { white-space: nowrap; }
