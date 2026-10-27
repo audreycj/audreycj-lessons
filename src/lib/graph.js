@@ -88,7 +88,7 @@ export function dfsSteps(g, start) {
       S(`At <b>${u}</b> (top of the stack). Neighbors: ${nb.join(', ')}. ${skipped.length ? `${skipped.join(', ')} already visited. ` : ''}The first unvisited one is <b>${v}</b>: go deeper. <b>Push ${v}</b> and visit it.`, v, []);
     } else {
       stack.pop();
-      S(`At <b>${u}</b>. ${nb.length ? `All its neighbors (${nb.join(', ')}) are already visited.` : `${u} has no ${g.directed ? 'outgoing edges' : 'neighbors'}.`} Dead end: <b>pop ${u}</b> and go back${stack.length ? ` to ${stack[stack.length - 1]}` : ''}.`, stack.length ? stack[stack.length - 1] : null, []);
+      S(`At <b>${u}</b>. ${nb.length > 1 ? `All its neighbors (${nb.join(', ')}) are already visited.` : nb.length ? `Its only neighbor, ${nb[0]}, is already visited.` : `${u} has no ${g.directed ? 'outgoing edges' : 'neighbors'}.`} Dead end: <b>pop ${u}</b>${stack.length ? ` and go back to ${stack[stack.length - 1]}` : ''}.`, stack.length ? stack[stack.length - 1] : null, []);
     }
   }
   const missed = ids(g).filter((x) => !seen.has(x));

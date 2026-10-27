@@ -88,16 +88,16 @@ const quiz = [
     <h1>Depth-First Search (DFS)</h1>
     <p class="lede">Go as far as you can down one path. At a dead end, back up and try the next way.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>run DFS by hand using a <b>stack</b>, including <b>backtracking</b>;</li>
-        <li>connect DFS to <b>recursion</b>;</li>
-        <li>use DFS to find what is <b>reachable</b> and to find a <b>path</b>;</li>
-        <li>compare DFS with BFS and choose the right one;</li>
-        <li>read DFS in Java.</li>
+        <li>run DFS by hand with a <b>stack</b> (neighbors in alphabetical order), showing each push and each <b>backtrack</b> (pop), and write the DFS order;</li>
+        <li>explain why a recursive DFS needs no stack of its own (each call is a push, each return is a pop);</li>
+        <li>use DFS to list what a vertex can <b>reach</b>, and read a <b>path</b> to a vertex off the stack;</li>
+        <li>say why that path may not be the shortest, and choose BFS or DFS for a task;</li>
+        <li>match each line of a Java DFS to the steps of the procedure.</li>
       </ol>
     </div>
-    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bfs/'}>BFS lesson</a>, the stacks lesson, the recursion lesson, and scratch paper.</p>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bfs/'}>BFS lesson</a>, the <a href={base + '/itc120/stacks-queues/'}>stacks lesson</a>, the <a href={base + '/itc120/recursion/'}>recursion lesson</a>, and scratch paper.</p>
   </header>
 
   <!-- 1 -->
@@ -109,7 +109,7 @@ const quiz = [
     <div class="flow">
       <div class="def">
         <p class="note-label">Depth-first search (DFS)</p>
-        <p><b>Depth-first search</b> is a graph traversal that starts at one vertex and keeps moving to an unvisited neighbor, going as <b>deep</b> as possible. When it reaches a vertex with no unvisited neighbors (a dead end), it <b>backtracks</b>: it goes back to the previous vertex and tries another neighbor. It uses a <b>stack</b>.</p>
+        <p><b>Depth-first search (DFS)</b> is a <b>graph traversal algorithm</b> that visits every vertex reachable from a starting vertex. It starts at one vertex and keeps moving to an unvisited neighbor, going as <b>deep</b> as possible. When it reaches a vertex with no unvisited neighbors (a dead end), it <b>backtracks</b>: it goes back to the previous vertex and tries another neighbor. It uses a <b>stack</b>.</p>
       </div>
       <div class="sticky">
         <p class="note-label">Think of opening folders</p>
@@ -153,8 +153,12 @@ const quiz = [
         <ul>
           <li>After popping, do not stop. Check the <b>new top</b> for other unvisited neighbors.</li>
           <li>Write a vertex in the DFS order when you <b>first visit</b> (push) it, not when you pop it.</li>
-          <li>As with BFS, the neighbor order changes the answer, so more than one DFS order can be correct. Use alphabetical order unless told otherwise. Some books push all neighbors onto the stack at once; that is also a valid DFS but can give a different order.</li>
+          <li>As with BFS, the neighbor order changes the answer, so more than one DFS order can be correct. Use alphabetical order (for numbered vertices, smallest number first, compared as numbers: 2 before 10) unless told otherwise.</li>
         </ul>
+      </div>
+      <div class="plain">
+        <p class="note-label">Good to know: another way some books do it</p>
+        <p>Some books and websites pop a vertex, visit it if it is not visited yet, and then push <b>all</b> its unvisited neighbors at once. That is also a correct DFS, but it can give a different order, and its stack is a to-do list, not the path you are on. In this course, use the procedure above.</p>
       </div>
     </div>
   </section>
@@ -172,9 +176,10 @@ const quiz = [
         { label: 'Directed', g: oneWay, start: 'F' },
         { label: 'Separate pieces', g: islands, start: 'A' },
       ]} />
+      <p>The three buttons are three different <b>graphs</b>, not three kinds of DFS. <b>Directed</b> starts at F: follow the arrows and see how few vertices DFS can reach. <b>Separate pieces</b> starts at A: DFS stops after A, B, C, because nothing connects them to the rest.</p>
       <div class="plain">
         <p class="note-label">DFS and recursion</p>
-        <p>"Go deeper, and when stuck, go back to where you came from" is exactly how <b>recursion</b> works. Each recursive call is a push; each return is a pop. That is why DFS is usually written as a short recursive method (Part 6), and Java's call stack does the stack work for you.</p>
+        <p>"Go deeper, and when stuck, go back to where you came from" is exactly how <b>recursion</b> works. Each recursive call is a push; each return is a pop. That is why DFS is usually written as a short recursive method (Part 7), and Java's call stack does the stack work for you.</p>
       </div>
     </div>
   </section>
@@ -340,7 +345,7 @@ const quiz = [
           <li>It uses a <b>stack</b> (or recursion). Push = go deeper; pop = go back.</li>
           <li>Write a vertex in the order when you first visit it.</li>
           <li>DFS finds everything reachable and can find <i>a</i> path, but not always the shortest.</li>
-          <li>BFS = broad, queue, shortest path. DFS = deep, stack, explores fully.</li>
+          <li>BFS = broad, queue, shortest path. DFS = deep, stack, follows one path to its end before trying another.</li>
         </ol>
       </div>
       <p><b>Next unit:</b> Sets and maps.</p>
