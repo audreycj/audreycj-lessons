@@ -1,0 +1,93 @@
+---
+// "Check one node" explorer: tap a node to walk up to the root and test it against every ancestor.
+// trees: [{ name, spec }] with spec like "50(30(20,40),70(60,80))". Drawings are made at build time.
+import { node, svgTree } from '../lib/tree.js';
+interface Props { id: string; trees: { name: string; spec: string; intro?: string }[]; }
+const { id, trees } = Astro.props;
+type N = { v: number; l: N | null; r: N | null; p?: N | null };
+function parse(spec: string) {
+  let i = 0;
+  const go = (): N | null => {
+    let t = ''; while (i < spec.length && !'(),'.includes(spec[i])) t += spec[i++];
+    t = t.trim(); if (!t) return null;
+    const n = node(Number(t)) as N;
+    if (spec[i] === '(') { i++; n.l = go(); if (n.l) n.l.p = n; if (spec[i] === ',') i++; n.r = go(); if (n.r) n.r.p = n; if (spec[i] === ')') i++; }
+    return n;
+  };
+  return go()!;
+}
+const all = (n: N | null, o: N[] = []): N[] => { if (n) { o.push(n); all(n.l, o); all(n.r, o); } return o; };
+const data = trees.map((t) => {
+  const root = parse(t.spec);
+  const views: Record<string, { svg: string; html: string }> = {};
+  for (const n of all(root)) {
+    const marks: Record<number, string> = {}; const rows: string[] = [];
+    let lo: number | null = null, hi: number | null = null, ok = true;
+    let c: N = n;
+    while (c.p) {
+      const a = c.p, right = a.r === c;
+      marks[a.v] = 'path';
+      const pass = right ? n.v > a.v : n.v < a.v;
+      if (!pass) ok = false;
+      if (right && (lo == null || a.v > lo)) lo = a.v;
+      if (!right && (hi == null || a.v < hi)) hi = a.v;
+      rows.push(`<li class="${pass ? 'ok' : 'no'}"><span class="bc-mark">${pass ? '✓' : '✗'}</span> ${n.v} is in the <b>${right ? 'right' : 'left'}</b> side of ${a.v}, so it must be <b>${right ? 'larger' : 'smaller'}</b>: ${n.v} ${right ? '&gt;' : '&lt;'} ${a.v}? <b>${pass ? 'yes' : 'NO'}</b></li>`);
+      c = a;
+    }
+    marks[n.v] = ok ? 'cur' : 'bad';
+    const range = lo != null && hi != null ? `between ${lo} and ${hi}` : lo != null ? `larger than ${lo}` : hi != null ? `smaller than ${hi}` : '';
+    const head = !n.p ? `<p><b>${n.v}</b> is the root: it has no ancestors to check.</p>`
+      : `<p>Walk up from <b>${n.v}</b> to the root. At each ancestor (teal), ask: which side am I on?</p>`;
+    const tail = !n.p ? '' : ok ? `<p class="bc-ok">So ${n.v} must be ${range}. It is. <b>${n.v} follows the rule.</b></p>` : `<p class="bc-no">So ${n.v} must be ${range}, but it is not. <b>This tree is not a valid BST.</b></p>`;
+    views[n.v] = { svg: svgTree(root, { marks, label: `Checking ${n.v}` }), html: head + (rows.length ? `<ol class="bc-rows">${rows.join('')}</ol>` : '') + tail };
+  }
+  return { name: t.name, intro: t.intro || 'Tap any node to check it.', plain: svgTree(root, { label: t.name }), views };
+});
+---
+<figure class="fig bc" id={id}>
+  <p class="fig-cap">Check any node</p>
+  <p class="fig-hint">Tap a node. We walk up to the root and check it against every ancestor.</p>
+  {data.length > 1 && (
+    <div class="btn-row bc-tabs" role="group" aria-label="Choose a tree">
+      {data.map((t, i) => <button type="button" class="btn" data-t={i} aria-pressed={i === 0 ? 'true' : 'false'}>{t.name}</button>)}
+    </div>
+  )}
+  <!-- Every view of every tree sits in one grid cell, so the box is always as tall as the tallest view. -->
+  <div class="bc-stack">
+    {data.map((t, i) => (
+      <>
+        <div class={'bc-view' + (i === 0 ? ' is-on' : '')} data-t={i} data-v="">
+          <div class="bc-svg" set:html={t.plain} />
+          <div class="bc-out"><p class="bc-intro">{t.intro}</p></div>
+        </div>
+        {Object.entries(t.views).map(([v, view]) => (
+          <div class="bc-view" data-t={i} data-v={v}>
+            <div class="bc-svg" set:html={view.svg} />
+            <div class="bc-out" set:html={view.html} />
+          </div>
+        ))}
+      </>
+    ))}
+  </div>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.bc').forEach((fig) => {
+    const views = [...fig.querySelectorAll<HTMLElement>('.bc-view')];
+    let tree = '0';
+    const show = (t: string, v: string) => views.forEach((el) => {
+      const on = el.dataset.t === t && el.dataset.v === v;
+      el.classList.toggle('is-on', on); el.setAttribute('aria-hidden', String(!on));
+    });
+    show('0', '');
+    fig.querySelector('.bc-stack')!.addEventListener('click', (e) => {
+      const g = (e.target as Element).closest('.t-node') as SVGGElement | null;
+      if (g) show(tree, g.dataset.v!);
+    });
+    fig.querySelectorAll<HTMLButtonElement>('button[data-t]').forEach((b) => b.addEventListener('click', () => {
+      tree = b.dataset.t!;
+      fig.querySelectorAll<HTMLButtonElement>('button[data-t]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      show(tree, '');
+    }));
+  });
+</script>

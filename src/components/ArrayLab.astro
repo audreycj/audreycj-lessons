@@ -65,6 +65,7 @@ const config = JSON.stringify({ values, capacity });
 </style>
 
 <script>
+  import { reserve } from '../lib/stable.js';
   type Snap = { cells: (number | null)[]; size: number; marks: Record<number, string>; tags: Record<number, string>; cap: string; code: string; moves: number; vis: number };
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -143,7 +144,7 @@ const config = JSON.stringify({ values, capacity });
         size--;
         steps.push(snap(`Subtract 1 from size. Slot ${size} still holds an old copy (${cells[size]}), but it is beyond size, so we stop counting it. <b>${moves} value${moves === 1 ? '' : 's'} had to move</b>.`, `size--;`, {}, size < CAP ? { [size]: 'old copy' } : {}, moves));
       }
-      at = 0; paint();
+      at = 0; reserve(capEl, steps.map((s) => s.cap)); paint();
     }
     fig.querySelectorAll<HTMLButtonElement>('[data-op]').forEach((b) => b.addEventListener('click', () => run(b.dataset.op!)));
     next.addEventListener('click', () => { if (at < steps.length - 1) { at++; paint(); } });

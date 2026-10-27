@@ -1,0 +1,47 @@
+---
+// "Peek" link: shows something from earlier (a figure, a code block) without leaving the spot.
+// Desktop: point at it. Phone: tap it (tap anywhere else to close).
+// Usage, inside a sentence: <Peek label="the Node class in Part 1" title="From Part 1"> ...any content... </Peek>
+// The content is rendered to an HTML string and kept in a data attribute, so it can hold block elements even inside a paragraph.
+// Inside a paragraph, pass the content as `html` (a string): block tags like <pre> or <p> in a slot would end the paragraph early.
+interface Props { label: string; title?: string; html?: string; }
+const { label, title, html } = Astro.props;
+const body = (title ? `<p class="peek-title">${title}</p>` : '') + (html ?? (await Astro.slots.render('default')));
+---
+<span class="peek"><button type="button" class="peek-btn" aria-expanded="false" data-peek={body}>{label}</button></span>
+
+<script>
+  const card = document.createElement('div');
+  card.className = 'peek-card'; card.setAttribute('role', 'dialog'); card.hidden = true;
+  document.body.appendChild(card);
+  let owner: HTMLButtonElement | null = null, pinned = false, hideT = 0;
+  const narrow = () => matchMedia('(max-width: 40rem)').matches;
+  function open(btn: HTMLButtonElement, pin: boolean) {
+    clearTimeout(hideT);
+    if (owner !== btn) {
+      card.innerHTML = btn.dataset.peek || '';
+      if (owner) owner.setAttribute('aria-expanded', 'false');
+      owner = btn;
+    }
+    pinned = pin || pinned; card.hidden = false; btn.setAttribute('aria-expanded', 'true');
+    card.classList.toggle('is-sheet', narrow());
+    if (!narrow()) {
+      const r = btn.getBoundingClientRect(), w = Math.min(card.offsetWidth, innerWidth - 32);
+      const left = Math.max(16, Math.min(r.left + scrollX, scrollX + innerWidth - w - 16));
+      const below = r.bottom + 8 + card.offsetHeight < innerHeight;
+      card.style.left = left + 'px';
+      card.style.top = (below ? r.bottom + scrollY + 8 : r.top + scrollY - card.offsetHeight - 8) + 'px';
+    } else { card.style.left = ''; card.style.top = ''; }
+  }
+  function close() { card.hidden = true; pinned = false; if (owner) owner.setAttribute('aria-expanded', 'false'); }
+  document.querySelectorAll<HTMLButtonElement>('.peek-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); if (!card.hidden && owner === btn && pinned) close(); else open(btn, true); });
+    btn.addEventListener('mouseenter', () => { if (!narrow()) open(btn, false); });
+    btn.addEventListener('mouseleave', () => { if (!pinned) hideT = window.setTimeout(close, 200); });
+  });
+  card.addEventListener('mouseenter', () => clearTimeout(hideT));
+  card.addEventListener('mouseleave', () => { if (!pinned) hideT = window.setTimeout(close, 200); });
+  card.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => { if (!card.hidden) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+</script>

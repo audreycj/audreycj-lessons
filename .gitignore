@@ -5,3 +5,4 @@ dist/
 .wrangler/
 content-reference/
 ~$*
+PROJECT-NOTES.md

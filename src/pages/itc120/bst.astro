@@ -3,6 +3,12 @@ import Base from '../../layouts/Base.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import Peek from '../../components/Peek.astro';
+import BstCheck from '../../components/BstCheck.astro';
+import { guessing, idLookup, treeNodePic, namesBst, listSearchPic } from '../../lib/illus.js';
+import { buildBst, svgTree } from '../../lib/tree.js';
+import { searchCode, searchSteps as walkSearch, treeNodeCode } from '../../lib/walks.js';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
 import { build, searchSteps } from '../../lib/bst.js';
@@ -36,6 +42,15 @@ const buggy = String.raw`static boolean search(TreeNode root, int target) {
   return true;
 }`;
 const practiceTree = [40, 20, 60, 10, 30, 50, 70];
+// Problem 2 answer: the buggy code again, with each bug line marked and its fix written beside it.
+const fixes = { 7: 'current = current.left;', 9: 'current = current.right;', 12: 'return false;' };
+const escH = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const bugFixed = buggy.split('\n').map((l, i) => {
+  const n = i + 1, num = `<span class="ln">${String(n).padStart(2, ' ')}</span>`;
+  return fixes[n] ? `<span class="bug-line">${num}${escH(l)}<span class="bug-fix"><span class="bug-fix-ic">✓</span>${escH(fixes[n])}</span></span>` : num + escH(l);
+}).join('\n');
+const sidesPic = svgTree(buildBst(lessonTree), { marks: { 20: 'lt', 30: 'lt', 40: 'lt', 60: 'gt', 70: 'gt', 80: 'gt' }, label: 'The lesson BST: 20, 30, 40 on the left of 50 are colored teal; 60, 70, 80 on the right are colored orange' });
+const skipPic = svgTree(buildBst(lessonTree), { tags: { 50: '1', 70: '2', 80: '3' }, marks: { 50: 'path', 70: 'path', 80: 'found', 20: 'skip', 30: 'skip', 40: 'skip', 60: 'skip' }, label: 'Finding 80 in the BST: check 50, then 70, then 80. The faded nodes are skipped.' });
 const p25 = searchSteps(build(practiceTree), 25);
 const p70 = searchSteps(build(practiceTree), 70);
 
@@ -73,8 +88,9 @@ const quiz = [
     <div class="flow">
       <div class="sticky">
         <p class="note-label">A guessing game</p>
-        <p>I am thinking of a number from 1 to 100. After each guess, I say "higher," "lower," or "correct." Guess 50: <i>higher</i> (51–100 left). Guess 75: <i>lower</i> (51–74). Guess 62: <i>higher</i> (63–74). Guess 68: <i>correct!</i> Four guesses, because every answer ruled out a big part.</p>
+        <p>Bea is thinking of a number from 1 to 100. Migs tries to guess it. After each guess, Bea only says "too low," "too high," or "yes." Watch how Migs thinks:</p>
       </div>
+      <figure class="fig illus-fig illus" set:html={guessing()} />
       <p>A binary search tree arranges values so that every comparison works like that guess.</p>
       <div class="def">
         <p class="note-label">Binary search tree (BST)</p>
@@ -84,11 +100,14 @@ const quiz = [
           <li>all values in its <b>right subtree</b> are <b>larger</b> than its value.</li>
         </ul>
       </div>
-      <TreeFig values={lessonTree} label="The lesson BST: 50 at the root; 30 and 70; then 20, 40, 60, 80" />
-      <p>At 50: everything on the left (20, 30, 40) is smaller; everything on the right (60, 70, 80) is larger. At 30: 20 is smaller, 40 is larger. At 70: 60 is smaller, 80 is larger. The rule holds at every node.</p>
+      <p>Migs never guessed randomly: he always picked the <b>middle</b>, so every answer threw away half. A BST is built the same way. Each node is like a guess: smaller values go to one side, larger values to the other.</p>
+      <figure class="fig"><div set:html={sidesPic} /></figure>
+      <p>At 50: <span class="w-left">everything on the left (20, 30, 40) is smaller</span>; <span class="w-right">everything on the right (60, 70, 80) is larger</span>. At 30: 20 is smaller, 40 is larger. At 70: 60 is smaller, 80 is larger. <span class="w-key">The rule holds at every node.</span></p>
       <div class="sub">
         <h3>How to check one node</h3>
         <p>Walk from the node <b>up</b> to the root. At each ancestor, ask: am I on its left or its right? For 40: it is on the <b>right</b> of 30 (40 &gt; 30 ✓) and on the <b>left</b> of 50 (40 &lt; 50 ✓). So 40 must be between them: 30 &lt; 40 &lt; 50.</p>
+        <p>Try it on any node of Tree A. Then switch to Tree B: it looks almost the same, but one value is in the wrong place. Find it.</p>
+        <BstCheck id="bst-check" trees={[{ name: 'Tree A: the lesson tree', spec: '50(30(20,40),70(60,80))', intro: 'Tree A is the lesson tree. Every node follows the rule. Tap any node to see why.' }, { name: 'Tree B: find the mistake', spec: '50(30(20,40),70(45,80))', intro: 'Tree B looks almost the same, but one node breaks the rule. Can you find it? Tap nodes to check them.' }]} />
       </div>
       <div class="sub">
         <h3>Your turn: valid BST or not?</h3>
@@ -123,7 +142,11 @@ const quiz = [
       <h2>Search by hand</h2>
     </div>
     <div class="flow">
-      <p>Search answers one question: <i>Is this value in the tree? If yes, which node has it?</i> Think of a registrar program finding a student's record by ID number.</p>
+      <p>Search answers one question: <i>Is this value in the tree? If yes, which node has it?</i> Think of a registrar program finding a student's record by ID number:</p>
+      <figure class="fig illus-fig illus">
+        <Fragment set:html={idLookup()} />
+        <figcaption>The user only sees the search box. Behind it, the program walks down the tree: 2025230 is larger than 2025150, so go right. Found in 2 checks.</figcaption>
+      </figure>
       <div class="remember">
         <p class="note-label">Search checklist</p>
         <p>Start with <b>current = the root</b>. Compare the target with the current node's value:</p>
@@ -141,11 +164,17 @@ const quiz = [
       ]} />
       <div class="sub">
         <h3>Why this is fast</h3>
-        <p>Searching for something larger than 50? After checking the root, the <b>whole left subtree is skipped</b>. A linked list of the same 7 values may need 7 nodes checked. This BST needs at most 3.</p>
+        <p>Searching for something larger than 50? After checking the root, the <b>whole left subtree is skipped</b>. Compare finding 80 in each:</p>
+        <div class="two-col">
+          <figure class="fig"><p class="fig-cap">Linked list: 7 checks</p><Fragment set:html={listSearchPic()} /><p class="small">A list can only walk forward, one node at a time.</p></figure>
+          <figure class="fig"><p class="fig-cap">BST: 3 checks</p><div set:html={skipPic} /><p class="small">80 &gt; 50: skip the whole left side (faded). 80 &gt; 70: skip 60. Found.</p></figure>
+        </div>
+        <p>A linked list of these 7 values may need all 7 nodes checked. This BST needs at most 3.</p>
       </div>
       <div class="remember">
         <p class="note-label">BSTs can store names too</p>
         <p>Names compare alphabetically: earlier in the alphabet → left, later → right. A phone's contact list or a dictionary app can search names the same way.</p>
+        <Fragment set:html={namesBst()} />
       </div>
     </div>
   </section>
@@ -156,7 +185,7 @@ const quiz = [
       <h2>BST search in Java</h2>
     </div>
     <div class="flow">
-      <p>Each step of the checklist becomes one line of Java. We use the <code>TreeNode</code> class from the Trees lesson: <code>current.data</code> is the value, <code>current.left</code> and <code>current.right</code> are the children.</p>
+      <p>Each step of the checklist becomes one line of Java. We use <Peek label="the TreeNode class from the Trees lesson" title="From the Trees lesson" html={`<pre class="code"><code>${hi(treeNodeCode)}</code></pre>` + treeNodePic()} />: <code>current.data</code> is the value, <code>current.left</code> and <code>current.right</code> are the children.</p>
       <table class="tbl">
         <thead><tr><th>Checklist step</th><th>Java</th></tr></thead>
         <tbody>
@@ -168,15 +197,16 @@ const quiz = [
           <tr><td>Loop ended: not found</td><td><code>return false;</code></td></tr>
         </tbody>
       </table>
-      <pre class="code"><code set:html={hiN(search)} /></pre>
+      <p>Now the real method. Step through <code>search(root, 60)</code> on the lesson tree, one check at a time:</p>
+      <CodeWalk id="walk-search" code={searchCode} steps={walkSearch(lessonTree, 60)} cap="search(root, 60), step by step" />
       <div class="plain">
         <p class="note-label">Why a while loop?</p>
         <p>Like walking a linked list with <code>current = current.next</code>, but here we <b>choose</b> left or right at each step. The loop ends in one of two ways: <code>return true;</code> (found), or <code>current</code> becomes <code>null</code> and we <code>return false;</code>.</p>
       </div>
       <div class="sub">
-        <h3>Trace table: <code>search(root, 45)</code></h3>
-        <p>Write one row each time the loop checks <code>current</code>:</p>
-        <div class="scroll-x"><table class="tbl">
+        <h3>Your turn: trace <code>search(root, 45)</code></h3>
+        <p>No walkthrough this time. On paper, write one row each time the loop checks <code>current</code>: its data, and the answers to null? equal? smaller? Then check.</p>
+        <details class="reveal"><summary>Show the trace table</summary><div class="scroll-x"><table class="tbl">
           <thead><tr><th>data</th><th>null?</th><th>equal?</th><th>smaller?</th><th>Then</th></tr></thead>
           <tbody>
             <tr><td>50</td><td>no</td><td>no</td><td>yes</td><td>go left</td></tr>
@@ -184,7 +214,7 @@ const quiz = [
             <tr><td>40</td><td>no</td><td>no</td><td>no</td><td>go right</td></tr>
             <tr><td>—</td><td>yes</td><td>—</td><td>—</td><td>return false</td></tr>
           </tbody>
-        </table></div>
+        </table></div></details>
       </div>
       <div class="trap">
         <p class="note-label">Three common mistakes</p>
@@ -219,7 +249,8 @@ const quiz = [
       <div class="paper flow">
         <p class="note-label">Problem 2: find the 2 bugs</p>
         <pre class="code"><code set:html={hiN(buggy)} /></pre>
-        <details class="reveal"><summary>Show the answer</summary><div>
+        <details class="reveal"><summary>Show the answer</summary><div class="flow">
+          <pre class="code bugfix"><code set:html={bugFixed} /></pre>
           <ol>
             <li><b>Left and right are swapped</b> (lines 7 and 9): smaller should go to <code>current.left</code>, larger to <code>current.right</code>.</li>
             <li><b>Wrong last line</b> (line 12): it should be <code>return false;</code>. With this bug, the method says every value is in the tree.</li>

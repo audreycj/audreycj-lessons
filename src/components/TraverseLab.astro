@@ -20,7 +20,7 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
     <div class="tr-side">
       <div class="tr-ds">
         <p class="tr-label">{dsName} {mode === 'bfs' ? <span class="muted">(first in, first out)</span> : <span class="muted">(last in, first out)</span>}</p>
-        <div class="tr-box" aria-live="polite"></div>
+        <div class="tr-box" aria-live="polite" data-grow></div>
       </div>
       <div>
         <p class="tr-label">Visited order</p>
@@ -71,6 +71,7 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
 </style>
 
 <script>
+  import { reserve } from '../lib/stable.js';
   import { bfsSteps, dfsSteps, svgGraph, stepMarks, ids } from '../lib/graph.js';
   document.querySelectorAll<HTMLElement>('.trlab').forEach((fig) => {
     const cfg = JSON.parse(fig.dataset.config || '{}');
@@ -88,6 +89,7 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
       g = graph;
       steps = (mode === 'bfs' ? bfsSteps(g, start) : dfsSteps(g, start)).steps;
       at = 0;
+      reserve(cap, steps.map((s: any) => s.caption));
       if (startBtns) {
         startBtns.innerHTML = ids(g).map((n: string) => `<button type="button" data-s="${n}" aria-pressed="${n === start}">${n}</button>`).join('');
       }

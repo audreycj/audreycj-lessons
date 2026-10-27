@@ -63,6 +63,7 @@ const { id } = Astro.props;
 </style>
 
 <script>
+  import { reserve } from '../lib/stable.js';
   type St = { nodes: Record<string, { v: number; next: string | null }>; head: string | null; vars: Record<string, string | null> };
   type Step = { st: St; cap: string; code: string; cur?: string[]; nw?: string[]; chg?: string[]; out?: string; hot?: string[] };
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -205,7 +206,9 @@ const { id } = Astro.props;
     const btns = fig.querySelectorAll<HTMLButtonElement>('[data-s]');
     btns.forEach((b) => b.addEventListener('click', () => {
       btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      steps = scenario(b.dataset.s!); at = 0; paint();
+      steps = scenario(b.dataset.s!); at = 0;
+      reserve(capEl, steps.map((x) => x.cap)); reserve(box, steps.map((x) => draw(x))); reserve(outEl, steps.map((x) => (x.out ? 'Output so far: ' + x.out : '')));
+      paint();
     }));
     next.addEventListener('click', () => { if (at < steps.length - 1) { at++; paint(); } });
     back.addEventListener('click', () => { if (at > 0) { at--; paint(); } });

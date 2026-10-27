@@ -27,10 +27,12 @@ const GX = 44, GY = 62, R = 17, P = 28;
 const W = P * 2 + R * 2 + (leafX - 1) * GX, H = P * 2 + R * 2 + Math.max(...all.map((n) => n.depth!)) * GY;
 const desc = (n: N): string[] => n.kids.flatMap((k) => [k.id, ...desc(k)]);
 const anc = (n: N): string[] => (n.parent ? [n.parent.id, ...anc(n.parent)] : []);
+// The longest path from n down to a leaf (this is what height counts).
+const down = (n: N): string[] => { if (!n.kids.length) return [n.id]; const k = n.kids.reduce((a, b) => (b.height! > a.height! ? b : a)); return [n.id, ...down(k)]; };
 const facts = Object.fromEntries(all.map((n) => [n.id, {
   parent: n.parent ? n.parent.id : null, kids: n.kids.map((k) => k.id),
   sibs: n.parent ? n.parent.kids.filter((k) => k !== n).map((k) => k.id) : [],
-  anc: anc(n), desc: desc(n), depth: n.depth, height: n.height,
+  anc: anc(n), desc: desc(n), depth: n.depth, height: n.height, down: down(n),
 }]));
 const groups = {
   root: [root.id],
@@ -39,15 +41,15 @@ const groups = {
 };
 const deepest = Math.max(...all.map((n) => n.depth!));
 let svg = `<svg class="tree-svg" viewBox="0 0 ${W} ${H}" style="max-width:${Math.round(W * 1.2)}px" role="img" aria-label="A tree with root ${root.id}. Tap a node."><g class="t-edges">`;
-all.forEach((n) => n.kids.forEach((k) => (svg += `<line x1="${n.x}" y1="${n.y}" x2="${k.x}" y2="${k.y}"/>`)));
+all.forEach((n) => n.kids.forEach((k) => (svg += `<line data-e="${n.id}-${k.id}" x1="${n.x}" y1="${n.y}" x2="${k.x}" y2="${k.y}"/>`)));
 svg += '</g>';
 all.forEach((n) => (svg += `<g class="t-node is-tap" data-v="${n.id}" tabindex="0" role="button" aria-label="Node ${n.id}"><circle cx="${n.x}" cy="${n.y}" r="${R}"/><text x="${n.x}" y="${n.y}">${n.id}</text><text class="t-tag" x="${n.x! + R + 4}" y="${n.y! - R + 4}" style="text-anchor:start"></text></g>`));
 svg += '</svg>';
 const total = all.length;
 ---
 <figure class="fig terms" id={id}>
-  <p class="fig-cap">Tree words explorer</p>
-  <p class="fig-hint">Tap any node to see its family. Or tap a word below to highlight it in the tree.</p>
+  <p class="fig-cap">Tree terminology explorer</p>
+  <p class="fig-hint">Tap any node to see its family. Or tap a term below to highlight it in the tree.</p>
   <div class="btn-row tl-words" role="group" aria-label="Highlight">
     <button type="button" class="btn" data-w="root">root</button>
     <button type="button" class="btn" data-w="leaves">leaves</button>
@@ -72,19 +74,24 @@ const total = all.length;
   .terms .tree-svg .m-anc circle { fill: var(--butter); stroke: var(--amber); stroke-width: 2.5; }
   .terms .tree-svg .m-desc circle { fill: var(--teal-wash); stroke: var(--teal); stroke-width: 2.5; }
   .terms .tree-svg .m-hl circle { fill: var(--butter); stroke: var(--ink); stroke-width: 3; }
+  .terms .tree-svg line.e-hl { stroke: var(--orange); stroke-width: 4.5; }
+  .terms .tl-out .w-or { color: var(--orange-ink); font-weight: 800; }
 </style>
 
 <script is:inline define:vars={{ id, facts, groups, deepest, total, rootId: root.id }}>
   (function () {
     var f = document.getElementById(id); if (!f) return;
     var out = f.querySelector('.tl-out'), nodes = f.querySelectorAll('.t-node');
-    function clear() { nodes.forEach(function (g) { g.classList.remove('m-sel', 'm-anc', 'm-desc', 'm-hl'); g.querySelector('.t-tag').textContent = ''; }); f.querySelectorAll('[data-w]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); }
+    var lines = f.querySelectorAll('line[data-e]');
+    function edges(path) { lines.forEach(function (l) { var p = l.dataset.e.split('-'); var i = path.indexOf(p[0]); l.classList.toggle('e-hl', i > -1 && path[i + 1] === p[1]); }); }
+    function allEdges(on) { lines.forEach(function (l) { l.classList.toggle('e-hl', on); }); }
+    function clear() { edges([]); nodes.forEach(function (g) { g.classList.remove('m-sel', 'm-anc', 'm-desc', 'm-hl'); g.querySelector('.t-tag').textContent = ''; }); f.querySelectorAll('[data-w]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); }
     function mark(ids, cls) { nodes.forEach(function (g) { if (ids.indexOf(g.dataset.v) > -1) g.classList.add(cls); }); }
     function list(a) { return a.length ? a.join(', ') : '<i>none</i>'; }
     function pick(v) {
       clear();
       var d = facts[v];
-      mark(d.anc, 'm-anc'); mark(d.desc, 'm-desc'); mark([v], 'm-sel');
+      mark(d.anc, 'm-anc'); mark(d.desc, 'm-desc'); mark([v], 'm-sel'); edges(d.down);
       var kind = v === rootId ? 'the <b>root</b> (no parent)' : d.kids.length ? 'an <b>internal node</b> (it has children)' : 'a <b>leaf</b> (no children)';
       out.innerHTML = '<p style="margin-bottom:.4rem"><b>' + v + '</b> is ' + kind + '.</p><table>' +
         '<tr><th>Parent</th><td>' + (d.parent || '<i>none: it is the root</i>') + '</td></tr>' +
@@ -94,8 +101,14 @@ const total = all.length;
         '<tr><th>Descendants <span style="color:var(--teal)">●</span></th><td>' + list(d.desc) + '</td></tr>' +
         '<tr><th>Subtree rooted at ' + v + '</th><td>' + [v].concat(d.desc).join(', ') + ' (' + (d.desc.length + 1) + ' node' + (d.desc.length ? 's' : '') + ')</td></tr>' +
         '<tr><th>Depth</th><td>' + d.depth + ' (edges from the root down to ' + v + ')</td></tr>' +
-        '<tr><th>Height</th><td>' + d.height + ' (edges from ' + v + ' down to its deepest leaf)</td></tr></table>';
+        '<tr><th>Height</th><td>' + d.height + (d.height ? ': the <span class="w-or">longest</span> path down is <span class="w-or">' + d.down.join(' → ') + '</span> (orange lines)' : ' (a leaf: nothing below it)') + '</td></tr></table>';
     }
+    // Reserve room for the tallest panel, so tapping different nodes never changes the height.
+    (function () {
+      var keep = out.innerHTML, max = 0;
+      Object.keys(facts).forEach(function (v) { pick(v); max = Math.max(max, out.scrollHeight); });
+      clear(); out.innerHTML = keep; out.style.minHeight = max + 'px';
+    })();
     nodes.forEach(function (g) {
       g.addEventListener('click', function () { pick(g.dataset.v); });
       g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(g.dataset.v); } });
@@ -112,8 +125,10 @@ const total = all.length;
         } else if (w === 'depth' || w === 'height') {
           nodes.forEach(function (g) { g.querySelector('.t-tag').textContent = facts[g.dataset.v][w]; });
           out.innerHTML = w === 'depth' ? '<p><b>Depth</b> = edges from the root <b>down to</b> the node. The root has depth 0. The small numbers show each depth.</p>'
-            : '<p><b>Height</b> of a node = edges on the longest path from it <b>down to a leaf</b>. Leaves have height 0. The <b>height of the tree</b> is the height of the root: <b>' + facts[rootId].height + '</b>.</p>';
+            : '<p><b>Height</b> of a node = edges on the <b>longest</b> path from it <b>down to a leaf</b>. Leaves have height 0. The <b>height of the tree</b> is the height of the root: <b>' + facts[rootId].height + '</b>, along the orange path ' + facts[rootId].down.join(' → ') + '. Tap any node to see its longest path.</p>';
+          if (w === 'height') edges(facts[rootId].down);
         } else {
+          mark(Object.keys(facts), 'm-hl'); allEdges(true);
           out.innerHTML = '<p><b>Size</b> = number of nodes = <b>' + total + '</b>. Every node except the root has exactly one edge going up to its parent, so there are <b>' + (total - 1) + ' edges</b>. (Edges are always size − 1.)</p>';
         }
       });

@@ -1,0 +1,86 @@
+---
+// Code walkthrough: the code on one side, a picture of what it does on the other.
+// Tap (or point at) a line to see what it does; Next/Back steps through the code in order.
+// Each step: { lines: [line numbers], say: html, pic: svg/html string, vars?: [[name, value], ...] }
+// Use it for the FIRST code examples of a lesson only. Practice and self-checks stay plain, so students learn to read code alone.
+import { hi } from '../lib/code.js';
+interface Step { lines: number[]; say: string; pic: string; vars?: [string, string][] }
+interface Props { id: string; code: string; steps: Step[]; cap?: string; hint?: string; }
+const { id, code, steps, cap = 'Code walkthrough', hint = 'Tap any line to see what it does, or use Next to go through the code in order.' } = Astro.props;
+const lines = hi(code).split('\n');
+const used = new Set(steps.flatMap((s) => s.lines));
+---
+<figure class="fig cw" id={id}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">{hint}</p>
+  <div class="cw-grid">
+    <div class="cw-side">
+      <div class="cw-steps">
+      {steps.map((s, i) => (
+        <div class={i === 0 ? 'cw-step' : 'cw-step is-hidden'} data-i={i} aria-hidden={i === 0 ? 'false' : 'true'}>
+          <div class="cw-pic" set:html={s.pic} />
+          {s.vars && s.vars.length > 0 && (
+            <p class="cw-vars">{s.vars.map(([k, v]) => <span class="cw-var"><b>{k}</b> <span set:html={v} /></span>)}</p>
+          )}
+          <p class="cw-say" set:html={s.say} />
+        </div>
+      ))}
+      </div>
+      <div class="cw-nav">
+        <button type="button" class="btn" data-go="back" aria-label="Previous step">←</button>
+        <span class="cw-count mono small" aria-live="polite">Step 1 of {steps.length}</span>
+        <button type="button" class="btn primary" data-go="next">Next →</button>
+      </div>
+    </div>
+    <pre class="code cw-code" data-steps={JSON.stringify(steps.map((s) => s.lines))}><code>{lines.map((l, i) => (
+      used.has(i + 1)
+        ? <span class="cw-l" data-n={i + 1} role="button" tabindex="0"><span class="ln">{String(i + 1).padStart(2, ' ')}</span><span set:html={l} /></span>
+        : <span class="cw-l is-off" data-n={i + 1}><span class="ln">{String(i + 1).padStart(2, ' ')}</span><span set:html={l} /></span>
+    ))}</code></pre>
+  </div>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.cw').forEach((fig) => {
+    const code = fig.querySelector<HTMLElement>('.cw-code')!;
+    const groups: number[][] = JSON.parse(code.dataset.steps || '[]');
+    const panes = fig.querySelectorAll<HTMLElement>('.cw-step');
+    const lines = fig.querySelectorAll<HTMLElement>('.cw-l');
+    const back = fig.querySelector<HTMLButtonElement>('[data-go="back"]')!;
+    const next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
+    const count = fig.querySelector<HTMLElement>('.cw-count')!;
+    const hover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let at = 0;
+    function show(i: number) {
+      panes.forEach((p, k) => { p.classList.toggle('is-hidden', k !== i); p.setAttribute('aria-hidden', String(k !== i)); });
+      lines.forEach((l) => l.classList.toggle('is-on', groups[i].includes(Number(l.dataset.n))));
+      count.textContent = `Step ${i + 1} of ${groups.length}`;
+      back.disabled = i === 0; next.disabled = i === groups.length - 1;
+      next.textContent = i === groups.length - 1 ? 'Done' : 'Next →';
+    }
+    function go(i: number) { at = Math.max(0, Math.min(groups.length - 1, i)); show(at); }
+    // A line may appear in several steps (loops). Tapping it jumps to the next step that uses it.
+    function pick(n: number) {
+      const order = groups.map((_, k) => (at + 1 + k) % groups.length);
+      const k = order.find((k) => groups[k].includes(n));
+      if (k != null) go(k);
+    }
+    lines.forEach((l) => {
+      if (l.classList.contains('is-off')) return;
+      const n = Number(l.dataset.n);
+      l.addEventListener('click', () => pick(n));
+      l.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(n); } });
+      if (hover) {
+        l.addEventListener('mouseenter', () => {
+          if (groups[at].includes(n)) return;
+          const k = groups.findIndex((g) => g.includes(n));
+          if (k > -1) { show(k); l.classList.add('is-peek'); }
+        });
+        l.addEventListener('mouseleave', () => { l.classList.remove('is-peek'); show(at); });
+      }
+    });
+    back.addEventListener('click', () => go(at - 1));
+    next.addEventListener('click', () => go(at + 1));
+    show(0);
+  });
+</script>

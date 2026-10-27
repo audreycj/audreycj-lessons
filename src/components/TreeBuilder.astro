@@ -1,0 +1,205 @@
+---
+// Build-a-tree: drag a value onto an empty left/right spot (or tap a value, then tap a spot).
+// As the value gets near a spot, a dashed edge shows where it will attach.
+// Tap a leaf in the tree to take it back. Shows size, height (with the longest path), and leaves as you build.
+// Optional `target` (spec like "50(30(,40),70)") adds a Check button.
+// Optional `challenges`: [{ say, size?, height?, rootOnlyRight? }] are checked live.
+interface Challenge { say: string; size?: number; height?: number; }
+interface Props { id: string; values: (number | string)[]; target?: string; challenges?: Challenge[]; cap?: string; hint?: string; }
+const { id, values, target = '', challenges = [], cap = 'Build-a-tree', hint = 'Drag a value onto a dashed spot. On a phone, you can also tap a value, then tap a spot. Tap a leaf to take it back.' } = Astro.props;
+const cfg = JSON.stringify({ values, target, challenges });
+---
+<figure class="fig tb" id={id} data-cfg={cfg}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">{hint}</p>
+  <div class="tb-tray" aria-label="Values to place"></div>
+  <div class="tb-stage"><svg class="tb-svg" viewBox="0 0 360 260" role="img" aria-label="Your tree"></svg></div>
+  <p class="tb-msg" aria-live="polite" data-grow></p>
+  <dl class="tb-stats"></dl>
+  {challenges.length > 0 && <ol class="tb-ch"></ol>}
+  <div class="btn-row">
+    <button type="button" class="btn" data-a="undo">Undo</button>
+    <button type="button" class="btn" data-a="clear">Start over</button>
+    {target && <button type="button" class="btn primary" data-a="check">Check my tree</button>}
+  </div>
+</figure>
+
+<script>
+  type TNode = { v: string; l: TNode | null; r: TNode | null; p: TNode | null };
+  type Slot = { parent: TNode | null; side: 'l' | 'r' | 'root'; x: number; y: number };
+  const NS = 'http://www.w3.org/2000/svg';
+  const GX = 50, GY = 66, R = 19, P = 30;
+
+  function parse(spec: string) {
+    let i = 0;
+    const node = (): TNode | null => {
+      let t = ''; while (i < spec.length && !'(),'.includes(spec[i])) t += spec[i++];
+      t = t.trim(); if (!t) return null;
+      const n: TNode = { v: t, l: null, r: null, p: null };
+      if (spec[i] === '(') { i++; n.l = node(); if (spec[i] === ',') i++; n.r = node(); if (spec[i] === ')') i++; }
+      return n;
+    };
+    return node();
+  }
+
+  document.querySelectorAll<HTMLElement>('.tb').forEach((fig) => {
+    const cfg = JSON.parse(fig.dataset.cfg || '{}');
+    const tray = fig.querySelector<HTMLElement>('.tb-tray')!, svg = fig.querySelector<SVGSVGElement>('.tb-svg')!;
+    const msg = fig.querySelector<HTMLElement>('.tb-msg')!, stats = fig.querySelector<HTMLElement>('.tb-stats')!, chList = fig.querySelector<HTMLElement>('.tb-ch');
+    const target = cfg.target ? parse(cfg.target) : null;
+    let root: TNode | null = null;
+    let history: TNode[] = [];
+    let picked: string | null = null;          // value chosen by tap
+    let dragging: string | null = null, hot: Slot | null = null, ghost: HTMLElement | null = null;
+    let slots: Slot[] = [], pos = new Map<TNode, { x: number; y: number }>();
+
+    const all = (n: TNode | null, out: TNode[] = []) => { if (n) { out.push(n); all(n.l, out); all(n.r, out); } return out; };
+    const height = (n: TNode | null): number => (n ? 1 + Math.max(height(n.l), height(n.r)) : -1);
+    const longest = (n: TNode | null): TNode[] => { if (!n) return []; const a = longest(n.l), b = longest(n.r); return [n, ...(b.length > a.length ? b : a)]; };
+    const placed = () => new Set(all(root).map((n) => n.v));
+    const say = (t: string, bad = false) => { msg.innerHTML = t; msg.classList.toggle('bad', bad); };
+
+    function layout() {
+      pos = new Map(); let i = 0;
+      const walk = (n: TNode | null, d: number) => { if (!n) return; walk(n.l, d + 1); pos.set(n, { x: P + R + 22 + i * GX, y: P + R + d * GY }); i++; walk(n.r, d + 1); };
+      walk(root, 0);
+      const w = Math.max(360, P * 2 + R * 2 + 44 + (i - 1) * GX), h = Math.max(260, P * 2 + R * 2 + (height(root) + 1) * GY + 10);
+      // center the tree
+      const xs = [...pos.values()].map((p) => p.x), minX = Math.min(...xs, w / 2), maxX = Math.max(...xs, w / 2);
+      const shift = w / 2 - (minX + maxX) / 2; pos.forEach((p) => (p.x += shift));
+      slots = [];
+      if (!root) slots.push({ parent: null, side: 'root', x: w / 2, y: P + R });
+      pos.forEach((p, n) => {
+        if (!n.l) slots.push({ parent: n, side: 'l', x: p.x - 24, y: p.y + GY - 8 });
+        if (!n.r) slots.push({ parent: n, side: 'r', x: p.x + 24, y: p.y + GY - 8 });
+      });
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    }
+
+    function el(tag: string, attrs: Record<string, string | number>, text?: string) {
+      const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, String(attrs[k])); if (text != null) e.textContent = text; return e;
+    }
+
+    function draw() {
+      layout();
+      svg.replaceChildren();
+      const path = longest(root), onPath = new Set(path.slice(1));
+      const showSlots = !!(picked || dragging);
+      pos.forEach((p, n) => { if (n.p) { const q = pos.get(n.p)!; svg.appendChild(el('line', { x1: q.x, y1: q.y, x2: p.x, y2: p.y, class: 'tb-e' + (onPath.has(n) ? ' is-long' : '') })); } });
+      if (showSlots) for (const s of slots) {
+        const isHot = hot === s;
+        if (s.parent) { const q = pos.get(s.parent)!; svg.appendChild(el('line', { x1: q.x, y1: q.y, x2: s.x, y2: s.y, class: 'tb-se' + (isHot ? ' is-hot' : '') })); }
+        const g = el('g', { class: 'tb-slot' + (isHot ? ' is-hot' : ''), 'data-k': slots.indexOf(s), role: 'button', tabindex: 0, 'aria-label': s.side === 'root' ? 'Place as the root' : `Place as the ${s.side === 'l' ? 'left' : 'right'} child of ${s.parent!.v}` });
+        g.appendChild(el('circle', { cx: s.x, cy: s.y, r: 15 }));
+        g.appendChild(el('text', { x: s.x, y: s.y }, s.side === 'root' ? 'root' : s.side === 'l' ? 'L' : 'R'));
+        svg.appendChild(g);
+      }
+      pos.forEach((p, n) => {
+        const leaf = !n.l && !n.r;
+        const g = el('g', { class: 'tb-n' + (n === root ? ' is-root' : '') + (leaf ? ' is-leaf' : ''), 'data-v': n.v, role: leaf ? 'button' : 'img', tabindex: leaf ? 0 : -1, 'aria-label': `Node ${n.v}` + (leaf ? ', tap to take it back' : '') });
+        g.appendChild(el('circle', { cx: p.x, cy: p.y, r: R }));
+        g.appendChild(el('text', { x: p.x, y: p.y }, n.v));
+        svg.appendChild(g);
+      });
+      if (!root && !showSlots) svg.appendChild(el('text', { x: 180, y: 130, class: 'tb-empty' }, 'Drag a value here to make the root'));
+      // tray
+      const used = placed();
+      tray.replaceChildren(...cfg.values.map((v: string | number) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'tb-chip'; b.textContent = String(v); b.dataset.v = String(v);
+        if (used.has(String(v))) { b.disabled = true; b.classList.add('is-used'); }
+        if (picked === String(v)) b.classList.add('is-picked');
+        b.setAttribute('aria-pressed', String(picked === String(v)));
+        return b;
+      }));
+      // stats
+      const ns = all(root), leaves = ns.filter((n) => !n.l && !n.r).map((n) => n.v);
+      stats.innerHTML = `<div><dt>size</dt><dd>${ns.length} node${ns.length === 1 ? '' : 's'}</dd></div><div><dt>edges</dt><dd>${Math.max(0, ns.length - 1)}</dd></div>` +
+        `<div><dt>height</dt><dd>${root ? height(root) : '–'}${path.length > 1 ? ` <span class="tb-path">(${path.map((n) => n.v).join(' → ')})</span>` : ''}</dd></div>` +
+        `<div><dt>leaves</dt><dd>${leaves.join(', ') || '–'}</dd></div>`;
+      if (chList) chList.innerHTML = cfg.challenges.map((c: { say: string; size?: number; height?: number }) => {
+        const ok = !!root && (c.size == null || ns.length === c.size) && (c.height == null || height(root) === c.height);
+        return `<li class="${ok ? 'is-ok' : ''}"><span class="tb-ck" aria-hidden="true">${ok ? '✓' : ''}</span>${c.say}${ok ? ' <b>Done!</b>' : ''}</li>`;
+      }).join('');
+    }
+
+    function attach(v: string, s: Slot) {
+      const n: TNode = { v, l: null, r: null, p: s.parent };
+      if (s.side === 'root') root = n; else if (s.side === 'l') s.parent!.l = n; else s.parent!.r = n;
+      history.push(n); picked = null; hot = null;
+      say(s.side === 'root' ? `<b>${v}</b> is the root.` : `<b>${v}</b> is now the <b>${s.side === 'l' ? 'left' : 'right'}</b> child of ${s.parent!.v}.`);
+      draw();
+    }
+    function remove(n: TNode) {
+      if (n.l || n.r) { say(`Take back ${n.v}'s children first. Only a leaf can be taken back.`, true); return; }
+      if (!n.p) root = null; else if (n.p.l === n) n.p.l = null; else n.p.r = null;
+      history = history.filter((h) => h !== n); say(`${n.v} is back in the tray.`); draw();
+    }
+    function toSvg(cx: number, cy: number) { const m = svg.getScreenCTM(); if (!m) return { x: 0, y: 0 }; const p = new DOMPoint(cx, cy).matrixTransform(m.inverse()); return { x: p.x, y: p.y }; }
+    function nearest(cx: number, cy: number) {
+      const p = toSvg(cx, cy); let best: Slot | null = null, bd = 48;
+      for (const s of slots) { const d = Math.hypot(s.x - p.x, s.y - p.y); if (d < bd) { bd = d; best = s; } }
+      return best;
+    }
+
+    // Dragging from the tray (mouse or finger)
+    tray.addEventListener('pointerdown', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.tb-chip'); if (!b || b.disabled) return;
+      e.preventDefault();
+      const v = b.dataset.v!, sx = e.clientX, sy = e.clientY; let moved = false;
+      const move = (ev: PointerEvent) => {
+        if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 6) return;
+        if (!moved) { moved = true; dragging = v; picked = null; ghost = document.createElement('div'); ghost.className = 'tb-ghost'; ghost.textContent = v; document.body.appendChild(ghost); draw(); }
+        ghost!.style.left = ev.clientX + 'px'; ghost!.style.top = ev.clientY + 'px';
+        const h = nearest(ev.clientX, ev.clientY);
+        if (h !== hot) { hot = h; draw(); say(h ? (h.side === 'root' ? `Let go to make <b>${v}</b> the root.` : `Let go to make <b>${v}</b> the <b>${h.side === 'l' ? 'left' : 'right'}</b> child of ${h.parent!.v}.`) : 'Move closer to a dashed spot.'); }
+      };
+      const up = () => {
+        removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+        if (ghost) { ghost.remove(); ghost = null; }
+        if (!moved) { picked = picked === v ? null : v; draw(); say(picked ? `Now tap a dashed spot for <b>${v}</b>.` : ''); return; }
+        dragging = null;
+        if (hot) attach(v, hot); else { draw(); say('Not placed. Drop it on a dashed spot.'); }
+      };
+      addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+    });
+    // Tapping a spot (after tapping a value), or a leaf to take it back
+    svg.addEventListener('click', (e) => {
+      const t = e.target as Element;
+      const slot = t.closest('.tb-slot') as SVGGElement | null;
+      if (slot && picked) { attach(picked, slots[Number(slot.dataset.k)]); return; }
+      const g = t.closest('.tb-n') as SVGGElement | null;
+      if (g && !picked) { const n = all(root).find((x) => x.v === g.dataset.v); if (n) remove(n); }
+    });
+    svg.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); (e.target as Element).dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
+    tray.addEventListener('keydown', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.tb-chip');
+      if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); picked = picked === b.dataset.v ? null : b.dataset.v!; draw(); say(picked ? `Now choose a dashed spot for <b>${picked}</b> (Tab to it, then Enter).` : ''); }
+    });
+
+    fig.querySelectorAll<HTMLButtonElement>('[data-a]').forEach((b) => b.addEventListener('click', () => {
+      const a = b.dataset.a;
+      if (a === 'undo') { const n = history[history.length - 1]; if (n) remove(n); else say('Nothing to undo.'); }
+      if (a === 'clear') { root = null; history = []; picked = null; draw(); say('Empty again. Start with the root.'); }
+      if (a === 'check' && target) {
+        const mine = all(root);
+        const find = (v: string) => mine.find((n) => n.v === v);
+        const problems: string[] = [];
+        const walk = (t: TNode | null) => {
+          if (!t) return;
+          const m = find(t.v);
+          if (!m) problems.push(`${t.v} is not in your tree yet.`);
+          else {
+            const want = (x: TNode | null) => (x ? x.v : 'nothing (null)'), got = (x: TNode | null) => (x ? x.v : 'nothing');
+            if (!t.p && m.p) problems.push(`${t.v} should be the root.`);
+            if ((t.l ? t.l.v : null) !== (m.l ? m.l.v : null)) problems.push(`The <b>left</b> of ${t.v} should be ${want(t.l)}, but you have ${got(m.l)}.`);
+            if ((t.r ? t.r.v : null) !== (m.r ? m.r.v : null)) problems.push(`The <b>right</b> of ${t.v} should be ${want(t.r)}, but you have ${got(m.r)}.`);
+          }
+          if (t.l) t.l.p = t; if (t.r) t.r.p = t; walk(t.l); walk(t.r);
+        };
+        walk(target);
+        say(problems.length ? 'Not yet. ' + problems[0] : '<b>Correct!</b> Your tree matches the code.', problems.length > 0);
+      }
+    }));
+    draw(); say('');
+  });
+</script>

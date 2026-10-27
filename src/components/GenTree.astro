@@ -1,8 +1,8 @@
 ---
 // A general tree (any number of children) drawn at build time, e.g. spec "A(B(D,E(H,I),F),C(G))".
 // Nodes carry data-v, edges carry data-e="Parent-Child" so a page script can highlight them.
-interface Props { spec: string; label?: string; cls?: string; }
-const { spec, label = 'Tree diagram', cls = '' } = Astro.props;
+interface Props { spec: string; label?: string; cls?: string; hl?: string[]; hl2?: string[]; e?: string[]; }
+const { spec, label = 'Tree diagram', cls = '', hl = [], hl2 = [], e = [] } = Astro.props;
 type N = { id: string; kids: N[]; x?: number; y?: number; d?: number };
 let i = 0;
 function parse(): N {
@@ -24,8 +24,8 @@ const GX = 40, GY = 54, R = 15, P = 20;
 })(root, 0);
 const W = P * 2 + R * 2 + (leaf - 1) * GX, H = P * 2 + R * 2 + Math.max(...all.map((n) => n.d!)) * GY;
 let svg = `<svg class="tree-svg gen-tree ${cls}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}">`;
-all.forEach((n) => n.kids.forEach((k) => (svg += `<line class="g-e" data-e="${n.id}-${k.id}" x1="${n.x}" y1="${n.y}" x2="${k.x}" y2="${k.y}" stroke="#1b2a2e" stroke-width="2"/>`)));
-all.forEach((n) => (svg += `<g class="t-node" data-v="${n.id}"><circle cx="${n.x}" cy="${n.y}" r="${R}" fill="#fff" stroke="#1b2a2e" stroke-width="2"/><text x="${n.x}" y="${n.y}">${n.id}</text></g>`));
+all.forEach((n) => n.kids.forEach((k) => (svg += `<line class="g-e${e.includes(n.id + '-' + k.id) ? ' hl' : ''}" data-e="${n.id}-${k.id}" x1="${n.x}" y1="${n.y}" x2="${k.x}" y2="${k.y}" stroke="#1b2a2e" stroke-width="2"/>`)));
+all.forEach((n) => (svg += `<g class="t-node${hl.includes(n.id) ? ' hl' : hl2.includes(n.id) ? ' hl2' : ''}" data-v="${n.id}"><circle cx="${n.x}" cy="${n.y}" r="${R}" fill="#fff" stroke="#1b2a2e" stroke-width="2"/><text x="${n.x}" y="${n.y}">${n.id}</text></g>`));
 svg += '</svg>';
 ---
 <Fragment set:html={svg} />

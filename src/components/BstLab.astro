@@ -10,9 +10,27 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
 <figure class={`fig bstlab bstlab-${mode}`} id={id} data-config={config}>
   <p class="fig-cap">{cap}</p>
   <p class="fig-hint">{hint}</p>
-  {presets.length > 1 && (
-    <div class="btn-row bl-presets" role="group" aria-label="Examples">
-      {presets.map((p, i) => <button type="button" class="btn" data-preset={i} aria-pressed={i === 0 ? 'true' : 'false'}>{p.label}</button>)}
+  {(presets.length > 1 || (input && verb[mode])) && (
+    <div class={'bl-controls' + (presets.length > 1 && input && verb[mode] ? ' is-two' : '')}>
+      {presets.length > 1 && (
+        <div class="bl-group">
+          <p class="bl-glabel">Try an example</p>
+          <div class="btn-row bl-presets" role="group" aria-label="Examples">
+            {presets.map((p, i) => <button type="button" class="btn" data-preset={i} aria-pressed={i === 0 ? 'true' : 'false'}>{p.label}</button>)}
+          </div>
+        </div>
+      )}
+      {input && verb[mode] && (
+        <form class="bl-group bl-own">
+          <p class="bl-glabel">Or try your own number</p>
+          <div class="bl-own-row">
+            <input type="text" inputmode="numeric" class="bl-num" autocomplete="off" placeholder="e.g. 65" aria-label={`Value to ${verb[mode].toLowerCase()}`} />
+            <button type="submit" class="btn primary">{verb[mode]}</button>
+            {mode !== 'search' && <button type="button" class="btn bl-reset" data-reset-tree>Reset tree</button>}
+          </div>
+          <p class="bl-err small" aria-live="polite"></p>
+        </form>
+      )}
     </div>
   )}
   {(mode === 'traverse' || mode === 'code') && (
@@ -21,14 +39,6 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
       <button type="button" class="btn" data-order="in">In-order</button>
       <button type="button" class="btn" data-order="post">Post-order</button>
     </div>
-  )}
-  {input && verb[mode] && (
-    <form class="bl-own">
-      <label>{verb[mode]} the value <input type="text" inputmode="numeric" class="bl-num" autocomplete="off" /></label>
-      <button type="submit" class="btn">{verb[mode]}</button>
-      <button type="button" class="btn" data-reset-tree>Reset tree</button>
-      <p class="bl-err small" aria-live="polite"></p>
-    </form>
   )}
   <div class="bl-stage"><span class="bl-tag chip"></span><div class="bl-svg"></div></div>
   <p class="bl-cap" aria-live="polite"></p>
@@ -42,11 +52,17 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
 </figure>
 
 <style is:global>
-  .bstlab .bl-presets, .bstlab .bl-orders { margin-bottom: 0.7rem; }
-  .bstlab .bl-own { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.7rem; }
-  .bstlab .bl-own label { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: var(--step--1); }
-  .bstlab .bl-own input { width: 5.5rem; font: inherit; font-size: 1rem; padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
-  .bstlab .bl-err { width: 100%; color: var(--red-pen); font-weight: 700; min-height: 1.1em; }
+  .bstlab .bl-orders { margin-bottom: 0.7rem; }
+  .bstlab .bl-controls { display: grid; gap: 0.8rem; background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: 0.7rem 0.9rem; margin-bottom: 0.9rem; }
+  @media (min-width: 44rem) { .bstlab .bl-controls.is-two { grid-template-columns: 1.3fr 1fr; } .bstlab .bl-controls.is-two .bl-own { border-left: 1.5px dashed var(--line); padding-left: 0.9rem; } }
+  .bstlab .bl-group { display: grid; gap: 0.4rem; align-content: start; min-width: 0; }
+  .bstlab .bl-glabel { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin: 0; }
+  .bstlab .bl-presets .btn { font-size: 0.85rem; min-height: 2.3rem; padding: 0.3em 0.9em; }
+  .bstlab .bl-own-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .bstlab .bl-own input { width: 6rem; font: inherit; font-size: 1rem; padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--card); }
+  .bstlab .bl-own .btn { font-size: 0.9rem; min-height: 2.3rem; padding: 0.3em 1em; }
+  .bstlab .bl-reset { background: transparent; box-shadow: none; text-decoration: underline; border-color: transparent; }
+  .bstlab .bl-err { color: var(--red-pen); font-weight: 700; min-height: 1.1em; margin: 0; }
   .bstlab .bl-stage { position: relative; background: var(--paper); border-radius: 8px; padding: 2.2rem 0.4rem 0.6rem; min-height: 10rem; display: grid; align-items: center;
     background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 20px 20px; }
   .bstlab .bl-tag { position: absolute; top: 0.5rem; left: 0.5rem; background: var(--card); }
@@ -67,6 +83,7 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
 </style>
 
 <script>
+  import { reserve } from '../lib/stable.js';
   import { layout, svgTree, clone } from '../lib/tree.js';
   import { build, fromSpec, searchSteps, insertSteps, deleteSteps, traversalSteps, callStackSteps } from '../lib/bst.js';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -94,15 +111,16 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
       if (out.root !== undefined && mode !== 'search') tree = out.root; // insert/delete keep their result
       W = 0; H = 0;
       steps.forEach((s) => { if (s.tree) { const L = layout(s.tree); W = Math.max(W, L.w); H = Math.max(H, L.h); } });
-      at = 0; shown = {}; paint(false);
+      at = 0; shown = {}; fit(); paint(false);
     }
+    function fit() { reserve(capEl, steps.map((s) => s.caption)); reserve(extraEl, steps.map((s) => s.extra || '')); }
     function load(p: any) {
       preset = p; tree = baseTree(p);
       if (p.order) order = p.order;
       fig.querySelectorAll('[data-order]').forEach((b) => b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.order === order)));
       if (mode === 'traverse' || mode === 'code') run();
       else if (p.op != null) run(p.op);
-      else { steps = [{ snap: null }]; steps = [{ tree: clone(tree), caption: 'Type a value and tap the button.', tag: '', marks: {}, tags: {}, extra: '' }]; W = layout(tree).w; H = layout(tree).h; at = 0; shown = {}; paint(false); }
+      else { steps = [{ snap: null }]; steps = [{ tree: clone(tree), caption: 'Type a value and tap the button.', tag: '', marks: {}, tags: {}, extra: '' }]; W = layout(tree).w; H = layout(tree).h; at = 0; shown = {}; fit(); paint(false); }
     }
     function target(t: any) {
       const L = layout(t); const off = (W - L.w) / 2; const p: any = {};
@@ -148,9 +166,10 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
         if (!inp.value.trim() || !Number.isInteger(v) || v < 0 || v > 999) { err!.textContent = 'Type a whole number from 0 to 999.'; return; }
         if (mode === 'insert' && tree && layout(tree).w > 640) { err!.textContent = 'The tree is getting too wide for your screen. Tap Reset tree first.'; return; }
         err!.textContent = '';
+        fig.querySelectorAll('[data-preset]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
         run(v);
       });
-      fig.querySelector('[data-reset-tree]')!.addEventListener('click', () => { err!.textContent = ''; load(preset); });
+      fig.querySelector('[data-reset-tree]')?.addEventListener('click', () => { err!.textContent = ''; load(preset); });
     }
     load(cfg.presets[0]);
   });

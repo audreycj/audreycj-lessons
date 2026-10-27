@@ -82,6 +82,7 @@ const config = JSON.stringify({ presets, custom, kind });
 </style>
 
 <script>
+  import { reserve } from '../lib/stable.js';
   import { avlInsertSteps, layout, svgTree } from '../lib/tree.js';
   import { rbInsertSteps } from '../lib/rb.js';
 
@@ -112,7 +113,7 @@ const config = JSON.stringify({ presets, custom, kind });
       W = 0; H = 0;
       steps.forEach((s) => { if (s.snap.tree) { const L = layout(s.snap.tree); W = Math.max(W, L.w); H = Math.max(H, L.h); } });
       seqEl.innerHTML = vals.map((v) => `<li>${v}</li>`).join('');
-      shown = {}; at = 0; paint(false);
+      shown = {}; at = 0; reserve(capEl as HTMLElement, steps.map((s) => s.snap.caption)); paint(false);
     }
 
     function targetPos(tree: any) {
