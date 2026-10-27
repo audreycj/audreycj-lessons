@@ -1150,23 +1150,28 @@ export function canteenLine() {
   return s.svg('A canteen line of four students numbered 1 to 4. Student 1 at the front is served first and leaves: that is dequeue. A new student joins at the rear, behind student 4: that is enqueue.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
-/** Clean: one moment of BFS on the Part 3 graph: D (level 1) is still ahead of C and E (level 2). */
+/** Clean: the queue after each visit during BFS of the Part 3 graph from A, boxes colored by level. */
 export function queueSnapshots() {
-  const ink = C.ink, soft = C.soft, O = C.orange, T = C.teal, AM = '#a8650f';
-  const lab = (x, y, t, c = ink, a = 'middle', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
-  const head = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 1L9 5L0 9z" fill="${c}"/></marker>`;
-  let s = `<svg class="objbox" viewBox="0 0 340 226" role="img" aria-label="The queue right after BFS visits A and then B. The queue holds D, C, E. D was found by A and is level 1; C and E were just found by B and are level 2. D is at the front, so D leaves next: all of level 1 leaves before any of level 2."><defs>${head('qsO', O)}${head('qsT', T)}</defs>`;
-  s += `<rect x="4" y="4" width="332" height="218" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>`;
-  s += lab(18, 30, 'The queue right after visiting B', ink, 'start', 15, 800);
-  const X = 96, W = 60;
-  [['D', C.butter, AM], ['C', C.tealWash, T], ['E', C.tealWash, T]].forEach(([v, f, c], i) => {
-    s += `<rect x="${X + i * W}" y="62" width="${W}" height="42" fill="${f}" stroke="${c}" stroke-width="1.8"/>` + lab(X + i * W + W / 2, 90, v, ink, 'middle', 17, 800);
+  const ink = C.ink, soft = C.soft;
+  const lab = (x, y, t, c = ink, a = 'start', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
+  const box = [C.orangeWash, C.butter, C.tealWash, C.sky], col = [C.orange, '#a8650f', C.teal, '#2f6fa8'];
+  const lvl = { A: 0, B: 1, D: 1, C: 2, E: 2, F: 3, G: 3 };
+  const rows = [['Start', '', 'A'], ['Visit A', 'add B, D', 'BD'], ['Visit B', 'add C, E', 'DCE'], ['Visit D', 'all seen', 'CE'],
+    ['Visit C', 'add F', 'EF'], ['Visit E', 'add G', 'FG'], ['Visit F', 'all seen', 'G'], ['Visit G', 'all seen', '']];
+  const X = 196, W = 38, top = 56, gap = 38;
+  let s = `<svg class="objbox" viewBox="0 0 340 ${top + rows.length * gap + 54}" role="img" aria-label="The queue during BFS from A on the Part 3 graph. Start: A. Visit A, add B and D: queue B, D. Visit B, add C and E: D, C, E. Visit D, all neighbors seen: C, E. Visit C, add F: E, F. Visit E, add G: F, G. Visit F: G. Visit G: the queue is empty, so BFS is done. The levels in the queue never go out of order.">`;
+  s += `<rect x="4" y="4" width="332" height="${top + rows.length * gap + 46}" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>`;
+  s += lab(18, 30, 'The queue after each visit', ink, 'start', 15, 800);
+  s += lab(X + W / 2, 50, 'front', C.orange, 'middle', 11.5, 800);
+  rows.forEach(([a, b, q], i) => {
+    const y = top + i * gap;
+    if (i) s += `<line x1="16" y1="${y - 4}" x2="324" y2="${y - 4}" stroke="#eef0ee" stroke-width="1"/>`;
+    s += lab(18, y + 22, a, ink, 'start', 13, 800) + (b ? lab(80, y + 22, b, soft, 'start', 12, 700) : '');
+    if (!q) s += lab(X, y + 22, 'empty: done', C.teal, 'start', 13, 800);
+    [...q].forEach((v, j) => { const l = lvl[v]; s += `<rect x="${X + j * W}" y="${y + 2}" width="${W}" height="28" fill="${box[l]}" stroke="${col[l]}" stroke-width="1.6"/>` + lab(X + j * W + W / 2, y + 22, v, ink, 'middle', 14, 800); });
   });
-  s += lab(X + W / 2, 126, 'level 1', AM, 'middle', 12.5, 800) + lab(X + W / 2, 143, 'found by A', AM, 'middle', 11.5, 700) + lab(X + 2 * W, 126, 'level 2', T, 'middle', 12.5, 800) + lab(X + 2 * W, 143, 'just found by B', T, 'middle', 11.5, 700);
-  s += `<path d="M${X - 6} 83 H38" stroke="${O}" stroke-width="2.4" fill="none" marker-end="url(#qsO)"/>` + lab(56, 76, 'out next', O, 'middle', 12, 800);
-  s += lab(56, 102, 'front', soft, 'middle', 11.5, 700);
-  s += `<path d="M322 83 H${X + 3 * W + 8}" stroke="${T}" stroke-width="2.4" fill="none" marker-end="url(#qsT)"/>` + lab(300, 76, 'new ones', T, 'middle', 12, 800) + lab(300, 102, 'rear', soft, 'middle', 11.5, 700);
-  s += lab(170, 178, 'D joined first, so D leaves first.', ink, 'middle', 13, 800);
-  s += lab(170, 200, 'All of level 1 leaves before any of level 2.', soft, 'middle', 12.5, 700);
+  const ly = top + rows.length * gap + 14;
+  ['L0', 'L1', 'L2', 'L3'].forEach((t, i) => { const x = 18 + i * 52; s += `<rect x="${x}" y="${ly - 11}" width="14" height="14" fill="${box[i]}" stroke="${col[i]}" stroke-width="1.4"/>` + lab(x + 20, ly + 1, t, col[i], 'start', 12, 800); });
+  s += lab(18, ly + 23, 'The levels never go out of order.', soft, 'start', 12, 700);
   return s + '</svg>';
 }
