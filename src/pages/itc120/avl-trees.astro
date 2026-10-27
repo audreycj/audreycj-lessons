@@ -6,6 +6,7 @@ import BfExplorer from '../../components/BfExplorer.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { buildAvl, traverse } from '../../lib/tree.js';
+import { pedicabTilt } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Java snippets: escape, then grey out // comments.
@@ -172,9 +173,11 @@ const quiz = [
 
       <div class="sticky">
         <p class="note-label">Think of a pedicab</p>
-        <p>If all the passengers sit on one side, the pedicab leans and becomes hard to drive. The driver asks one passenger to move to the other side. Nobody gets off; they just change seats.</p>
+        <p>A Mati pedicab has a front seat beside the driver and two benches at the back. If the back is full and the front is empty, the pedicab tilts backward: its bottom can nearly scrape the road, and the back wheels carry too much weight (worse in older pedicabs). So the driver asks a passenger to move to the front seat. Nobody gets off; they just change seats.</p>
         <p style="margin-top:0.5rem">An <b>AVL tree</b> does the same thing. When one side gets too heavy, it moves a few nodes around (a <b>rotation</b>). No value is removed, and the BST rule still holds.</p>
       </div>
+
+      <figure class="fig illus-fig illus"><Fragment set:html={pedicabTilt()} /><figcaption>Top view (front at the top) and a side view. Before: all four passengers sit at the back, so the pedicab tilts backward. After: the passenger in orange moved to the front seat. Same four passengers, now balanced, like the same values after a rotation.</figcaption></figure>
     </div>
   </section>
 

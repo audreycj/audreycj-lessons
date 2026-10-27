@@ -748,3 +748,60 @@ export function schoolLines() {
   // Rough.js writes ~15 decimals per number; 1 decimal looks the same and cuts the size a lot (phones on mobile data).
   return s.svg('Three lines of students. Shortest line: 3 students, all in black shirts. Longest line: 6 students, alternating black, red, black, red, black, red, still with 3 black shirts, so it is 2 times as long. Not allowed: a line where two red-shirt students stand side by side, circled in red. Every line starts with a black shirt at the front.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+/** AVL hook: a Mati pedicab, front vs back (the real way they become unbalanced).
+ *  Left: top view (front at the top): driver front-left, front seat beside him, two back benches facing each other.
+ *  Right: side view (front on the right). Before: 4 at the back, front seat empty -> tilts backward (front wheel lifts,
+ *  bottom nearly scrapes, back wheels strained). After: the orange passenger moved to the front seat -> level. */
+export function pedicabTilt() {
+  const s = new Sketch(340, 430, 61);
+  const top = (x, y, face, shirt, edge) => {   // a person seen from above; face = 'up' | 'left' | 'right'
+    const side = face !== 'up';
+    s.ellipse(x, y, side ? 13 : 26, side ? 26 : 13, { fill: shirt, stroke: edge, sw: 1.4 });
+    const dx = face === 'right' ? 3 : face === 'left' ? -3 : 0, dy = face === 'up' ? -3 : 0;
+    s.circle(x + dx, y + dy, 13, { fill: C.ink, sw: 1 });
+  };
+  const blue = '#4f86b8';
+  [0, 1].forEach((p) => {
+    const T = p * 215;
+    s.text(170, T + 16, p ? 'After: one moved to the front seat' : 'Before: everyone at the back', { font: 'body', size: 13, weight: 800, color: p ? C.teal : C.red });
+    // top view
+    s.text(95, T + 36, '▲ front', { font: 'body', size: 10, weight: 800, color: C.soft });
+    s.round(20, T + 42, 150, 162, 14, { fill: C.red, sw: 2 });
+    s.rect(30, T + 50, 40, 52, { fill: C.sky, stroke: blue, sw: 1.4 });                     // driver's seat
+    top(50, T + 74, 'up', C.butter, C.amber);
+    s.text(50, T + 98, 'driver', { font: 'body', size: 9, weight: 800, color: C.ink });
+    s.rect(78, T + 64, 82, 38, { fill: C.tealWash, stroke: C.teal, sw: 1.4 });              // front seat
+    if (p) top(119, T + 86, 'up', C.orangeWash, C.orange);
+    else s.text(119, T + 88, 'front seat', { font: 'body', size: 9, weight: 700, color: C.teal });
+    s.rect(30, T + 110, 130, 86, { fill: C.paper, stroke: C.ink, sw: 1.2 });               // back floor
+    s.rect(32, T + 112, 26, 82, { fill: C.tealWash, stroke: C.teal, sw: 1.3 });            // left bench
+    s.rect(132, T + 112, 26, 82, { fill: C.tealWash, stroke: C.teal, sw: 1.3 });           // right bench
+    top(45, T + 132, 'right', C.tealWash, C.teal);
+    top(45, T + 174, 'right', C.pink, C.red);
+    top(145, T + 132, 'left', C.sky, blue);
+    if (p) {
+      s.circle(145, T + 174, 16, { stroke: C.orange, sw: 1.2, single: true, fill: 'none' });  // empty spot
+      s.curve(130, T + 168, 117, T + 104, 10, { stroke: C.orange, sw: 2, head: 7 });
+    } else top(145, T + 174, 'left', C.orangeWash, C.orange);
+    // side view (front on the right): shows the tilt
+    const gy = T + 180, rw = 228, fw = 296;
+    s.text(262, T + 44, p ? 'Level!' : 'Tilts back!', { font: 'body', size: 14, weight: 800, color: p ? C.teal : C.red });
+    s.text(262, T + 58, p ? 'nobody got off' : 'bottom nearly scrapes,', { font: 'body', size: 10, weight: 700, color: p ? C.teal : C.red });
+    if (!p) s.text(262, T + 71, 'back wheels strained', { font: 'body', size: 10, weight: 700, color: C.red });
+    if (!p) s.raw(`<g transform="rotate(-11 ${rw} ${gy})">`);
+    s.path(`M200 ${gy - 12} L200 ${gy - 70} Q200 ${gy - 80} 210 ${gy - 80} L298 ${gy - 80} Q312 ${gy - 78} 316 ${gy - 50} L318 ${gy - 12} Z`, { fill: C.paper, sw: 1.8 });
+    s.path(`M200 ${gy - 12} L200 ${gy - 40} L318 ${gy - 40} L318 ${gy - 12} Z`, { fill: C.red, stroke: C.ink, sw: 1.5 });
+    s.line(202, gy - 30, 316, gy - 30, { stroke: '#fff', sw: 3, single: true });
+    s.rect(212, gy - 72, 58, 26, { fill: C.soft, stroke: C.ink, sw: 1.2 });               // side opening (back)
+    s.path(`M280 ${gy - 72} L300 ${gy - 72} Q308 ${gy - 70} 310 ${gy - 48} L280 ${gy - 48} Z`, { fill: C.sky, stroke: C.ink, sw: 1.2 }); // front window
+    s.path(`M198 ${gy - 76} Q200 ${gy - 88} 214 ${gy - 88} L296 ${gy - 88} Q306 ${gy - 88} 304 ${gy - 78} L198 ${gy - 76} Z`, { fill: C.ink, sw: 1.3 }); // black roof
+    for (const wx of [rw, fw]) s.circle(wx, gy - 11, 22, { fill: C.ink, sw: 1 });
+    if (!p) s.raw('</g>');
+    s.line(186, gy, 330, gy, { stroke: C.soft, sw: 1.2, single: true });
+    if (!p) for (const [x1, y1, x2, y2] of [[196, gy - 2, 188, gy - 8], [200, gy - 1, 196, gy - 11], [205, gy - 1, 206, gy - 11]]) s.line(x1, y1, x2, y2, { stroke: C.red, sw: 1.3, single: true });
+    s.text(206, gy + 14, 'back', { font: 'body', size: 10, weight: 700, color: C.soft });
+    s.text(312, gy + 14, 'front', { font: 'body', size: 10, weight: 700, color: C.soft });
+  });
+  return s.svg('A Mati pedicab, twice. Each time, a top view on the left, front at the top: the driver sits at the front left with the front seat beside him, and at the back two benches face each other. A side view is on the right, front on the right. Before: all four passengers, one in orange, sit on the back benches and the front seat is empty; from the side, the pedicab tilts backward, its front wheel lifts, its bottom nearly scrapes the road, and the back wheels are strained. After: the passenger in orange has moved to the front seat; from the side, it is level. Nobody got off.').replace(/(\d+\.\d)\d+/g, '$1');
+}
