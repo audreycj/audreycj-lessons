@@ -1,0 +1,95 @@
+---
+// Stack and queue lab: push/pop/peek on an array stack (capacity 5) and enqueue/dequeue/peek on a queue.
+// "Same inputs" runs one sequence on both to show LIFO vs FIFO.
+interface Props { id: string; }
+const { id } = Astro.props;
+---
+<figure class="fig sqlab" id={id}>
+  <p class="fig-cap">Stack and queue lab</p>
+  <p class="fig-hint">Type a value, then add or remove. Every action is written in the log, like a trace table. Try removing from an empty structure, or pushing onto a full stack.</p>
+  <label class="sq-in">value <input type="text" inputmode="numeric" value="10" autocomplete="off" /></label>
+  <div class="sq-grid">
+    <div class="sq-col">
+      <p class="sq-title">Stack <span class="muted">(LIFO · capacity 5)</span></p>
+      <div class="btn-row"><button type="button" class="btn" data-a="push">push</button><button type="button" class="btn" data-a="pop">pop</button><button type="button" class="btn" data-a="speek">peek</button></div>
+      <div class="sq-stack" aria-live="polite"></div>
+    </div>
+    <div class="sq-col">
+      <p class="sq-title">Queue <span class="muted">(FIFO)</span></p>
+      <div class="btn-row"><button type="button" class="btn" data-a="enq">enqueue</button><button type="button" class="btn" data-a="deq">dequeue</button><button type="button" class="btn" data-a="qpeek">peek</button></div>
+      <div class="sq-queue" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="btn-row sq-more">
+    <button type="button" class="btn" data-a="same">Same inputs, both structures</button>
+    <button type="button" class="btn" data-a="clear">Clear both</button>
+  </div>
+  <p class="sq-msg" aria-live="polite"></p>
+  <div class="scroll-x"><table class="tbl sq-log"><thead><tr><th>Operation</th><th>Stack (bottom → top)</th><th>Queue (front → rear)</th><th>Returned</th></tr></thead><tbody></tbody></table></div>
+</figure>
+
+<style is:global>
+  .sqlab .sq-in { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; margin-bottom: 0.8rem; }
+  .sqlab .sq-in input { width: 5rem; font: inherit; font-size: 1rem; padding: 0.4rem 0.5rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
+  .sqlab .sq-grid { display: grid; gap: 1rem; }
+  @media (min-width: 40rem) { .sqlab .sq-grid { grid-template-columns: 1fr 1.4fr; } }
+  .sqlab .sq-col { background: var(--paper); border-radius: 8px; padding: 0.8rem; display: grid; gap: 0.6rem; align-content: start; }
+  .sqlab .sq-title { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+  .sqlab .sq-col .btn { font-family: var(--font-mono); font-size: 0.8rem; min-height: 2.3rem; padding: 0.35em 0.85em; }
+  .sqlab .sq-stack { display: flex; flex-direction: column-reverse; gap: 4px; width: 7.5rem; min-height: 13.5rem; padding: 6px; border: 2.5px solid var(--ink); border-top: 0; border-radius: 0 0 8px 8px; background: var(--card); margin-inline: auto; }
+  .sqlab .sq-queue { display: flex; gap: 4px; min-height: 3.6rem; padding: 6px; border-top: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink); background: var(--card); align-items: center; overflow-x: auto; position: relative; }
+  .sqlab .it { display: grid; place-items: center; min-width: 2.8rem; height: 2.2rem; padding: 0 0.4rem; border-radius: 5px; background: var(--teal-wash); border: 2px solid var(--teal); font-family: var(--font-mono); font-weight: 700; position: relative; }
+  .sqlab .it.hot { background: var(--orange); border-color: var(--orange-ink); color: #fff; }
+  .sqlab .it.look { background: var(--butter); border-color: var(--amber); }
+  .sqlab .it small { position: absolute; font-family: var(--font-body); font-size: 0.62rem; font-weight: 800; color: var(--ink-soft); white-space: nowrap; }
+  .sqlab .sq-stack .it small { right: -2.6rem; }
+  .sqlab .sq-queue .it small { top: -1.05rem; }
+  .sqlab .sq-queue { padding-top: 1.2rem; }
+  .sqlab .empty { color: var(--ink-soft); font-style: italic; font-size: 0.85rem; margin: auto; }
+  .sqlab .sq-more { margin-top: 0.9rem; }
+  .sqlab .sq-more .btn { font-size: 0.8rem; min-height: 2.3rem; }
+  .sqlab .sq-msg { min-height: 2.4em; margin: 0.7rem 0; padding: 0.5rem 0.7rem; background: var(--sticky); border-radius: 6px; }
+  .sqlab .sq-msg.bad { background: var(--red-wash); color: var(--red-pen); font-weight: 700; }
+  .sqlab .sq-log td { font-family: var(--font-mono); font-size: 0.82rem; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.sqlab').forEach((fig) => {
+    const CAP = 5;
+    let stack: number[] = [], queue: number[] = [];
+    const inp = fig.querySelector<HTMLInputElement>('.sq-in input')!;
+    const sEl = fig.querySelector<HTMLElement>('.sq-stack')!, qEl = fig.querySelector<HTMLElement>('.sq-queue')!;
+    const msg = fig.querySelector<HTMLElement>('.sq-msg')!, log = fig.querySelector<HTMLElement>('.sq-log tbody')!;
+    const fmt = (a: number[]) => (a.length ? a.join(', ') : '(empty)');
+    function paint(hotS = -1, hotQ = -1, lookS = false, lookQ = false) {
+      sEl.innerHTML = stack.length ? stack.map((v, i) => `<span class="it ${i === hotS ? 'hot' : ''} ${lookS && i === stack.length - 1 ? 'look' : ''}">${v}${i === stack.length - 1 ? '<small>← top</small>' : ''}</span>`).join('') : '<span class="empty">empty</span>';
+      qEl.innerHTML = queue.length ? queue.map((v, i) => `<span class="it ${i === hotQ ? 'hot' : ''} ${lookQ && i === 0 ? 'look' : ''}">${v}${i === 0 ? '<small>front</small>' : i === queue.length - 1 ? '<small>rear</small>' : ''}</span>`).join('') : '<span class="empty">empty</span>';
+    }
+    function say(t: string, bad = false) { msg.innerHTML = t; msg.classList.toggle('bad', bad); }
+    function row(op: string, ret: string) { log.insertAdjacentHTML('beforeend', `<tr><td>${op}</td><td>${fmt(stack)}</td><td>${fmt(queue)}</td><td>${ret}</td></tr>`); }
+    function val() { const n = Number(inp.value.trim()); if (!inp.value.trim() || !Number.isInteger(n)) { say('Type a whole number first.', true); return null; } return n; }
+    function bump() { const n = Number(inp.value); if (Number.isInteger(n)) inp.value = String(n + 10); }
+
+    function act(a: string) {
+      if (a === 'push') { const v = val(); if (v == null) return; if (stack.length >= CAP) { say('<b>Stack overflow:</b> the stack is full (capacity 5). push throws an exception instead of storing the value.', true); return; } stack.push(v); paint(stack.length - 1); say(`push(${v}): ${v} goes on the <b>top</b>.`); row(`push(${v})`, '—'); bump(); }
+      if (a === 'pop') { if (!stack.length) { say('<b>Stack underflow:</b> the stack is empty, so there is nothing to pop.', true); return; } const v = stack.pop()!; paint(); say(`pop() removes and returns <b>${v}</b>, the item added most recently.`); row('pop()', String(v)); }
+      if (a === 'speek') { if (!stack.length) { say('<b>Stack underflow:</b> the stack is empty, so there is nothing to peek at.', true); return; } paint(-1, -1, true); say(`peek() returns <b>${stack[stack.length - 1]}</b> but leaves it on the stack.`); row('peek() (stack)', String(stack[stack.length - 1])); }
+      if (a === 'enq') { const v = val(); if (v == null) return; queue.push(v); paint(-1, queue.length - 1); say(`enqueue(${v}): ${v} joins at the <b>rear</b>.`); row(`enqueue(${v})`, '—'); bump(); }
+      if (a === 'deq') { if (!queue.length) { say('<b>Queue underflow:</b> the queue is empty, so there is nothing to dequeue.', true); return; } const v = queue.shift()!; paint(); say(`dequeue() removes and returns <b>${v}</b>, the item that has waited longest.`); row('dequeue()', String(v)); }
+      if (a === 'qpeek') { if (!queue.length) { say('<b>Queue underflow:</b> the queue is empty, so there is nothing to peek at.', true); return; } paint(-1, -1, false, true); say(`peek() returns <b>${queue[0]}</b>, the front, without removing it.`); row('peek() (queue)', String(queue[0])); }
+      if (a === 'clear') { stack = []; queue = []; log.innerHTML = ''; paint(); say('Both are empty.'); inp.value = '10'; }
+      if (a === 'same') {
+        stack = []; queue = []; log.innerHTML = '';
+        const seq: [string, number?][] = [['add', 1], ['add', 2], ['remove'], ['add', 3], ['add', 4], ['remove'], ['remove']];
+        const outS: number[] = [], outQ: number[] = [];
+        for (const [op, v] of seq) {
+          if (op === 'add') { stack.push(v!); queue.push(v!); log.insertAdjacentHTML('beforeend', `<tr><td>add ${v}</td><td>${fmt(stack)}</td><td>${fmt(queue)}</td><td>—</td></tr>`); }
+          else { const a1 = stack.pop()!, b1 = queue.shift()!; outS.push(a1); outQ.push(b1); log.insertAdjacentHTML('beforeend', `<tr><td>remove</td><td>${fmt(stack)}</td><td>${fmt(queue)}</td><td>stack: ${a1}<br>queue: ${b1}</td></tr>`); }
+        }
+        paint(); say(`Same inputs: add 1, add 2, remove, add 3, add 4, remove, remove. The stack removed <b>${outS.join(', ')}</b> (newest first). The queue removed <b>${outQ.join(', ')}</b> (oldest first).`);
+      }
+    }
+    fig.querySelectorAll<HTMLButtonElement>('[data-a]').forEach((b) => b.addEventListener('click', () => act(b.dataset.a!)));
+    paint(); say('Both are empty. Start by pushing or enqueuing a value.');
+  });
+</script>

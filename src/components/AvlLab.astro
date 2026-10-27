@@ -1,0 +1,192 @@
+---
+// Interactive AVL insertion: step through each insert, watch nodes slide during rotations.
+interface Preset { label: string; values: number[]; }
+interface Props { id: string; cap: string; hint: string; presets: Preset[]; custom?: boolean; kind?: 'avl' | 'rb'; }
+const { id, cap, hint, presets, custom = false, kind = 'avl' } = Astro.props;
+const config = JSON.stringify({ presets, custom, kind });
+---
+<figure class="fig avl-lab" id={id} data-config={config}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">{hint}</p>
+
+  {presets.length > 1 && (
+    <div class="btn-row lab-presets" role="group" aria-label="Examples">
+      {presets.map((p, i) => <button type="button" class="btn" data-preset={i} aria-pressed={i === 0 ? 'true' : 'false'}>{p.label}</button>)}
+    </div>
+  )}
+
+  {custom && (
+    <form class="lab-own">
+      <label for={`${id}-in`}>Or type your own numbers (up to 12), separated by commas:</label>
+      <div class="own-row">
+        <input id={`${id}-in`} type="text" inputmode="text" autocomplete="off" placeholder="e.g. 50, 20, 70, 10, 5" />
+        <button type="submit" class="btn">Use these</button>
+      </div>
+      <p class="own-err small" aria-live="polite"></p>
+    </form>
+  )}
+
+  <ol class="lab-seq" aria-label="Values to insert"></ol>
+
+  <div class="lab-stage">
+    <span class="lab-tag chip"></span>
+    <div class="lab-svg"></div>
+  </div>
+  <p class="lab-cap" aria-live="polite"></p>
+
+  <div class="btn-row lab-nav">
+    <button type="button" class="btn" data-go="back">← Back</button>
+    <button type="button" class="btn primary" data-go="next">Next step →</button>
+    <button type="button" class="btn" data-go="reset">Start over</button>
+  </div>
+  {kind === 'avl' ? (
+    <div class="legend">
+      <span><i class="l-new"></i> new value</span>
+      <span><i class="l-bad"></i> unbalanced (±2)</span>
+      <span><i class="l-pivot"></i> moves up</span>
+      <span><i class="l-moved"></i> child that changes parent</span>
+      <span class="mono">small number = balance factor</span>
+    </div>
+  ) : (
+    <div class="legend">
+      <span><i class="l-red"></i> red</span>
+      <span><i class="l-black"></i> black</span>
+      <span><i class="l-h-new"></i> new / just changed</span>
+      <span><i class="l-h-problem"></i> red-red problem</span>
+      <span><i class="l-h-uncle"></i> uncle / grandparent</span>
+      <label class="nil-toggle"><input type="checkbox" class="lab-nil" /> show NIL leaves <i class="l-nil"></i></label>
+    </div>
+  )}
+</figure>
+
+<style is:global>
+  .avl-lab .lab-presets { margin-bottom: 0.8rem; }
+  .avl-lab .lab-own { margin-bottom: 0.8rem; font-size: var(--step--1); }
+  .avl-lab .lab-own label { font-weight: 700; display: block; margin-bottom: 0.3rem; }
+  .avl-lab .own-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .avl-lab .own-row input { flex: 1 1 12rem; min-width: 0; font: inherit; font-size: 1rem; padding: 0.5rem 0.7rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
+  .avl-lab .own-err { color: var(--red-pen); font-weight: 700; min-height: 1.2em; margin-top: 0.2rem; }
+  .avl-lab .lab-seq { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.6rem; }
+  .avl-lab .lab-seq li { margin: 0; font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem; padding: 0.15rem 0.55rem; border-radius: 4px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink-soft); }
+  .avl-lab .lab-seq li.done { background: var(--teal-wash); border-color: var(--teal); color: var(--ink); }
+  .avl-lab .lab-seq li.now { background: var(--orange); border-color: var(--orange); color: #fff; }
+  .avl-lab .lab-stage { position: relative; background: var(--paper); border-radius: 8px; padding: 2.2rem 0.4rem 0.6rem; min-height: 12rem; display: grid; align-items: center;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 20px 20px; }
+  .avl-lab .lab-tag { position: absolute; top: 0.5rem; left: 0.5rem; background: var(--card); }
+  .avl-lab .lab-tag:empty { display: none; }
+  .avl-lab .lab-cap { min-height: 5.2em; margin-top: 0.8rem; }
+  .avl-lab .lab-nav { margin-top: 0.6rem; }
+  .avl-lab .lab-nav .primary { flex: 1 1 auto; }
+  .avl-lab .nil-toggle { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 700; color: var(--ink); cursor: pointer; }
+  .avl-lab .nil-toggle input { width: 1.1rem; height: 1.1rem; accent-color: var(--teal); }
+</style>
+
+<script>
+  import { avlInsertSteps, layout, svgTree } from '../lib/tree.js';
+  import { rbInsertSteps } from '../lib/rb.js';
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('.avl-lab').forEach((fig) => {
+    const cfg = JSON.parse(fig.dataset.config || '{}');
+    const seqEl = fig.querySelector('.lab-seq')!;
+    const svgBox = fig.querySelector<HTMLElement>('.lab-svg')!;
+    const capEl = fig.querySelector('.lab-cap')!;
+    const tagEl = fig.querySelector('.lab-tag')!;
+    const back = fig.querySelector<HTMLButtonElement>('[data-go="back"]')!;
+    const next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
+
+    const nil = fig.querySelector<HTMLInputElement>('.lab-nil');
+    nil?.addEventListener('change', () => paint(false));
+    let steps: any[] = [], values: number[] = [], at = 0, W = 0, H = 0, shown: Record<string, { x: number; y: number }> = {}, anim = 0;
+
+    function load(vals: number[]) {
+      values = vals; steps = [];
+      let root: any = null;
+      steps.push({ snap: { tree: null, caption: `Ready. We will insert <b>${vals.join(', ')}</b> one at a time. Tap <b>Next step</b>.`, tag: '', marks: {}, showBf: false }, k: -1 });
+      vals.forEach((v, k) => {
+        const out = cfg.kind === 'rb' ? rbInsertSteps(root, v) : avlInsertSteps(root, v);
+        root = out.root;
+        out.steps.forEach((s: any) => steps.push({ snap: s, k }));
+      });
+      W = 0; H = 0;
+      steps.forEach((s) => { if (s.snap.tree) { const L = layout(s.snap.tree); W = Math.max(W, L.w); H = Math.max(H, L.h); } });
+      seqEl.innerHTML = vals.map((v) => `<li>${v}</li>`).join('');
+      shown = {}; at = 0; paint(false);
+    }
+
+    function targetPos(tree: any) {
+      const L = layout(tree); const off = (W - L.w) / 2; const p: Record<string, { x: number; y: number }> = {};
+      for (const k in L.pos) p[k] = { x: L.pos[k].x + off, y: L.pos[k].y };
+      return p;
+    }
+
+    function draw(snap: any, pos: any, alpha?: any) {
+      svgBox.innerHTML = snap.tree
+        ? svgTree(snap.tree, { marks: snap.marks, showBf: snap.showBf, showNil: nil && nil.checked, pos, alpha, minW: W, minH: H, label: (cfg.kind === 'rb' ? 'Red-black' : 'AVL') + ' tree, step ' + at })
+        : `<p class="muted small" style="text-align:center">(empty tree)</p>`;
+    }
+
+    function paint(animate = true) {
+      const cur = steps[at];
+      const snap = cur.snap;
+      capEl.innerHTML = snap.caption;
+      tagEl.textContent = snap.tag;
+      seqEl.querySelectorAll('li').forEach((li, k) => {
+        li.className = k < cur.k || (k === cur.k && at === steps.length - 1) ? 'done' : k === cur.k ? 'now' : '';
+      });
+      back.disabled = at === 0;
+      next.disabled = at === steps.length - 1;
+      next.textContent = at === steps.length - 1 ? 'Finished' : 'Next step →';
+      cancelAnimationFrame(anim);
+      if (!snap.tree) { shown = {}; draw(snap, {}); return; }
+      const to = targetPos(snap.tree);
+      const from = shown;
+      if (!animate || reduce) { shown = to; draw(snap, to); return; }
+      const t0 = performance.now(), dur = 650;
+      const tick = (now: number) => {
+        let t = Math.min(1, (now - t0) / dur);
+        const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        const pos: any = {}, alpha: any = {};
+        for (const k in to) {
+          const a = from[k];
+          if (a) pos[k] = { x: a.x + (to[k].x - a.x) * e, y: a.y + (to[k].y - a.y) * e };
+          else { pos[k] = to[k]; alpha[k] = e; }
+        }
+        draw(snap, pos, alpha);
+        if (t < 1) anim = requestAnimationFrame(tick); else shown = to;
+      };
+      anim = requestAnimationFrame(tick);
+    }
+
+    next.addEventListener('click', () => { if (at < steps.length - 1) { at++; paint(); } });
+    back.addEventListener('click', () => { if (at > 0) { at--; paint(); } });
+    fig.querySelector('[data-go="reset"]')!.addEventListener('click', () => { at = 0; shown = {}; paint(false); });
+
+    const presetBtns = fig.querySelectorAll<HTMLButtonElement>('[data-preset]');
+    presetBtns.forEach((b) => b.addEventListener('click', () => {
+      presetBtns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      load(cfg.presets[Number(b.dataset.preset)].values);
+    }));
+
+    const form = fig.querySelector('form');
+    if (form) {
+      const input = form.querySelector('input')!;
+      const err = form.querySelector('.own-err')!;
+      form.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const parts = input.value.split(/[\s,]+/).filter(Boolean);
+        const nums = parts.map(Number);
+        if (!parts.length) { err.textContent = 'Type at least one number.'; return; }
+        if (nums.some((n) => !Number.isInteger(n) || n < 0 || n > 999)) { err.textContent = 'Use whole numbers from 0 to 999 only.'; return; }
+        if (nums.length > 12) { err.textContent = 'Up to 12 numbers only, so the tree fits on your screen.'; return; }
+        err.textContent = '';
+        presetBtns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+        load(nums);
+        fig.querySelector('.lab-stage')!.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+
+    load(cfg.presets[0].values);
+  });
+</script>

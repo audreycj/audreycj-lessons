@@ -1,0 +1,355 @@
+---
+import Base from '../../layouts/Base.astro';
+import GraphFig from '../../components/GraphFig.astro';
+import TraverseLab from '../../components/TraverseLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { city, oneWay, islands } from '../../data/graphs.js';
+import { bfsSteps } from '../../lib/graph.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
+
+// Levels + shortest path picture for the main example
+const cityRun = bfsSteps(city, 'A');
+const levelLabels = Object.fromEntries(Object.entries(cityRun.level).map(([k, v]) => [k, 'L' + v]));
+const pathTo = (run, t) => { const p = [t]; while (run.parent[p[0]]) p.unshift(run.parent[p[0]]); return p; };
+const pathG = pathTo(cityRun, 'G');
+const pathMarks = {}; for (let i = 0; i + 1 < pathG.length; i++) pathMarks[`${pathG[i]}-${pathG[i + 1]}`] = 'path';
+const pathNodes = Object.fromEntries(pathG.map((x) => [x, 'hl']));
+
+// Paper practice graphs
+const p1 = {
+  directed: false, weighted: false,
+  nodes: [{ id: 'A', x: 40, y: 125 }, { id: 'B', x: 130, y: 50 }, { id: 'C', x: 130, y: 205 }, { id: 'D', x: 220, y: 100 }, { id: 'E', x: 220, y: 225 }, { id: 'F', x: 305, y: 160 }, { id: 'G', x: 305, y: 40 }],
+  edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'D'], ['C', 'E'], ['D', 'F'], ['E', 'F'], ['D', 'G']].map(([a, b]) => ({ a, b })),
+};
+const p2 = {
+  directed: true, weighted: false,
+  nodes: [{ id: 'A', x: 60, y: 60 }, { id: 'B', x: 190, y: 45 }, { id: 'C', x: 120, y: 170 }, { id: 'D', x: 300, y: 110 }, { id: 'E', x: 250, y: 225 }, { id: 'F', x: 40, y: 230 }],
+  edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'B'], ['D', 'E'], ['E', 'C'], ['F', 'A']].map(([a, b]) => ({ a, b })),
+};
+const r1 = bfsSteps(p1, 'D');
+const r2 = bfsSteps(p2, 'A');
+const lv = (run) => {
+  const by = {};
+  for (const [k, v] of Object.entries(run.level)) (by[v] = by[v] || []).push(k);
+  return Object.keys(by).sort((a, b) => a - b).map((k) => ({ level: k, nodes: by[k].sort() }));
+};
+const r1Levels = lv(r1), r2Levels = lv(r2);
+const r1Max = r1Levels[r1Levels.length - 1];
+
+const code = String.raw`import java.util.LinkedList;
+import java.util.Queue;
+
+public class BFS {
+  static char[] names = {'A', 'B', 'C', 'D', 'E', 'F', 'G'};
+  static int n = names.length;
+  static int[][] adj = new int[n][n];
+
+  static void addEdge(int a, int b) {   // undirected
+    adj[a][b] = 1;
+    adj[b][a] = 1;
+  }
+
+  static void bfs(int start) {
+    boolean[] seen = new boolean[n];      // all false
+    Queue<Integer> queue = new LinkedList<>();
+
+    seen[start] = true;
+    queue.offer(start);                   // enqueue
+
+    while (!queue.isEmpty()) {
+      int u = queue.poll();               // dequeue (front)
+      System.out.print(names[u] + " ");   // visit
+
+      for (int v = 0; v < n; v++) {       // A to Z order
+        if (adj[u][v] == 1 && !seen[v]) {
+          seen[v] = true;                 // mark now...
+          queue.offer(v);                 // ...then enqueue
+        }
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+    addEdge(0, 1); addEdge(0, 3);   // A-B, A-D
+    addEdge(1, 2); addEdge(1, 4);   // B-C, B-E
+    addEdge(2, 5); addEdge(3, 4);   // C-F, D-E
+    addEdge(4, 5); addEdge(4, 6);   // E-F, E-G
+    addEdge(5, 6);                  // F-G
+    bfs(0);   // prints: A B D C E F G
+  }
+}`;
+
+const quiz = [
+  { q: 'Which data structure does BFS use to decide which vertex to visit next?', opts: ['Stack', 'Queue', 'Binary search tree', 'Array sorted by value'], a: 1, why: 'BFS uses a <b>queue</b> (first in, first out). Vertices found first are visited first, so BFS finishes one level before starting the next.' },
+  { q: 'In the main example graph, starting at A, which vertices are at level 1?', opts: ['B and D', 'B, C, and D', 'C and E', 'Only B'], a: 0, why: 'Level 1 = the start\'s direct neighbors. A is joined to B and D.' },
+  { q: 'Why does BFS mark a vertex as "seen" when it is enqueued?', opts: ['To sort the queue', 'So the same vertex is not added to the queue twice', 'To make the graph directed', 'It is not needed'], a: 1, why: 'Graphs can have cycles and many paths to the same vertex. Marking it right away stops it from entering the queue again from another neighbor.' },
+  { q: 'In an <b>unweighted</b> graph, BFS from S finds:', opts: ['The path with the most edges from S', 'The path with the fewest edges from S to every reachable vertex', 'Only the path to the last vertex', 'The cheapest path in any weighted graph'], a: 1, why: 'Because BFS goes level by level, the first time it reaches a vertex is through the fewest possible edges. (For weighted graphs, other algorithms such as Dijkstra\'s are used.)' },
+  { q: 'You run BFS from vertex A, but vertices X and Y are never visited. What does that tell you?', opts: ['BFS made a mistake', 'There is no path from A to X or Y', 'X and Y are leaves', 'The queue was too small'], a: 1, why: 'BFS visits everything reachable from the start. Anything left over cannot be reached from A. In an undirected graph, that means the graph is not connected.' },
+  { q: 'The queue currently holds [C, E] (C at the front). You dequeue C, and C has unseen neighbors F and G. What is the queue now?', opts: ['[F, G, E]', '[E, F, G]', '[G, F, E]', '[C, E, F, G]'], a: 1, why: 'Dequeue removes C from the <b>front</b>. New vertices go to the <b>rear</b>: [E, F, G]. E was waiting longer, so it is visited before F and G.' },
+];
+---
+<Base title="Breadth-First Search · ITC 120" description="Breadth-first search (BFS) in plain English: visiting a graph level by level with a queue, shortest paths, and connectivity." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Graphs</p>
+    <p class="kicker">Graphs · Lesson 2 of 3</p>
+    <h1>Breadth-First Search (BFS)</h1>
+    <p class="lede">Visit a graph in waves: first the start, then everything one step away, then two steps away, and so on.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>explain what a <b>graph traversal</b> is and why it needs a "seen" list;</li>
+        <li>run BFS by hand using a <b>queue</b>, and write the BFS order;</li>
+        <li>find each vertex's <b>level</b> and the <b>shortest path</b> (fewest edges) from the start;</li>
+        <li>use BFS to check if a graph is <b>connected</b>, and what can be reached;</li>
+        <li>read BFS in Java.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/graphs/'}>Graphs lesson</a>, the queues lesson, and scratch paper.</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>Exploring in waves</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Graph traversal</p>
+        <p>A <b>graph traversal</b> visits every vertex that can be reached from a starting vertex, each one <b>exactly once</b>. There are two main types: breadth-first search (this lesson) and depth-first search (next lesson).</p>
+      </div>
+      <p>For trees, you learned pre-order, in-order, and post-order. Graphs need something new: they have no root and can have <b>cycles</b>, so if we are not careful, we could go around a cycle forever. The fix is to remember which vertices we have already <b>seen</b>.</p>
+      <div class="def">
+        <p class="note-label">Breadth-first search (BFS)</p>
+        <p><b>Breadth-first search</b> visits the start vertex first, then all vertices 1 edge away, then all vertices 2 edges away, and so on. It explores the graph <b>level by level</b>, using a <b>queue</b>.</p>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of news spreading in a barangay</p>
+        <p>You tell the news to your next-door neighbors first. Then each of them tells <i>their</i> neighbors. Then those people tell theirs. The news spreads outward in waves: everyone 1 house away hears it before anyone 2 houses away. That is BFS.</p>
+      </div>
+      <div class="remember">
+        <p class="note-label">Where you see BFS in IT</p>
+        <p><b>"People you may know"</b> suggestions come from level 2: friends of your friends. In <b>networks</b>, BFS finds the route with the fewest hops between two computers. Web crawlers that collect pages for search engines can also explore links level by level.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="chapter wrap" id="queue">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · The tool</p>
+      <h2>Why a queue?</h2>
+    </div>
+    <div class="flow">
+      <p>Recall the queue from the linear data structures lessons: you <b>enqueue</b> at the rear and <b>dequeue</b> from the front, like a line at the cashier. First in, first out.</p>
+      <p>BFS puts every newly found vertex at the <b>rear</b> of the queue. Since all level-1 vertices are found before any level-2 vertex, they are also in line first. So the queue automatically keeps the waves in order: <span class="hl">closer vertices are always visited before farther ones</span>.</p>
+      <div class="sub">
+        <h3>The BFS procedure</h3>
+        <p>Every BFS follows these steps:</p>
+        <ol class="procedure">
+          <li>Mark the start vertex as <b>seen</b> and <b>enqueue</b> it.</li>
+          <li>While the queue is not empty:
+            <ol type="a">
+              <li><b>Dequeue</b> the vertex at the front. <b>Visit</b> it (write it in the BFS order).</li>
+              <li>Look at its neighbors, in alphabetical order. For each one that is <b>not seen</b> yet: mark it seen and <b>enqueue</b> it.</li>
+            </ol>
+          </li>
+          <li>When the queue is empty, BFS is done.</li>
+        </ol>
+      </div>
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ul>
+          <li>Mark a vertex as seen <b>when you enqueue it</b>, not when you dequeue it. Otherwise it can enter the queue twice.</li>
+          <li>When a vertex has several unseen neighbors, the order you enqueue them changes the answer. If the question does not say, more than one BFS order can be correct. <b>Alphabetical order</b> is the usual safe choice; just be consistent.</li>
+          <li>In a directed graph, follow the arrows only. An arrow <i>into</i> a vertex does not let you leave through it.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Watch it</p>
+      <h2>BFS, step by step</h2>
+    </div>
+    <div class="flow">
+      <p>Tap <b>Next step</b> and watch the queue. Before each tap, say out loud which vertex comes out of the queue next. Then try other starting vertices and the other two graphs.</p>
+      <TraverseLab id="bfs-lab" mode="bfs" cap="BFS lab" hint="Orange = being visited now. Light teal = seen, waiting in the queue. Dark teal = visited. The small L-numbers are levels." presets={[
+        { label: 'Main example', g: city, start: 'A' },
+        { label: 'Directed', g: oneWay, start: 'A' },
+        { label: 'Separate pieces', g: islands, start: 'A' },
+      ]} />
+      <p>With the main example from A, the BFS order is <b>{cityRun.order.join(', ')}</b>. Notice how the order follows the levels: A (level 0), then B and D (level 1), then C and E (level 2), then F and G (level 3).</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="chapter wrap" id="levels">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Bonus from BFS</p>
+      <h2>Levels and shortest paths</h2>
+    </div>
+    <div class="flow">
+      <p>BFS gives you more than an order. Because it moves in waves, the <b>level</b> of each vertex is the <b>smallest number of edges</b> needed to reach it from the start.</p>
+      <figure class="fig">
+        <p class="fig-cap">Fewest edges from A to G</p>
+        <GraphFig g={city} labels={levelLabels} edgeMarks={pathMarks} nodeMarks={pathNodes} label="Main example with levels; the path A, B, E, G is highlighted" />
+        <p class="small">Each L-number is the vertex's level. G is at level 3, so the shortest path from A to G uses 3 edges: <b>{pathG.join(' → ')}</b>.</p>
+      </figure>
+      <div class="sub">
+        <h3>How to recover the path</h3>
+        <p>While doing BFS, write down <b>who found each vertex</b> (its parent in the BFS). To get the path to G, start at G and follow the parents back to A:</p>
+        <table class="tbl">
+          <thead><tr><th>Vertex</th>{Object.keys(cityRun.parent).sort().map((k) => <th>{k}</th>)}</tr></thead>
+          <tbody><tr><td><b>Found by</b></td>{Object.keys(cityRun.parent).sort().map((k) => <td>{cityRun.parent[k]}</td>)}</tr></tbody>
+        </table>
+        <p>G was found by E, E by B, B by A. Reversed: A → B → E → G.</p>
+        <p>The vertex with the highest level is the one <b>furthest</b> from the start (here, F and G, at level 3).</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Careful</p>
+        <p>"Shortest" here means <b>fewest edges</b>. In a <b>weighted</b> graph, the path with fewer edges is not always the cheapest one (remember the travel-time example in the Graphs lesson). Weighted shortest paths use other algorithms, such as Dijkstra's algorithm.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="chapter wrap" id="connected">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Bonus from BFS</p>
+      <h2>Is everything connected?</h2>
+    </div>
+    <div class="flow">
+      <p>BFS visits <b>everything reachable</b> from the start, and nothing else. That makes it a quick test:</p>
+      <ul>
+        <li><b>Undirected graph:</b> run BFS from any vertex. If every vertex gets visited, the graph is <b>connected</b>. If not, it is in separate pieces.</li>
+        <li><b>Directed graph:</b> BFS from S tells you exactly which vertices <b>can be reached from S</b> by following arrows.</li>
+      </ul>
+      <figure class="fig">
+        <p class="fig-cap">Separate pieces</p>
+        <GraphFig g={islands} label="Graph in three separate pieces: A, B, C; D, E, F; and G alone" />
+        <p class="small">BFS from A visits only A, B, C. To count the pieces, start a new BFS from any vertex not yet visited (D visits D, E, F; then G alone). Three BFS runs = <b>3 pieces</b>. Try "Separate pieces" in the lab above.</p>
+      </figure>
+      <div class="remember">
+        <p class="note-label">In IT</p>
+        <p>This is how a network tool can check whether every computer in an office can still reach the server after a cable is unplugged.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="chapter wrap" id="paper">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      <div class="remember">
+        <p class="note-label">How to set up your paper</p>
+        <ul>
+          <li>Draw the queue as a row of boxes. When you dequeue, cross out the front box. Add new vertices at the right end.</li>
+          <li>Keep a "seen" list beside it, and write the BFS order underneath.</li>
+          <li>Write each vertex's level next to it on the drawing.</li>
+        </ul>
+      </div>
+
+      <div class="paper flow">
+        <p class="note-label">Problem 1</p>
+        <GraphFig g={p1} label="Practice graph 1, undirected, vertices A to G" />
+        <ol>
+          <li>Do a BFS starting at <b>D</b> (neighbors in alphabetical order). Write the BFS order.</li>
+          <li>Give the level of every vertex.</li>
+          <li>Which vertex or vertices are furthest from D?</li>
+        </ol>
+        <details class="reveal">
+          <summary>Show the answer</summary>
+          <div class="flow">
+            <p><b>BFS order:</b> <span class="mono">{r1.order.join(', ')}</span></p>
+            <table class="tbl"><thead><tr><th>Level</th><th>Vertices</th></tr></thead>
+              <tbody>{r1Levels.map((l) => <tr><td>{l.level}</td><td>{l.nodes.join(', ')}</td></tr>)}</tbody></table>
+            <p><b>Furthest:</b> {r1Max.nodes.join(' and ')} (level {r1Max.level}). D's neighbors B, C, F, G all go in the queue first; A and E are found only on the second wave.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="paper flow">
+        <p class="note-label">Problem 2 (directed)</p>
+        <GraphFig g={p2} label="Practice graph 2, directed, vertices A to F" />
+        <ol>
+          <li>Do a BFS starting at <b>A</b>, following the arrows. Write the BFS order.</li>
+          <li>Which vertex is never visited? Why?</li>
+        </ol>
+        <details class="reveal">
+          <summary>Show the answer</summary>
+          <div class="flow">
+            <p><b>BFS order:</b> <span class="mono">{r2.order.join(', ')}</span></p>
+            <table class="tbl"><thead><tr><th>Level</th><th>Vertices</th></tr></thead>
+              <tbody>{r2Levels.map((l) => <tr><td>{l.level}</td><td>{l.nodes.join(', ')}</td></tr>)}</tbody></table>
+            <p><b>Never visited:</b> {r2.missed.join(', ')}. F has an arrow <i>to</i> A, but no arrow comes <i>into</i> F, so there is no way to reach F from A. When E looks at C, C is already seen, so it is skipped.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · In code</p>
+      <h2>BFS in Java</h2>
+    </div>
+    <div class="flow">
+      <p>This program builds the main example as an adjacency matrix, then runs BFS from A. Java's <code>Queue</code> works like the queue you learned: <code>offer</code> = enqueue at the rear, <code>poll</code> = dequeue from the front. <code>LinkedList</code> is one of Java's built-in queue types.</p>
+      <pre class="code"><code set:html={hi(code)} /></pre>
+      <div class="plain">
+        <p class="note-label">Match the code to the procedure</p>
+        <p><code>seen[start] = true; queue.offer(start);</code> is step 1. The <code>while</code> loop is step 2: <code>poll</code> is "dequeue and visit", and the <code>for</code> loop checks row <code>u</code> of the matrix from A to Z, enqueuing every neighbor not yet seen.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-bfs" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>BFS visits a graph level by level, starting from one vertex.</li>
+          <li>It uses a <b>queue</b>: dequeue the front, enqueue unseen neighbors at the rear.</li>
+          <li>Mark vertices as seen when you enqueue them, so nothing is visited twice.</li>
+          <li>In an unweighted graph, BFS levels give the fewest edges from the start (shortest path).</li>
+          <li>Anything BFS does not visit cannot be reached from the start.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/dfs/'}>Depth-first search (DFS)</a>, which goes deep first instead of wide.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 6 (Breadth-first search).</li>
+          <li>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <i>Introduction to Algorithms</i>, 4th ed. MIT Press, 2022, Section 20.2 (Breadth-first search).</li>
+          <li>Programiz, "Breadth First Search (BFS) Algorithm." <a href="https://www.programiz.com/dsa/graph-bfs">programiz.com/dsa/graph-bfs</a></li>
+          <li>Oracle, "Queue (Java SE 21 &amp; JDK 21)," Java API documentation.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .procedure { display: grid; gap: 0.4rem; }
+  .procedure > li::marker { font-family: var(--font-hand); font-weight: 700; color: var(--orange); }
+  .procedure ol { margin-top: 0.3rem; display: grid; gap: 0.3rem; }
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

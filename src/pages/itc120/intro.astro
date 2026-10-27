@@ -1,0 +1,264 @@
+---
+import Base from '../../layouts/Base.astro';
+import GuessGame from '../../components/GuessGame.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import GraphFig from '../../components/GraphFig.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { small } from '../../data/graphs.js';
+import { hi, hiN } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const vars = String.raw`String name = "Ana";
+int score = 92;
+double average = 85.0;
+boolean passed = true;`;
+const cond = String.raw`if (score >= 75) {
+  passed = true;
+} else {
+  passed = false;
+}`;
+const loop = String.raw`for (int i = 0; i < 4; i++) {
+  System.out.println(i);   // prints 0, 1, 2, 3
+}`;
+const method = String.raw`static int larger(int a, int b) {
+  if (a > b) return a;
+  return b;
+}`;
+const trace = String.raw`int total = 0;
+for (int i = 1; i <= 3; i++) {
+  total = total + i;
+}
+System.out.println(total);`;
+
+const classify = [
+  { q: 'A stack of exam papers waiting to be checked, checked from the top down.', opts: ['Linear: stack', 'Linear: queue', 'Non-linear: tree', 'Non-linear: graph'], a: 0, why: 'The paper on top (the last one added) is checked first: last in, first out. A <b>stack</b>, which is linear.' },
+  { q: 'The comment thread on a Facebook post, where replies branch under other replies.', opts: ['Linear: array', 'Linear: linked list', 'Non-linear: tree', 'Non-linear: graph'], a: 2, why: 'Each reply belongs to one comment above it, and replies branch out: a <b>tree</b>, which is non-linear.' },
+  { q: 'Students lining up to enter the gym for a school event.', opts: ['Linear: stack', 'Linear: queue', 'Non-linear: tree', 'Non-linear: graph'], a: 1, why: 'The first student in line enters first: first in, first out. A <b>queue</b>.' },
+  { q: 'The folder structure on your computer\'s desktop.', opts: ['Linear: array', 'Linear: queue', 'Non-linear: tree', 'Non-linear: graph'], a: 2, why: 'Folders inside folders inside folders: a <b>tree</b>.' },
+  { q: 'Your Facebook friends, where anyone can be friends with anyone.', opts: ['Linear: linked list', 'Non-linear: tree', 'Non-linear: graph', 'Linear: array'], a: 2, why: 'There is no single top, and connections can go in any direction: a <b>graph</b>.' },
+];
+const quiz = [
+  { q: 'What is a data structure?', opts: ['Raw facts like names and numbers', 'A specific way of storing and arranging data so it can be accessed, searched, and updated efficiently', 'A programming language', 'A list of steps to solve a problem'], a: 1, why: 'Data is the raw facts; a <b>data structure</b> is how we organize them. The last option describes an algorithm.' },
+  { q: 'Which of these are all <b>linear</b> data structures?', opts: ['Array, stack, queue, linked list', 'Tree, graph, array', 'Stack, tree, queue', 'Graph, linked list, tree'], a: 0, why: 'Linear structures arrange items one after another. Trees and graphs branch out, so they are non-linear.' },
+  { q: 'What is an algorithm?', opts: ['A finite, well-defined sequence of steps for solving a problem', 'Any Java program', 'A kind of data structure', 'A computer\'s memory'], a: 0, why: 'An algorithm is the <b>steps</b>; a program is code that carries them out.' },
+  { q: 'An algorithm must stop after a limited number of steps. Which trait is this?', opts: ['Definiteness', 'Finiteness', 'Effectiveness', 'Input'], a: 1, why: '<b>Finiteness</b> = it ends. Definiteness = each step is clear; effectiveness = each step can actually be done.' },
+  { q: 'The program runs, but the answer is wrong. What kind of error is this?', opts: ['Syntax error', 'Runtime error', 'Logic error', 'No error'], a: 2, why: 'A <b>logic error</b>: the code follows Java\'s rules and does not crash, but the steps are wrong (for example, a wrong condition).' },
+  { q: 'Which array index holds the <b>third</b> value?', opts: ['3', '2', '1', '0'], a: 1, why: 'Counting starts at 0: index 0 is the first value, index 1 the second, index 2 the third.' },
+];
+---
+<Base title="Introduction to DSA · ITC 120" description="Introduction to data structures and algorithms in plain English: a programming refresher, linear vs. non-linear structures, and what makes an algorithm." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Introduction</p>
+    <p class="kicker">Introduction · Lesson 1 of 1</p>
+    <h1>Introduction to Data Structures and Algorithms</h1>
+    <p class="lede">How we store data, and how we tell the computer what to do with it.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>refresh the Java you need: variables, conditions, loops, methods, arrays, trace tables, and error types;</li>
+        <li>identify different types of <b>data structures</b>, linear and non-linear;</li>
+        <li>explain what an <b>algorithm</b> is, and the five traits every algorithm has.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> your Programming 1 and 2 notes (if you have them), and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="refresher">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · Programming refresher</p>
+      <h2>Rebuild the mental model first</h2>
+    </div>
+    <div class="flow">
+      <p>Before data structures, let's remember how programs store values, make decisions, repeat work, and reuse code. Here are the six things you need.</p>
+      <div class="sub">
+        <h3>1. Variables are named places for values</h3>
+        <pre class="code"><code set:html={hi(vars)} /></pre>
+        <p>Read each line as <b>type name = value</b>. The type says what kind of value fits: <code>int</code> for whole numbers, <code>double</code> for decimals, <code>boolean</code> for true or false, <code>String</code> for text. The <code>=</code> sign means "store the value on the right in the variable on the left."</p>
+      </div>
+      <div class="sub">
+        <h3>2. Conditions let a program choose a path</h3>
+        <pre class="code"><code set:html={hi(cond)} /></pre>
+        <p>If the score is 75 or higher, one path runs; otherwise, the other. Comparisons use <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</p>
+      </div>
+      <div class="sub">
+        <h3>3. Loops repeat a block of work</h3>
+        <pre class="code"><code set:html={hi(loop)} /></pre>
+        <p>A <code>for</code> loop has three controls: where to <b>start</b> (<code>i = 0</code>), when to <b>keep going</b> (<code>i &lt; 4</code>), and how to <b>update</b> after each round (<code>i++</code>).</p>
+      </div>
+      <div class="sub">
+        <h3>4. A method performs one reusable task</h3>
+        <pre class="code"><code set:html={hi(method)} /></pre>
+        <p>A method is like a small machine: it takes <b>inputs</b> (parameters <code>a</code> and <code>b</code>) and gives back an <b>output</b> (the <code>return</code> value). In this course, operations get method names: <code>push()</code>, <code>pop()</code>, <code>insert()</code>.</p>
+      </div>
+      <div class="sub">
+        <h3>5. An array is a row of numbered slots</h3>
+        <div class="mini-arr" aria-label="An array with values 19, 3, 42, 7, 56 at indexes 0 to 4">
+          {[19, 3, 42, 7, 56].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
+        </div>
+        <p>Each value has a numbered position called an <b>index</b>. Counting starts at <b>0</b>, so <code>arr[2]</code> is the <b>third</b> slot: 42.</p>
+      </div>
+      <div class="sub">
+        <h3>6. Trace code one line at a time</h3>
+        <div class="two-col">
+          <pre class="code"><code set:html={hiN(trace)} /></pre>
+          <table class="tbl">
+            <thead><tr><th>Round</th><th>i</th><th>total</th></tr></thead>
+            <tbody><tr><td>1</td><td>1</td><td>1</td></tr><tr><td>2</td><td>2</td><td>3</td></tr><tr><td>3</td><td>3</td><td>6</td></tr></tbody>
+          </table>
+        </div>
+        <p>A <b>trace table</b> shows how each variable changes, step by step. Output: <b>6</b>. You will use trace tables in every lesson of this course.</p>
+      </div>
+      <div class="sub">
+        <h3>When code fails: three kinds of errors</h3>
+        <p>Errors come in three types. Knowing which one you have tells you where to look:</p>
+        <table class="tbl">
+          <thead><tr><th>Type</th><th>What happens</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><b>Syntax error</b></td><td>The code breaks Java's grammar, so it will not compile.</td><td>a missing <code>;</code></td></tr>
+            <tr><td><b>Runtime error</b></td><td>The program starts, then crashes.</td><td>using an index that does not exist</td></tr>
+            <tr><td><b>Logic error</b></td><td>The program runs, but the answer is wrong.</td><td>a wrong condition</td></tr>
+          </tbody>
+        </table>
+        <div class="remember"><p class="note-label">A simple debugging habit</p><p>Read the exact error message. Trace a small example by hand. Change one thing, then test again.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="ds">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Data structures</p>
+      <h2>From raw data to organized data</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky">
+        <p class="note-label">You are already a data structures expert</p>
+        <p>Your phone's recent apps (the last one opened is the easiest to get back to). The canteen line (first in line, first served). Folders inside folders in your file manager. Your Facebook friends, all connected to each other. Each of these is a data structure in disguise: a <b>stack</b>, a <b>queue</b>, a <b>tree</b>, and a <b>graph</b>.</p>
+      </div>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Data</p><p>Raw facts and figures, such as numbers, names, and dates. They have no structure yet.</p></div>
+        <div class="def"><p class="note-label">Data structure</p><p>A specific way of storing and arranging data in a computer's memory so it can be <b>accessed, searched, and updated</b> efficiently.</p></div>
+      </div>
+      <div class="remember">
+        <p class="note-label">Why it matters: think of your kitchen</p>
+        <p>Dump every spice into one big box, and you dig through everything just to find salt. Put them on a labeled spice rack, and you grab what you need in seconds. In programming, the "container" is the data structure. The right one makes your program faster and saves memory.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Two families</h3>
+        <p>Data structures (beyond simple types like <code>int</code>) come in two families:</p>
+        <table class="tbl">
+          <thead><tr><th></th><th>Linear</th><th>Non-linear</th></tr></thead>
+          <tbody>
+            <tr><td><b>Arrangement</b></td><td>one after another, in a sequence</td><td>branching (hierarchy) or a network</td></tr>
+            <tr><td><b>Visiting all items</b></td><td>one single pass covers everything</td><td>may need several paths</td></tr>
+            <tr><td><b>Connections</b></td><td>each item links to at most one "next"</td><td>an item can connect to many others</td></tr>
+            <tr><td><b>Examples</b></td><td>array, stack, queue, linked list</td><td>tree, graph</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub">
+        <h3>The six structures of this course</h3>
+        <p>Here are the six structures you will learn, each with a real-life picture:</p>
+        <div class="ds-grid">
+          <div class="ds-card"><p class="ds-k">Linear</p><h4>Array</h4>
+            <div class="mini-arr sm">{[19, 3, 42, 7].map((v, i) => <span><b>{v}</b><i>{i}</i></span>)}</div>
+            <p>Numbered slots, side by side. <b>Like a piso-net shop</b>: a fixed row of numbered units, one user per PC. Instant access by index; fixed size.</p></div>
+          <div class="ds-card"><p class="ds-k">Linear</p><h4>Stack</h4>
+            <div class="mini-stack"><span>C ← top</span><span>B</span><span>A</span></div>
+            <p>Add and remove at the top only: <b>last in, first out (LIFO)</b>. <b>Like a pile of lunch trays.</b> Used in Undo and the Back button.</p></div>
+          <div class="ds-card"><p class="ds-k">Linear</p><h4>Queue</h4>
+            <div class="mini-q"><span>front</span><b>1</b><b>2</b><b>3</b><span>rear</span></div>
+            <p>Join at the rear, leave from the front: <b>first in, first out (FIFO)</b>. <b>Like the canteen line.</b> Used for print jobs.</p></div>
+          <div class="ds-card"><p class="ds-k">Linear</p><h4>Linked list</h4>
+            <div class="mini-ll"><b>A</b>→<b>B</b>→<b>C</b>→<i>null</i></div>
+            <p>A chain of nodes; each one knows only the next. <b>Like a train</b>: each car is connected to the car behind it.</p></div>
+          <div class="ds-card"><p class="ds-k">Non-linear</p><h4>Tree</h4>
+            <TreeFig spec="A(B(D,E),C)" label="A small tree" />
+            <p>One root, branching into children. <b>Like folders</b> inside folders, or a family tree.</p></div>
+          <div class="ds-card"><p class="ds-k">Non-linear</p><h4>Graph</h4>
+            <GraphFig g={small} label="A small graph" />
+            <p>Nodes connected by edges, with no single root. <b>Like your friends network</b>, or a map app's routes.</p></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: classify each one</h3>
+        <Quiz id="quiz-classify" questions={classify} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="algo">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Algorithms</p>
+      <h2>What is an algorithm?</h2>
+    </div>
+    <div class="flow">
+      <p>A data structure only <i>stores</i> things. We still need instructions to search, sort, add, and remove. That is where algorithms come in.</p>
+      <div class="def"><p class="note-label">Algorithm</p><p>An <b>algorithm</b> is a finite, well-defined sequence of steps for accomplishing a specific task or solving a problem.</p></div>
+      <div class="sticky">
+        <p class="note-label">Think of a recipe</p>
+        <p>You gather ingredients (input), follow the steps in order, and each step is exact ("2 tablespoons of sugar", not "a little sugar"). Cooking eventually ends, and you get a finished dish (output).</p>
+      </div>
+      <div class="sub">
+        <h3>Five traits every algorithm has</h3>
+        <p>An algorithm must have all five of these traits. Miss one, and it is just a vague idea:</p>
+        <ol class="traits">
+          <li><b>Input:</b> takes zero or more values to work with.</li>
+          <li><b>Output:</b> produces at least one result related to the goal.</li>
+          <li><b>Definiteness:</b> each step is clear and unambiguous, with no guesswork.</li>
+          <li><b>Finiteness:</b> it stops after a limited number of steps.</li>
+          <li><b>Effectiveness:</b> each step is simple enough to actually be carried out.</li>
+        </ol>
+      </div>
+      <div class="sub">
+        <h3>Not all algorithms are equal</h3>
+        <GuessGame id="guess" />
+        <p>Both algorithms solve the same problem, but one is far faster. That is the whole point of this course: <b>data structures + algorithms = programs that run fast and use memory wisely.</b></p>
+      </div>
+      <div class="sub">
+        <h3>Algorithm vs. program, coding vs. programming</h3>
+        <table class="tbl">
+          <tbody>
+            <tr><th>Algorithm</th><td>The <b>steps</b> for solving a problem: 1. ask for two numbers; 2. add them; 3. show the result.</td></tr>
+            <tr><th>Program</th><td><b>Code</b> in a programming language that a computer can run to carry out those steps.</td></tr>
+            <tr><th>Coding</th><td>Writing the instructions in a programming language.</td></tr>
+            <tr><th>Programming</th><td>The whole process: define the problem → plan → write code → test → debug → improve.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-intro" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A data structure organizes data so it can be stored, accessed, and updated efficiently.</li>
+          <li>Linear: array, stack, queue, linked list. Non-linear: tree, graph.</li>
+          <li>An algorithm is a finite, well-defined sequence of steps for solving a problem.</li>
+          <li>Every algorithm needs input, output, definiteness, finiteness, and effectiveness.</li>
+          <li>The choice of structure and algorithm affects how fast and efficient a program is.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/arrays/'}>Arrays</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 1 (binary search).</li>
+          <li>Programiz, "Learn Data Structures and Algorithms" and "Data Structure and Types." <a href="https://www.programiz.com/dsa/data-structure-types">programiz.com/dsa</a></li>
+          <li>ITC 120 Course Syllabus, A.Y. 2026–2027, Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>

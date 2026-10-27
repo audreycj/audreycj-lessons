@@ -1,0 +1,445 @@
+---
+import Base from '../../layouts/Base.astro';
+import LinkedLab from '../../components/LinkedLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const node = String.raw`class Node {
+  int data;          // the value stored in this node
+  Node next;         // reference to the next node (null if none)
+
+  Node(int value) {  // constructor: runs once for each new Node(...)
+    data = value;
+    next = null;     // a new node has no next node yet
+  }
+}`;
+const same = String.raw`Node a = new Node(5);
+Node b = a;                  // b refers to the SAME node as a
+b.data = 9;                  // changes that one node
+System.out.println(a.data);  // prints 9`;
+const link = String.raw`Node ten = new Node(10);
+Node twenty = new Node(20);
+ten.next = twenty;           // connects node 10 to node 20`;
+const build = String.raw`Node head = new Node(10);    // head refers to node 10
+Node twenty = new Node(20);
+head.next = twenty;          // 10 -> 20
+twenty.next = new Node(30);  // 20 -> 30
+printList(head);             // 10 -> 20 -> 30 -> null`;
+const print = String.raw`static void printList(Node start) {
+  Node current = start;              // start at the first node
+  while (current != null) {          // while there is a node here
+    System.out.print(current.data + " -> ");
+    current = current.next;          // move to the next node
+  }
+  System.out.println("null");        // mark the end
+}`;
+const front = String.raw`Node newNode = new Node(5);
+newNode.next = head;     // 1. new node refers to the old first node
+head = newNode;          // 2. head refers to the new node`;
+const after = String.raw`// current refers to node 20
+newNode = new Node(25);
+newNode.next = current.next;   // 1. 25 refers to 30
+current.next = newNode;        // 2. 20 refers to 25`;
+const bypass = String.raw`// previous refers to node 20
+previous.next = previous.next.next;   // 20 now refers to 30`;
+const first = String.raw`head = head.next;    // head refers to the second node`;
+const full = String.raw`class Node {
+  int data;
+  Node next;
+  Node(int value) {
+    data = value;
+    next = null;
+  }
+}
+
+public class Main {
+  static void printList(Node start) {
+    Node current = start;
+    while (current != null) {
+      System.out.print(current.data + " -> ");
+      current = current.next;
+    }
+    System.out.println("null");
+  }
+
+  public static void main(String[] args) {
+    Node head = new Node(10);
+    Node twenty = new Node(20);
+    head.next = twenty;
+    twenty.next = new Node(30);
+    printList(head);
+
+    // 1. insert 5 at the beginning
+    Node newNode = new Node(5);
+    newNode.next = head;
+    head = newNode;
+    printList(head);
+
+    // 2. insert 25 after node 20
+    Node current = twenty;
+    newNode = new Node(25);
+    newNode.next = current.next;
+    current.next = newNode;
+    printList(head);
+
+    // 3. delete the node after 20 (bypass it)
+    Node previous = twenty;
+    previous.next = previous.next.next;
+    printList(head);
+
+    // 4. delete the first node
+    head = head.next;
+    printList(head);
+  }
+}`;
+const q1 = String.raw`Node p = new Node(3);
+Node q = new Node(3);
+q.data = 8;
+System.out.println(p.data);`;
+const q2 = String.raw`Node first = new Node(1);
+Node second = new Node(2);
+first.next = second;
+Node third = first.next;`;
+const q4 = String.raw`Node n = new Node(15);
+n.next = head.next;
+head.next = n;`;
+const bug = String.raw`current.next = newNode;
+newNode.next = current.next;`;
+
+const quiz = [
+  { q: 'What does each node in a singly linked list store?', opts: ['Only its value', 'Its value and its index', 'Its value and a reference to the next node', 'A copy of the whole list'], a: 2, why: 'A node holds <b>data</b> and <b>next</b>. It has no index: it only knows which node comes next.' },
+  { q: 'To reach the 4th node, a linked list must…', opts: ['jump straight to index 3', 'start at head and follow 3 links', 'start at the last node', 'shift the other nodes'], a: 1, why: 'There are no indexes. Start at <code>head</code> and follow <code>next</code> three times.' },
+  { q: 'To insert X between B and C, which line must run <b>first</b>?', opts: ['B points to X', 'X points to C', 'head points to X', 'C points to X'], a: 1, why: 'Connect the new node first (X → C). If B changes first, nothing points to C anymore, and the rest of the list is lost.' },
+  { q: 'What does <code>previous.next = previous.next.next;</code> do?', opts: ['Deletes previous', 'Deletes the node after previous by linking around it', 'Moves previous forward', 'Inserts a node'], a: 1, why: '<code>previous.next.next</code> is the node two steps ahead. Pointing to it skips the node in between, so it is no longer in the list.' },
+  { q: 'After <code>Node b = a; b.data = 9;</code>, what is <code>a.data</code>?', opts: ['Its old value', '9', '0', 'an error'], a: 1, why: '<code>b = a</code> copies the <b>reference</b>, not the node. Both names refer to the same node, so the change shows through <code>a</code> too.' },
+  { q: 'A photo viewer with Next and Previous buttons fits which kind of linked list?', opts: ['Singly', 'Doubly', 'Circular singly', 'None'], a: 1, why: 'Going back needs a <b>prev</b> link in each node: a <b>doubly</b> linked list.' },
+  { q: 'A traversal loop <code>while (current != null)</code> on a circular list will…', opts: ['stop at the last node', 'never stop', 'throw an error right away', 'skip the head'], a: 1, why: 'A circular list has no <code>null</code> at the end, so the condition never becomes false. It must stop when it gets back to the starting node.' },
+];
+---
+<Base title="Linked lists · ITC 120" description="Linked lists in plain English: nodes and references in Java, traversal, insertion, deletion, and singly, doubly, and circular lists." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Linked lists</p>
+    <p class="kicker">Linear data structures · Lesson 2 of 3</p>
+    <h1>Linked lists</h1>
+    <p class="lede">A chain of nodes. Nothing shifts: we change the arrows instead.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>explain how nodes and references form a linked list;</li>
+        <li>trace traversal, insertion, and deletion, in pictures and in Java;</li>
+        <li>explain why the <b>order</b> of the lines matters when inserting;</li>
+        <li>tell singly, doubly, and circular linked lists apart.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays lesson</a>, and scratch paper for drawing boxes and arrows.</p>
+  </header>
+
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>A chain of nodes</h2>
+    </div>
+    <div class="flow">
+      <p>The array's one real weakness: to insert 25 at index 2 of 10, 20, 30, 40, both 30 and 40 had to move. The more values after the gap, the more work. So what if the values did not have to sit side by side at all?</p>
+      <div class="def">
+        <p class="note-label">Linked list</p>
+        <p>A <b>linked list</b> is a chain of <b>nodes</b>. Each node stores two things: the value (<code>data</code>), and where to find the next node (<code>next</code>). A variable called <code>head</code> refers to the first node. The last node's <code>next</code> is <code>null</code>: the end.</p>
+      </div>
+      <div class="mini-ll" aria-label="head, then A to B to C to null"><span class="small muted" style="font-weight:800">head →</span><b>A</b>→<b>B</b>→<b>C</b>→<i>null</i></div>
+      <div class="plain">
+        <p class="note-label">Like a treasure hunt</p>
+        <p>Each clue tells you where the next clue is hidden. To reach clue 4, you start at clue 1 and follow the clues in order. You cannot jump to clue 4. The first clue is like <code>head</code>, each hiding place is like <code>next</code>, and "this is the last clue" is like <code>null</code>.</p>
+      </div>
+      <p>Here is the same sequence, organized two ways:</p>
+      <table class="tbl">
+        <thead><tr><th>Array</th><th>Linked list</th></tr></thead>
+        <tbody>
+          <tr><td>Numbered slots, side by side.</td><td>Nodes can be anywhere in memory.</td></tr>
+          <tr><td>The <b>index</b> tells you where to go.</td><td>The <b>previous node</b> tells you where to go next.</td></tr>
+          <tr><td>Reach any slot in one step.</td><td>Walk from <code>head</code>, one link at a time.</td></tr>
+          <tr><td>Insert or delete: shift values.</td><td>Insert or delete: change links.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Java first</p>
+      <h2>Nodes and references in Java</h2>
+    </div>
+    <div class="flow">
+      <p>A <b>class</b> is a blueprint. An <b>object</b> is one real thing built from it. This class describes one node:</p>
+      <pre class="code"><code set:html={hiN(node)} /></pre>
+      <table class="tbl">
+        <thead><tr><th>Line</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>int data;</code></td><td>A <b>field</b> that holds the node's value.</td></tr>
+          <tr><td><code>Node next;</code></td><td>A field that holds a <b>reference</b> to another node, or <code>null</code>.</td></tr>
+          <tr><td><code>Node(int value)</code></td><td>The <b>constructor</b>: same name as the class, no return type. It runs once, automatically, each time <code>new Node(...)</code> runs.</td></tr>
+        </tbody>
+      </table>
+      <p><code>Node first = new Node(10);</code> does three things: <code>new</code> creates a node in memory, the constructor stores 10 in <code>data</code> and <code>null</code> in <code>next</code>, and <code>=</code> stores a reference to that node in the variable <code>first</code>. (The name <code>first</code> is our choice, not a Java keyword.)</p>
+      <div class="def">
+        <p class="note-label">Reference</p>
+        <p>A <b>reference</b> tells Java <b>where to find</b> an object. It is not the object itself. The special value <code>null</code> refers to no object.</p>
+      </div>
+      <div class="sub">
+        <h3>Assignment copies the reference, not the node</h3>
+        <pre class="code"><code set:html={hi(same)} /></pre>
+        <p><code>Node b = a;</code> does <b>not</b> make a new node. It gives the same node a second name. Like two people with the same Google Drive link: if one edits the file, the other sees the change. Compare <code>Node b = new Node(5);</code>, which makes a separate node: changing <code>b.data</code> would not touch <code>a.data</code>.</p>
+        <p>The dot in <code>b.data</code> means "the <code>data</code> field of the node that <code>b</code> refers to."</p>
+      </div>
+      <div class="sub">
+        <h3>Connecting two nodes</h3>
+        <pre class="code"><code set:html={hi(link)} /></pre>
+        <div class="mini-ll" aria-label="ten refers to node 10, which points to node 20, which points to null"><b>10</b>→<b>20</b>→<i>null</i></div>
+        <p><code>ten.next</code> now stores a reference to node 20, not the number 20. The number is <code>ten.next.data</code>.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">NullPointerException</p>
+        <p>If a reference is <code>null</code>, using <code>.data</code> or <code>.next</code> on it throws a <b>NullPointerException</b>, and the program stops at that line. Before writing <code>x.next</code>, ask: can <code>x</code> be <code>null</code> here?</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="traverse">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Access and traversal</p>
+      <h2>Walk from the head</h2>
+    </div>
+    <div class="flow">
+      <p>This code builds the list 10 → 20 → 30 and prints it. We keep the name <code>twenty</code> for node 20, so later steps can use it without searching.</p>
+      <pre class="code"><code set:html={hi(build)} /></pre>
+      <p>Here is <code>printList</code>:</p>
+      <pre class="code"><code set:html={hiN(print)} /></pre>
+      <p>When <code>main</code> calls <code>printList(head)</code>, <code>start</code> gets a copy of head's reference. Then <code>current</code> copies it again. All three refer to node 10, but they are separate variables. <code>current = current.next;</code> moves only <code>current</code>. It does not move any node, and it does not change <code>head</code>.</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>current</th><th>This step prints</th><th>Then</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td><code>10 -&gt; </code></td><td>move to 20</td></tr>
+            <tr><td>20</td><td><code>20 -&gt; </code></td><td>move to 30</td></tr>
+            <tr><td>30</td><td><code>30 -&gt; </code></td><td>30's next is null, so current becomes null</td></tr>
+            <tr><td>null</td><td>(the loop stops)</td><td>print <code>null</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Output: <code>10 -&gt; 20 -&gt; 30 -&gt; null</code></p>
+      <div class="remember">
+        <p class="note-label">null, two ways</p>
+        <p>In <code>current != null</code>, <code>null</code> is a <b>reference value</b>: "no node." In <code>System.out.println("null")</code>, it is just <b>text</b> in quotation marks that the program prints.</p>
+      </div>
+      <p><b>Access</b> is the same walk, stopped early: to get the third node, start at <code>head</code> and follow two links. An array reaches <code>arr[2]</code> in one step. A linked list walks.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Watch it</p>
+      <h2>The linked list lab</h2>
+    </div>
+    <div class="flow">
+      <p>Every operation in this lesson, one line of Java at a time. Each button starts from a short list, so you can replay any of them. Read Parts 5 and 6 below, then come back and try each one.</p>
+      <LinkedLab id="lab-ll" />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="insert">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Operation 3</p>
+      <h2>Insertion: change links, not values</h2>
+    </div>
+    <div class="flow">
+      <div class="sub">
+        <h3>Insert at the beginning</h3>
+        <p>Start with 10 → 20 → 30. Insert 5 before 10:</p>
+        <pre class="code"><code set:html={hiN(front)} /></pre>
+        <div class="mini-ll" aria-label="head to 5 to 10 to 20 to 30 to null"><span class="small muted" style="font-weight:800">head →</span><b style="background:var(--orange);color:#fff;border-color:var(--orange-ink)">5</b>→<b>10</b>→<b>20</b>→<b>30</b>→<i>null</i></div>
+        <p>Nothing shifted. Two references changed.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Swap the lines, and the list is lost</p>
+        <p>If <code>head = newNode;</code> runs first, then <code>newNode.next = head;</code> copies the <b>new</b> head, so node 5 refers to itself. Nothing refers to node 10 anymore, and <code>printList(head)</code> prints 5 forever.</p>
+      </div>
+      <div class="sub">
+        <h3>Insert after a node you already have</h3>
+        <p>Now the list is 5 → 10 → 20 → 30, and <code>current</code> refers to node 20. Insert 25 after it:</p>
+        <pre class="code"><code set:html={hiN(after)} /></pre>
+        <p><code>current.next</code> is the reference stored in node 20, which refers to node 30. So line 3 makes 25 refer to 30. Then line 4 makes 20 refer to 25. Result: 5 → 10 → 20 → <b>25</b> → 30.</p>
+        <p class="small muted">Here we already had a reference to node 20. To insert after a <b>value</b>, you would first traverse to find that node.</p>
+      </div>
+      <div class="remember">
+        <p class="note-label">The safe order for inserting</p>
+        <ol>
+          <li>First, make the new node refer to the node that will follow it.</li>
+          <li>Then, change the old reference to point to the new node.</li>
+        </ol>
+        <p>If B is the only thing pointing to C, and you change B first, nothing points to C anymore. The rest of the list is unreachable. Try "Insert: wrong order!" in the lab to see it happen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="delete">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Operation 4</p>
+      <h2>Deletion: link around the node</h2>
+    </div>
+    <div class="flow">
+      <div class="sub">
+        <h3>Delete the node after another one</h3>
+        <p>The list is 5 → 10 → 20 → 25 → 30. To delete 25, we need a reference to the node <b>before</b> it, because a singly linked list cannot go backward. <code>previous</code> refers to node 20:</p>
+        <pre class="code"><code set:html={hi(bypass)} /></pre>
+        <p>Read it piece by piece: <code>previous.next</code> is node 25. <code>previous.next.next</code> is node 25's next, which is node 30. Storing that in <code>previous.next</code> makes 20 point to 30. Node 25 is no longer reachable from <code>head</code>, so it is no longer in the list. Nothing else moves.</p>
+        <p class="small muted">This line needs <code>previous != null</code> and <code>previous.next != null</code>. Otherwise it uses a null reference and throws a NullPointerException.</p>
+      </div>
+      <div class="sub">
+        <h3>Delete the first node</h3>
+        <p>Deleting the first node only moves <code>head</code>:</p>
+        <pre class="code"><code set:html={hi(first)} /></pre>
+        <p>5 → 10 → 20 → 30 becomes 10 → 20 → 30. This needs <code>head != null</code> (a list that is not empty). If the list had only one node, <code>head</code> becomes <code>null</code>: the list is now empty.</p>
+      </div>
+      <div class="sub">
+        <h3>The whole program</h3>
+        <p>Here is everything together. It runs as is: try it in the <a href="https://www.programiz.com/java-programming/online-compiler/">Programiz online compiler</a> and match each output line to its <code>printList</code> call.</p>
+        <details class="reveal"><summary>Show the complete program</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(full)} /></pre>
+          <pre class="code"><code>10 -&gt; 20 -&gt; 30 -&gt; null
+5 -&gt; 10 -&gt; 20 -&gt; 30 -&gt; null
+5 -&gt; 10 -&gt; 20 -&gt; 25 -&gt; 30 -&gt; null
+5 -&gt; 10 -&gt; 20 -&gt; 30 -&gt; null
+10 -&gt; 20 -&gt; 30 -&gt; null</code></pre>
+        </div></details>
+      </div>
+      <div class="sub">
+        <h3>The real cost</h3>
+        <p>Changing links is cheap. <b>Finding</b> the node is not:</p>
+        <table class="tbl">
+          <thead><tr><th>Task</th><th>Array</th><th>Linked list</th></tr></thead>
+          <tbody>
+            <tr><td>Reach item #500</td><td>1 step</td><td>500 steps</td></tr>
+            <tr><td>Insert at a spot you already reached</td><td>shift every later value</td><td>change 2 links</td></tr>
+            <tr><td>Delete the last value</td><td>just reduce the size</td><td>walk to the node before it</td></tr>
+          </tbody>
+        </table>
+        <div class="remember"><p class="note-label">Not always faster</p><p>Linked lists edit faster, once you are there. Arrays reach faster. Pick the one that fits what the program does most.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="kinds">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Three kinds</p>
+      <h2>Singly, doubly, and circular</h2>
+    </div>
+    <div class="flow">
+      <div class="ds-grid">
+        <div class="ds-card"><p class="ds-k">Singly linked</p>
+          <div class="mini-ll" aria-label="A to B to C to D to null"><b>A</b>→<b>B</b>→<b>C</b>→<b>D</b>→<i>null</i></div>
+          <p>Each node knows only what comes <b>next</b>. It moves forward only. To reach the node before B, start over from the head. <b>Like checking attendance</b> from the top of the class list to the bottom.</p></div>
+        <div class="ds-card"><p class="ds-k">Doubly linked</p>
+          <div class="mini-ll" aria-label="null, A, B, C, D, null with arrows both ways"><i>null</i>⇄<b>A</b>⇄<b>B</b>⇄<b>C</b>⇄<b>D</b>⇄<i>null</i></div>
+          <p>Each node also has a <b>prev</b> link, so it moves both ways. The cost: more memory, and more links to update on every change. <b>Like a photo viewer</b> with Next and Previous buttons.</p></div>
+        <div class="ds-card"><p class="ds-k">Circular</p>
+          <div class="mini-ll" aria-label="A to B to C to D, then back to A"><b>A</b>→<b>B</b>→<b>C</b>→<b>D</b>→<i>↩ A</i></div>
+          <p>The last node points back to the first. There is no <code>null</code> at the end, so a loop must stop when it gets back to where it started. <b>Like a cleaning duty schedule</b> that returns to the first name.</p></div>
+      </div>
+      <p>Here they are side by side:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th></th><th>Singly</th><th>Doubly</th><th>Circular</th></tr></thead>
+          <tbody>
+            <tr><td><b>Links per node</b></td><td>next</td><td>prev and next</td><td>next, or both</td></tr>
+            <tr><td><b>Move backward?</b></td><td>no</td><td>yes</td><td>only if doubly</td></tr>
+            <tr><td><b>End of the list</b></td><td>last next is null</td><td>null at both ends</td><td>loops back to the first</td></tr>
+            <tr><td><b>Remove a node you have</b></td><td>need the node before it</td><td>directly, using prev</td><td>depends on singly or doubly</td></tr>
+            <tr><td><b>Trade-off</b></td><td>one direction only</td><td>more memory and updates</td><td>needs a stop rule</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="trap">
+        <p class="note-label">Circular is not a third number of links</p>
+        <p>"Circular" describes the <b>loop</b>, not how many links each node has. A circular list can be singly or doubly linked. A playlist on repeat with Next and Previous is <b>circular doubly linked</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Your turn</p>
+      <h2>Practice on paper</h2>
+    </div>
+    <div class="flow">
+      <p>Draw boxes and arrows for every problem. That is what you will do on the exam.</p>
+      <div class="paper flow">
+        <p class="note-label">Nodes and references</p>
+        <ol>
+          <li>What does this print? Explain why.<pre class="code"><code set:html={hi(q1)} /></pre></li>
+          <li>After these lines, how many Node objects exist? What is <code>first.next.data</code>?<pre class="code"><code set:html={hi(q2)} /></pre></li>
+          <li>What happens when <code>Node n = null;</code> is followed by <code>System.out.println(n.data);</code>?</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li>It prints <b>3</b>. <code>new</code> ran twice, so <code>p</code> and <code>q</code> refer to different nodes. Changing <code>q.data</code> does not affect <code>p</code>.</li>
+            <li><b>Two</b> nodes. <code>third</code> is just another reference to the second node. <code>first.next.data</code> is <b>2</b>.</li>
+            <li>A <b>NullPointerException</b>: <code>n</code> refers to no node. Nothing catches it here, so the program stops at that line.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Insert and delete</p>
+        <ol>
+          <li>Start with head → 10 → 20 → 30 → null. Draw the list after these three lines. Then draw it again after <code>head = head.next;</code>.<pre class="code"><code set:html={hi(q4)} /></pre></li>
+          <li>Explain in your own words: <code>newNode.next = current.next;</code></li>
+          <li>In head → 10 → 20 → 30 → 40 → null, <code>previous</code> refers to node 20. Draw the list after <code>previous.next = previous.next.next;</code>. Which node is no longer reachable?</li>
+          <li><b>Debugging.</b> The list is head → 10 → 20 → 30 → null, <code>current</code> refers to node 20, and <code>newNode</code> refers to a new node 25 (its next is null). A student wrote these lines to insert 25 after 20. Draw the result. What goes wrong?<pre class="code"><code set:html={hi(bug)} /></pre></li>
+          <li>Name the kind of linked list: (a) nodes have prev and next, and both ends hold null; (b) the last node's next refers to the first, and nodes have no prev; (c) a playlist on repeat with Next and Previous buttons.</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li>After the three lines: head → 10 → <b>15</b> → 20 → 30 → null (15 goes after the node head refers to). After <code>head = head.next;</code>: head → 15 → 20 → 30 → null.</li>
+            <li>The new node now refers to the node that comes after <code>current</code>, so the rest of the list stays reachable before <code>current</code> is changed.</li>
+            <li>head → 10 → 20 → 40 → null. Node <b>30</b> is no longer reachable from head.</li>
+            <li>After <code>current.next = newNode;</code>, nothing refers to 30: it is lost. Then <code>newNode.next = current.next;</code> copies a reference to 25 itself, so 25 points to 25. The list reads 10 → 20 → 25 → 25 → …, and a traversal prints 25 forever.</li>
+            <li>(a) Doubly linked. (b) Circular singly linked. (c) Circular doubly linked: it repeats (circular) and goes back (prev).</li>
+          </ol>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 9 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-ll" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Each node holds a value and a reference to the next node. <code>head</code> refers to the first; the last one's next is <code>null</code>.</li>
+          <li><code>Node b = a;</code> copies the reference, not the node.</li>
+          <li>Traversal follows the links. We cannot jump to a position.</li>
+          <li>Insertion and deletion change links, not values. Connect the new node first.</li>
+          <li>Singly goes one way, doubly goes both, circular loops back.</li>
+          <li>Arrays reach faster. Linked lists edit faster, once you are there.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/stacks-queues/'}>Stacks and queues</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 2.</li>
+          <li>M. Reid-Miller, "Singly-Linked List Class" and "Doubly-Linked Lists," 15-121 lecture slides, Carnegie Mellon University, 2020.</li>
+          <li>Oracle, "Types, Values, and Variables," <i>The Java Language Specification</i>, Java SE 21, Chapter 4. <a href="https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html">docs.oracle.com</a></li>
+          <li>Programiz, "Linked List Data Structure" and "Types of Linked List." <a href="https://www.programiz.com/dsa/linked-list">programiz.com/dsa</a></li>
+          <li>ITC 120 Course Syllabus, A.Y. 2026–2027, Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>

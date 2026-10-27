@@ -1,0 +1,268 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import BstLab from '../../components/BstLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+import { build, searchSteps } from '../../lib/bst.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const lessonTree = [50, 30, 70, 20, 40, 60, 80];
+const search = String.raw`static boolean search(TreeNode root, int target) {
+  TreeNode current = root;                 // start
+  while (current != null) {                // 1 null?
+    if (target == current.data) {          // 2 equal?
+      return true;                         //   found
+    } else if (target < current.data) {    // 3 smaller?
+      current = current.left;              //   go left
+    } else {                               // 4 larger?
+      current = current.right;             //   go right
+    }
+  }
+  return false;                            // not found
+}`;
+const buggy = String.raw`static boolean search(TreeNode root, int target) {
+  TreeNode current = root;
+  while (current != null) {
+    if (target == current.data) {
+      return true;
+    } else if (target < current.data) {
+      current = current.right;
+    } else {
+      current = current.left;
+    }
+  }
+  return true;
+}`;
+const practiceTree = [40, 20, 60, 10, 30, 50, 70];
+const p25 = searchSteps(build(practiceTree), 25);
+const p70 = searchSteps(build(practiceTree), 70);
+
+const quiz = [
+  { q: 'What is the BST rule?', opts: ['Each node has at most two children', 'For every node: everything in its left subtree is smaller, everything in its right subtree is larger', 'The root is the smallest value', 'Left child is smaller than right child'], a: 1, why: 'The rule is about whole <b>subtrees</b>, and it must hold at <b>every</b> node, not just between a parent and its children.' },
+  { q: 'In a BST, where can the value 55 be if the root is 50 and 55 is in the root\'s left subtree?', opts: ['That is fine', 'Nowhere: everything in 50\'s left subtree must be smaller than 50', 'Only as a leaf', 'Only as the left child of 50'], a: 1, why: 'Check a node against <b>all</b> its ancestors. 55 > 50, so it must be on 50\'s right side.' },
+  { q: 'In the lesson tree, which nodes do you visit when searching for 65?', opts: ['50, 70, 60, then null', '50, 30, 40', '50, 70, 80', '50, 60'], a: 0, why: '65 > 50 → right to 70. 65 < 70 → left to 60. 65 > 60 → right: null. <b>Not found.</b>' },
+  { q: 'A search reaches <code>null</code>. What does that mean?', opts: ['The tree is broken', 'The value is not in the tree', 'The value is the root', 'Search again from the leaf'], a: 1, why: 'If the value were in the tree, the BST rule would have led us to it. Falling off the tree means <b>not found</b>.' },
+  { q: 'Which line moves the search one level down to the left?', opts: ['<code>current.left = current;</code>', '<code>current = current.left;</code>', '<code>left = current;</code>', '<code>current == current.left;</code>'], a: 1, why: '<code>current = current.left;</code> makes <code>current</code> refer to the left child. The tree itself does not change.' },
+  { q: 'Why does a BST usually not store duplicate values?', opts: ['Java does not allow it', 'The rule only has room for smaller (left) or larger (right); an equal value fits neither', 'It would make the tree too tall', 'Duplicates are always errors'], a: 1, why: 'Our rule only says smaller or larger. Many uses also need unique keys (one student ID = one student). Some BSTs do allow duplicates by picking a side or counting copies.' },
+];
+---
+<Base title="Binary Search Trees · ITC 120" description="Binary search trees in plain English: the BST rule, searching by hand, and the search method in Java." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
+    <p class="kicker">Trees and BSTs · Lesson 2 of 6</p>
+    <h1>Binary Search Trees and BST Search</h1>
+    <p class="lede">A binary tree with one extra rule, so you can find any value without checking every node.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>state the <b>BST rule</b> and check if a tree follows it;</li>
+        <li>search a BST by hand, for a value that is found and one that is not;</li>
+        <li>read, trace, and complete the <code>search</code> method in Java.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/trees/'}>Trees lesson</a>, and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="rule">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The BST rule</p>
+      <h2>Keeping values in order</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky">
+        <p class="note-label">A guessing game</p>
+        <p>I am thinking of a number from 1 to 100. After each guess, I say "higher," "lower," or "correct." Guess 50: <i>higher</i> (51–100 left). Guess 75: <i>lower</i> (51–74). Guess 62: <i>higher</i> (63–74). Guess 68: <i>correct!</i> Four guesses, because every answer ruled out a big part.</p>
+      </div>
+      <p>A binary search tree arranges values so that every comparison works like that guess.</p>
+      <div class="def">
+        <p class="note-label">Binary search tree (BST)</p>
+        <p>A <b>binary search tree</b> is a binary tree where, for <b>every</b> node:</p>
+        <ul>
+          <li>all values in its <b>left subtree</b> are <b>smaller</b> than its value, and</li>
+          <li>all values in its <b>right subtree</b> are <b>larger</b> than its value.</li>
+        </ul>
+      </div>
+      <TreeFig values={lessonTree} label="The lesson BST: 50 at the root; 30 and 70; then 20, 40, 60, 80" />
+      <p>At 50: everything on the left (20, 30, 40) is smaller; everything on the right (60, 70, 80) is larger. At 30: 20 is smaller, 40 is larger. At 70: 60 is smaller, 80 is larger. The rule holds at every node.</p>
+      <div class="sub">
+        <h3>How to check one node</h3>
+        <p>Walk from the node <b>up</b> to the root. At each ancestor, ask: am I on its left or its right? For 40: it is on the <b>right</b> of 30 (40 &gt; 30 ✓) and on the <b>left</b> of 50 (40 &lt; 50 ✓). So 40 must be between them: 30 &lt; 40 &lt; 50.</p>
+      </div>
+      <div class="sub">
+        <h3>Your turn: valid BST or not?</h3>
+        <div class="two-col three">
+          {[
+            { name: 'Tree A', spec: '50(30(20,40),70)', ok: true, why: 'Valid. Every node passes the check.' },
+            { name: 'Tree B', spec: '50(60,70)', ok: false, why: 'Not valid. 60 > 50, but it is on the LEFT.' },
+            { name: 'Tree C', spec: '50(30(20,55),70)', ok: false, why: 'Not valid. 55 is in 50\'s LEFT subtree, so it must be less than 50. Checking only its parent (30) is not enough.' },
+          ].map((t) => (
+            <figure class="fig">
+              <p class="fig-cap">{t.name}</p>
+              <TreeFig spec={t.spec} label={t.name} />
+              <details class="reveal"><summary>Answer</summary><div><p class={t.ok ? 'ok' : 'no'}>{t.why}</p></div></details>
+            </figure>
+          ))}
+        </div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Why it matters</p>
+        <p>In Tree C, search for 55: 55 &gt; 50 → go right to 70; 55 &lt; 70 → go left: null. <b>Not found</b>, even though 55 is in the tree! One misplaced node sends the search the wrong way.</p>
+      </div>
+      <div class="remember">
+        <p class="note-label">Why no duplicates?</p>
+        <p>The rule only has room for <b>smaller</b> (left) or <b>larger</b> (right). An equal value fits neither. Many uses also need unique values: one student ID = one student. (Some BSTs do allow duplicates by picking a side or counting copies.)</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="search">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Searching</p>
+      <h2>Search by hand</h2>
+    </div>
+    <div class="flow">
+      <p>Search answers one question: <i>Is this value in the tree? If yes, which node has it?</i> Think of a registrar program finding a student's record by ID number.</p>
+      <div class="remember">
+        <p class="note-label">Search checklist</p>
+        <p>Start with <b>current = the root</b>. Compare the target with the current node's value:</p>
+        <ol>
+          <li><b>null?</b> → not found. Stop.</li>
+          <li><b>equal?</b> → found! Stop.</li>
+          <li><b>smaller?</b> → go left. Back to 1.</li>
+          <li><b>larger?</b> → go right. Back to 1.</li>
+        </ol>
+      </div>
+      <BstLab id="lab-search" mode="search" cap="Search lab" hint="Pick an example, or type any number and tap Search. Watch which nodes you visit." legend={`<span><i class="l-cur2"></i> current</span><span><i class="l-path"></i> visited</span><span><i class="l-found"></i> found</span>`} presets={[
+        { label: 'Search 60', values: lessonTree, op: 60 },
+        { label: 'Search 45', values: lessonTree, op: 45 },
+        { label: 'Search 20', values: lessonTree, op: 20 },
+      ]} />
+      <div class="sub">
+        <h3>Why this is fast</h3>
+        <p>Searching for something larger than 50? After checking the root, the <b>whole left subtree is skipped</b>. A linked list of the same 7 values may need 7 nodes checked. This BST needs at most 3.</p>
+      </div>
+      <div class="remember">
+        <p class="note-label">BSTs can store names too</p>
+        <p>Names compare alphabetically: earlier in the alphabet → left, later → right. A phone's contact list or a dictionary app can search names the same way.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · In code</p>
+      <h2>BST search in Java</h2>
+    </div>
+    <div class="flow">
+      <p>Each step of the checklist becomes one line of Java. We use the <code>TreeNode</code> class from the Trees lesson: <code>current.data</code> is the value, <code>current.left</code> and <code>current.right</code> are the children.</p>
+      <table class="tbl">
+        <thead><tr><th>Checklist step</th><th>Java</th></tr></thead>
+        <tbody>
+          <tr><td>Start at the root</td><td><code>TreeNode current = root;</code></td></tr>
+          <tr><td>1 null? → stop</td><td><code>while (current != null) &#123; ... &#125;</code></td></tr>
+          <tr><td>2 equal? → found</td><td><code>if (target == current.data) return true;</code></td></tr>
+          <tr><td>3 smaller? → go left</td><td><code>current = current.left;</code></td></tr>
+          <tr><td>4 larger? → go right</td><td><code>current = current.right;</code></td></tr>
+          <tr><td>Loop ended: not found</td><td><code>return false;</code></td></tr>
+        </tbody>
+      </table>
+      <pre class="code"><code set:html={hiN(search)} /></pre>
+      <div class="plain">
+        <p class="note-label">Why a while loop?</p>
+        <p>Like walking a linked list with <code>current = current.next</code>, but here we <b>choose</b> left or right at each step. The loop ends in one of two ways: <code>return true;</code> (found), or <code>current</code> becomes <code>null</code> and we <code>return false;</code>.</p>
+      </div>
+      <div class="sub">
+        <h3>Trace table: <code>search(root, 45)</code></h3>
+        <p>Write one row each time the loop checks <code>current</code>:</p>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>data</th><th>null?</th><th>equal?</th><th>smaller?</th><th>Then</th></tr></thead>
+          <tbody>
+            <tr><td>50</td><td>no</td><td>no</td><td>yes</td><td>go left</td></tr>
+            <tr><td>30</td><td>no</td><td>no</td><td>no</td><td>go right</td></tr>
+            <tr><td>40</td><td>no</td><td>no</td><td>no</td><td>go right</td></tr>
+            <tr><td>—</td><td>yes</td><td>—</td><td>—</td><td>return false</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Three common mistakes</p>
+        <ul>
+          <li><code>if (target = current.data)</code>: one <code>=</code> stores a value. Java will not compile it. Use <code>==</code>.</li>
+          <li>Forgetting the line that moves <code>current</code>: the loop keeps checking the same node forever.</li>
+          <li>Wrong direction: smaller values are on the <b>left</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      <div class="paper flow">
+        <p class="note-label">Problem 1: trace it</p>
+        <TreeFig values={practiceTree} label="Practice BST: 40 at the root" />
+        <p>For each call, write every value of <code>current.data</code>, in order, and what the method returns: <code>search(root, 25)</code> and <code>search(root, 70)</code>.</p>
+        <details class="reveal"><summary>Show the answer</summary><div>
+          <table class="tbl"><thead><tr><th>Call</th><th>current.data</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td><code>search(root, 25)</code></td><td>{p25.visited.join(', ')}</td><td>{String(p25.found)}</td></tr>
+              <tr><td><code>search(root, 70)</code></td><td>{p70.visited.join(', ')}</td><td>{String(p70.found)}</td></tr>
+            </tbody></table>
+          <p>For 25: 25 &lt; 30, so <code>current = current.left</code>. 30 has no left child, so current becomes null and the loop stops.</p>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Problem 2: find the 2 bugs</p>
+        <pre class="code"><code set:html={hiN(buggy)} /></pre>
+        <details class="reveal"><summary>Show the answer</summary><div>
+          <ol>
+            <li><b>Left and right are swapped</b> (lines 7 and 9): smaller should go to <code>current.left</code>, larger to <code>current.right</code>.</li>
+            <li><b>Wrong last line</b> (line 12): it should be <code>return false;</code>. With this bug, the method says every value is in the tree.</li>
+          </ol>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-bst" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>BST rule: left subtree smaller, right subtree larger, at <b>every</b> node.</li>
+          <li>Check a node against <b>all</b> its ancestors, not just its parent.</li>
+          <li>Search: compare, go left or right, stop at the value (found) or at null (not found).</li>
+          <li>In Java: start with <code>current = root</code>, loop while <code>current != null</code>.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/bst-insert/'}>BST insertion in Java</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Programiz, "Binary Search Tree (BST)." <a href="https://www.programiz.com/dsa/binary-search-tree">programiz.com/dsa/binary-search-tree</a></li>
+          <li>Oracle, "The while and do-while Statements," The Java Tutorials.</li>
+          <li>N. Dale, D. T. Joyce, and C. Weems, <i>Object-Oriented Data Structures Using Java</i>, 4th ed. Jones &amp; Bartlett Learning, 2018.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .three { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+  .ok { color: var(--teal); font-weight: 800; }
+  .no { color: var(--red-pen); font-weight: 800; }
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

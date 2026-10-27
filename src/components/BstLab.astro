@@ -1,0 +1,157 @@
+---
+// Step-through lab for the plain BST lessons.
+// mode: 'search' | 'insert' | 'delete' (type a number), 'traverse' | 'code' (pick an order).
+interface Preset { label: string; values?: number[]; spec?: string; op?: number; order?: 'pre' | 'in' | 'post'; }
+interface Props { id: string; mode: 'search' | 'insert' | 'delete' | 'traverse' | 'code'; cap: string; hint: string; presets: Preset[]; input?: boolean; legend?: string; }
+const { id, mode, cap, hint, presets, input = true, legend } = Astro.props;
+const config = JSON.stringify({ mode, presets });
+const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<string, string>;
+---
+<figure class={`fig bstlab bstlab-${mode}`} id={id} data-config={config}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">{hint}</p>
+  {presets.length > 1 && (
+    <div class="btn-row bl-presets" role="group" aria-label="Examples">
+      {presets.map((p, i) => <button type="button" class="btn" data-preset={i} aria-pressed={i === 0 ? 'true' : 'false'}>{p.label}</button>)}
+    </div>
+  )}
+  {(mode === 'traverse' || mode === 'code') && (
+    <div class="btn-row bl-orders" role="group" aria-label="Order">
+      <button type="button" class="btn" data-order="pre">Pre-order</button>
+      <button type="button" class="btn" data-order="in">In-order</button>
+      <button type="button" class="btn" data-order="post">Post-order</button>
+    </div>
+  )}
+  {input && verb[mode] && (
+    <form class="bl-own">
+      <label>{verb[mode]} the value <input type="text" inputmode="numeric" class="bl-num" autocomplete="off" /></label>
+      <button type="submit" class="btn">{verb[mode]}</button>
+      <button type="button" class="btn" data-reset-tree>Reset tree</button>
+      <p class="bl-err small" aria-live="polite"></p>
+    </form>
+  )}
+  <div class="bl-stage"><span class="bl-tag chip"></span><div class="bl-svg"></div></div>
+  <p class="bl-cap" aria-live="polite"></p>
+  <div class="bl-extra"></div>
+  <div class="btn-row bl-nav">
+    <button type="button" class="btn" data-go="back">← Back</button>
+    <button type="button" class="btn primary" data-go="next">Next step →</button>
+    <button type="button" class="btn" data-go="reset">Start over</button>
+  </div>
+  <div class="legend" set:html={legend || ''} />
+</figure>
+
+<style is:global>
+  .bstlab .bl-presets, .bstlab .bl-orders { margin-bottom: 0.7rem; }
+  .bstlab .bl-own { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.7rem; }
+  .bstlab .bl-own label { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: var(--step--1); }
+  .bstlab .bl-own input { width: 5.5rem; font: inherit; font-size: 1rem; padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
+  .bstlab .bl-err { width: 100%; color: var(--red-pen); font-weight: 700; min-height: 1.1em; }
+  .bstlab .bl-stage { position: relative; background: var(--paper); border-radius: 8px; padding: 2.2rem 0.4rem 0.6rem; min-height: 10rem; display: grid; align-items: center;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 20px 20px; }
+  .bstlab .bl-tag { position: absolute; top: 0.5rem; left: 0.5rem; background: var(--card); }
+  .bstlab .bl-tag:empty { display: none; }
+  .bstlab .bl-cap { min-height: 4.2em; margin-top: 0.8rem; }
+  .bstlab .bl-extra:empty { display: none; }
+  .bstlab .bl-extra { background: var(--paper); border-radius: 6px; padding: 0.6rem 0.8rem; margin-top: 0.5rem; font-size: var(--step--1); display: grid; gap: 0.3rem; }
+  .bstlab .written { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; vertical-align: middle; }
+  .bstlab .written span { display: inline-grid; place-items: center; min-width: 1.9rem; height: 1.9rem; padding: 0 0.3rem; border-radius: 99px; background: var(--teal); color: #fff; font-weight: 800; }
+  .bstlab .cstack { list-style: none; padding: 0; display: grid; gap: 0.25rem; }
+  .bstlab .cstack li { margin: 0; display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: baseline; padding: 0.35rem 0.6rem; border-radius: 5px; border: 1.5px solid var(--line); background: var(--card); }
+  .bstlab .cstack li.run { border-color: var(--orange); background: var(--orange-wash); }
+  .bstlab .cstack li.pause { border-color: var(--amber); background: #fff8e6; }
+  .bstlab .cstack li span { font-size: 0.8rem; color: var(--ink-soft); }
+  .bstlab .cstack li.empty { color: var(--ink-soft); font-style: italic; }
+  .bstlab .bl-nav { margin-top: 0.6rem; }
+  .bstlab .bl-nav .primary { flex: 1 1 auto; }
+</style>
+
+<script>
+  import { layout, svgTree, clone } from '../lib/tree.js';
+  import { build, fromSpec, searchSteps, insertSteps, deleteSteps, traversalSteps, callStackSteps } from '../lib/bst.js';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('.bstlab').forEach((fig) => {
+    const cfg = JSON.parse(fig.dataset.config || '{}');
+    const mode: string = cfg.mode;
+    const svgBox = fig.querySelector<HTMLElement>('.bl-svg')!, capEl = fig.querySelector<HTMLElement>('.bl-cap')!;
+    const tagEl = fig.querySelector<HTMLElement>('.bl-tag')!, extraEl = fig.querySelector<HTMLElement>('.bl-extra')!;
+    const back = fig.querySelector<HTMLButtonElement>('[data-go="back"]')!, next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
+    const err = fig.querySelector<HTMLElement>('.bl-err');
+    let preset: any = cfg.presets[0], tree: any = null, steps: any[] = [], at = 0, W = 0, H = 0, shown: any = {}, anim = 0, order = 'pre';
+
+    const baseTree = (p: any) => (p.spec ? fromSpec(p.spec) : build(p.values || []));
+
+    function run(op?: number) {
+      const work = clone(tree);
+      let out: any;
+      if (mode === 'search') out = searchSteps(work, op);
+      else if (mode === 'insert') out = insertSteps(work, op);
+      else if (mode === 'delete') out = deleteSteps(work, op);
+      else if (mode === 'traverse') out = traversalSteps(work, order);
+      else out = callStackSteps(work, order);
+      steps = out.steps;
+      if (out.root !== undefined && mode !== 'search') tree = out.root; // insert/delete keep their result
+      W = 0; H = 0;
+      steps.forEach((s) => { if (s.tree) { const L = layout(s.tree); W = Math.max(W, L.w); H = Math.max(H, L.h); } });
+      at = 0; shown = {}; paint(false);
+    }
+    function load(p: any) {
+      preset = p; tree = baseTree(p);
+      if (p.order) order = p.order;
+      fig.querySelectorAll('[data-order]').forEach((b) => b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.order === order)));
+      if (mode === 'traverse' || mode === 'code') run();
+      else if (p.op != null) run(p.op);
+      else { steps = [{ snap: null }]; steps = [{ tree: clone(tree), caption: 'Type a value and tap the button.', tag: '', marks: {}, tags: {}, extra: '' }]; W = layout(tree).w; H = layout(tree).h; at = 0; shown = {}; paint(false); }
+    }
+    function target(t: any) {
+      const L = layout(t); const off = (W - L.w) / 2; const p: any = {};
+      for (const k in L.pos) p[k] = { x: L.pos[k].x + off, y: L.pos[k].y };
+      return p;
+    }
+    function draw(s: any, pos: any, alpha?: any) {
+      svgBox.innerHTML = s.tree ? svgTree(s.tree, { marks: s.marks, tags: s.tags, pos, alpha, minW: W, minH: H, label: 'Tree, step ' + (at + 1) }) : '<p class="muted small" style="text-align:center">(empty tree)</p>';
+    }
+    function paint(animate = true) {
+      const s = steps[at];
+      capEl.innerHTML = s.caption; tagEl.textContent = s.tag || ''; extraEl.innerHTML = s.extra || '';
+      back.disabled = at === 0; next.disabled = at === steps.length - 1;
+      next.textContent = at === steps.length - 1 ? 'Finished' : 'Next step →';
+      cancelAnimationFrame(anim);
+      if (!s.tree) { shown = {}; draw(s, {}); return; }
+      const to = target(s.tree), from = shown;
+      if (!animate || reduce) { shown = to; draw(s, to); return; }
+      const t0 = performance.now(), dur = 550;
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - t0) / dur), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        const pos: any = {}, alpha: any = {};
+        for (const k in to) { const a = from[k]; if (a) pos[k] = { x: a.x + (to[k].x - a.x) * e, y: a.y + (to[k].y - a.y) * e }; else { pos[k] = to[k]; alpha[k] = e; } }
+        draw(s, pos, alpha);
+        if (t < 1) anim = requestAnimationFrame(tick); else shown = to;
+      };
+      anim = requestAnimationFrame(tick);
+    }
+    next.addEventListener('click', () => { if (at < steps.length - 1) { at++; paint(); } });
+    back.addEventListener('click', () => { if (at > 0) { at--; paint(); } });
+    fig.querySelector('[data-go="reset"]')!.addEventListener('click', () => { at = 0; shown = {}; paint(false); });
+    const pb = fig.querySelectorAll<HTMLButtonElement>('[data-preset]');
+    pb.forEach((b) => b.addEventListener('click', () => { pb.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); load(cfg.presets[Number(b.dataset.preset)]); }));
+    fig.querySelectorAll<HTMLButtonElement>('[data-order]').forEach((b) => b.addEventListener('click', () => {
+      order = b.dataset.order!; fig.querySelectorAll('[data-order]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); run();
+    }));
+    const form = fig.querySelector('form');
+    if (form) {
+      const inp = form.querySelector<HTMLInputElement>('.bl-num')!;
+      form.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const v = Number(inp.value.trim());
+        if (!inp.value.trim() || !Number.isInteger(v) || v < 0 || v > 999) { err!.textContent = 'Type a whole number from 0 to 999.'; return; }
+        if (mode === 'insert' && tree && layout(tree).w > 640) { err!.textContent = 'The tree is getting too wide for your screen. Tap Reset tree first.'; return; }
+        err!.textContent = '';
+        run(v);
+      });
+      fig.querySelector('[data-reset-tree]')!.addEventListener('click', () => { err!.textContent = ''; load(preset); });
+    }
+    load(cfg.presets[0]);
+  });
+</script>

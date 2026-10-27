@@ -1,0 +1,70 @@
+---
+// Tap a node to see its balance factor worked out. Tree is drawn at build time.
+import { buildBst, svgTree, layout, height } from '../lib/tree.js';
+interface Props { id: string; values: number[]; }
+const { id, values } = Astro.props;
+const root = buildBst(values);
+const svg = svgTree(root, { label: 'A binary search tree. Tap a node to see its balance factor.' });
+const info: Record<string, { l: number; r: number; lv: string; rv: string }> = {};
+const L = layout(root);
+for (const k in L.pos) {
+  const n = L.pos[k].n;
+  info[k] = { l: height(n.l), r: height(n.r), lv: n.l ? String(n.l.v) : '', rv: n.r ? String(n.r.v) : '' };
+}
+---
+<figure class="fig bfx" id={id}>
+  <p class="fig-cap">Try it: tap any node</p>
+  <p class="fig-hint">Tap a node to work out its balance factor. Find every node that is <b>unbalanced</b> (balance factor of +2 or more, or −2 or less).</p>
+  <div class="bfx-svg" set:html={svg} />
+  <div class="bfx-out" aria-live="polite"><p class="muted">Tap a node above.</p></div>
+  <div class="btn-row"><button type="button" class="btn" data-all>Show all balance factors</button></div>
+</figure>
+<style is:global>
+  .bfx .bfx-out { background: var(--paper); border-radius: 6px; padding: 0.7rem 0.9rem; margin: 0.6rem 0; min-height: 6.5rem; }
+  .bfx .bfx-out .calc { font-family: var(--font-mono); font-size: 0.9rem; margin-top: 0.3rem; }
+  .bfx .bfx-out .verdict { font-weight: 800; margin-top: 0.3rem; }
+  .bfx .bfx-out .bad { color: var(--red-pen); }
+  .bfx .bfx-out .ok { color: var(--teal); }
+</style>
+<script is:inline define:vars={{ id, info }}>
+  (function () {
+    var f = document.getElementById(id); if (!f) return;
+    var out = f.querySelector('.bfx-out');
+    var nodes = f.querySelectorAll('.t-node');
+    function fmt(n) { return n < 0 ? '−' + (-n) : String(n); }
+    function signed(n) { return n > 0 ? '+' + n : fmt(n); }
+    nodes.forEach(function (g) {
+      g.classList.add('is-tap');
+      g.setAttribute('tabindex', '0');
+      g.setAttribute('role', 'button');
+      g.setAttribute('aria-label', 'Node ' + g.dataset.v);
+      function pick() {
+        nodes.forEach(function (x) { x.classList.remove('is-sel'); });
+        g.classList.add('is-sel');
+        var d = info[g.dataset.v], b = d.l - d.r, bad = Math.abs(b) > 1;
+        var ls = d.lv ? 'left subtree starts at ' + d.lv + ', height ' + fmt(d.l) : 'no left child, so height −1';
+        var rs = d.rv ? 'right subtree starts at ' + d.rv + ', height ' + fmt(d.r) : 'no right child, so height −1';
+        out.innerHTML = '<p><b>Node ' + g.dataset.v + '</b>: ' + ls + '; ' + rs + '.</p>' +
+          '<p class="calc">balance factor = ' + fmt(d.l) + ' − (' + fmt(d.r) + ') = ' + signed(b) + '</p>' +
+          '<p class="verdict ' + (bad ? 'bad">Unbalanced! This node needs fixing.' : 'ok">OK. This node is balanced (−1, 0, or +1).') + '</p>';
+        if (bad) g.classList.add('m-bad');
+      }
+      g.addEventListener('click', pick);
+      g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    });
+    f.querySelector('[data-all]').addEventListener('click', function () {
+      nodes.forEach(function (g) {
+        if (g.querySelector('.t-bf')) return;
+        var d = info[g.dataset.v], b = d.l - d.r, c = g.querySelector('circle');
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', String(Number(c.getAttribute('cx')) + 20));
+        t.setAttribute('y', String(Number(c.getAttribute('cy')) - 17));
+        t.setAttribute('class', 't-bf' + (Math.abs(b) > 1 ? ' is-bad' : ''));
+        t.textContent = signed(b);
+        g.appendChild(t);
+        if (Math.abs(b) > 1) g.classList.add('m-bad');
+      });
+      out.innerHTML = '<p>Only <b>60</b> is unbalanced (−2): its right side is 2 levels taller than its left. Notice that the root, 40, is fine (0). <b>You must check every node</b>, not just the root.</p>';
+    });
+  })();
+</script>

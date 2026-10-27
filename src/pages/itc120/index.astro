@@ -1,0 +1,186 @@
+---
+import Base from '../../layouts/Base.astro';
+import { course, terms } from '../../data/itc120.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const href = (p) => base + p;
+const tones = ['teal', 'orange', 'amber', 'ink'];
+
+// Small line icons for each unit (drawn inline, no image files)
+const icons = {
+  tree: '<circle cx="24" cy="10" r="5"/><circle cx="12" cy="30" r="5"/><circle cx="36" cy="30" r="5"/><circle cx="30" cy="44" r="4"/><path d="M21 14 14 26M27 14l7 12M37 35l-5 6"/>',
+  balance: '<circle cx="24" cy="10" r="5"/><circle cx="13" cy="26" r="5"/><circle cx="35" cy="26" r="5"/><circle cx="7" cy="42" r="4"/><circle cx="19" cy="42" r="4"/><circle cx="29" cy="42" r="4"/><circle cx="41" cy="42" r="4"/><path d="M21 14l-6 8M27 14l6 8M11 31l-3 7M15 31l3 7M33 31l-3 7M37 31l3 7"/>',
+  graph: '<circle cx="9" cy="12" r="5"/><circle cx="38" cy="9" r="5"/><circle cx="24" cy="26" r="5"/><circle cx="8" cy="40" r="5"/><circle cx="40" cy="39" r="5"/><path d="M13 15l7 8M34 12l-6 10M20 29 12 37M28 29l8 7M14 12h19M11 17v18"/>',
+  venn: '<circle cx="18" cy="25" r="13"/><circle cx="31" cy="25" r="13"/>',
+  book: '<path d="M6 10c7-3 13-2 18 2 5-4 11-5 18-2v30c-7-3-13-2-18 2-5-4-11-5-18-2z"/><path d="M24 12v30"/>',
+  list: '<rect x="4" y="18" width="11" height="11" rx="2"/><rect x="19" y="18" width="11" height="11" rx="2"/><rect x="34" y="18" width="11" height="11" rx="2"/><path d="M15 23.5h4M30 23.5h4"/>',
+};
+// Units are numbered in course order.
+const unitNum = new Map();
+let n = 0;
+terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
+---
+<Base title="ITC 120 Lessons · Ma'am Audrey" course={{ code: course.code, href: href(course.href) }}>
+  <section class="wrap head">
+    <div class="head-text">
+      <span class="tape teal">{course.code}</span>
+      <h1>{course.title}</h1>
+      <p class="muted">{course.who}</p>
+    </div>
+    <svg class="head-art" viewBox="0 0 365 204" width="320" height="179" role="img" aria-label="Small drawings of the structures in this course: array, linked list, map, stack, queue, tree, and graph">
+      <g fill="#fff" stroke="#1b2a2e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+        <!-- array -->
+        <rect x="8" y="20" width="24" height="24"/><rect x="32" y="20" width="24" height="24"/><rect x="56" y="20" width="24" height="24" fill="#e8662e"/><rect x="80" y="20" width="24" height="24"/>
+        <!-- linked list -->
+        <rect x="122" y="21" width="20" height="22" fill="#e3f1ef"/><rect x="142" y="21" width="10" height="22"/>
+        <rect x="166" y="21" width="20" height="22" fill="#e3f1ef"/><rect x="186" y="21" width="10" height="22"/>
+        <rect x="210" y="21" width="20" height="22" fill="#e3f1ef"/><rect x="230" y="21" width="10" height="22"/><path d="M231 41l8-18" fill="none"/>
+        <path d="M147 32h14M191 32h14" fill="none"/><path d="M158 28l4 4-4 4M202 28l4 4-4 4" fill="none"/>
+        <!-- map: key -> value -->
+        <rect x="268" y="14" width="24" height="18" fill="#f8dc95"/><rect x="316" y="14" width="40" height="18"/>
+        <rect x="268" y="38" width="24" height="18" fill="#f8dc95"/><rect x="316" y="38" width="40" height="18"/>
+        <path d="M296 23h14M296 47h14M306 19l4 4-4 4M306 43l4 4-4 4" fill="none"/>
+        <!-- stack -->
+        <path d="M12 100v72h56v-72" fill="none"/><rect x="18" y="150" width="44" height="15"/><rect x="18" y="132" width="44" height="15"/><rect x="18" y="114" width="44" height="15" fill="#f0a93b"/>
+        <!-- queue -->
+        <path d="M88 124h88M88 160h88" fill="none"/><rect x="96" y="131" width="22" height="22"/><rect x="123" y="131" width="22" height="22"/><rect x="150" y="131" width="22" height="22" fill="#e8662e"/>
+        <path d="M180 142h12M188 138l4 4-4 4" fill="none"/>
+        <!-- tree -->
+        <path d="M240 106l-19 28M240 106l19 28M221 134l-10 28M221 134l10 28" fill="none"/>
+        <circle cx="240" cy="106" r="9" fill="#e8662e"/><circle cx="221" cy="134" r="8"/><circle cx="259" cy="134" r="8"/><circle cx="211" cy="162" r="7"/><circle cx="231" cy="162" r="7" fill="#f8dc95"/>
+        <!-- graph -->
+        <path d="M296 110l50-6M296 110l26 32M346 104l-24 38M322 142l-20 30M322 142l30 26M302 172l50-4" fill="none"/>
+        <circle cx="296" cy="110" r="7"/><circle cx="346" cy="104" r="7" fill="#e3f1ef"/><circle cx="322" cy="142" r="7"/><circle cx="302" cy="172" r="7"/><circle cx="352" cy="168" r="7" fill="#e3f1ef"/>
+      </g>
+      <g font-family="Nunito, sans-serif" font-size="14" font-weight="700" fill="#37474a" text-anchor="middle" stroke="none">
+        <text x="20" y="59" font-size="11">0</text><text x="44" y="59" font-size="11">1</text><text x="68" y="59" font-size="11">2</text><text x="92" y="59" font-size="11">3</text>
+        <text x="56" y="82">array</text><text x="181" y="82">linked list</text><text x="312" y="82">map</text>
+        <text x="40" y="196">stack</text><text x="132" y="196">queue</text><text x="232" y="196">tree</text><text x="324" y="196">graph</text>
+      </g>
+    </svg>
+  </section>
+
+  {terms.map((t) => {
+    const lessons = t.units.reduce((n, u) => n + u.lessons.length, 0);
+    return (
+    <details class={`wrap term term-${t.id}`} id={t.id} open={t.open ? true : undefined} data-term={t.id}>
+      <summary class="term-head">
+        <span class="term-title"><span class="term-name">{t.name}</span><span class="term-count">{lessons ? `${t.units.length} unit${t.units.length > 1 ? 's' : ''} · ${lessons} lessons` : 'coming soon'}</span></span>
+        <span class="term-chev" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="#1b2a2e" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></span>
+      </summary>
+      <p class="term-note">{t.note}</p>
+      <div class="units">
+        {t.units.map((u) => {
+          const unitNo = unitNum.get(u);
+          const tone = tones[(unitNo - 1) % tones.length];
+          const live = u.lessons.filter((l) => l.status === 'live').length;
+          return (
+            <article class={`unit tone-${tone}`}>
+              <header class="unit-head">
+                <svg class="unit-ic" viewBox="0 0 48 50" width="42" height="42" fill="none" stroke="#1b2a2e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[u.icon] || ''} />
+                <div>
+                  <p class="unit-kicker">Unit {String(unitNo).padStart(2, '0')} · {u.lessons.length} lesson{u.lessons.length > 1 ? 's' : ''}</p>
+                  <h3>{u.name}</h3>
+                </div>
+              </header>
+              <ol class="path">
+                {u.lessons.map((l, i) => (
+                  <li class={`step s-${l.status}`}>
+                    {l.status === 'live' ? (
+                      <a href={href(l.href)} data-lesson={href(l.href)}>
+                        <span class="num">{i + 1}</span>
+                        <span class="txt"><span class="l-title">{l.title}</span>{l.blurb && <span class="l-blurb">{l.blurb}</span>}</span>
+                        <span class="prog" aria-live="polite"></span>
+                        <span class="go" aria-hidden="true">→</span>
+                      </a>
+                    ) : (
+                      <div>
+                        <span class="num">{i + 1}</span>
+                        <span class="txt"><span class="l-title">{l.title}</span><span class="l-blurb">{l.status === 'soon' ? 'Coming soon' : 'On Discord for now'}</span></span>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </article>
+          );
+        })}
+      </div>
+    </details>
+    );
+  })}
+</Base>
+
+<style>
+  .head { padding-block: 1.6rem 0.5rem; display: grid; gap: 1rem; align-items: center; }
+  .head h1 { margin-top: 0.6rem; }
+  .head h1::after { content: ""; display: block; width: 4.5rem; height: 6px; border-radius: 3px; background: var(--orange); margin-top: 0.7rem; }
+  .head .muted { margin-top: 0.6rem; }
+  .ha-edges path { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; fill: none; }
+  .ha-nodes circle { fill: var(--card); stroke: var(--ink); stroke-width: 3; }
+  .ha-nodes .o { fill: var(--orange); }
+  .ha-nodes .a { fill: var(--butter); }
+
+  .term { padding-top: 2.6rem; }
+  .term-note { margin-top: 0.7rem; color: var(--ink-soft); }
+  .units { display: grid; gap: 1.4rem; margin-top: 1.4rem; }
+
+  .unit { --tone: var(--teal); --tone-wash: var(--teal-wash); --tone-ink: #fff;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 18px rgba(27, 42, 46, 0.1); }
+  .tone-orange { --tone: var(--orange); --tone-wash: var(--orange-wash); }
+  .tone-amber { --tone: var(--amber); --tone-wash: #fdf1d8; --tone-ink: var(--ink); }
+  .tone-ink { --tone: #2c4a50; --tone-wash: #e6ecee; }
+  .tone-muted { --tone: #8d9c9e; --tone-wash: #eef2f2; }
+  .unit-head { display: flex; gap: 0.9rem; align-items: center; padding: 0.9rem 1.1rem; background: var(--tone); color: var(--tone-ink); }
+  .unit-head h3 { color: inherit; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; }
+  .unit-kicker { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.9; }
+  .unit-ic { width: 2.6rem; height: 2.6rem; flex: none; padding: 0.3rem; border-radius: 10px; background: rgba(255, 255, 255, 0.95); }
+  .unit-ic :global(*) { fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  .path { list-style: none; padding: 0.4rem 0; margin: 0; position: relative; }
+  .path::before { content: ""; position: absolute; left: calc(1.1rem + 0.95rem); top: 1.4rem; bottom: 1.4rem; width: 2px; background: var(--tone-wash); }
+  .step { margin: 0; position: relative; }
+  .step > a, .step > div { display: grid; grid-template-columns: 1.9rem 1fr auto auto; gap: 0.8rem; align-items: center; padding: 0.7rem 1.1rem; color: var(--ink); text-decoration: none; }
+  .step > a:hover { background: var(--tone-wash); color: var(--ink); }
+  .step + .step > a, .step + .step > div { border-top: 1px dashed var(--line); }
+  .num { width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 0.9rem; background: var(--card); border: 2px solid var(--tone); color: var(--ink); position: relative; z-index: 1; }
+  .s-live .num { background: var(--tone); color: var(--tone-ink); }
+  .step.is-done .num { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .txt { display: grid; gap: 0.1rem; min-width: 0; }
+  .l-title { font-weight: 800; }
+  .l-blurb { font-size: var(--step--1); color: var(--ink-soft); }
+  .s-soon .l-title, .s-pdf .l-title { color: var(--ink-soft); }
+  .s-soon .l-blurb { color: var(--orange-ink); font-weight: 700; }
+  .prog { font-size: 0.75rem; font-weight: 800; color: var(--teal-ink); white-space: nowrap; }
+  .prog:empty { display: none; }
+  .prog.done { background: var(--teal-wash); padding: 0.15rem 0.55rem; border-radius: 99px; }
+  .go { font-weight: 800; color: var(--tone); font-size: 1.2rem; }
+  .tone-amber .go { color: #b07610; }
+  @media (max-width: 30rem) { .step > a { grid-template-columns: 1.9rem 1fr; } .go { display: none; } .prog { grid-column: 2; justify-self: start; } }
+</style>
+
+<script is:inline>
+  // Remember which terms the student opened or closed (this device only).
+  (function () {
+    document.querySelectorAll('details[data-term]').forEach(function (d) {
+      var k = 'lx:itc120:term:' + d.dataset.term;
+      try { var v = localStorage.getItem(k); if (v !== null) d.open = v === '1'; } catch (e) {}
+      d.addEventListener('toggle', function () { try { localStorage.setItem(k, d.open ? '1' : '0'); } catch (e) {} });
+    });
+  })();
+  // Show progress saved by each lesson's contents panel ("Mark chapter as done"), on this device only.
+  (function () {
+    document.querySelectorAll('[data-lesson]').forEach(function (a) {
+      try {
+        var key = 'lx:' + a.dataset.lesson;
+        var ids = JSON.parse(localStorage.getItem(key + ':ids') || 'null');
+        var done = JSON.parse(localStorage.getItem(key + ':done') || '[]');
+        if (!ids || !ids.length) return;
+        var n = done.filter(function (d) { return ids.indexOf(d) > -1; }).length;
+        if (!n) return;
+        var p = a.querySelector('.prog');
+        if (n >= ids.length) { p.textContent = '✓ Done'; p.classList.add('done'); a.parentElement.classList.add('is-done'); }
+        else p.textContent = n + ' of ' + ids.length + ' parts';
+      } catch (e) {}
+    });
+  })();
+</script>

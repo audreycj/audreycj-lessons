@@ -1,0 +1,31 @@
+---
+// A general tree (any number of children) drawn at build time, e.g. spec "A(B(D,E(H,I),F),C(G))".
+// Nodes carry data-v, edges carry data-e="Parent-Child" so a page script can highlight them.
+interface Props { spec: string; label?: string; cls?: string; }
+const { spec, label = 'Tree diagram', cls = '' } = Astro.props;
+type N = { id: string; kids: N[]; x?: number; y?: number; d?: number };
+let i = 0;
+function parse(): N {
+  let t = '';
+  while (i < spec.length && !'(),'.includes(spec[i])) t += spec[i++];
+  const n: N = { id: t.trim(), kids: [] };
+  if (spec[i] === '(') { i++; for (;;) { n.kids.push(parse()); if (spec[i] === ',') { i++; continue; } if (spec[i] === ')') { i++; break; } } }
+  return n;
+}
+const root = parse();
+const all: N[] = [];
+let leaf = 0;
+const GX = 40, GY = 54, R = 15, P = 20;
+(function place(n: N, d: number) {
+  all.push(n); n.d = d; n.y = P + R + d * GY;
+  if (!n.kids.length) { n.x = P + R + leaf++ * GX; return; }
+  n.kids.forEach((k) => place(k, d + 1));
+  n.x = (n.kids[0].x! + n.kids[n.kids.length - 1].x!) / 2;
+})(root, 0);
+const W = P * 2 + R * 2 + (leaf - 1) * GX, H = P * 2 + R * 2 + Math.max(...all.map((n) => n.d!)) * GY;
+let svg = `<svg class="tree-svg gen-tree ${cls}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}">`;
+all.forEach((n) => n.kids.forEach((k) => (svg += `<line class="g-e" data-e="${n.id}-${k.id}" x1="${n.x}" y1="${n.y}" x2="${k.x}" y2="${k.y}" stroke="#1b2a2e" stroke-width="2"/>`)));
+all.forEach((n) => (svg += `<g class="t-node" data-v="${n.id}"><circle cx="${n.x}" cy="${n.y}" r="${R}" fill="#fff" stroke="#1b2a2e" stroke-width="2"/><text x="${n.x}" y="${n.y}">${n.id}</text></g>`));
+svg += '</svg>';
+---
+<Fragment set:html={svg} />

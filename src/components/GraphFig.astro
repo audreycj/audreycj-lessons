@@ -1,0 +1,39 @@
+---
+// Graph drawn at build time, optionally with its adjacency matrix and/or list beside it.
+import { svgGraph, ids, matrix, neighbors } from '../lib/graph.js';
+interface Props { g: any; show?: ('graph' | 'matrix' | 'list')[]; nodeMarks?: Record<string, string>; edgeMarks?: Record<string, string>; labels?: Record<string, string>; label?: string; w?: number; h?: number; caption?: string; }
+const { g, show = ['graph'], nodeMarks, edgeMarks, labels, label = 'Graph diagram', w, h, caption } = Astro.props;
+const I = ids(g);
+const M = matrix(g);
+const svg = svgGraph(g, { nodeMarks, edgeMarks, labels, label, w, h });
+---
+<div class={`gfig cols-${show.length}`}>
+  {show.includes('graph') && <div class="gfig-g" set:html={svg} />}
+  {show.includes('matrix') && (
+    <div class="gfig-m scroll-x">
+      <table class="adj">
+        <caption>Adjacency matrix (row = from, column = to)</caption>
+        <thead><tr><th></th>{I.map((c) => <th scope="col">{c}</th>)}</tr></thead>
+        <tbody>{I.map((r, i) => <tr><th scope="row">{r}</th>{M[i].map((v, j) => <td class={`${v ? 'one' : ''} ${i === j ? 'diag' : ''}`}>{v}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
+  )}
+  {show.includes('list') && (
+    <div class="gfig-l">
+      <div class="adjlist" role="list" aria-label="Adjacency list">
+        {I.map((r) => (
+          <div class="row" role="listitem"><span class="head">{r}</span>
+            {neighbors(g, r).map((n) => <><span class="arr">→</span><span class="cell"><b>{n}</b><i></i></span></>)}
+            <span class="arr">→</span><span class="null">null</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+  {caption && <p class="gfig-cap small muted">{caption}</p>}
+</div>
+<style>
+  .gfig { display: grid; gap: 1rem; align-items: center; }
+  @media (min-width: 44rem) { .gfig.cols-2 { grid-template-columns: 1fr 1fr; } }
+  .gfig-cap { grid-column: 1 / -1; text-align: center; }
+</style>

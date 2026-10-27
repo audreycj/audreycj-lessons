@@ -1,0 +1,409 @@
+---
+import Base from '../../layouts/Base.astro';
+import GraphFig from '../../components/GraphFig.astro';
+import MatrixLab from '../../components/MatrixLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import PinScript from '../../components/PinScript.astro';
+import { course } from '../../data/itc120.js';
+import { small, smallDir, weighted, withLoop } from '../../data/graphs.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
+
+// Practice graph for "read the matrix / list" (exam style). Directed, unweighted.
+const practiceG = {
+  directed: true, weighted: false,
+  nodes: [
+    { id: 'A', x: 60, y: 60 }, { id: 'B', x: 200, y: 45 }, { id: 'C', x: 120, y: 175 },
+    { id: 'D', x: 270, y: 150 }, { id: 'E', x: 300, y: 235 },
+  ],
+  edges: [{ a: 'A', b: 'C' }, { a: 'A', b: 'D' }, { a: 'B', b: 'A' }, { a: 'C', b: 'B' }, { a: 'D', b: 'B' }, { a: 'D', b: 'E' }],
+};
+
+const readQuiz = [
+  { q: 'Look at row A of the matrix. Which vertices does A have an edge <b>to</b>?', opts: ['B only', 'C and D', 'B, C, and D', 'A and E'], a: 1, why: 'Row A is 0 0 1 1 0. The 1s are in columns C and D, so the edges are A → C and A → D. The list says the same: A → C → D → null.' },
+  { q: 'Which vertex has <b>no outgoing</b> edges?', opts: ['A', 'B', 'D', 'E'], a: 3, why: 'Row E is all 0s, and E\'s list is just null. Edges can still come <i>into</i> E (from D), but none go out.' },
+  { q: 'Which vertex receives edges from <b>two</b> different vertices?', opts: ['A', 'B', 'C', 'E'], a: 1, why: 'Read <b>column</b> B (incoming edges): there are 1s in rows C and D. So C → B and D → B. To find what comes <i>in</i>, read down a column, or search every list for B.' },
+  { q: 'Based on the matrix, this graph is:', opts: ['Undirected and weighted', 'Undirected and unweighted', 'Directed and weighted', 'Directed and unweighted'], a: 3, why: '<b>Directed</b>: the matrix is not a mirror image. For example, [A][C] = 1 but [C][A] = 0. <b>Unweighted</b>: every entry is only 0 or 1.' },
+  { q: 'What is the <b>out-degree</b> of D?', opts: ['0', '1', '2', '3'], a: 2, why: 'D has edges to B and E (row D has two 1s; D\'s list has two cells). Out-degree = 2.' },
+  { q: 'In any adjacency matrix, a 1 on the diagonal (for example, [C][C]) means:', opts: ['There is a loop: an edge from C to itself', 'C is the starting vertex', 'C has no edges', 'There is an error in the matrix'], a: 0, why: 'The diagonal is where row and column are the same vertex. A 1 there means an edge from that vertex back to itself, called a <b>loop</b>.' },
+];
+
+const checkQuiz = [
+  { q: 'A graph is made of:', opts: ['Only nodes', 'Vertices and edges', 'A root and leaves', 'Keys and values'], a: 1, why: 'A graph is a set of <b>vertices</b> (nodes) and a set of <b>edges</b> that connect pairs of them. It has no root.' },
+  { q: 'Which statement is true?', opts: ['Every graph is a tree', 'Every tree is a graph', 'Graphs cannot have cycles', 'A graph must be connected'], a: 1, why: 'A tree is a special kind of graph: connected, with no cycles. Graphs in general can have cycles, can be disconnected, and have no root.' },
+  { q: 'In an <b>undirected</b> graph, the adjacency matrix is always:', opts: ['All 1s', 'A mirror image across the diagonal', 'All 0s on the diagonal', 'Different from its adjacency list'], a: 1, why: 'Each undirected edge A – B is stored twice, as [A][B] and [B][A]. So the matrix is symmetric (a mirror image across the diagonal).' },
+  { q: 'A graph has 6 vertices. How many cells does its adjacency matrix have?', opts: ['6', '12', '36', 'It depends on the number of edges'], a: 2, why: 'The matrix is always vertices × vertices: 6 × 6 = 36 cells, even if there are very few edges.' },
+  { q: 'Your graph has 1,000 vertices, and each one connects to only about 3 others. Which representation saves more memory?', opts: ['Adjacency matrix', 'Adjacency list', 'Both use the same memory', 'Neither can store it'], a: 1, why: 'A matrix would need 1,000 × 1,000 = 1,000,000 cells, almost all 0. A list stores only the edges that exist (about 3 per vertex).' },
+  { q: 'In a <b>weighted</b> graph, what does the adjacency matrix store?', opts: ['Only 0 and 1', 'The weight of each edge (and 0 where there is no edge)', 'The degree of each vertex', 'The vertex names'], a: 1, why: 'Instead of 1, each cell stores the edge\'s weight, such as a distance, cost, or time. In this course, 0 means "no edge".' },
+];
+
+const code1 = String.raw`public class MatrixGraph {
+  static char[] names = {'A', 'B', 'C', 'D'};
+  static int n = names.length;
+  static int[][] adj = new int[n][n];   // all 0 at first
+
+  // undirected edge: set both cells
+  static void addEdge(int from, int to) {
+    adj[from][to] = 1;
+    adj[to][from] = 1;   // remove this line for directed
+  }
+
+  public static void main(String[] args) {
+    addEdge(0, 1);   // A - B
+    addEdge(0, 3);   // A - D
+    addEdge(1, 2);   // B - C
+    addEdge(1, 3);   // B - D
+
+    // neighbors of B (index 1): scan row 1
+    for (int j = 0; j < n; j++) {
+      if (adj[1][j] == 1) {
+        System.out.print(names[j] + " ");
+      }
+    }
+    // prints: A C D
+  }
+}`;
+
+const code2 = String.raw`import java.util.ArrayList;
+
+public class ListGraph {
+  static char[] names = {'A', 'B', 'C', 'D'};
+  static int n = names.length;
+  static ArrayList<ArrayList<Integer>> list = new ArrayList<>();
+
+  // undirected edge: add each to the other's list
+  static void addEdge(int from, int to) {
+    list.get(from).add(to);
+    list.get(to).add(from);   // remove for directed
+  }
+
+  public static void main(String[] args) {
+    for (int i = 0; i < n; i++) {
+      list.add(new ArrayList<>());   // one empty list each
+    }
+    addEdge(0, 1);   // A - B
+    addEdge(0, 3);   // A - D
+    addEdge(1, 2);   // B - C
+    addEdge(1, 3);   // B - D
+
+    // neighbors of B: walk B's list only
+    for (int j : list.get(1)) {
+      System.out.print(names[j] + " ");
+    }
+    // prints: A C D
+  }
+}`;
+---
+<Base title="Graphs · ITC 120" description="Graphs in plain English: vertices and edges, directed and weighted graphs, and how to store them in an adjacency matrix or adjacency list." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Graphs</p>
+    <p class="kicker">Graphs · Lesson 1 of 3</p>
+    <h1>Graphs, and How to Store Them</h1>
+    <p class="lede">Trees let each node have one parent. Graphs remove that rule: anything can connect to anything.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>explain what a graph is and how it differs from a tree;</li>
+        <li>use graph words: vertex, edge, adjacent, degree, path, cycle, loop;</li>
+        <li>tell <b>directed</b> from undirected, and <b>weighted</b> from unweighted;</li>
+        <li>read and build an <b>adjacency matrix</b> and an <b>adjacency list</b>;</li>
+        <li>choose between the two, and store a graph in Java.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the linked lists lesson (for adjacency lists), the trees lessons, and scratch paper.</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="chapter wrap" id="what">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>What a graph is</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Graph</p>
+        <p>A <b>graph</b> is a non-linear data structure made of a set of <b>vertices</b> (also called nodes) and a set of <b>edges</b>. Each edge connects two vertices.</p>
+        <p>We often write a graph as <b>G = (V, E)</b>: V is the set of vertices, E is the set of edges.</p>
+      </div>
+      <GraphFig g={small} label="A small graph: A connects to B and D; B connects to C and D" caption="V = {A, B, C, D}   ·   E = {A–B, A–D, B–C, B–D}" />
+
+      <div class="sub">
+        <h3>Graphs vs. trees</h3>
+        <p>You already know one kind of graph: a <b>tree</b> is a graph with special rules (one root, every other node has exactly one parent, no cycles). A general graph drops those rules:</p>
+        <table class="tbl">
+          <thead><tr><th></th><th>Tree</th><th>Graph</th></tr></thead>
+          <tbody>
+            <tr><td><b>Root?</b></td><td>yes, one</td><td>no root</td></tr>
+            <tr><td><b>Parents?</b></td><td>every node except the root has exactly one</td><td>no parent/child idea; a vertex can connect to any number of others</td></tr>
+            <tr><td><b>Cycles?</b></td><td>never</td><td>allowed (you can go around and come back)</td></tr>
+            <tr><td><b>Connected?</b></td><td>always</td><td>not always; some parts can be separate</td></tr>
+          </tbody>
+        </table>
+        <p>So: <b>every tree is a graph, but not every graph is a tree.</b></p>
+      </div>
+
+      <div class="remember">
+        <p class="note-label">Where you see graphs in IT</p>
+        <p>Graphs are everywhere in IT. Here are some examples:</p>
+        <ul>
+          <li><b>Computer networks:</b> devices (vertices) connected by cables or Wi-Fi links (edges).</li>
+          <li><b>Social media:</b> people (vertices) and friendships (edges). "People you may know" are friends of your friends.</li>
+          <li><b>Maps and delivery apps:</b> places (vertices) and roads (edges), used to find a route.</li>
+          <li><b>The web:</b> pages (vertices) and links (edges) from one page to another.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="chapter wrap" id="words">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Vocabulary</p>
+      <h2>Graph words</h2>
+    </div>
+    <div class="flow">
+      <p>These are the basic terms used with graphs. The examples refer to the small graph above. <b>Tap any row</b> to see it in the graph (on a computer, just point at the row).</p>
+      <div class="terms-ref">
+        <aside class="tr-side" aria-label="The small graph, for reference">
+          <GraphFig g={small} label="The small graph: A connects to B and D; B connects to C and D" />
+          <p class="tr-note small">Orange = the term. Gold = the related vertices.</p>
+        </aside>
+        <div class="tr-main scroll-x">
+          <table class="tbl tr-table">
+            <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+            <tbody>
+            <tr tabindex="0" data-hl="A" data-hl2="" data-e=""><td><b>Vertex</b> (node)</td><td>one item in the graph</td><td>A</td></tr>
+            <tr tabindex="0" data-hl="A,B" data-hl2="" data-e="A-B"><td><b>Edge</b></td><td>a connection between two vertices</td><td>A–B</td></tr>
+            <tr tabindex="0" data-hl="B,C" data-hl2="" data-e="B-C"><td><b>Adjacent</b> (neighbors)</td><td>two vertices joined by an edge</td><td>B and C are adjacent; A and C are not</td></tr>
+            <tr tabindex="0" data-hl="B" data-hl2="A,C,D" data-e="A-B,B-C,B-D"><td><b>Degree</b></td><td>the number of edges touching a vertex</td><td>B has degree 3</td></tr>
+            <tr tabindex="0" data-hl="A,C" data-hl2="B" data-e="A-B,B-C"><td><b>Path</b></td><td>a sequence of vertices, each joined to the next by an edge</td><td>A → B → C</td></tr>
+            <tr tabindex="0" data-hl="A" data-hl2="B,D" data-e="A-B,B-D,A-D"><td><b>Cycle</b></td><td>a path that starts and ends at the same vertex, without reusing edges</td><td>A → B → D → A</td></tr>
+            <tr tabindex="0" data-hl="" data-hl2="" data-e=""><td><b>Loop</b></td><td>an edge from a vertex to itself</td><td>(none here)</td></tr>
+            <tr tabindex="0" data-hl="A,B,C,D" data-hl2="" data-e="A-B,A-D,B-C,B-D"><td><b>Connected</b></td><td>every vertex can be reached from every other vertex</td><td>this graph is connected</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Directed or undirected?</h3>
+        <p>Graphs can be described in two ways, depending on whether edges have a direction:</p>
+        <div class="two-col">
+          <figure class="fig">
+            <p class="fig-cap">Undirected</p>
+            <GraphFig g={small} label="Undirected graph" />
+            <p class="small">Edges have <b>no direction</b>. A–B means you can go A to B <i>and</i> B to A. Like Facebook friends: if you are my friend, I am yours.</p>
+          </figure>
+          <figure class="fig">
+            <p class="fig-cap">Directed</p>
+            <GraphFig g={smallDir} label="Directed graph with arrows" />
+            <p class="small">Each edge is an <b>arrow</b>. A → B lets you go from A to B, but not back. Like following someone on TikTok: they do not have to follow you back.</p>
+          </figure>
+        </div>
+        <p>In a directed graph, degree splits in two. The <b>out-degree</b> counts arrows leaving a vertex; the <b>in-degree</b> counts arrows coming in. In the directed graph above, A has out-degree 2 (to B and D) and in-degree 1 (from C).</p>
+      </div>
+
+      <div class="sub">
+        <h3>Weighted or unweighted?</h3>
+        <figure class="fig">
+          <div class="two-col">
+            <GraphFig g={weighted} label="Weighted graph with numbers on the edges" />
+            <div class="flow">
+              <p>In a <b>weighted</b> graph, each edge carries a number called its <b>weight</b>. It can mean distance, cost, or time.</p>
+              <p>Here the weights are travel times in minutes (made-up numbers). From A to C, the path A → D → B → C takes 4 + 5 + 12 = 21 minutes, but A → B → C takes 7 + 12 = 19.</p>
+              <p>An <b>unweighted</b> graph has no numbers: every edge counts the same.</p>
+            </div>
+          </div>
+        </figure>
+      </div>
+
+      <div class="sub">
+        <h3>Loops</h3>
+        <GraphFig g={withLoop} label="Directed graph where C has an arrow to itself" />
+        <p>C has a <b>loop</b>: an edge that leaves C and comes right back to C. Think of a web page that links to itself (like a "back to top" link).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="chapter wrap" id="matrix">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Storing a graph, way 1</p>
+      <h2>Adjacency matrix</h2>
+    </div>
+    <div class="flow">
+      <p>A drawing is for people. A program needs to store the graph in memory. There are two common ways. The first uses a 2D array, which you know from arrays.</p>
+      <div class="def">
+        <p class="note-label">Adjacency matrix</p>
+        <p>An <b>adjacency matrix</b> is a 2D array with one row and one column for each vertex. The cell <b>[row][column]</b> is <b>1</b> if there is an edge <b>from</b> the row vertex <b>to</b> the column vertex, and <b>0</b> if there is not.</p>
+      </div>
+      <GraphFig g={smallDir} show={['graph', 'matrix']} label="The directed graph and its adjacency matrix" />
+      <p><b>How to read it:</b> pick a row and read across. Row A is <span class="mono">0 1 0 1</span>, so A has edges to B and D. To find edges coming <i>into</i> a vertex, read <b>down its column</b>: column A has a 1 in row C, so C → A.</p>
+
+      <div class="sub">
+        <h3>Three things to notice</h3>
+        <p>The matrix shows you the type of graph. Look for these three things:</p>
+        <ol>
+          <li><b>Undirected = mirror image.</b> Every undirected edge A–B is stored twice, as [A][B] and [B][A]. So the matrix matches itself across the diagonal (it is <b>symmetric</b>).</li>
+          <li><b>The diagonal means loops.</b> Cell [C][C] is an edge from C to itself. If the diagonal is all 0, there are no loops.</li>
+          <li><b>Weights replace the 1s.</b> In a weighted graph, the cell stores the weight instead of 1.</li>
+        </ol>
+        <div class="two-col">
+          <figure class="fig">
+            <p class="fig-cap">Undirected: symmetric</p>
+            <GraphFig g={small} show={['matrix']} />
+          </figure>
+          <figure class="fig">
+            <p class="fig-cap">Weighted: numbers</p>
+            <GraphFig g={weighted} show={['matrix']} />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="chapter wrap" id="list">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Storing a graph, way 2</p>
+      <h2>Adjacency list</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Adjacency list</p>
+        <p>An <b>adjacency list</b> gives each vertex its own list of the vertices it has an edge to. The lists are often linked lists, so each one ends with <code>null</code>.</p>
+      </div>
+      <GraphFig g={smallDir} show={['graph', 'list']} label="The directed graph and its adjacency list" />
+      <p>This should look familiar: each row is a linked list from the linked lists lesson. A's list is <span class="mono">B → D → null</span>, so A has edges to B and D.</p>
+      <p>For an <b>undirected</b> graph, each edge appears in <b>two</b> lists: A–B puts B in A's list and A in B's list. For a <b>weighted</b> graph, each cell also stores the weight, for example (B, 7).</p>
+
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ul>
+          <li>A row (or a list) shows edges going <b>out</b>. To find edges coming <b>in</b>, read the column, or look for the vertex inside the <i>other</i> lists.</li>
+          <li>The order inside a list does not change the graph. A → B → D and A → D → B describe the same edges.</li>
+          <li>A vertex with an empty list (just <code>null</code>) has no outgoing edges, but it can still have incoming ones.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="chapter wrap" id="build">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Play</p>
+      <h2>Build your own</h2>
+    </div>
+    <div class="flow">
+      <p>All three views below show the same graph. Change one and watch the others follow. Try these:</p>
+      <ol>
+        <li>In <b>undirected</b> mode, tap [B][E]. Two cells change. Why?</li>
+        <li>Switch to <b>directed</b> and tap [E][D]. Now only one cell changes.</li>
+        <li>Tap a diagonal cell to make a loop.</li>
+      </ol>
+      <MatrixLab id="mxlab" />
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="chapter wrap" id="compare">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Choosing</p>
+      <h2>Matrix or list?</h2>
+    </div>
+    <div class="flow">
+      <p>Both store the same graph. They differ in memory and in which questions they answer quickly:</p>
+      <table class="tbl">
+        <thead><tr><th>Question</th><th>Adjacency matrix</th><th>Adjacency list</th></tr></thead>
+        <tbody>
+          <tr><td><b>Memory used</b></td><td>always vertices × vertices cells (100 vertices → 10,000 cells), even with few edges</td><td>only the edges that exist</td></tr>
+          <tr><td><b>"Is there an edge A → B?"</b></td><td>look at one cell: [A][B]. Fast.</td><td>walk through A's list until you find B</td></tr>
+          <tr><td><b>"Who are A's neighbors?"</b></td><td>scan the whole row, including all the 0s</td><td>walk A's list: only real neighbors</td></tr>
+          <tr><td><b>Best when</b></td><td>the graph is <b>dense</b> (many edges) or small</td><td>the graph is <b>sparse</b> (few edges per vertex)</td></tr>
+        </tbody>
+      </table>
+      <div class="sticky">
+        <p class="note-label">Think of your class</p>
+        <p>To record who is friends with whom in a class of 40, a matrix is a 40 × 40 grid: 1,600 boxes, mostly empty. A list is like each student writing just their friends' names on an index card. Most real graphs (social networks, roads) are sparse, so lists are used more often.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="chapter wrap" id="read">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Your turn</p>
+      <h2>Reading practice</h2>
+    </div>
+    <div class="flow">
+      <p>Exams often give you only the matrix or only the list, with no drawing. Use these two views of the same graph to answer the questions. Try sketching the graph on paper first.</p>
+      <figure class="fig">
+        <GraphFig g={practiceG} show={['matrix', 'list']} />
+      </figure>
+      <Quiz id="quiz-read" questions={readQuiz} />
+      <details class="reveal">
+        <summary>Show the drawing</summary>
+        <div><GraphFig g={practiceG} label="The practice graph drawn out" /></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · In code</p>
+      <h2>Graphs in Java</h2>
+    </div>
+    <div class="flow">
+      <p>In Java, we usually number the vertices 0, 1, 2, … and keep their names in a separate array. So A is 0, B is 1, C is 2, and D is 3.</p>
+      <div class="sub">
+        <h3>Adjacency matrix: a 2D array</h3>
+        <pre class="code"><code set:html={hi(code1)} /></pre>
+      </div>
+      <div class="sub">
+        <h3>Adjacency list: a list of lists</h3>
+        <p><code>ArrayList</code> is Java's built-in resizable array: you can keep calling <code>add</code> and it grows. Here, we keep one <code>ArrayList</code> per vertex. Each inner list plays the role of the linked lists in our pictures.</p>
+        <pre class="code"><code set:html={hi(code2)} /></pre>
+      </div>
+      <p>Notice the difference when listing B's neighbors: the matrix loop checks all <code>n</code> cells in row 1, while the list loop only visits B's real neighbors.</p>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 9 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-graphs" questions={checkQuiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A graph is a set of vertices and edges. Trees are a special kind of graph.</li>
+          <li>Directed edges are arrows (one way). Weighted edges carry numbers.</li>
+          <li>Adjacency matrix: [row][column] = 1 means an edge from row to column. Undirected → symmetric. Diagonal → loops.</li>
+          <li>Adjacency list: each vertex has a list of where its edges go, ending in null.</li>
+          <li>Matrix: quick edge checks, but lots of memory. List: saves memory for sparse graphs.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> Breadth-first search (BFS), a way to visit every vertex of a graph, level by level.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 6 (introduction to graphs).</li>
+          <li>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <i>Introduction to Algorithms</i>, 4th ed. MIT Press, 2022, Section 20.1 (Representations of graphs).</li>
+          <li>Programiz, "Graph Data Structure," "Adjacency Matrix," and "Adjacency List." <a href="https://www.programiz.com/dsa/graph">programiz.com/dsa/graph</a></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+<PinScript />
+
+<style>
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

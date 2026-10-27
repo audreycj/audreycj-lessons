@@ -1,0 +1,247 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import TermsLab from '../../components/TermsLab.astro';
+import GenTree from '../../components/GenTree.astro';
+import PinScript from '../../components/PinScript.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hi } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const listNode = String.raw`class Node {
+  int data;
+  Node next;     // one link
+}`;
+const treeNode = String.raw`class TreeNode {
+  int data;
+  TreeNode left;    // left child
+  TreeNode right;   // right child
+
+  TreeNode(int value) {
+    data = value;
+    left = null;      // no children yet
+    right = null;
+  }
+}`;
+const build = String.raw`TreeNode root = new TreeNode(50);
+root.left = new TreeNode(30);
+root.right = new TreeNode(70);
+root.left.right = new TreeNode(40);`;
+
+const quiz = [
+  { q: 'Which node has no parent?', opts: ['A leaf', 'The root', 'Any internal node', 'Every node has a parent'], a: 1, why: 'The <b>root</b> is the top node and the only node with no parent.' },
+  { q: 'A node with no children is called:', opts: ['A root', 'A leaf', 'An internal node', 'A sibling'], a: 1, why: 'A <b>leaf</b> has no children. An internal node has at least one.' },
+  { q: 'In the explorer tree, what is the depth of E?', opts: ['1', '2', '3', '0'], a: 1, why: 'Depth counts edges from the root down: A → B → E is <b>2</b> edges.' },
+  { q: 'In the explorer tree, what is the height of E?', opts: ['0', '1', '2', '3'], a: 1, why: 'Height counts edges from E down to its deepest leaf: E → H is <b>1</b> edge.' },
+  { q: 'A tree has 12 nodes. How many edges does it have?', opts: ['12', '11', '13', '24'], a: 1, why: 'Every node except the root has one edge up to its parent: 12 − 1 = <b>11</b>.' },
+  { q: 'Which statement about a binary tree is true?', opts: ['Every node has exactly 2 children', 'Every node has at most 2 children', 'It must be sorted', 'It cannot have leaves'], a: 1, why: 'A binary tree allows <b>0, 1, or 2</b> children per node. Sorting is the extra rule of a <i>binary search</i> tree (next lesson).' },
+  { q: 'In Java, what does <code>root.left.right</code> refer to?', opts: ['The right child of the root', 'The left child of the root\'s right child', 'The right child of the root\'s left child', 'The root itself'], a: 2, why: 'Read the dots from left to right: start at root, go <b>left</b>, then go <b>right</b>.' },
+  { q: 'Are <code>left</code> and <code>right</code> like <code>previous</code> and <code>next</code> in a linked list?', opts: ['Yes, left goes back and right goes forward', 'No, both point down to children', 'Yes, but only in binary search trees', 'No, they point to the parent'], a: 1, why: 'Both <code>left</code> and <code>right</code> point <b>down</b>, to the node\'s two children.' },
+];
+---
+<Base title="Trees and Binary Trees · ITC 120" description="Trees in plain English: root, parent, child, leaf, depth, height, and binary trees with left and right children." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
+    <p class="kicker">Trees and BSTs · Lesson 1 of 6</p>
+    <h1>Trees and Binary Trees</h1>
+    <p class="lede">Our first non-linear data structure: nodes that branch out, like folders inside folders.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>connect linked-list nodes to tree nodes;</li>
+        <li>use tree words: root, parent, child, sibling, leaf, ancestor, descendant, subtree, depth, height;</li>
+        <li>recognize a <b>binary tree</b> and read its <code>left</code> and <code>right</code> references in Java.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the linked lists lesson, and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="lists">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · From lists to trees</p>
+      <h2>Some data branches out</h2>
+    </div>
+    <div class="flow">
+      <p>You already know nodes from linked lists. Each node holds data and <b>one</b> link, <code>next</code>, to the node after it:</p>
+      <pre class="code"><code set:html={hi(listNode)} /></pre>
+      <p>But some data does not line up in one chain. Look at the folders on your phone: <i>Internal storage</i> holds <i>DCIM</i>, <i>Download</i>, and <i>Documents</i>; <i>DCIM</i> holds <i>Camera</i> and <i>Screenshots</i>. One folder can hold <b>many</b> folders. That shape is a tree.</p>
+      <div class="def">
+        <p class="note-label">Tree</p>
+        <p>A <b>tree</b> is a non-linear data structure made of nodes connected by edges, arranged in levels from top to bottom. It follows three rules:</p>
+        <ol>
+          <li>One node is at the top: the <b>root</b>.</li>
+          <li>Every other node has exactly <b>one parent</b>.</li>
+          <li>A node can have any number of <b>children</b>.</li>
+        </ol>
+      </div>
+      <div class="remember">
+        <p class="note-label">Where you see trees in IT</p>
+        <p>Folders on a computer, the categories in an online shop (Electronics → Phones → Android), an organization chart, and a family tree are all trees.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="words">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Tree words</p>
+      <h2>Tree terminology</h2>
+    </div>
+    <div class="flow">
+      <p>Trees come with their own vocabulary. Most words come from family trees. Explore them first, then read the summary table below.</p>
+      <TermsLab id="terms" spec="A(B(D,E(H,I),F),C(G))" />
+      <p>Here are all the terms, with examples from the explorer tree. <b>Tap any row</b> to see it in the tree (on a computer, just point at the row).</p>
+      <div class="terms-ref" id="terms-ref">
+        <aside class="tr-side" aria-label="The explorer tree, for reference">
+          <GenTree spec="A(B(D,E(H,I),F),C(G))" label="The explorer tree: A at the top; B and C; D, E, F under B; G under C; H and I under E" />
+          <p class="tr-note small">Orange = the term. Gold = the related nodes.</p>
+        </aside>
+        <div class="tr-main scroll-x">
+          <table class="tbl tr-table">
+            <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+            <tbody>
+            <tr tabindex="0" data-hl="A" data-hl2="" data-e=""><td><b>Node</b></td><td>holds one value</td><td>A</td></tr>
+            <tr tabindex="0" data-hl="A,B" data-hl2="" data-e="A-B"><td><b>Edge</b></td><td>links a parent to its child</td><td>A–B</td></tr>
+            <tr tabindex="0" data-hl="A,B,C,D,E,F,G,H,I" data-hl2="" data-e=""><td><b>Size</b></td><td>the number of nodes</td><td>9 (and 8 edges)</td></tr>
+            <tr tabindex="0" data-hl="A" data-hl2="" data-e=""><td><b>Root</b></td><td>the top node; the only one with no parent</td><td>A</td></tr>
+            <tr tabindex="0" data-hl="B" data-hl2="D,E,F" data-e="B-D,B-E,B-F"><td><b>Parent / child</b></td><td>a node directly above / below another</td><td>B is the parent of D, E, F</td></tr>
+            <tr tabindex="0" data-hl="D,E,F" data-hl2="H,I" data-e=""><td><b>Siblings</b></td><td>nodes with the same parent</td><td>D, E, F; also H and I</td></tr>
+            <tr tabindex="0" data-hl="D,H,I,F,G" data-hl2="" data-e=""><td><b>Leaf</b></td><td>a node with no children</td><td>D, H, I, F, G</td></tr>
+            <tr tabindex="0" data-hl="A,B,C,E" data-hl2="" data-e=""><td><b>Internal node</b></td><td>a node with at least one child</td><td>A, B, C, E</td></tr>
+            <tr tabindex="0" data-hl="A,B" data-hl2="H" data-e="A-B,B-E,E-H"><td><b>Ancestor / descendant</b></td><td>going down from X to Y: X is an ancestor of Y, Y is a descendant of X</td><td>A and B are ancestors of H</td></tr>
+            <tr tabindex="0" data-hl="B" data-hl2="D,E,H,I,F" data-e="B-D,B-E,B-F,E-H,E-I"><td><b>Subtree</b></td><td>a node plus everything below it</td><td>the subtree rooted at B: B, D, E, H, I, F</td></tr>
+            <tr tabindex="0" data-hl="E" data-hl2="A,B" data-e="A-B,B-E"><td><b>Depth</b> of a node</td><td>edges from the root <b>down to</b> the node</td><td>depth of E = 2</td></tr>
+            <tr tabindex="0" data-hl="E" data-hl2="H" data-e="E-H"><td><b>Height</b> of a node</td><td>edges from the node <b>down to its deepest leaf</b></td><td>height of E = 1</td></tr>
+            <tr tabindex="0" data-hl="A" data-hl2="B,E,H" data-e="A-B,B-E,E-H"><td><b>Height of the tree</b></td><td>the height of the root</td><td>3</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Do not mix them up: depth vs. height</p>
+        <p><b>Depth</b> looks <b>up</b> to the root: how far down is this node? <b>Height</b> looks <b>down</b> to the leaves: how tall is the tree under this node? Both count <b>edges</b>, not nodes. The root has depth 0; every leaf has height 0.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="binary">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Binary trees</p>
+      <h2>At most two children</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Binary tree</p>
+        <p>A <b>binary tree</b> is a tree in which every node has <b>at most two</b> children: a <b>left child</b> and a <b>right child</b>.</p>
+      </div>
+      <p>The explorer tree above is <b>not</b> binary: B has 3 children. A node in a binary tree can have 0, 1, or 2 children.</p>
+      <div class="sub">
+        <h3>Left and right are different</h3>
+        <div class="two-col">
+          <figure class="fig"><TreeFig spec="50(30,)" label="30 is the left child of 50" /><p class="small" style="text-align:center">30 is the <b>left</b> child</p></figure>
+          <figure class="fig"><TreeFig spec="50(,30)" label="30 is the right child of 50" /><p class="small" style="text-align:center">30 is the <b>right</b> child</p></figure>
+        </div>
+        <p>Same two values, but these are two <b>different</b> binary trees.</p>
+      </div>
+      <div class="sub">
+        <h3>A binary-tree node in Java</h3>
+        <p>Each node is an object with one value and two child references. Compare it with the linked-list <code>Node</code> in Part 1: <code>next</code> became <code>left</code> and <code>right</code>.</p>
+        <pre class="code"><code set:html={hi(treeNode)} /></pre>
+        <table class="tbl">
+          <thead><tr><th>Singly linked list</th><th>Binary tree</th></tr></thead>
+          <tbody>
+            <tr><td><code>head</code> refers to the first node</td><td><code>root</code> refers to the top node</td></tr>
+            <tr><td><code>next</code>: one link</td><td><code>left</code> and <code>right</code>: two links</td></tr>
+            <tr><td><code>null</code>: no next node</td><td><code>null</code>: no child on that side</td></tr>
+          </tbody>
+        </table>
+        <div class="trap">
+          <p class="note-label">Careful</p>
+          <p><code>left</code> and <code>right</code> are <b>not</b> previous and next. Both point <b>down</b>, to children. A missing child is <code>null</code>; a leaf has both sides <code>null</code>.</p>
+        </div>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Read the code, then draw the tree</p>
+        <pre class="code"><code set:html={hi(build)} /></pre>
+        <p>Read the dots from left to right: <code>root.left.right</code> means start at root, go left, then go right.</p>
+        <details class="reveal">
+          <summary>Check your drawing</summary>
+          <div class="flow">
+            <TreeFig spec="50(30(,40),70)" label="50 at the root, 30 on its left, 70 on its right, 40 is the right child of 30" />
+            <p>40 is the <b>right</b> child of 30. 30 has no left child (<code>null</code>).</p>
+          </div>
+        </details>
+      </div>
+      <div class="sub">
+        <h3>Same values, different shapes</h3>
+        <div class="two-col">
+          <figure class="fig"><TreeFig values={[40, 20, 60, 10, 30, 50, 70]} label="A bushy tree of height 2" /><p class="small" style="text-align:center">height 2</p></figure>
+          <figure class="fig"><TreeFig values={[10, 20, 30, 40, 50, 60, 70]} label="A chain of height 6" /><p class="small" style="text-align:center">height 6: shaped like a chain</p></figure>
+        </div>
+        <p>The same seven values can make a short, bushy tree or a tall chain. Shape matters: you will see why in the next lessons (and again in AVL trees).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Your turn</p>
+      <h2>Label this tree</h2>
+    </div>
+    <div class="flow">
+      <div class="paper flow">
+        <TreeFig spec="M(K(B,L),T(R(Q,S),))" label="Practice tree: M at the root; K and T below it; B and L under K; R under T; Q and S under R" />
+        <ol>
+          <li>Root?</li><li>Leaves?</li><li>Parent of R?</li><li>Sibling of B?</li><li>Ancestors of S?</li>
+          <li>Depth of L?</li><li>Height of T?</li><li>Size? Edges?</li><li>Is this a binary tree? Why?</li>
+        </ol>
+        <details class="reveal">
+          <summary>Show the answers</summary>
+          <div>
+            <ol>
+              <li>M</li><li>B, L, Q, S</li><li>T</li><li>L</li><li>R, T, M</li><li>2</li>
+              <li>2 (T → R → Q)</li><li>8 nodes, 7 edges</li><li>Yes: every node has at most 2 children (T has only one).</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-trees" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A binary-tree node holds data, a left reference, and a right reference.</li>
+          <li>The root is the top node. A leaf has no children.</li>
+          <li>Depth: edges from the root to the node. Height: edges from the node down to its deepest leaf.</li>
+          <li>A binary tree: every node has at most 2 children.</li>
+          <li>A missing child is null.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/bst/'}>Binary search trees and BST search</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Programiz, "Tree Data Structure" and "Binary Tree." <a href="https://www.programiz.com/dsa/trees">programiz.com/dsa/trees</a></li>
+          <li>N. Dale, D. T. Joyce, and C. Weems, <i>Object-Oriented Data Structures Using Java</i>, 4th ed. Jones &amp; Bartlett Learning, 2018.</li>
+          <li>mycodeschool, "Data structures: Introduction to trees" and "Binary tree" [Videos], YouTube.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<PinScript />
+
+<style>
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

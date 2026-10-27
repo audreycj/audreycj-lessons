@@ -1,0 +1,419 @@
+---
+import Base from '../../layouts/Base.astro';
+import MapLab from '../../components/MapLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hashSteps, bucketIndex, binShort } from '../../lib/hash.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
+const n = (x) => x.toLocaleString('en-US');
+
+const worked = hashSteps('DOG');
+const workedIdx = bucketIndex(worked.hash);
+const workedBin = binShort(worked.hash).replace(/\B(?=(\d{4})+(?!\d))/g, ' ');
+const practice = ['BAT', 'Ab'].map((k) => { const r = hashSteps(k); return { k, ...r, idx: bucketIndex(r.hash), bin: binShort(r.hash).replace(/\B(?=(\d{4})+(?!\d))/g, ' ') }; });
+const aa = hashSteps('Aa').hash, bb = hashSteps('BB').hash;
+const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+const basics = String.raw`import java.util.HashMap;
+import java.util.Map;
+
+public class Grades {
+  public static void main(String[] args) {
+    Map<String, Integer> grades = new HashMap<>();
+
+    grades.put("2025-0012", 89);   // insert
+    grades.put("2025-0047", 92);
+    grades.put("2025-0101", 89);   // same value is OK
+    grades.put("2025-0012", 95);   // same key: replaces 89
+
+    System.out.println(grades.get("2025-0012"));  // 95
+    System.out.println(grades.get("2025-9999"));  // null
+    System.out.println(grades.containsKey("2025-0047")); // true
+    System.out.println(grades.size());            // 3
+
+    grades.remove("2025-0047");                   // delete
+    System.out.println(grades.size());            // 2
+
+    for (String id : grades.keySet()) {           // order not guaranteed
+      System.out.println(id + " -> " + grades.get(id));
+    }
+  }
+}`;
+
+const bucketCode = String.raw`import java.util.HashMap;
+
+public class HashMapExample {
+  static int capacity = 16;
+
+  static void addEntry(HashMap<String, String> map,
+                       String key, String value) {
+    map.put(key, value);
+    int hashCode = key.hashCode();
+    int bucketIndex = hashCode & (capacity - 1);
+    System.out.println(key + " -> " + value
+        + " | hash " + hashCode + " | bucket " + bucketIndex);
+  }
+
+  static void removeEntry(HashMap<String, String> map, String key) {
+    if (map.containsKey(key)) {
+      int bucketIndex = key.hashCode() & (capacity - 1);
+      map.remove(key);
+      System.out.println("Removed " + key + " from bucket " + bucketIndex);
+    } else {
+      System.out.println(key + " not found");
+    }
+  }
+
+  public static void main(String[] args) {
+    HashMap<String, String> map = new HashMap<>();
+    addEntry(map, "Alice", "Developer");
+    addEntry(map, "Bob", "Designer");
+    addEntry(map, "Charlie", "Manager");
+    removeEntry(map, "Bob");
+    removeEntry(map, "Dana");
+  }
+}`;
+const bucketOut = ['Alice', 'Bob', 'Charlie'].map((k, i) => { const h = hashSteps(k).hash; return `${k} -> ${['Developer', 'Designer', 'Manager'][i]} | hash ${h} | bucket ${bucketIndex(h)}`; })
+  .concat([`Removed Bob from bucket ${bucketIndex(hashSteps('Bob').hash)}`, 'Dana not found']).join('\n');
+
+const trace = [
+  ['map.put("A1", "Ana")', '(nothing printed)', 'new entry'],
+  ['map.put("B2", "Ben")', '(nothing printed)', 'new entry'],
+  ['map.put("C3", "Ana")', '(nothing printed)', 'new entry; "Ana" twice is fine (values can repeat)'],
+  ['map.put("A1", "Andy")', '(nothing printed)', 'A1 exists, so "Ana" is replaced by "Andy"'],
+  ['map.get("A1")', 'Andy', ''],
+  ['map.get("D4")', 'null', 'no such key'],
+  ['map.remove("B2")', '(nothing printed)', 'B2 deleted'],
+  ['map.size()', '2', 'A1 and C3 are left'],
+];
+
+const quiz = [
+  { q: 'A map stores data as:', opts: ['Key-value pairs', 'Index-value pairs', 'Data-value pairs', 'Hash-index pairs'], a: 0, why: 'Each entry in a map is a <b>key</b> plus the <b>value</b> it points to. You look things up by key, not by index.' },
+  { q: 'Which statement about a map is true?', opts: ['Both keys and values must be unique', 'Keys are unique, but values may repeat', 'Values are unique, but keys may repeat', 'Both keys and values may repeat'], a: 1, why: 'Each key appears once (so it can identify one entry). Different keys can share the same value, like two students with the same grade.' },
+  { q: 'You call <code>put("CAT", "Puspin")</code>, but "CAT" is already a key with value "Persian". What happens?', opts: ['An error', 'A second "CAT" entry is added', 'The value becomes "Puspin"', 'Nothing changes'], a: 2, why: '<code>put</code> on an existing key <b>replaces</b> its value. The map still has one "CAT".' },
+  { q: 'What does <code>get</code> return for a key that is not in the map?', opts: ['0', 'An empty string', 'null', 'The last value added'], a: 2, why: '<code>get</code> returns <code>null</code> when the key is missing. Use <code>containsKey</code> to check first.' },
+  { q: 'What is "AB".hashCode()? (A = 65, B = 66)', opts: ['131', '2081', '2080', '4290'], a: 1, why: 'h = 65, then 31 × 65 + 66 = 2015 + 66 = <b>2081</b>.' },
+  { q: 'With capacity 16, a key has hashCode 100. Which bucket?', opts: ['4', '6', '10', '100'], a: 0, why: '100 in binary is 110<b>0100</b>; the last 4 bits are 0100 = 4. Shortcut: 100 ÷ 16 = 6 remainder <b>4</b>.' },
+  { q: 'Two different keys land in the same bucket. This is called:', opts: ['A duplicate', 'A collision', 'An overflow', 'A rotation'], a: 1, why: 'A <b>collision</b>. The keys are different, so both are kept: the bucket holds a small chain (linked list) of entries.' },
+  { q: 'Why is a HashMap fast at <code>get</code>?', opts: ['It keeps all keys sorted', 'It checks every entry from the start', 'The key\'s hash tells it which bucket to look in, so it only checks that bucket', 'It stores only one entry'], a: 2, why: 'Hashing turns the key into a bucket number, so <code>get</code> jumps straight to one bucket instead of searching the whole map.' },
+];
+---
+<Base title="Maps and Hashing · ITC 120" description="Maps and hashing in plain English: key-value pairs, put, get, remove, how Java computes a String's hashCode, and how HashMap picks a bucket." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Sets and maps</p>
+    <p class="kicker">Sets and maps · Lesson 2 of 2</p>
+    <h1>Maps and Hashing in Java</h1>
+    <p class="lede">Store things under a name (a key), and find them again in one jump.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>explain what a map is: <b>key-value pairs</b> with unique keys;</li>
+        <li>use <code>put</code>, <code>get</code>, <code>remove</code>, and <code>containsKey</code> on a Java <code>HashMap</code>;</li>
+        <li>explain how <b>hashing</b> makes lookups fast;</li>
+        <li>compute a String's <b>hashCode</b> and its <b>bucket index</b> by hand;</li>
+        <li>recognize a <b>collision</b>.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/sets/'}>Sets lesson</a>, a calculator, and scratch paper.</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="chapter wrap" id="what">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>What a map is</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Map</p>
+        <p>A <b>map</b> is an abstract data type that stores <b>key-value pairs</b>. Each <b>key</b> is unique and is used to find its <b>value</b>. Maps are also called dictionaries or associative arrays.</p>
+      </div>
+      <p>Maps are everywhere. Here are some examples of keys and the values they lead to:</p>
+      <table class="tbl">
+        <thead><tr><th>Key</th><th>→</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>student ID number</td><td>→</td><td>student's name</td></tr>
+          <tr><td>product barcode</td><td>→</td><td>price</td></tr>
+          <tr><td>contact name</td><td>→</td><td>phone number</td></tr>
+          <tr><td>English word</td><td>→</td><td>its meaning</td></tr>
+        </tbody>
+      </table>
+      <div class="sub">
+        <h3>The two rules</h3>
+        <ol>
+          <li><b>Keys are unique.</b> Each key appears once. If you store a value under a key that already exists, the old value is <b>replaced</b>.</li>
+          <li><b>Values can repeat.</b> Two different students can have the same grade. Two products can have the same price.</li>
+        </ol>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of the sari-sari store</p>
+        <p>The store owner does not search every shelf for the price of a sachet of coffee. She has a price list: item name (key) → price (value). If the price goes up, she does not add a second line; she <b>crosses out the old price</b> and writes the new one. One item, one price.</p>
+      </div>
+      <p>A set from the last lesson is like a map with only keys: it answers "is it there?", while a map answers "is it there, and what is its value?"</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · In code</p>
+      <h2>Maps in Java</h2>
+    </div>
+    <div class="flow">
+      <p>Java's <code>Map</code> interface has these main operations:</p>
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>put(key, value)</code></td><td><b>insert</b> a pair, or <b>replace</b> the value if the key exists</td></tr>
+          <tr><td><code>get(key)</code></td><td><b>look up</b> the value; returns <code>null</code> if the key is missing</td></tr>
+          <tr><td><code>remove(key)</code></td><td><b>delete</b> the pair with that key</td></tr>
+          <tr><td><code>containsKey(key)</code></td><td><code>true</code> if the key is in the map</td></tr>
+          <tr><td><code>size()</code></td><td>number of pairs</td></tr>
+        </tbody>
+      </table>
+      <p>Like sets, Java has three main map types: <code>HashMap</code> (no guaranteed order, the usual choice), <code>LinkedHashMap</code> (keeps the order you added them), and <code>TreeMap</code> (sorted by key, built on a red-black tree).</p>
+      <pre class="code"><code set:html={hi(basics)} /></pre>
+      <p class="small muted"><code>Map&lt;String, Integer&gt;</code> means: keys are <code>String</code>s, values are <code>Integer</code>s.</p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="chapter wrap" id="hashing">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · How it is so fast</p>
+      <h2>Hashing</h2>
+    </div>
+    <div class="flow">
+      <p>Imagine a map with 10,000 students stored in one long list. To find one ID, you might have to check all 10,000. A <code>HashMap</code> avoids that by using <b>hashing</b>.</p>
+      <div class="sticky">
+        <p class="note-label">Think of the faculty pigeonholes</p>
+        <p>The faculty office has 16 pigeonholes for mail. Instead of one big pile, there is a rule that turns each name into a pigeonhole number. To find your mail, use the rule, then check <b>one</b> pigeonhole, not the whole pile.</p>
+      </div>
+      <p>Here are the words used in hashing:</p>
+      <table class="tbl">
+        <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><b>Hash function</b></td><td>a rule that turns a key into a number</td></tr>
+          <tr><td><b>Hash code</b></td><td>the number it produces (in Java: <code>key.hashCode()</code>)</td></tr>
+          <tr><td><b>Bucket</b></td><td>one slot in the table (a pigeonhole)</td></tr>
+          <tr><td><b>Capacity</b></td><td>how many buckets there are (a new <code>HashMap</code> starts with <b>16</b>)</td></tr>
+          <tr><td><b>Bucket index</b></td><td>which bucket a key goes to, worked out from its hash code</td></tr>
+        </tbody>
+      </table>
+      <p>So <code>put</code> and <code>get</code> both do the same two steps: <b>(1) compute the key's hash code, (2) turn it into a bucket index</b>. Then they go straight to that bucket.</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="chapter wrap" id="hashcode">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Step 1 by hand</p>
+      <h2>A String's hashCode</h2>
+    </div>
+    <div class="flow">
+      <p>Every character has a number code (its ASCII or Unicode value). Java builds a String's hash code from those codes using the number 31. The easiest way to do it by hand:</p>
+      <div class="remember">
+        <p class="note-label">The hashCode rule</p>
+        <p class="formula">h = 0<br />for each character, left to right: <b>h = 31 × h + code</b></p>
+        <p>The final h is the hash code. (This is the same as Java's formula s[0]·31<sup>n−1</sup> + s[1]·31<sup>n−2</sup> + … + s[n−1], just easier to compute.)</p>
+      </div>
+      <div class="sub">
+        <h3>Character codes you need</h3>
+        <p>Uppercase letters go from A = 65 to Z = 90. Lowercase letters are 32 more: a = 97 to z = 122. The digit 0 is 48, and a space is 32.</p>
+        <div class="ascii scroll-x">
+          <table class="adj"><tbody>
+            <tr>{upper.slice(0, 13).map((c) => <th>{c}</th>)}</tr>
+            <tr>{upper.slice(0, 13).map((c) => <td>{c.charCodeAt(0)}</td>)}</tr>
+            <tr>{upper.slice(13).map((c) => <th>{c}</th>)}</tr>
+            <tr>{upper.slice(13).map((c) => <td>{c.charCodeAt(0)}</td>)}</tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>Worked example: "DOG"</h3>
+        <table class="tbl">
+          <thead><tr><th>Char</th><th>Code</th><th>31 × h + code</th><th>New h</th></tr></thead>
+          <tbody>
+            {worked.steps.map((s) => <tr><td class="mono">{s.ch}</td><td class="mono">{s.code}</td><td class="mono">31 × {n(s.before)} + {s.code}</td><td class="mono">{n(s.after)}</td></tr>)}
+          </tbody>
+        </table>
+        <p><b>"DOG".hashCode() = {n(worked.hash)}</b></p>
+        <p class="small muted">Check with the long formula: 68 × 31² + 79 × 31 + 71 = 68 × 961 + 2,449 + 71 = 65,348 + 2,449 + 71 = {n(worked.hash)}. Same answer.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ul>
+          <li>Uppercase and lowercase have <b>different</b> codes: "cat" and "CAT" have different hash codes.</li>
+          <li>Start with h = 0, so the first step is just the first character's code.</li>
+          <li>Long strings make huge numbers. A Java <code>int</code> can only go up to 2,147,483,647, so the value wraps around and can become negative. Exam keys are usually short (3–4 letters), so this does not happen there.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="chapter wrap" id="bucket">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Step 2 by hand</p>
+      <h2>From hash code to bucket</h2>
+    </div>
+    <div class="flow">
+      <p>A hash code like {n(worked.hash)} is far bigger than 16. We need a number from 0 to 15. In this course, we use the same formula as the Java code you will see in Part 7:</p>
+      <div class="remember">
+        <p class="note-label">The bucket rule</p>
+        <p class="formula">bucket index = hashCode &amp; (capacity − 1)</p>
+        <p>With capacity 16: <code>hashCode &amp; 15</code>.</p>
+      </div>
+      <p><code>&amp;</code> is the <b>bitwise AND</b>: it compares two numbers bit by bit and keeps a 1 only where <b>both</b> have a 1. Since 15 in binary is <b>1111</b>, <code>&amp; 15</code> simply <b>keeps the last 4 bits</b> of the hash code and turns all the others into 0.</p>
+      <div class="sub">
+        <h3>Worked example: "DOG" → bucket {workedIdx}</h3>
+        <p>There are two ways to get the answer. Both give the same result for a positive hash code.</p>
+        <div class="two-col">
+          <div class="paper flow">
+            <p class="note-label">Way 1: binary</p>
+            <p>Convert {n(worked.hash)} to binary (divide by 2 repeatedly and read the remainders from bottom to top):</p>
+            <p class="mono">{workedBin}</p>
+            <p>Keep the last 4 bits: <b class="mono">{workedBin.slice(-4)}</b> = 8 + 4 = <b>{workedIdx}</b>.</p>
+          </div>
+          <div class="paper flow">
+            <p class="note-label">Way 2: remainder shortcut</p>
+            <p>The last 4 bits are the remainder when you divide by 16:</p>
+            <p class="mono">{n(worked.hash)} ÷ 16 = {Math.floor(worked.hash / 16)} remainder <b>{worked.hash % 16}</b></p>
+            <p>So the bucket is <b>{workedIdx}</b>. Much faster with a calculator!</p>
+          </div>
+        </div>
+        <p class="small muted">Why does this work? 16 = 2<sup>4</sup>, so dividing by 16 is like chopping off the last 4 bits. The chopped-off bits are the remainder. This only works because the capacity is a power of 2 (16, 32, 64…), which is why HashMap capacities always are.</p>
+      </div>
+
+      <div class="factcheck remember">
+        <p class="note-label">Fact check: Java's real HashMap</p>
+        <p>The formula above is what this course uses, and what the Java program in Part 7 prints. Inside the real <code>HashMap</code>, Java adds one extra step: it first mixes the high bits into the low bits (<code>h ^ (h &gt;&gt;&gt; 16)</code>) before doing <code>&amp; (capacity − 1)</code>. So the bucket Java <i>actually</i> uses inside can be different. For example, "CAT" gets bucket 6 with our formula but bucket 7 inside Java's HashMap. For exams in this course, use the course formula.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="chapter wrap" id="collisions">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · When two keys clash</p>
+      <h2>Collisions</h2>
+    </div>
+    <div class="flow">
+      <p>There are only 16 buckets but endless possible keys, so sometimes two different keys get the same bucket. That is called a <b>collision</b>. It is normal and expected.</p>
+      <p>Here is a famous one: <b>"Aa"</b> and <b>"BB"</b> have exactly the same hash code.</p>
+      <table class="tbl">
+        <thead><tr><th>Key</th><th>Work</th><th>hashCode</th><th>Bucket</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">"Aa"</td><td class="mono">31 × 65 + 97</td><td class="mono">{n(aa)}</td><td class="mono">{bucketIndex(aa)}</td></tr>
+          <tr><td class="mono">"BB"</td><td class="mono">31 × 66 + 66</td><td class="mono">{n(bb)}</td><td class="mono">{bucketIndex(bb)}</td></tr>
+        </tbody>
+      </table>
+      <p>The keys are different, so the map must keep <b>both</b>. A common way is <b>chaining</b>: each bucket holds a small linked list of entries. To <code>get</code> "BB", Java goes to bucket {bucketIndex(bb)} and walks its short chain, comparing keys until it finds "BB". (You will study more ways to handle collisions in the Hashing lesson later in the semester.)</p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Look inside</p>
+      <h2>HashMap lab</h2>
+    </div>
+    <div class="flow">
+      <p>Try these in order: put <b>CAT → Persian</b>, then <b>DOG → Aspin</b>, then <b>CAT → Puspin</b> (watch the value get replaced). Then put <b>Aa</b> and <b>BB</b> to see a collision. Try <code>get</code> on a key that is not there.</p>
+      <MapLab id="maplab" />
+
+      <div class="sub">
+        <h3>The same thing in Java</h3>
+        <p>This program puts three entries and prints each key's hash code and bucket, using the course formula:</p>
+        <pre class="code"><code set:html={hi(bucketCode)} /></pre>
+        <p class="small"><b>Output:</b></p>
+        <pre class="code"><code>{bucketOut}</code></pre>
+        <p>Notice "Charlie": its hash code is negative because it wrapped around, but <code>&amp; 15</code> still gives a bucket from 0 to 15.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="chapter wrap" id="paper">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      {practice.map((p, i) => (
+        <div class="paper flow">
+          <p class="note-label">Problem {i + 1}</p>
+          <p>Compute <code>"{p.k}".hashCode()</code>, then its bucket index with capacity 16. Show your work.</p>
+          <details class="reveal">
+            <summary>Show the answer</summary>
+            <div class="flow">
+              <table class="tbl">
+                <thead><tr><th>Char</th><th>Code</th><th>31 × h + code</th><th>New h</th></tr></thead>
+                <tbody>{p.steps.map((s) => <tr><td class="mono">{s.ch}</td><td class="mono">{s.code}</td><td class="mono">31 × {n(s.before)} + {s.code}</td><td class="mono">{n(s.after)}</td></tr>)}</tbody>
+              </table>
+              <p><b>hashCode = {n(p.hash)}</b></p>
+              <p>Binary: <span class="mono">{p.bin}</span> → last 4 bits <b class="mono">{p.bin.slice(-4)}</b> = <b>{p.idx}</b>. Shortcut: {n(p.hash)} ÷ 16 has remainder {p.hash % 16}. <b>Bucket {p.idx}</b>.</p>
+            </div>
+          </details>
+        </div>
+      ))}
+      <div class="paper flow">
+        <p class="note-label">Problem 3: trace the map</p>
+        <p>The map starts empty. What does each line do, and what is printed?</p>
+        <pre class="code"><code>{trace.map((t) => t[0]).join('\n')}</code></pre>
+        <details class="reveal">
+          <summary>Show the answer</summary>
+          <div>
+            <table class="tbl">
+              <thead><tr><th>Call</th><th>Returns / prints</th><th>Why</th></tr></thead>
+              <tbody>{trace.map((t) => <tr><td class="mono small">{t[0]}</td><td class="mono">{t[1]}</td><td class="small">{t[2]}</td></tr>)}</tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 9 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-maps" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A map stores key-value pairs. Keys are unique; values can repeat.</li>
+          <li><code>put</code> inserts or replaces, <code>get</code> looks up (or returns null), <code>remove</code> deletes.</li>
+          <li>A HashMap hashes the key to pick a bucket, so it can jump straight to it.</li>
+          <li>String hashCode: start at 0, then h = 31 × h + code for each character.</li>
+          <li>Bucket index (course formula) = hashCode &amp; (capacity − 1) = the last 4 bits when capacity is 16.</li>
+          <li>Different keys in the same bucket = a collision; the bucket keeps a chain of entries.</li>
+        </ol>
+      </div>
+      <p><b>You've reached the end of the midterm lessons.</b> Go back to the <a href={base + course.href}>ITC 120 page</a> and redo the self-checks of any lesson you are unsure about.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Oracle, "String.hashCode()," Java SE 21 API documentation (gives the formula s[0]·31<sup>n−1</sup> + … + s[n−1]). <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html#hashCode()">docs.oracle.com</a></li>
+          <li>Oracle, "HashMap (Java SE 21 &amp; JDK 21)," Java API documentation (default initial capacity 16). <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/HashMap.html">docs.oracle.com</a></li>
+          <li>OpenJDK, <code>java.util.HashMap</code> source code (the <code>hash()</code> method that mixes in the high bits).</li>
+          <li>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <i>Introduction to Algorithms</i>, 4th ed. MIT Press, 2022, Chapter 11 (Hash tables).</li>
+          <li>Programiz, "Hash Table." <a href="https://www.programiz.com/dsa/hash-table">programiz.com/dsa/hash-table</a></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .formula { font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem; background: var(--card); padding: 0.5rem 0.7rem; border-radius: 4px; margin: 0.3rem 0; }
+  .ascii table.adj th, .ascii table.adj td { width: 1.9rem; height: 1.9rem; font-size: 0.78rem; }
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

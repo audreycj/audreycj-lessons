@@ -1,0 +1,76 @@
+---
+// Guessing game: simple search (1, 2, 3, ...) vs. binary search (guess the middle) on 1 to 100.
+interface Props { id: string; }
+const { id } = Astro.props;
+---
+<figure class="fig guess" id={id}>
+  <p class="fig-cap">Two algorithms, same problem</p>
+  <p class="fig-hint">Pick a secret number from 1 to 100. Both algorithms try to find it. Who needs fewer guesses?</p>
+  <form class="gg-form">
+    <label>Secret number <input type="text" inputmode="numeric" value="63" autocomplete="off" /></label>
+    <button type="submit" class="btn primary">Play</button>
+    <button type="button" class="btn" data-rand>Random</button>
+  </form>
+  <div class="gg-grid">
+    <div class="gg-card">
+      <p class="gg-name">Simple search</p>
+      <p class="gg-how small">Guess 1, then 2, then 3… one at a time.</p>
+      <p class="gg-big"><span class="gg-s"></span> <span class="small">guesses</span></p>
+      <p class="gg-list mono small gg-sl"></p>
+    </div>
+    <div class="gg-card">
+      <p class="gg-name">Binary search</p>
+      <p class="gg-how small">Guess the middle. "Too low" or "too high" rules out half. Repeat.</p>
+      <p class="gg-big"><span class="gg-b"></span> <span class="small">guesses</span></p>
+      <ol class="gg-steps"></ol>
+    </div>
+  </div>
+  <p class="gg-note small muted">Worst case for 1 to 100: simple search needs up to <b>100</b> guesses; binary search never needs more than <b>7</b>.</p>
+</figure>
+
+<style is:global>
+  .guess .gg-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.9rem; }
+  .guess .gg-form label { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; }
+  .guess .gg-form input { width: 4.5rem; font: inherit; font-size: 1rem; padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
+  .guess .gg-grid { display: grid; gap: 0.9rem; }
+  @media (min-width: 40rem) { .guess .gg-grid { grid-template-columns: 1fr 1.3fr; } }
+  .guess .gg-card { background: var(--paper); border-radius: 8px; padding: 0.8rem 0.9rem; }
+  .guess .gg-name { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+  .guess .gg-how { color: var(--ink-soft); }
+  .guess .gg-big { font-family: var(--font-display); font-weight: 600; font-size: 2.2rem; line-height: 1.1; margin-top: 0.4rem; color: var(--teal-ink); }
+  .guess .gg-big .small { font-family: var(--font-body); font-size: 0.85rem; color: var(--ink-soft); }
+  .guess .gg-list { color: var(--ink-soft); word-break: break-word; margin-top: 0.3rem; }
+  .guess .gg-steps { list-style: none; padding: 0; display: grid; gap: 0.35rem; margin-top: 0.4rem; }
+  .guess .gg-steps li { margin: 0; display: grid; gap: 0.15rem; font-size: 0.82rem; }
+  .guess .bar { position: relative; height: 0.7rem; background: #e3e7e8; border-radius: 99px; overflow: hidden; }
+  .guess .bar .keep { position: absolute; top: 0; bottom: 0; background: var(--teal-wash); border: 1.5px solid var(--teal); border-radius: 99px; }
+  .guess .bar .g { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--orange); }
+  .guess .gg-note { margin-top: 0.8rem; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.guess').forEach((fig) => {
+    const inp = fig.querySelector<HTMLInputElement>('input')!;
+    const sEl = fig.querySelector<HTMLElement>('.gg-s')!, sl = fig.querySelector<HTMLElement>('.gg-sl')!;
+    const bEl = fig.querySelector<HTMLElement>('.gg-b')!, steps = fig.querySelector<HTMLElement>('.gg-steps')!;
+    function play() {
+      const n = Number(inp.value.trim());
+      if (!Number.isInteger(n) || n < 1 || n > 100) { inp.value = '63'; return play(); }
+      sEl.textContent = String(n);
+      sl.textContent = n <= 12 ? Array.from({ length: n }, (_, i) => i + 1).join(', ') : `1, 2, 3, 4, 5, … , ${n - 1}, ${n}`;
+      let lo = 1, hi = 100, html = '', c = 0;
+      while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2); c++;
+        const res = mid === n ? 'correct!' : mid < n ? 'too low' : 'too high';
+        const left = (lo - 1), width = hi - lo + 1;
+        html += `<li><span>Guess ${c}: <b>${mid}</b> → ${res}${mid !== n ? ` (still possible: ${mid < n ? mid + 1 : lo}–${mid < n ? hi : mid - 1})` : ''}</span><span class="bar"><span class="keep" style="left:${left}%;width:${width}%"></span><span class="g" style="left:${mid - 1}%"></span></span></li>`;
+        if (mid === n) break;
+        if (mid < n) lo = mid + 1; else hi = mid - 1;
+      }
+      bEl.textContent = String(c); steps.innerHTML = html;
+    }
+    fig.querySelector('form')!.addEventListener('submit', (e) => { e.preventDefault(); play(); });
+    fig.querySelector('[data-rand]')!.addEventListener('click', () => { inp.value = String(1 + Math.floor(Math.random() * 100)); play(); });
+    play();
+  });
+</script>

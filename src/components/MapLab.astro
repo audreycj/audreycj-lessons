@@ -1,0 +1,138 @@
+---
+// A HashMap you can see inside: hashCode by hand, bucket index, 16 buckets with chains.
+interface Props { id: string; }
+const { id } = Astro.props;
+---
+<figure class="fig maplab" id={id}>
+  <p class="fig-cap">HashMap lab: look inside</p>
+  <p class="fig-hint">Type a key and a value, then tap <b>put</b>. Watch how the key becomes a number, then a bucket. Try <b>get</b> and <b>remove</b> too.</p>
+  <form class="ml-form">
+    <label>key <input type="text" class="ml-key" maxlength="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="CAT" /></label>
+    <label>value <input type="text" class="ml-val" maxlength="16" autocomplete="off" value="Persian" /></label>
+    <div class="btn-row ml-btns">
+      <button type="submit" class="btn primary" data-act="put">put</button>
+      <button type="button" class="btn" data-act="get">get</button>
+      <button type="button" class="btn" data-act="remove">remove</button>
+      <button type="button" class="btn" data-act="clear">clear map</button>
+    </div>
+  </form>
+  <div class="ml-try small"><span>Quick tries:</span>
+    <button type="button" data-k="CAT" data-v="Persian">CAT → Persian</button>
+    <button type="button" data-k="DOG" data-v="Aspin">DOG → Aspin</button>
+    <button type="button" data-k="CAT" data-v="Puspin">CAT → Puspin</button>
+    <button type="button" data-k="Aa" data-v="first">Aa → first</button>
+    <button type="button" data-k="BB" data-v="second">BB → second</button>
+  </div>
+  <p class="ml-msg" aria-live="polite"></p>
+  <div class="ml-grid">
+    <div class="ml-work"></div>
+    <div>
+      <p class="ml-label">Buckets (capacity 16)</p>
+      <ol class="ml-buckets" start="0"></ol>
+    </div>
+  </div>
+</figure>
+
+<style is:global>
+  .maplab .ml-form { display: grid; gap: 0.5rem; }
+  .maplab .ml-form label { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.9rem; }
+  .maplab .ml-form input { flex: 1; min-width: 0; font: inherit; font-size: 1rem; padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
+  .maplab .ml-btns .btn { font-family: var(--font-mono); }
+  .maplab .ml-try { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-top: 0.7rem; font-weight: 700; }
+  .maplab .ml-try button { font: inherit; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; background: var(--teal-wash); border: 1px solid var(--teal); border-radius: 99px; padding: 0.25rem 0.6rem; cursor: pointer; color: var(--ink); }
+  .maplab .ml-msg { margin: 0.8rem 0; padding: 0.6rem 0.8rem; background: var(--sticky); border-radius: 6px; min-height: 2.6em; }
+  .maplab .ml-grid { display: grid; gap: 1rem; }
+  @media (min-width: 44rem) { .maplab .ml-grid { grid-template-columns: 1.1fr 1fr; align-items: start; } }
+  .maplab .ml-label { font-weight: 800; font-size: var(--step--1); margin-bottom: 0.3rem; }
+  .maplab .ml-work table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.8rem; background: var(--card); }
+  .maplab .ml-work th, .maplab .ml-work td { border-bottom: 1px solid var(--line); padding: 0.3rem 0.4rem; text-align: right; }
+  .maplab .ml-work th { background: var(--teal-wash); text-align: right; }
+  .maplab .ml-work th:first-child, .maplab .ml-work td:first-child { text-align: center; }
+  .maplab .ml-work .final td { font-weight: 700; background: var(--butter); }
+  .maplab .ml-bits { font-family: var(--font-mono); font-size: 0.82rem; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 0.5rem 0.6rem; margin-top: 0.7rem; overflow-x: auto; line-height: 1.7; }
+  .maplab .ml-bits b { background: var(--orange); color: #fff; border-radius: 3px; padding: 0 0.15rem; }
+  .maplab .ml-bits .dim { color: var(--ink-soft); }
+  .maplab .ml-buckets { list-style: none; padding: 0; display: grid; gap: 0.2rem; font-family: var(--font-mono); font-size: 0.8rem; }
+  .maplab .ml-buckets li { margin: 0; display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; min-height: 1.9rem; }
+  .maplab .ml-buckets .bi { display: inline-grid; place-items: center; width: 2rem; height: 1.8rem; background: var(--paper); border: 1.5px solid var(--ink); border-radius: 4px; font-weight: 700; }
+  .maplab .ml-buckets li.hit .bi { background: var(--orange); color: #fff; border-color: var(--orange-ink); }
+  .maplab .ml-buckets .ent { display: inline-flex; border: 1.5px solid var(--teal); border-radius: 4px; background: var(--teal-wash); overflow: hidden; }
+  .maplab .ml-buckets .ent span { padding: 0.1rem 0.35rem; }
+  .maplab .ml-buckets .ent span + span { border-left: 1px solid var(--teal); background: var(--card); }
+  .maplab .ml-buckets .ent.now { border-color: var(--orange); box-shadow: 0 0 0 2px var(--orange-wash); }
+  .maplab .ml-buckets .arr { color: var(--ink-soft); }
+</style>
+
+<script>
+  import { hashSteps, bucketIndex, bin32 } from '../lib/hash.js';
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const show = (n: number) => (n < 0 ? '−' + Math.abs(n).toLocaleString('en-US') : n.toLocaleString('en-US'));
+
+  document.querySelectorAll<HTMLElement>('.maplab').forEach((fig) => {
+    const CAP = 16;
+    const buckets: { k: string; v: string }[][] = Array.from({ length: CAP }, () => []);
+    const keyIn = fig.querySelector<HTMLInputElement>('.ml-key')!, valIn = fig.querySelector<HTMLInputElement>('.ml-val')!;
+    const msg = fig.querySelector<HTMLElement>('.ml-msg')!, work = fig.querySelector<HTMLElement>('.ml-work')!, list = fig.querySelector<HTMLElement>('.ml-buckets')!;
+    let hit = -1, nowKey = '';
+
+    function explain(key: string) {
+      const { steps, hash } = hashSteps(key);
+      const idx = bucketIndex(hash, CAP);
+      let rows = steps.map((s: any, i: number) => {
+        const math = 31 * s.before + s.code;
+        const wrapped = math !== s.after;
+        return `<tr><td>${esc(s.ch === ' ' ? '␣' : s.ch)}</td><td>${s.code}</td><td>31 × ${show(s.before)} + ${s.code}</td><td>${show(s.after)}${wrapped ? ' *' : ''}</td></tr>`;
+      }).join('');
+      const anyWrap = steps.some((s: any) => 31 * s.before + s.code !== s.after);
+      const b = bin32(hash);
+      const last4 = b.slice(-4), rest = b.slice(0, -4);
+      work.innerHTML = `<p class="ml-label">1. hashCode of "${esc(key)}"</p>
+        <table><thead><tr><th>char</th><th>code</th><th>31 × h + code</th><th>h</th></tr></thead>
+        <tbody>${rows}<tr class="final"><td colspan="3">hashCode</td><td>${show(hash)}</td></tr></tbody></table>
+        ${anyWrap ? '<p class="small muted">* The number got too big for a Java <code>int</code> and wrapped around. Java does this too.</p>' : ''}
+        <p class="ml-label" style="margin-top:0.8rem">2. Bucket index = hashCode &amp; (16 − 1)</p>
+        <div class="ml-bits">
+          <div><span class="dim">hash&nbsp;=</span> ${esc(rest)}<b>${last4}</b></div>
+          <div><span class="dim">&amp;&nbsp;15 =</span> <span class="dim">0000 0000 0000 0000 0000 0000 0000 </span><b>1111</b></div>
+          <div><span class="dim">result</span> = <b>${last4}</b> = <b>${idx}</b></div>
+          ${hash >= 0 ? `<div class="dim">shortcut: ${show(hash)} ÷ 16 has remainder ${hash % 16}</div>` : '<div class="dim">(negative hashCode: the &amp; still works; the ÷ 16 shortcut does not)</div>'}
+        </div>`;
+      return { hash, idx };
+    }
+    function paint() {
+      list.innerHTML = buckets.map((chain, i) => `<li class="${i === hit ? 'hit' : ''}"><span class="bi">${i}</span>${chain.length ? chain.map((e) => `<span class="arr">→</span><span class="ent ${e.k === nowKey && i === hit ? 'now' : ''}"><span>${esc(e.k)}</span><span>${esc(e.v)}</span></span>`).join('') : '<span class="arr">· empty</span>'}</li>`).join('');
+    }
+    function act(a: string) {
+      const key = keyIn.value;
+      if (a === 'clear') { buckets.forEach((c) => (c.length = 0)); hit = -1; msg.textContent = 'The map is empty again.'; work.innerHTML = ''; paint(); return; }
+      if (!key) { msg.textContent = 'Type a key first.'; return; }
+      const { hash, idx } = explain(key);
+      hit = idx; nowKey = key;
+      const chain = buckets[idx];
+      const at = chain.findIndex((e) => e.k === key);
+      if (a === 'put') {
+        const val = valIn.value;
+        if (at >= 0) { const old = chain[at].v; chain[at].v = val; msg.innerHTML = `<b>put("${esc(key)}", "${esc(val)}")</b>: "${esc(key)}" is already in bucket ${idx}, so its value is <b>replaced</b> ("${esc(old)}" → "${esc(val)}"). Keys stay unique.`; }
+        else {
+          chain.push({ k: key, v: val });
+          msg.innerHTML = chain.length > 1
+            ? `<b>put("${esc(key)}", "${esc(val)}")</b>: bucket ${idx} already has ${chain.length - 1 === 1 ? 'a key' : 'keys'} (${chain.slice(0, -1).map((e) => '"' + esc(e.k) + '"').join(', ')}). This is a <b>collision</b>. The new entry is added to the bucket's chain.`
+            : `<b>put("${esc(key)}", "${esc(val)}")</b>: hashCode ${show(hash)} → bucket <b>${idx}</b>. New entry stored.`;
+        }
+      } else if (a === 'get') {
+        msg.innerHTML = at >= 0
+          ? `<b>get("${esc(key)}")</b>: go straight to bucket ${idx}, find "${esc(key)}" there → returns <b>"${esc(chain[at].v)}"</b>. No need to look in the other 15 buckets.`
+          : `<b>get("${esc(key)}")</b>: bucket ${idx} has no key "${esc(key)}" → returns <b>null</b>.`;
+      } else if (a === 'remove') {
+        if (at >= 0) { const v = chain[at].v; chain.splice(at, 1); msg.innerHTML = `<b>remove("${esc(key)}")</b>: found in bucket ${idx} and removed (it had value "${esc(v)}").`; }
+        else msg.innerHTML = `<b>remove("${esc(key)}")</b>: there is no key "${esc(key)}" in bucket ${idx}. Nothing to remove.`;
+      }
+      paint();
+    }
+    fig.querySelector('form')!.addEventListener('submit', (e) => { e.preventDefault(); act('put'); });
+    fig.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) => { if (b.dataset.act !== 'put') b.addEventListener('click', () => act(b.dataset.act!)); });
+    fig.querySelectorAll<HTMLButtonElement>('.ml-try button').forEach((b) => b.addEventListener('click', () => { keyIn.value = b.dataset.k!; valIn.value = b.dataset.v!; act('put'); }));
+    paint();
+    msg.textContent = 'The map is empty. Tap put to store CAT → Persian.';
+  });
+</script>

@@ -1,0 +1,154 @@
+---
+// Array operations lab: access, traverse (find the highest), insert with right shifts, delete with left shifts.
+interface Props { id: string; values?: number[]; capacity?: number; }
+const { id, values = [10, 20, 30, 40], capacity = 8 } = Astro.props;
+const config = JSON.stringify({ values, capacity });
+---
+<figure class="fig arrlab" id={id} data-config={config}>
+  <p class="fig-cap">Array lab</p>
+  <p class="fig-hint">Pick an operation, then tap Next step to watch it happen. Each step also shows the line of Java that does it.</p>
+  <div class="al-ops">
+    <label>index <input type="text" inputmode="numeric" class="al-idx" value="2" autocomplete="off" /></label>
+    <label>value <input type="text" inputmode="numeric" class="al-val" value="25" autocomplete="off" /></label>
+  </div>
+  <div class="btn-row al-btns" role="group" aria-label="Operation">
+    <button type="button" class="btn" data-op="access">Access</button>
+    <button type="button" class="btn" data-op="traverse">Traverse: find highest</button>
+    <button type="button" class="btn" data-op="insert">Insert</button>
+    <button type="button" class="btn" data-op="delete">Delete</button>
+    <button type="button" class="btn" data-op="reset">Reset array</button>
+  </div>
+  <p class="al-err small" aria-live="polite"></p>
+  <div class="al-stage">
+    <div class="al-row" aria-live="polite"></div>
+    <p class="al-meta mono small"></p>
+  </div>
+  <p class="al-cap" aria-live="polite"></p>
+  <pre class="code al-code"><code></code></pre>
+  <div class="btn-row al-nav">
+    <button type="button" class="btn" data-go="back">← Back</button>
+    <button type="button" class="btn primary" data-go="next">Next step →</button>
+  </div>
+  <div class="legend">
+    <span><i class="l-cur2"></i> being used now</span>
+    <span><i class="l-wait2"></i> moved</span>
+    <span><i class="l-new"></i> new value</span>
+    <span><i style="background:#eef2f2;border-style:dashed"></i> not counted (beyond size)</span>
+  </div>
+</figure>
+
+<style is:global>
+  .arrlab .al-ops { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; margin-bottom: 0.6rem; }
+  .arrlab .al-ops label { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: var(--step--1); }
+  .arrlab .al-ops input { width: 4.5rem; font: inherit; font-size: 1rem; padding: 0.4rem 0.5rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
+  .arrlab .al-btns .btn { font-size: 0.8rem; min-height: 2.3rem; padding: 0.35em 0.85em; }
+  .arrlab .al-err { color: var(--red-pen); font-weight: 700; min-height: 1.2em; margin-top: 0.4rem; }
+  .arrlab .al-stage { background: var(--paper); border-radius: 8px; padding: 1.4rem 0.6rem 0.8rem; overflow-x: auto;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 20px 20px; }
+  .arrlab .al-row { display: flex; gap: 0; justify-content: center; min-width: max-content; margin-inline: auto; }
+  .arrlab .cell { display: grid; justify-items: center; gap: 0.25rem; position: relative; }
+  .arrlab .cell .box { width: 2.9rem; height: 2.9rem; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 700; font-size: 1.05rem;
+    background: var(--card); border: 2px solid var(--ink); margin-left: -2px; transition: background 0.2s, transform 0.25s; }
+  .arrlab .cell .ix { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft); }
+  .arrlab .cell.off .box { background: #eef2f2; border-style: dashed; color: #9aa8aa; }
+  .arrlab .cell.cur .box { background: var(--orange); color: #fff; border-color: var(--orange-ink); transform: translateY(-4px); z-index: 1; }
+  .arrlab .cell.moved .box { background: var(--butter); }
+  .arrlab .cell.new .box { background: var(--orange-wash); border-color: var(--orange); }
+  .arrlab .cell.seen .box { background: var(--teal-wash); }
+  .arrlab .cell .tag { position: absolute; top: -1.25rem; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: var(--orange-ink); white-space: nowrap; }
+  @media (max-width: 30rem) { .arrlab .cell .box { width: 2.1rem; height: 2.4rem; font-size: 0.85rem; } .arrlab .al-stage { padding-inline: 0.3rem; } }
+  .arrlab .al-meta { text-align: center; margin-top: 0.6rem; color: var(--ink-soft); }
+  .arrlab .al-cap { min-height: 3.2em; margin-top: 0.8rem; }
+  .arrlab .al-code { margin-top: 0.5rem; min-height: 2.6rem; }
+  .arrlab .al-nav { margin-top: 0.6rem; }
+  .arrlab .al-nav .primary { flex: 1 1 auto; }
+</style>
+
+<script>
+  type Snap = { cells: (number | null)[]; size: number; marks: Record<number, string>; tags: Record<number, string>; cap: string; code: string; moves: number; vis: number };
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  document.querySelectorAll<HTMLElement>('.arrlab').forEach((fig) => {
+    const cfg = JSON.parse(fig.dataset.config || '{}');
+    const CAP: number = cfg.capacity;
+    let cells: (number | null)[] = [], size = 0, extra = 0;
+    const reset = () => { cells = Array(CAP).fill(null); cfg.values.forEach((v: number, i: number) => (cells[i] = v)); size = cfg.values.length; };
+    reset();
+    const row = fig.querySelector<HTMLElement>('.al-row')!, meta = fig.querySelector<HTMLElement>('.al-meta')!;
+    const capEl = fig.querySelector<HTMLElement>('.al-cap')!, codeEl = fig.querySelector<HTMLElement>('.al-code code')!;
+    const err = fig.querySelector<HTMLElement>('.al-err')!;
+    const back = fig.querySelector<HTMLButtonElement>('[data-go="back"]')!, next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
+    const idxIn = fig.querySelector<HTMLInputElement>('.al-idx')!, valIn = fig.querySelector<HTMLInputElement>('.al-val')!;
+    let steps: Snap[] = [], at = 0;
+
+    const snap = (cap: string, code: string, marks: Record<number, string> = {}, tags: Record<number, string> = {}, moves = 0): Snap =>
+      ({ cells: cells.slice(), size, marks, tags, cap, code, moves, vis: size + extra });
+
+    function paint() {
+      const s = steps[at];
+      row.innerHTML = s.cells.map((v, i) => {
+        const off = i >= s.vis;
+        const cls = ['cell', off ? 'off' : '', s.marks[i] || ''].join(' ');
+        return `<div class="${cls}">${s.tags[i] ? `<span class="tag">${s.tags[i]}</span>` : ''}<span class="box">${v == null ? '' : v}</span><span class="ix">${i}</span></div>`;
+      }).join('');
+      meta.textContent = `size = ${s.size}   ·   capacity (length) = ${CAP}${s.moves ? `   ·   moves so far = ${s.moves}` : ''}`;
+      capEl.innerHTML = s.cap; codeEl.innerHTML = esc(s.code || '');
+      back.disabled = at === 0; next.disabled = at === steps.length - 1;
+      next.textContent = at === steps.length - 1 ? 'Finished' : 'Next step →';
+    }
+    function num(inp: HTMLInputElement) { const t = inp.value.trim(); const n = Number(t); return t && Number.isInteger(n) ? n : null; }
+
+    function run(op: string) {
+      err.textContent = '';
+      if (op === 'reset') { reset(); steps = [snap('The array is back to its starting values.', 'int[] arr = new int[' + CAP + '];   // plus size = ' + size)]; at = 0; paint(); return; }
+      const k = num(idxIn), v = num(valIn);
+      steps = [];
+      if (op === 'access') {
+        if (k == null || k < 0 || k >= size) { err.textContent = `Pick an index from 0 to ${size - 1} (the values that are counted).`; return; }
+        steps.push(snap(`Access index <b>${k}</b>.`, `arr[${k}]`));
+        steps.push(snap(`Java goes <b>straight</b> to slot ${k}. It does not look at the slots before it. The value is <b>${cells[k]}</b>. One step, no matter how big the array is.`, `System.out.println(arr[${k}]);   // ${cells[k]}`, { [k]: 'cur' }, { [k]: `arr[${k}]` }));
+      } else if (op === 'traverse') {
+        if (!size) { err.textContent = 'The array is empty.'; return; }
+        let hi = cells[0] as number; const seen: Record<number, string> = {};
+        steps.push(snap(`Find the highest value. Start with <b>highest = arr[0]</b> = ${hi}, a real value from the array.`, `int highest = arr[0];   // ${hi}`, { 0: 'cur' }, { 0: 'highest' }));
+        seen[0] = 'seen';
+        for (let i = 1; i < size; i++) {
+          const x = cells[i] as number; const bigger = x > hi;
+          if (bigger) hi = x;
+          steps.push(snap(`i = ${i}: is arr[${i}] (${x}) &gt; highest? <b>${bigger ? 'Yes' : 'No'}</b>. ${bigger ? `highest becomes ${x}.` : `highest stays ${hi}.`}`, `if (arr[${i}] > highest) highest = arr[${i}];   // highest = ${hi}`, { ...seen, [i]: 'cur' }, { [i]: 'i' }));
+          seen[i] = 'seen';
+        }
+        steps.push(snap(`i = ${size} is not less than size, so the loop stops. Every value was visited once: that is a <b>traversal</b>. Output: <b>${hi}</b>.`, `System.out.println(highest);   // ${hi}`, seen));
+      } else if (op === 'insert') {
+        if (v == null) { err.textContent = 'Type a whole number as the value.'; return; }
+        if (size >= CAP) { err.textContent = 'The array is full: there is no free slot. (An array\'s length is fixed when it is created.)'; return; }
+        if (k == null || k < 0 || k > size) { err.textContent = `Pick an index from 0 to ${size}.`; return; }
+        let moves = 0;
+        steps.push(snap(`Insert <b>${v}</b> at index <b>${k}</b>. To make room, every value from index ${k} to the end moves one slot <b>right</b>. Start from the <b>end</b>, so nothing gets covered up.`, `for (int i = size; i > ${k}; i--)`));
+        extra = 1;
+        for (let i = size; i > k; i--) {
+          cells[i] = cells[i - 1]; moves++;
+          steps.push(snap(`Move ${cells[i]} from slot ${i - 1} to slot ${i}.`, `arr[${i}] = arr[${i - 1}];   // i = ${i}`, { [i]: 'moved', [i - 1]: 'cur' }, { [i]: '→' }, moves));
+        }
+        cells[k] = v; size++; extra = 0;
+        steps.push(snap(`Put ${v} into slot ${k}, then add 1 to size. <b>${moves} value${moves === 1 ? '' : 's'} had to move</b>.${k === size - 1 ? ' (Inserting at the end needs no shifting.)' : ''}`, `arr[${k}] = ${v};  size++;`, { [k]: 'new' }, { [k]: 'new' }, moves));
+      } else if (op === 'delete') {
+        if (k == null || k < 0 || k >= size) { err.textContent = `Pick an index from 0 to ${size - 1}.`; return; }
+        let moves = 0; const gone = cells[k];
+        steps.push(snap(`Delete index <b>${k}</b> (the value ${gone}). To close the gap, every later value moves one slot <b>left</b>. Start right after the gap.`, `for (int i = ${k}; i < size - 1; i++)`, { [k]: 'cur' }, { [k]: 'delete' }));
+        for (let i = k; i < size - 1; i++) {
+          cells[i] = cells[i + 1]; moves++;
+          steps.push(snap(`Copy ${cells[i]} from slot ${i + 1} into slot ${i}${i === k ? `, on top of ${gone}` : ''}.`, `arr[${i}] = arr[${i + 1}];   // i = ${i}`, { [i]: 'moved', [i + 1]: 'cur' }, { [i]: '←' }, moves));
+        }
+        size--;
+        steps.push(snap(`Subtract 1 from size. Slot ${size} still holds an old copy (${cells[size]}), but it is beyond size, so we stop counting it. <b>${moves} value${moves === 1 ? '' : 's'} had to move</b>.`, `size--;`, {}, size < CAP ? { [size]: 'old copy' } : {}, moves));
+      }
+      at = 0; paint();
+    }
+    fig.querySelectorAll<HTMLButtonElement>('[data-op]').forEach((b) => b.addEventListener('click', () => run(b.dataset.op!)));
+    next.addEventListener('click', () => { if (at < steps.length - 1) { at++; paint(); } });
+    back.addEventListener('click', () => { if (at > 0) { at--; paint(); } });
+    run('reset');
+    capEl.innerHTML = 'Pick an operation above. Try <b>Insert 25 at index 2</b> first.';
+  });
+</script>

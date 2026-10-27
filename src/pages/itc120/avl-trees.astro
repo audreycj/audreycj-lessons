@@ -1,0 +1,486 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import AvlLab from '../../components/AvlLab.astro';
+import BfExplorer from '../../components/BfExplorer.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { buildAvl, traverse } from '../../lib/tree.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Java snippets: escape, then grey out // comments.
+const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
+const code1 = String.raw`class TreeNode {
+  int data;
+  int height;   // NEW: height of this node
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    height = 0;  // a new node is a leaf
+  }
+}`;
+const code2 = String.raw`// height of a node; an empty spot is -1
+static int height(TreeNode node) {
+  if (node == null) {
+    return -1;
+  }
+  return node.height;
+}
+
+// recompute height from the two children
+static void updateHeight(TreeNode node) {
+  node.height = 1 + Math.max(height(node.left),
+                             height(node.right));
+}
+
+// balance factor = left height - right height
+static int balance(TreeNode node) {
+  return height(node.left) - height(node.right);
+}`;
+const code3 = String.raw`static TreeNode rotateRight(TreeNode z) {
+  TreeNode y = z.left;      // y will move up
+  TreeNode moved = y.right; // changes parent
+  y.right = z;              // z goes down, right
+  z.left = moved;
+  updateHeight(z);          // z first: it is lower now
+  updateHeight(y);
+  return y;                 // y is the new top
+}
+
+static TreeNode rotateLeft(TreeNode z) {
+  TreeNode y = z.right;
+  TreeNode moved = y.left;
+  y.left = z;               // z goes down, left
+  z.right = moved;
+  updateHeight(z);
+  updateHeight(y);
+  return y;
+}`;
+const code4 = String.raw`static TreeNode insertRec(TreeNode node, int value) {
+  // Step 1: normal BST insert
+  if (node == null) {
+    return new TreeNode(value);
+  }
+  if (value < node.data) {
+    node.left = insertRec(node.left, value);
+  } else if (value > node.data) {
+    node.right = insertRec(node.right, value);
+  } else {
+    return node;  // duplicate: do nothing
+  }
+
+  // Step 2: update height, check balance
+  updateHeight(node);
+  int b = balance(node);
+
+  // Steps 3-4: name the case and rotate
+  if (b > 1 && value < node.left.data) {   // LL
+    return rotateRight(node);
+  }
+  if (b < -1 && value > node.right.data) { // RR
+    return rotateLeft(node);
+  }
+  if (b > 1 && value > node.left.data) {   // LR
+    node.left = rotateLeft(node.left);
+    return rotateRight(node);
+  }
+  if (b < -1 && value < node.right.data) { // RL
+    node.right = rotateRight(node.right);
+    return rotateLeft(node);
+  }
+  return node;  // balanced: nothing to fix
+}`;
+
+const chain = [10, 20, 30, 40, 50, 60, 70];
+const bushy = [40, 20, 60, 10, 30, 50, 70];
+
+// Paper practice: answers are computed from the same code the labs use, so they always match.
+const practice = [
+  { id: 'p1', values: [21, 9, 15, 5, 30, 26, 23], rotations: 'Two fixes. Inserting 15 makes 21 unbalanced (+2): the <b>LR case</b> (left rotation at 9, then right rotation at 21). Inserting 23 makes 21 unbalanced (−2): the <b>RL case</b> (right rotation at 26, then left rotation at 21).' },
+  { id: 'p2', values: [1, 2, 3, 4, 5, 6, 7], rotations: 'Four fixes, all the <b>RR case</b> (one left rotation each): when inserting 3 (at 1), 5 (at 3), 6 (at 2, the root), and 7 (at 5). Sorted input that made a chain in a plain BST becomes a perfectly bushy tree.' },
+  { id: 'p3', values: [50, 30, 70, 20, 40, 35], rotations: 'One fix. Inserting 35 makes 50 unbalanced (+2). From 50 the path went left (30), then right (40): the <b>LR case</b>. Left rotation at 30, then right rotation at 50. Watch 35: it changes parent and ends up as the right child of 30.' },
+].map((p) => {
+  const r = buildAvl(p.values);
+  return { ...p, pre: traverse(r, 'pre'), ino: traverse(r, 'in'), post: traverse(r, 'post') };
+});
+
+const quiz = [
+  { q: 'The balance factor of a node is computed as:', opts: ['Left subtree nodes − right subtree nodes', 'Right subtree height − left subtree height', 'Left subtree height − right subtree height', 'Number of edges × number of levels'], a: 2, why: 'Balance factor = height(left) − height(right). It uses <b>heights</b>, not node counts, and it is <b>left minus right</b>.' },
+  { q: 'In an AVL tree, a node is unbalanced when its balance factor becomes:', opts: ['±1', '±2', '0', '±3 only'], a: 1, why: '−1, 0, and +1 are allowed. When an insertion makes a node reach +2 or −2, the tree must rotate.' },
+  { q: 'Which statement about AVL trees is true?', opts: ['They keep every node at balance factor 0 (perfect balance)', 'They allow balance factors from −2 to +2', 'They use rotations to restore height balance after an insert or delete', 'They only rebalance after deletion'], a: 2, why: 'AVL trees allow small differences (±1), so they are not perfectly balanced. They rotate whenever an insert <i>or</i> delete makes a node reach ±2.' },
+  { q: 'You insert 30, then 20, then 10 into an empty AVL tree. Which case is this, and what is the fix?', opts: ['LL case: one right rotation at 30', 'RR case: one left rotation at 30', 'LR case: two rotations', 'No fix needed'], a: 0, why: 'From 30, the new value went left (20), then left (10): LL. A straight line to the left is fixed with one <b>right</b> rotation at 30. The new root is 20.' },
+  { q: 'You insert 10, then 30, then 20. Which case is this?', opts: ['RR', 'RL', 'LR', 'LL'], a: 1, why: 'From 10, the new value went right (to 30), then left (to 20). Right, then left: <b>RL</b>. It is a zigzag, so it needs two rotations: right at 30, then left at 10.' },
+  { q: 'After an insertion, two nodes have balance factor +2: one is the root, the other is lower down, closer to the new value. Which one do you fix?', opts: ['The root, always', 'The lower one, closest to the new value', 'Both, one rotation each', 'Neither; rebuild the tree'], a: 1, why: 'Fix the <b>first</b> unbalanced node you meet going up from the new value. After that one fix, the nodes above it become balanced too.' },
+  { q: 'During a right rotation at node z (its left child is y), what happens to y\'s right child?', opts: ['It is deleted', 'It becomes z\'s left child', 'It becomes y\'s left child', 'It becomes the new root'], a: 1, why: 'y moves up and z moves down to y\'s right. y\'s old right child cannot stay (that spot now holds z), so it moves over to become z\'s left child. It still fits the BST rule there.' },
+  { q: 'Which traversal of any AVL tree gives the values in sorted order?', opts: ['Pre-order', 'In-order', 'Post-order', 'None; rotations mix up the order'], a: 1, why: 'An AVL tree is still a BST, and rotations never break the BST rule. So in-order (Left, Node, Right) is always sorted.' },
+];
+---
+<Base title="AVL Trees · ITC 120" description="AVL trees in plain English: balance factors, the four rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Balanced trees</p>
+    <p class="kicker">Balanced trees · Lesson 1 of 2</p>
+    <h1>AVL Trees</h1>
+    <p class="lede">A binary search tree that fixes its own shape, so searching stays fast.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>see why a BST can become slow, and what "balanced" means;</li>
+        <li>compute the <b>height</b> and <b>balance factor</b> of any node;</li>
+        <li>name the four types of imbalance (<b>LL, RR, LR, RL</b>) and fix each one with rotations;</li>
+        <li>insert a list of values into an AVL tree <b>by hand</b>, the way the exam asks;</li>
+        <li>read the Java code for AVL insertion.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the BST lessons (insertion and traversals), scratch paper, and a pen.</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="chapter wrap" id="why">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The problem</p>
+      <h2>Why a BST can become slow</h2>
+    </div>
+    <div class="flow">
+      <p>Recall how BST search works: at each node, you compare and go <b>left</b> (smaller) or <b>right</b> (larger). Each comparison takes you <b>one level down</b>. So the number of comparisons depends on how <span class="hl">tall</span> the tree is.</p>
+      <p>But the shape of a BST depends on the <b>order</b> you insert the values. Below are the same seven values, 10 to 70, inserted in two different orders. Both trees follow the BST rule. Count the comparisons needed to find <b>70</b> (the shaded nodes):</p>
+
+      <figure class="fig">
+        <p class="fig-cap">Same values, different shapes</p>
+        <div class="two-col">
+          <div>
+            <p class="small"><b>Inserted in sorted order:</b> 10, 20, 30, 40, 50, 60, 70</p>
+            <TreeFig values={chain} marks={{ 10: 'path', 20: 'path', 30: 'path', 40: 'path', 50: 'path', 60: 'path', 70: 'found' }} label="A BST shaped like a chain going down to the right" />
+            <p class="small"><span class="chip">height 6</span> Finding 70 takes <b>7 comparisons</b>.</p>
+          </div>
+          <div>
+            <p class="small"><b>Inserted in mixed order:</b> 40, 20, 60, 10, 30, 50, 70</p>
+            <TreeFig values={bushy} marks={{ 40: 'path', 60: 'path', 70: 'found' }} label="A bushy BST with 40 at the root" />
+            <p class="small"><span class="chip">height 2</span> Finding 70 takes only <b>3 comparisons</b>.</p>
+          </div>
+        </div>
+      </figure>
+
+      <p>The left tree is really just a linked list wearing a tree costume. With 1,000 values inserted in sorted order, a search could need 1,000 comparisons. A well-shaped tree with 1,000 values needs only about 10.</p>
+
+      <div class="remember">
+        <p class="note-label">Where you see this in IT</p>
+        <p>Sorted input is very common: student ID numbers given out in order, receipts numbered 0001, 0002, 0003, or records saved with the date and time. Insert any of these into a plain BST and you get the slow chain.</p>
+      </div>
+
+      <div class="sticky">
+        <p class="note-label">Think of a pedicab</p>
+        <p>If all the passengers sit on one side, the pedicab leans and becomes hard to drive. The driver asks one passenger to move to the other side. Nobody gets off; they just change seats.</p>
+        <p style="margin-top:0.5rem">An <b>AVL tree</b> does the same thing. When one side gets too heavy, it moves a few nodes around (a <b>rotation</b>). No value is removed, and the BST rule still holds.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="chapter wrap" id="balance-factor">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Measuring the lean</p>
+      <h2>Height and balance factor</h2>
+    </div>
+    <div class="flow">
+      <p>To know if a tree is leaning, we need a number for each node. That number is built from <b>height</b>, which you learned in the trees lesson.</p>
+
+      <div class="def">
+        <p class="note-label">Height (review)</p>
+        <p>The <b>height of a node</b> is the number of edges on the longest path from that node down to a leaf.</p>
+        <p>A leaf has height <b>0</b>. An empty spot (a <code>null</code> child) has height <b>−1</b>, because it is one level below a leaf.</p>
+      </div>
+
+      <div class="def">
+        <p class="note-label">Balance factor</p>
+        <p>The <b>balance factor</b> of a node is the height of its left subtree minus the height of its right subtree:</p>
+        <p class="formula">balance factor = height(left) − height(right)</p>
+      </div>
+
+      <p>The sign of the balance factor tells you which way the node leans. There are three possible readings:</p>
+      <table class="tbl">
+        <thead><tr><th>Balance factor</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><b>positive</b> (+1, +2, …)</td><td>The <b>left</b> side is taller.</td></tr>
+          <tr><td><b>0</b></td><td>Both sides are the same height.</td></tr>
+          <tr><td><b>negative</b> (−1, −2, …)</td><td>The <b>right</b> side is taller.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="remember">
+        <p class="note-label">The balance rule</p>
+        <p>A node is <b>balanced</b> if its balance factor is <b>−1, 0, or +1</b>.</p>
+        <p>It is <b>unbalanced</b> when it reaches <b>+2 or −2</b>. That is when an AVL tree must fix it.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Example: work it out</h3>
+        <TreeFig values={[40, 20, 60, 10, 30]} showH showBf label="A tree with heights and balance factors shown" />
+        <p>Look at node <b>20</b>: its left child 10 has height 0, and its right child 30 has height 0. So its balance factor is 0 − 0 = <b>0</b>.</p>
+        <p style="margin-top:0.5rem">Look at node <b>40</b>: its left subtree (starting at 20) has height 1. Its right subtree (starting at 60) has height 0. So 1 − 0 = <b>+1</b>. It leans left a little, but that is allowed.</p>
+        <p style="margin-top:0.5rem">Look at leaf <b>60</b>: both children are empty (height −1). So −1 − (−1) = <b>0</b>. Every leaf has balance factor 0.</p>
+      </div>
+
+      <BfExplorer id="bfx" values={[40, 20, 60, 10, 30, 70, 5, 80]} />
+
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ul>
+          <li>It is <b>left minus right</b>, not right minus left. Getting the order wrong flips every sign.</li>
+          <li>It uses <b>heights</b>, not the number of nodes.</li>
+          <li>Check <b>every</b> node. A tree can be fine at the root but unbalanced lower down (like 60 above).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="chapter wrap" id="avl">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · The idea</p>
+      <h2>What an AVL tree is</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">AVL tree</p>
+        <p>An <b>AVL tree</b> is a binary search tree in which every node has a balance factor of −1, 0, or +1. After every insertion or deletion, it checks the balance factors and uses <b>rotations</b> to fix any node that reaches ±2.</p>
+      </div>
+      <p>So an AVL tree follows two rules at the same time:</p>
+      <ol>
+        <li><b>The BST rule:</b> smaller values to the left, larger values to the right.</li>
+        <li><b>The balance rule:</b> every node's balance factor is −1, 0, or +1.</li>
+      </ol>
+      <p>It is named after the two people who invented it in 1962, <b>G. M. <u>A</u>delson-<u>V</u>elsky</b> and <b>E. M. <u>L</u>andis</b>. It was the first self-balancing binary search tree.</p>
+
+      <div class="trap">
+        <p class="note-label">Exam trap</p>
+        <p>An AVL tree is <b>not</b> perfectly balanced. Small differences (±1) are allowed. It does not rotate after every insert, only when a node reaches ±2.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="chapter wrap" id="rotations">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · The fix</p>
+      <h2>Rotations</h2>
+    </div>
+    <div class="flow">
+      <p>A <b>rotation</b> is a small rearrangement of a node and one of its children. One goes up, the other goes down, and the shape changes. The BST rule still holds afterwards, so the in-order list stays the same.</p>
+
+      <div class="sub">
+        <h3>A right rotation, slowly</h3>
+        <p>Here is a <b>right rotation at 40</b>. Its left child, 30, moves up into 40's spot. 40 moves down to become 30's right child.</p>
+        <figure class="fig">
+          <div class="two-col rot">
+            <div>
+              <p class="small"><b>Before</b></p>
+              <TreeFig values={[40, 30, 50, 20, 35]} marks={{ 40: 'down', 30: 'pivot', 35: 'moved' }} minW={260} label="Before: 40 at the top, 30 on its left, 35 is 30's right child" />
+            </div>
+            <div>
+              <p class="small"><b>After right rotation at 40</b></p>
+              <TreeFig values={[30, 20, 40, 35, 50]} marks={{ 40: 'down', 30: 'pivot', 35: 'moved' }} minW={260} label="After: 30 at the top, 40 on its right, 35 is now 40's left child" />
+            </div>
+          </div>
+          <div class="legend">
+            <span><i class="l-pivot"></i> moves up</span>
+            <span><i style="border-style:dashed;border-color:var(--teal)"></i> moves down</span>
+            <span><i class="l-moved"></i> changes parent</span>
+          </div>
+        </figure>
+        <p>But wait: 30 already had a right child, <b>35</b>, and now 40 wants that spot. So <span class="hl">35 moves over to become 40's left child</span>. Does it still fit? Yes: 35 is bigger than 30 and smaller than 40, so it belongs between them.</p>
+        <p>Check: the in-order list before is 20, 30, 35, 40, 50. After, it is still 20, 30, 35, 40, 50.</p>
+        <p>A <b>left rotation</b> is the mirror image: the right child moves up, the node moves down to the left, and the child's old <i>left</i> child changes parent.</p>
+      </div>
+
+      <div class="sub">
+        <h3>The four cases</h3>
+        <p>When a node becomes unbalanced, we look at the path from that node toward the value we just inserted. The first two moves on that path give the case its name. There are four types of cases:</p>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>Case</th><th>Path from the unbalanced node</th><th>Shape</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr><td><b>LL</b></td><td>left, then left</td><td>straight line</td><td>1 right rotation at the unbalanced node</td></tr>
+            <tr><td><b>RR</b></td><td>right, then right</td><td>straight line</td><td>1 left rotation at the unbalanced node</td></tr>
+            <tr><td><b>LR</b></td><td>left, then right</td><td>zigzag</td><td>left rotation at the child, then right rotation at the unbalanced node</td></tr>
+            <tr><td><b>RL</b></td><td>right, then left</td><td>zigzag</td><td>right rotation at the child, then left rotation at the unbalanced node</td></tr>
+          </tbody>
+        </table></div>
+        <div class="remember">
+          <p class="note-label">How to remember</p>
+          <p><b>Straight line → 1 rotation. Zigzag → 2 rotations.</b></p>
+          <p>For LL and RR, rotate the <b>opposite</b> way: too heavy on the left, rotate right. For LR and RL, the first rotation straightens the zigzag into a line, then you fix the line.</p>
+        </div>
+      </div>
+
+      <AvlLab id="lab-cases" cap="Watch each case" hint="Pick a case, then tap Next step. Each example inserts three values into an empty tree." presets={[
+        { label: 'LL', values: [30, 20, 10] },
+        { label: 'RR', values: [10, 20, 30] },
+        { label: 'LR', values: [30, 10, 20] },
+        { label: 'RL', values: [10, 30, 20] },
+      ]} />
+
+      <p>Notice that all four examples end with the same tree: 20 at the top, 10 on the left, 30 on the right. Different starting shapes, same balanced result.</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="chapter wrap" id="insert">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Putting it together</p>
+      <h2>Inserting, step by step</h2>
+    </div>
+    <div class="flow">
+      <p>Every AVL insertion follows the same four steps. This is the procedure you will use in the exam:</p>
+      <ol class="procedure">
+        <li><b>Insert</b> the value like a normal BST. It becomes a new leaf.</li>
+        <li><b>Check</b> balance factors, starting from the new leaf and going up to the root.</li>
+        <li>At the <b>first</b> node that reaches +2 or −2, <b>name the case</b> (LL, RR, LR, or RL) using the path toward the new value.</li>
+        <li><b>Rotate</b> using the fix for that case. One fix is enough: the whole tree is balanced again.</li>
+      </ol>
+      <p>If no node reaches ±2 in step 2, there is nothing to fix. Move on to the next value.</p>
+
+      <AvlLab id="lab-full" cap="Worked example: all four cases" hint="This list triggers LL, LR, RR, and RL. Tap Next step and say the next move out loud before you tap. Then try your own numbers." custom presets={[
+        { label: 'Worked example', values: [30, 65, 20, 15, 25, 10, 50, 60, 90, 45] },
+      ]} />
+
+      <div class="remember">
+        <p class="note-label">Doing it on paper</p>
+        <ul>
+          <li><b>Redraw the whole tree</b> after every insertion that causes a rotation. Do not erase and squeeze.</li>
+          <li>Write the balance factor <b>beside each node</b> on the path you just walked.</li>
+          <li>Before rotating, write the case name (for example, <b>"LR at 65"</b>). It keeps you from rotating the wrong way.</li>
+          <li>After rotating, do a quick in-order check: the list must still be sorted.</li>
+        </ul>
+      </div>
+
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ul>
+          <li>Name the case from the <b>unbalanced node</b>, not from the root.</li>
+          <li>Fix the <b>lowest</b> unbalanced node (closest to the new value) first.</li>
+          <li>Do not forget the child that <b>changes parent</b> during a rotation. Losing it is the most common mistake.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="chapter wrap" id="paper">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      <p>The exam asks you to build an AVL tree and then traverse it. Do each problem on paper <b>before</b> opening the answer. Then check yourself with the lab in Part 5 by typing in the same numbers.</p>
+      {practice.map((p, i) => (
+        <div class="paper flow">
+          <p class="note-label">Problem {i + 1}</p>
+          <p>Insert these values, in order, into an empty AVL tree:</p>
+          <p class="mono seq">{p.values.join(', ')}</p>
+          <p>Then write the <b>pre-order</b>, <b>in-order</b>, and <b>post-order</b> traversals of your final tree.</p>
+          <details class="reveal">
+            <summary>Show the answer</summary>
+            <div class="flow">
+              <TreeFig values={p.values} mode="avl" showBf label={`Final AVL tree for problem ${i + 1}`} />
+              <p set:html={p.rotations} />
+              <table class="tbl">
+                <tbody>
+                  <tr><th>Pre-order</th><td class="mono">{p.pre.join(', ')}</td></tr>
+                  <tr><th>In-order</th><td class="mono">{p.ino.join(', ')}</td></tr>
+                  <tr><th>Post-order</th><td class="mono">{p.post.join(', ')}</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · In code</p>
+      <h2>AVL insertion in Java</h2>
+    </div>
+    <div class="flow">
+      <p>The Java version is your <code>insertRec</code> from the BST lessons, plus a few small methods. The node gets one new field, <code>height</code>, so we do not have to count the height again every time.</p>
+
+      <div class="sub">
+        <h3>1. The node remembers its height</h3>
+<pre class="code"><code set:html={hi(code1)} /></pre>
+      </div>
+
+      <div class="sub">
+        <h3>2. Three small helpers</h3>
+<pre class="code"><code set:html={hi(code2)} /></pre>
+        <p>These match Part 2 exactly: a leaf is 0, an empty spot is −1, and the balance factor is left minus right.</p>
+      </div>
+
+      <div class="sub">
+        <h3>3. The two rotations</h3>
+<pre class="code"><code set:html={hi(code3)} /></pre>
+        <p>Compare <code>rotateRight</code> with the right rotation picture in Part 4: <code>z</code> is 40, <code>y</code> is 30, and <code>moved</code> is 35. The method <b>returns the new top</b>, so whoever called it can connect it back to the tree.</p>
+      </div>
+
+      <div class="sub">
+        <h3>4. Insert, then fix on the way back up</h3>
+<pre class="code"><code set:html={hi(code4)} /></pre>
+        <p>You call it the same way as before: <code>root = insertRec(root, 25);</code></p>
+      </div>
+
+      <div class="plain">
+        <p class="note-label">Why "on the way back up" works</p>
+        <p>Recursion goes <b>down</b> to find the spot, then each call finishes in reverse order, from the new leaf <b>back up</b> to the root. That is exactly step 2 of the procedure: check from the new node upward. The first call to find <code>b</code> equal to 2 or −2 is the lowest unbalanced node, and it fixes itself before returning.</p>
+        <p style="margin-top:0.5rem">How does the code name the case? <code>b &gt; 1</code> means the left side is too tall (first letter <b>L</b>). Then <code>value &lt; node.left.data</code> means the new value went left again (second letter <b>L</b>), and so on.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why. Try again until you get them all.</p>
+      <Quiz id="quiz-avl" questions={quiz} />
+
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A BST can become a slow chain if values arrive in sorted order.</li>
+          <li>Balance factor = height(left) − height(right). Allowed: −1, 0, +1. Fix at ±2.</li>
+          <li>An AVL tree is a BST that keeps every balance factor in −1 to +1 using rotations.</li>
+          <li>Name the case from the unbalanced node: LL and RR need 1 rotation; LR and RL need 2.</li>
+          <li>During a rotation, one child changes parent. Don't lose it.</li>
+          <li>Rotations never break the BST rule, so in-order is always sorted.</li>
+        </ol>
+      </div>
+
+      <p><b>Next lesson:</b> <a href={base + '/itc120/red-black-trees/'}>Red-black trees</a>, another way to keep a BST balanced.</p>
+
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>G. M. Adelson-Velsky and E. M. Landis, "An algorithm for the organization of information," <i>Soviet Mathematics Doklady</i>, vol. 3, pp. 1259–1263, 1962.</li>
+          <li>Programiz, "AVL Tree." <a href="https://www.programiz.com/dsa/avl-tree">programiz.com/dsa/avl-tree</a></li>
+          <li>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <i>Introduction to Algorithms</i>, 4th ed. MIT Press, 2022 (rotations, Section 13.2).</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .formula { font-family: var(--font-mono); font-weight: 600; font-size: 1rem; background: var(--teal-wash); padding: 0.5rem 0.7rem; border-radius: 4px; }
+  .procedure { display: grid; gap: 0.4rem; }
+  .procedure li { padding-left: 0.2rem; }
+  .procedure li::marker { font-family: var(--font-hand); font-weight: 700; color: var(--orange); }
+  .seq { font-size: 1.05rem; font-weight: 600; letter-spacing: 0.02em; }
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

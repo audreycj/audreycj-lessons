@@ -1,0 +1,271 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import BstLab from '../../components/BstLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+import { build } from '../../lib/bst.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const start = [40, 20, 60, 10, 30, 50, 70];
+const insert = String.raw`static TreeNode insert(TreeNode root,
+                       int value) {
+  if (root == null) {
+    return new TreeNode(value);
+  }
+  TreeNode current = root;
+  while (true) {
+    if (value == current.data) {
+      return root;
+    } else if (value < current.data) {
+      if (current.left == null) {
+        current.left = new TreeNode(value);
+        return root;
+      }
+      current = current.left;
+    } else {
+      if (current.right == null) {
+        current.right = new TreeNode(value);
+        return root;
+      }
+      current = current.right;
+    }
+  }
+}`;
+const loop = String.raw`int[] values = {40, 20, 60, 10, 30, 50, 70};
+TreeNode root = null;               // empty tree
+for (int i = 0; i < values.length; i++) {
+  root = insert(root, values[i]);
+}`;
+const bugCode = String.raw`} else if (value < current.data) {
+  if (current.left == null) {
+    current = new TreeNode(value);
+    return root;
+  }
+  current = current.left;
+}`;
+const prac = [50, 30, 75, 25, 40, 35, 90, 80, 95];
+
+const quiz = [
+  { q: 'Where does a new value go in a BST?', opts: ['Always at the root', 'At the empty spot (null) where a search for it falls off the tree', 'Always as the left child of the root', 'At the end, like an array'], a: 1, why: 'Insert = <b>search</b> for the value, then attach it at the null spot. It always becomes a new <b>leaf</b>.' },
+  { q: '<code>current</code> refers to node 50, and 50\'s left is empty. Which line connects 45?', opts: ['<code>current = new TreeNode(45);</code>', '<code>current.left = new TreeNode(45);</code>', '<code>current = current.left;</code>', '<code>root = new TreeNode(45);</code>'], a: 1, why: '<code>current.left = ...</code> changes the tree. <code>current = ...</code> only moves the arrow, so 45 would never be connected.' },
+  { q: 'After <code>current.left = new TreeNode(45);</code>, what does <code>current</code> refer to?', opts: ['45', '50 (it did not move)', 'null', 'The root'], a: 1, why: 'This line connects a new node but does <b>not</b> move <code>current</code>.' },
+  { q: 'What does <code>insert(root, 30)</code> do if 30 is already in the tree?', opts: ['Adds a second 30', 'Nothing: it returns the same root', 'Replaces the root with 30', 'Throws an error'], a: 1, why: 'Lines 8–9: equal → <code>return root;</code>. Our BSTs have no duplicates, so the tree stays the same.' },
+  { q: 'Why do we write <code>root = insert(root, value);</code>?', opts: ['To make the new value the root', 'Because when the tree is empty, insert returns a new root that must be saved', 'Java requires it for every method', 'To print the tree'], a: 1, why: 'Usually insert returns the same root. But for an <b>empty</b> tree, it returns the new node; without <code>root =</code>, that node is lost.' },
+  { q: 'Does <code>root = insert(root, 45);</code> make 45 the root?', opts: ['Yes', 'No: 45 is added at the bottom, and insert gives back the same top node', 'Only if 45 is the largest', 'Only in an AVL tree'], a: 1, why: 'The method returns the same top node it received (unless the tree was empty). <code>root =</code> just saves it again.' },
+];
+---
+<Base title="BST Insertion in Java · ITC 120" description="Inserting into a binary search tree, by hand and with a Java loop: move current, connect a new node." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
+    <p class="kicker">Trees and BSTs · Lesson 3 of 6</p>
+    <h1>BST Insertion in Java</h1>
+    <p class="lede">Search for the value; where the search falls off the tree, attach the new node.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>review how to insert into a BST by hand;</li>
+        <li>learn the two actions in the code: <b>move</b> <code>current</code> and <b>connect</b> a new node;</li>
+        <li>trace <code>insert</code>, including a value that is already there and an empty tree;</li>
+        <li>build a whole BST with a loop, and avoid three common mistakes.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bst/'}>BST lesson</a>, and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="hand">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · Review</p>
+      <h2>Insertion by hand</h2>
+    </div>
+    <div class="flow">
+      <p>A new student enrolls, and their ID must be added to the tree in a place where search will find it later. Putting it anywhere would break the BST rule. So: <span class="hl">search for the value; where the search reaches null, attach the new node</span>.</p>
+      <p>Insert asks the same questions as search. Only the endings are different:</p>
+      <table class="tbl">
+        <thead><tr><th>Check</th><th>Search</th><th>Insert</th></tr></thead>
+        <tbody>
+          <tr><td>Tree empty?</td><td>return false</td><td>the new node becomes the root</td></tr>
+          <tr><td>Equal?</td><td>found</td><td>already there: skip</td></tr>
+          <tr><td>Smaller?</td><td>go left</td><td>left empty? attach there. If not, go left</td></tr>
+          <tr><td>Larger?</td><td>go right</td><td>right empty? attach there. If not, go right</td></tr>
+        </tbody>
+      </table>
+      <BstLab id="lab-insert" mode="insert" cap="Insert lab" hint="Watch the “current” label. The tree only changes at the very last step. Then insert your own numbers: each one is added to the same tree." legend={`<span><i class="l-cur2"></i> current</span><span><i class="l-path"></i> checked</span><span><i class="l-new"></i> new node</span>`} presets={[
+        { label: 'Insert 45', values: start, op: 45 },
+        { label: 'Insert 30 (already there)', values: start, op: 30 },
+        { label: 'Empty tree, insert 7', values: [], op: 7 },
+      ]} />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="code">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Reading the code</p>
+      <h2>The insert method</h2>
+    </div>
+    <div class="flow">
+      <p>Here is one way to write insert in Java. It uses a loop, like the search method. The line numbers on the left are used below.</p>
+      <pre class="code"><code set:html={hiN(insert)} /></pre>
+      <p>These are the names in the code:</p>
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>root</code></td><td>refers to the top node; <code>null</code> when the tree is empty</td></tr>
+          <tr><td><code>value</code></td><td>the number we want to insert; it stays the same during the call</td></tr>
+          <tr><td><code>current</code></td><td>refers to the node we are checking now; it moves down the tree</td></tr>
+          <tr><td><code>current.data</code></td><td>the number stored in that node</td></tr>
+          <tr><td><code>current.left</code>, <code>current.right</code></td><td>that node's children (either can be <code>null</code>)</td></tr>
+        </tbody>
+      </table>
+      <div class="sub">
+        <h3>The two actions</h3>
+        <p>To understand the code, learn these two actions first:</p>
+        <div class="two-col">
+          <div class="paper flow">
+            <p class="note-label">1. Move current (line 15 or 21)</p>
+            <p class="mono">current = current.right;</p>
+            <p><code>current</code> moves to a child that already exists. <b>The tree does not change</b>. Think of <code>current</code> as a finger pointing at one node: moving the finger does not change the tree.</p>
+          </div>
+          <div class="paper flow">
+            <p class="note-label">2. Connect a new node (line 12 or 18)</p>
+            <p class="mono">current.left = new TreeNode(45);</p>
+            <p>A new node is connected through the empty left (or right) of the node <code>current</code> refers to. <b>The tree changes</b>, but <code>current</code> does not move.</p>
+          </div>
+        </div>
+        <div class="remember"><p class="note-label">Compare</p><p><code>current = ...</code> moves the arrow. <code>current.left = ...</code> changes the tree.</p></div>
+      </div>
+      <div class="sub">
+        <h3>What each part does</h3>
+        <ul>
+          <li><b>Lines 3–5:</b> empty tree? The new node is the root.</li>
+          <li><b>Line 6:</b> start at the root, like search.</li>
+          <li><b>Lines 8–9:</b> equal? The value is already there. Stop.</li>
+          <li><b>Lines 11–14, 17–20:</b> empty spot on that side? Connect the new node there, then stop.</li>
+          <li><b>Lines 15, 21:</b> not empty? Move to that child, then check again.</li>
+        </ul>
+        <p><code>return</code> exits the <b>whole method</b> right away, not just the <code>if</code> or the loop.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="calling">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Calling insert</p>
+      <h2><code>root = insert(root, 45);</code></h2>
+    </div>
+    <div class="flow">
+      <p>Java first runs <code>insert(root, 45)</code>: it adds 45, then gives back the top of the tree. Then <code>root =</code> saves what it gave back.</p>
+      <div class="trap">
+        <p class="note-label">Does 45 become the root?</p>
+        <p><b>No!</b> 45 is added at the bottom (as 50's left child). The method gives back the same top node it was given (40), and <code>root =</code> just saves that same node again.</p>
+      </div>
+      <p><b>Then why save it?</b> When the tree is <b>empty</b>, the new node becomes the top. The method gives back a <i>new</i> top, and we must save it. Try "Empty tree, insert 7" in the lab.</p>
+      <div class="sub">
+        <h3>Build a whole tree with a loop</h3>
+        <pre class="code"><code set:html={hi(loop)} /></pre>
+        <p>Each time through the loop, one value is inserted, and the earlier nodes never move. After 7 inserts:</p>
+        <TreeFig values={start} label="The BST built from 40, 20, 60, 10, 30, 50, 70" />
+        <p>The order of insertion decides the shape. Inserting 10, 20, 30, … 70 in sorted order would make a chain instead.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="mistakes">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Watch out</p>
+      <h2>Three common mistakes</h2>
+    </div>
+    <div class="flow">
+      <div class="trap">
+        <p class="note-label">1. Forgetting <code>root =</code></p>
+        <p><code>insert(root, 25);</code> on an empty tree creates node 25 and returns it, but nothing saves it. <code>root</code> is still <code>null</code>. Fix: always write <code>root = insert(root, 25);</code></p>
+      </div>
+      <div class="trap">
+        <p class="note-label">2. Moving instead of connecting</p>
+        <p><code>current = new TreeNode(45);</code> only moves the arrow. 50's left is still <code>null</code>, so 45 is never connected. Fix: <code>current.left = new TreeNode(45);</code></p>
+      </div>
+      <div class="trap">
+        <p class="note-label">3. Connecting without checking for null</p>
+        <p>Insert 25: at 40, 25 &lt; 40, so we look left. If the code writes <code>current.left = new TreeNode(25);</code> without checking, it <b>replaces</b> 20, and 20, 10, and 30 are cut off from the tree. That is why the code checks <code>if (current.left == null)</code> first.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      <div class="paper flow">
+        <p class="note-label">Problem 1: trace table</p>
+        <p>Using the starting BST (40, 20, 60, 10, 30, 50, 70), make a trace table for <code>insert(root, 55)</code>: one row each time the loop checks a node.</p>
+        <details class="reveal"><summary>Show the answer</summary><div>
+          <table class="tbl"><thead><tr><th>current.data</th><th>Compare</th><th>Child on that side</th><th>Then</th></tr></thead>
+            <tbody>
+              <tr><td>40</td><td>55 &gt; 40</td><td>right = 60</td><td>move right</td></tr>
+              <tr><td>60</td><td>55 &lt; 60</td><td>left = 50</td><td>move left</td></tr>
+              <tr><td>50</td><td>55 &gt; 50</td><td>right = null</td><td>connect 55; return root</td></tr>
+            </tbody></table>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Problem 2: build and answer</p>
+        <p>Start with an empty tree. Insert, in this order: <span class="mono">{prac.join(', ')}</span></p>
+        <ol><li>Draw the final BST.</li><li>Which node is the parent of 35?</li><li>If we then call <code>insert(root, 85)</code>, which nodes does <code>current</code> visit? Where is 85 connected?</li><li>What happens if we call <code>insert(root, 40)</code>?</li></ol>
+        <details class="reveal"><summary>Show the answer</summary><div class="flow">
+          <TreeFig values={prac} label="BST built from 50, 30, 75, 25, 40, 35, 90, 80, 95" />
+          <ol>
+            <li>See the drawing.</li>
+            <li>40 (35 &lt; 50: left. 35 &gt; 30: right. 35 &lt; 40: left. Empty, so 35 is connected there.)</li>
+            <li>50, 75, 90, 80. 85 &gt; 80 and 80's right is empty, so 85 becomes the right child of 80.</li>
+            <li>Nothing changes. current visits 50, 30, 40; 40 is equal, so it is skipped.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Problem 3: find the bug</p>
+        <p>A classmate inserted 45, but 45 never appears in the tree. Which line is wrong?</p>
+        <pre class="code"><code set:html={hiN(bugCode)} /></pre>
+        <details class="reveal"><summary>Show the answer</summary><div>
+          <p>Line 3: <code>current = new TreeNode(value);</code> only moves <code>current</code>; the new node is never connected. It should be <code>current.left = new TreeNode(value);</code></p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-ins" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Insert = search for the value, then attach it at the null spot. It becomes a new leaf.</li>
+          <li><code>current = current.left;</code> moves; <code>current.left = new TreeNode(v);</code> connects.</li>
+          <li>Always check for null before connecting, or you cover up a node.</li>
+          <li>Always write <code>root = insert(root, value);</code></li>
+          <li>Insertion order decides the shape of the tree.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/traversals/'}>Tree traversals</a>. (In Lesson 5, you will also see a recursive version of insert.)</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Programiz, "Binary Search Tree (BST)." <a href="https://www.programiz.com/dsa/binary-search-tree">programiz.com/dsa/binary-search-tree</a></li>
+          <li>Oracle, "TreeSet (Java SE 21 &amp; JDK 21)," Java API documentation.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

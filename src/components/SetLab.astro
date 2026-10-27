@@ -1,0 +1,109 @@
+---
+// Venn diagram lab: edit sets A and B, pick an operation, see the shaded region, the result, and the Java code.
+interface Props { id: string; a: number[]; b: number[]; }
+const { id, a, b } = Astro.props;
+---
+<figure class="fig setlab" id={id} data-a={a.join(', ')} data-b={b.join(', ')}>
+  <p class="fig-cap">Set operations lab</p>
+  <p class="fig-hint">Pick an operation to shade its part of the picture. You can also change A and B (whole numbers, separated by commas).</p>
+  <div class="sl-inputs">
+    <label>A = <input type="text" class="sl-a" inputmode="numeric" autocomplete="off" /></label>
+    <label>B = <input type="text" class="sl-b" inputmode="numeric" autocomplete="off" /></label>
+    <p class="sl-err small" aria-live="polite"></p>
+  </div>
+  <div class="btn-row sl-ops" role="group" aria-label="Operation">
+    <button type="button" class="btn" data-op="union">A ∪ B</button>
+    <button type="button" class="btn" data-op="inter">A ∩ B</button>
+    <button type="button" class="btn" data-op="aminusb">A − B</button>
+    <button type="button" class="btn" data-op="bminusa">B − A</button>
+    <button type="button" class="btn" data-op="sym">A △ B</button>
+  </div>
+  <div class="sl-venn"></div>
+  <div class="sl-out" aria-live="polite"></div>
+</figure>
+
+<style is:global>
+  .setlab .sl-inputs { display: grid; gap: 0.4rem; margin-bottom: 0.8rem; }
+  .setlab .sl-inputs label { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-weight: 700; }
+  .setlab .sl-inputs input { flex: 1; min-width: 0; font: inherit; font-size: 0.95rem; padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper); }
+  .setlab .sl-err { color: var(--red-pen); font-weight: 700; min-height: 1.2em; }
+  .setlab .sl-ops { margin-bottom: 0.8rem; }
+  .setlab .sl-ops .btn { font-family: var(--font-mono); }
+  .setlab .sl-venn svg { display: block; width: 100%; max-width: 30rem; margin-inline: auto; height: auto; }
+  .setlab .v-circle { fill: none; stroke: var(--ink); stroke-width: 2; }
+  .setlab .v-shade { fill: var(--orange); opacity: 0.32; }
+  .setlab .v-name { font-family: var(--font-hand); font-weight: 700; font-size: 20px; fill: var(--ink); }
+  .setlab .v-el { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+  .setlab .v-el.on { fill: var(--orange-ink); font-weight: 700; }
+  .setlab .sl-out { background: var(--paper); border-radius: 6px; padding: 0.7rem 0.9rem; margin-top: 0.6rem; }
+  .setlab .sl-out .res { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; word-break: break-word; }
+  .setlab .sl-out pre { margin-top: 0.5rem; }
+</style>
+
+<script>
+  const ops: Record<string, { name: string; sym: string; say: string; inA: boolean; both: boolean; inB: boolean; code: string }> = {
+    union: { name: 'Union', sym: 'A ∪ B', say: 'everything in A <b>or</b> B (or both). Each value appears once.', inA: true, both: true, inB: true,
+      code: 'Set<Integer> union = new HashSet<>(a);\nunion.addAll(b);' },
+    inter: { name: 'Intersection', sym: 'A ∩ B', say: 'only the values in <b>both</b> A and B.', inA: false, both: true, inB: false,
+      code: 'Set<Integer> inter = new HashSet<>(a);\ninter.retainAll(b);' },
+    aminusb: { name: 'Difference', sym: 'A − B', say: 'values in A that are <b>not</b> in B.', inA: true, both: false, inB: false,
+      code: 'Set<Integer> aMinusB = new HashSet<>(a);\naMinusB.removeAll(b);' },
+    bminusa: { name: 'Difference', sym: 'B − A', say: 'values in B that are <b>not</b> in A.', inA: false, both: false, inB: true,
+      code: 'Set<Integer> bMinusA = new HashSet<>(b);\nbMinusA.removeAll(a);' },
+    sym: { name: 'Symmetric difference', sym: 'A △ B', say: 'values in A or B, but <b>not in both</b>. Same as (A ∪ B) − (A ∩ B).', inA: true, both: false, inB: true,
+      code: 'Set<Integer> sym = new HashSet<>(a);\nsym.addAll(b);              // A ∪ B\nSet<Integer> both = new HashSet<>(a);\nboth.retainAll(b);           // A ∩ B\nsym.removeAll(both);         // (A ∪ B) − (A ∩ B)' },
+  };
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const fmt = (xs: number[]) => xs.length ? '{ ' + xs.join(', ') + ' }' : '{ } (empty set)';
+
+  document.querySelectorAll<HTMLElement>('.setlab').forEach((fig, fi) => {
+    const ia = fig.querySelector<HTMLInputElement>('.sl-a')!, ib = fig.querySelector<HTMLInputElement>('.sl-b')!;
+    const err = fig.querySelector<HTMLElement>('.sl-err')!, venn = fig.querySelector<HTMLElement>('.sl-venn')!, out = fig.querySelector<HTMLElement>('.sl-out')!;
+    ia.value = fig.dataset.a || ''; ib.value = fig.dataset.b || '';
+    let op = 'union';
+    const uid = 'v' + fi;
+
+    function parse(s: string) {
+      const parts = s.split(/[\s,{}]+/).filter(Boolean);
+      const nums = parts.map(Number);
+      if (nums.some((n) => !Number.isInteger(n) || Math.abs(n) > 9999)) return null;
+      return nums;
+    }
+    function col(xs: number[], cx: number, on: boolean) {
+      const n = xs.length; if (!n) return '';
+      const cols = n > 6 ? 2 : 1, rows = Math.ceil(n / cols), gap = Math.min(19, 130 / Math.max(rows, 1));
+      return xs.map((v, i) => {
+        const c = Math.floor(i / rows), r = i % rows;
+        const x = cx + (cols === 2 ? (c ? 19 : -19) : 0), y = 115 - ((rows - 1) * gap) / 2 + r * gap;
+        return `<text class="v-el ${on ? 'on' : ''}" x="${x}" y="${y}">${v}</text>`;
+      }).join('');
+    }
+    function paint() {
+      const A0 = parse(ia.value), B0 = parse(ib.value);
+      if (!A0 || !B0) { err.textContent = 'Use whole numbers only, separated by commas.'; return; }
+      const dupA = A0.length !== new Set(A0).size, dupB = B0.length !== new Set(B0).size;
+      const A = [...new Set(A0)].sort((x, y) => x - y), B = [...new Set(B0)].sort((x, y) => x - y);
+      if (A.length > 12 || B.length > 12) { err.textContent = 'Up to 12 values per set, so the picture stays readable.'; return; }
+      err.textContent = dupA || dupB ? `Note: ${dupA ? 'A' : 'B'}${dupA && dupB ? ' and B' : ''} had a repeated value. A set keeps only one copy, so the extra was ignored.` : '';
+      const onlyA = A.filter((x) => !B.includes(x)), both = A.filter((x) => B.includes(x)), onlyB = B.filter((x) => !A.includes(x));
+      const o = ops[op];
+      venn.innerHTML = `<svg viewBox="0 0 340 230" role="img" aria-label="Venn diagram of A and B with ${o.sym} shaded">
+        <defs><clipPath id="${uid}cb"><circle cx="210" cy="115" r="95"/></clipPath><clipPath id="${uid}ca"><circle cx="130" cy="115" r="95"/></clipPath>
+        <mask id="${uid}nb"><rect width="340" height="230" fill="#fff"/><circle cx="210" cy="115" r="95" fill="#000"/></mask>
+        <mask id="${uid}na"><rect width="340" height="230" fill="#fff"/><circle cx="130" cy="115" r="95" fill="#000"/></mask></defs>
+        ${o.inA ? `<circle class="v-shade" cx="130" cy="115" r="95" mask="url(#${uid}nb)"/>` : ''}
+        ${o.both ? `<circle class="v-shade" cx="130" cy="115" r="95" clip-path="url(#${uid}cb)"/>` : ''}
+        ${o.inB ? `<circle class="v-shade" cx="210" cy="115" r="95" mask="url(#${uid}na)"/>` : ''}
+        <circle class="v-circle" cx="130" cy="115" r="95"/><circle class="v-circle" cx="210" cy="115" r="95"/>
+        <text class="v-name" x="40" y="22">A</text><text class="v-name" x="290" y="22">B</text>
+        ${col(onlyA, 82, o.inA)}${col(both, 170, o.both)}${col(onlyB, 258, o.inB)}
+      </svg>`;
+      const res = [...(o.inA ? onlyA : []), ...(o.both ? both : []), ...(o.inB ? onlyB : [])].sort((x, y) => x - y);
+      out.innerHTML = `<p><b>${o.name}</b>, ${o.sym}: ${o.say}</p><p class="res">${o.sym} = ${fmt(res)}</p><pre class="code"><code>${esc(o.code)}</code></pre>`;
+      fig.querySelectorAll('[data-op]').forEach((x) => x.setAttribute('aria-pressed', String((x as HTMLElement).dataset.op === op)));
+    }
+    fig.querySelectorAll<HTMLButtonElement>('[data-op]').forEach((b) => b.addEventListener('click', () => { op = b.dataset.op!; paint(); }));
+    ia.addEventListener('input', paint); ib.addEventListener('input', paint);
+    paint();
+  });
+</script>

@@ -1,0 +1,252 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import BstLab from '../../components/BstLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hiN } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const start = [40, 20, 60, 10, 30, 50, 70];
+const withChild = [40, 20, 60, 10, 30, 50, 70, 45];
+const withSub = [40, 20, 60, 10, 30, 50, 70, 45, 42, 48];
+const with55 = [40, 20, 60, 10, 30, 50, 70, 55];
+const del = String.raw`static TreeNode deleteRec(TreeNode node,
+                          int value) {
+  if (node == null) {                            // not found
+    return null;
+  }
+  if (value < node.data) {                       // search
+    node.left = deleteRec(node.left, value);
+  } else if (value > node.data) {
+    node.right = deleteRec(node.right, value);
+  } else {
+    // found it
+    if (node.left == null) {                     // case 1, 2
+      return node.right;
+    }
+    if (node.right == null) {
+      return node.left;
+    }
+    TreeNode successor = node.right;             // case 3
+    while (successor.left != null) {
+      successor = successor.left;
+    }
+    node.data = successor.data;
+    node.right = deleteRec(node.right,
+                           successor.data);
+  }
+  return node;
+}`;
+
+const quiz = [
+  { q: 'You delete a node with <b>no children</b>. What happens?', opts: ['Its parent is deleted too', 'Just remove it: its parent\'s link becomes null', 'Copy the next value into it', 'Rebuild the tree'], a: 1, why: '<b>Case 1</b>: a leaf has nothing below it. Remove it; the parent\'s link becomes <code>null</code>.' },
+  { q: 'You delete a node with <b>one child</b>. What happens?', opts: ['The child is deleted too', 'The child (with everything below it) moves up into its place', 'The root moves down', 'Nothing can be done'], a: 1, why: '<b>Case 2</b>: like deleting from a linked list, the parent skips the deleted node and links straight to its child.' },
+  { q: 'Starting BST: what is the next value (in-order successor) of 40?', opts: ['20', '60', '50', '70'], a: 2, why: 'Right once (60), then left as far as you can (50). 50 has no left child, so stop: <b>50</b>.' },
+  { q: 'To delete a node with two children, we:', opts: ['Remove both children', 'Keep its spot, copy the next value into it, then remove the old next value', 'Move the left child up', 'Move the right child up'], a: 1, why: '<b>Case 3</b>: copy the next value in, then remove the old copy (which is always case 1 or case 2).' },
+  { q: 'Why is removing the next value always easy?', opts: ['It is always the root', 'It never has a left child, so it is case 1 or case 2', 'It is always a leaf', 'It never has a right child'], a: 1, why: 'We stop going left only when there is no left child. It may still have a <b>right</b> child (then it is case 2).' },
+  { q: 'Someone deletes 40 by copying its right child, 60, into its spot. What goes wrong?', opts: ['Nothing', 'The BST rule breaks: 50 ends up in 60\'s right subtree, but 50 < 60', 'The tree becomes empty', '60 disappears'], a: 1, why: 'The next value must be the <b>smallest</b> value on the right side: right once, then left as far as you can.' },
+  { q: 'Why must we write <code>root = deleteRec(root, value);</code>?', opts: ['To print the tree', 'Because when the root itself is removed, a different node takes its place and must be saved', 'It is optional', 'To sort the tree'], a: 1, why: 'If the root is deleted and a child takes its place (case 1 or 2 at the root), the method returns that child. Without <code>root =</code>, <code>root</code> still points to the deleted node.' },
+];
+---
+<Base title="BST Deletion · ITC 120" description="Deleting from a binary search tree: the three cases, the next value (in-order successor), and the recursive deleteRec method in Java." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
+    <p class="kicker">Trees and BSTs · Lesson 6 of 6</p>
+    <h1>BST Deletion</h1>
+    <p class="lede">Removing a value by hand, then in Java.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>see why deleting is harder than inserting;</li>
+        <li>delete a node in each of the <b>three cases</b>, by hand;</li>
+        <li>find the <b>next value</b> (the in-order successor);</li>
+        <li>read and trace <code>deleteRec</code>, the Java version, and spot common mistakes.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/recursion/'}>Recursion lesson</a> (especially <code>insertRec</code>), and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="why">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The problem</p>
+      <h2>Why deleting is harder</h2>
+    </div>
+    <div class="flow">
+      <TreeFig values={start} label="Starting BST: 40; 20 and 60; 10, 30, 50, 70" />
+      <p>Inserting always adds a <b>leaf</b> at the bottom. Deleting can remove a node from the <b>middle</b>. If we just remove 20, what happens to 10 and 30? They would be cut off. So after a delete, two things must stay true:</p>
+      <ol>
+        <li>Every remaining node is still connected.</li>
+        <li>The BST rule still holds.</li>
+      </ol>
+      <div class="remember"><p class="note-label">Where you see this</p><p>Deleting a contact from your phone: the list must stay sorted, and no other contact may disappear.</p></div>
+      <div class="sub">
+        <h3>The three cases</h3>
+        <p>First, always find the node, the same way as BST search. Then, what we do depends on how many children it has. There are three cases:</p>
+        <table class="tbl">
+          <thead><tr><th>Case</th><th>What we do</th></tr></thead>
+          <tbody>
+            <tr><td><b>1. No children</b> (a leaf)</td><td>Just remove it.</td></tr>
+            <tr><td><b>2. One child</b></td><td>The child moves up into its place.</td></tr>
+            <tr><td><b>3. Two children</b></td><td>Keep the node's spot, put the <b>next value</b> in it, then remove the old next value.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Watch it</p>
+      <h2>The three cases, step by step</h2>
+    </div>
+    <div class="flow">
+      <p>Try each example in order. Then type your own values to delete from the same tree (tap Reset tree to start again).</p>
+      <BstLab id="lab-del" mode="delete" cap="Deletion lab" hint="Red = the node to delete. Gold = the child or next value that moves. Orange = a spot that got a new value." legend={`<span><i class="l-bad"></i> to delete</span><span><i class="l-moved"></i> moves / next value</span><span><i class="l-new"></i> new value in this spot</span><span><i class="l-path"></i> path</span>`} presets={[
+        { label: '1. Leaf (delete 10)', values: start, op: 10 },
+        { label: '2. One child (delete 50)', values: withChild, op: 50 },
+        { label: '2. Child with a subtree', values: withSub, op: 50 },
+        { label: '3. Two children (delete 20)', values: start, op: 20 },
+        { label: '3. The root (delete 40)', values: start, op: 40 },
+        { label: '3. Next value has a child', values: with55, op: 40 },
+      ]} />
+      <div class="sub">
+        <h3>Case 2 is like a linked list</h3>
+        <p>To delete a node from a linked list, the node before it skips it. Case 2 works the same way: 60 → 50 → 45 becomes 60 → 45. If 45 has children, they come along: the whole subtree under 45 moves up together. This is safe because 45 was already in 60's left subtree, so 45 &lt; 60.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="next">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Case 3</p>
+      <h2>Finding the next value</h2>
+    </div>
+    <div class="flow">
+      <p>With two children there is only one spot, so we keep the spot and change the value inside it. Which value fits? The value right after it in the sorted (in-order) list: for 20 in <span class="mono">10 20 30 40 50 60 70</span>, that is <b>30</b>. It is bigger than everything on 20's left, and the smallest value on 20's right.</p>
+      <div class="def">
+        <p class="note-label">Next value (in-order successor)</p>
+        <p>The <b>next value</b> after a node is the smallest value that is bigger than it. Textbooks call it the <b>in-order successor</b>. To find it in the tree:</p>
+        <p class="hand" style="font-size:var(--step-1)">Go right once. Then go left, left, left… until there is no left child.</p>
+      </div>
+      <figure class="fig">
+        <TreeFig values={[40, 20, 60, 10, 30, 50, 70, 45, 42, 48]} marks={{ 40: 'bad', 60: 'path', 50: 'path', 45: 'path', 42: 'moved' }} label="Next value after 40: right to 60, then left to 50, 45, 42" />
+        <p class="small">Next value after 40: right once (60), then left, left, left (50, 45, 42). 42 has no left child, so the next value is <b>42</b>. Check: 10 20 30 40 <b>42</b> 45 48 50 60 70.</p>
+      </figure>
+      <div class="plain">
+        <p class="note-label">Why the rule works</p>
+        <p><b>Right once:</b> everything bigger than 40 is on its right side. <b>Left as far as you can:</b> smaller values are on the left, so the node furthest left is the smallest of them.</p>
+      </div>
+      <div class="remember">
+        <p class="note-label">Two notes on case 3</p>
+        <ul>
+          <li><b>Removing the next value is always easy.</b> It never has a left child, so removing it is case 1 (no children) or case 2 (only a right child). We never get stuck in case 3 again.</li>
+          <li><b>Another valid way:</b> some books use the largest value on the left instead (the in-order predecessor). That also keeps the BST rule. In this course, we use the next value.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · In code</p>
+      <h2><code>deleteRec</code> in Java</h2>
+    </div>
+    <div class="flow">
+      <p><code>deleteRec</code> follows the same pattern as <code>insertRec</code>: it searches by calling itself, and each call gives back a node that the call above saves as its left or right child. Call it with <code>root = deleteRec(root, 20);</code></p>
+      <pre class="code"><code set:html={hiN(del)} /></pre>
+      <p>The method has four parts:</p>
+      <table class="tbl">
+        <thead><tr><th>Lines</th><th>What they do</th></tr></thead>
+        <tbody>
+          <tr><td><b>3–5</b></td><td>Reached an empty spot: the value is not in the tree. Return <code>null</code>; nothing is deleted.</td></tr>
+          <tr><td><b>6–9</b></td><td>Search, exactly like <code>insertRec</code>: go left or right, and save what the call returns.</td></tr>
+          <tr><td><b>12–17</b></td><td>Found it, cases 1 and 2: return the child that takes this node's place. A leaf has both sides <code>null</code>, so line 13 returns <code>null</code>: case 1 needs no extra code.</td></tr>
+          <tr><td><b>18–24</b></td><td>Case 3: find the next value (right once, then left), copy it in (line 22), then call <code>deleteRec</code> on the right subtree to remove the old copy (lines 23–24).</td></tr>
+        </tbody>
+      </table>
+      <div class="sub">
+        <h3>Example: delete 50 (it has one child, 45)</h3>
+        <p><b>Going down:</b> the call for 40 sees 50 &gt; 40 and calls on 60 (line 9). The call for 60 sees 50 &lt; 60 and calls on 50 (line 7). The call for 50 finds it: its right is <code>null</code>, so line 16 returns its left child, <b>45</b>.</p>
+        <p><b>Coming back up:</b> the call for 60 saves 45 as its left (<code>node.left = deleteRec(...)</code>): <b>50 is cut out</b>. Then it returns 60. The call for 40 saves 60 as its right again (no change) and returns 40. Finally <code>root =</code> saves 40.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Why <code>root =</code> matters</p>
+        <p>If the root itself is deleted in case 1 or 2, a different node (or <code>null</code>) takes its place, and the method returns it. Without <code>root =</code>, <code>root</code> still points to the deleted node. Deleting a value that is not in the tree changes nothing: every call saves its same child again.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="mistakes">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Watch out</p>
+      <h2>Three common mistakes</h2>
+    </div>
+    <div class="flow">
+      <div class="trap"><p class="note-label">1. Not saving the result</p><p><code>deleteRec(node.left, value);</code> without <code>node.left =</code>: the call returns <code>null</code> for the deleted leaf, but nobody saves it, so the node is not deleted.</p></div>
+      <div class="trap"><p class="note-label">2. Forgetting to remove the next value</p><p>Copying the next value (line 22) but skipping lines 23–24: after deleting 20, the value 30 appears twice.</p></div>
+      <div class="trap"><p class="note-label">3. Using the right child as the next value</p><p>To delete 40, copying its right child 60 without going left makes 60 the root with 50 in its right subtree, but 50 &lt; 60. The BST rule is broken. Always go right once, then left as far as you can.</p></div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      <p>Each problem starts from the starting BST (40, 20, 60, 10, 30, 50, 70). Draw the result, then check it in the lab by typing the value.</p>
+      <div class="paper flow">
+        <ol>
+          <li>Delete 70. Which case?</li>
+          <li>Delete 60. What is the next value?</li>
+          <li>Add 65 first, then delete 70. Which case?</li>
+          <li>Using <code>deleteRec</code>, we delete 30. In the call for 30, which line returns, and what does it return? Which line saves it, and in which node?</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li>Case 1 (a leaf). 60's right becomes <code>null</code>.</li>
+            <li>70 (right once, no left child). 70 is copied into 60's spot, and the old 70 is removed.</li>
+            <li>Case 2 (one child, 65). 65 moves up: 60's right is now 65.</li>
+            <li>30 is a leaf. Its left is <code>null</code>, so line 13 returns <code>node.right</code>, which is <code>null</code>. Back in the call for 20, line 9 saves it: 20's right becomes <code>null</code>.</li>
+          </ol>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-del" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Find the node first, like search.</li>
+          <li>Case 1, a leaf: remove it. Case 2, one child: the child moves up.</li>
+          <li>Case 3, two children: copy in the next value, then remove the old one (case 1 or 2).</li>
+          <li>Next value: right once, then left as far as you can.</li>
+          <li>Always write <code>root = deleteRec(root, value);</code></li>
+        </ol>
+      </div>
+      <p><b>You've finished the trees unit.</b> Next: <a href={base + '/itc120/avl-trees/'}>AVL trees</a>, which keep a BST from becoming a chain.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <i>Introduction to Algorithms</i>, 4th ed. MIT Press, 2022, Chapter 12 (Binary search trees).</li>
+          <li>GeeksforGeeks, "Deletion in Binary Search Tree." <a href="https://www.geeksforgeeks.org/deletion-in-binary-search-tree/">geeksforgeeks.org</a></li>
+          <li>Programiz, "Binary Search Tree (BST)." <a href="https://www.programiz.com/dsa/binary-search-tree">programiz.com/dsa/binary-search-tree</a></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

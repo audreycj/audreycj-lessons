@@ -1,0 +1,20 @@
+---
+// For any .terms-ref block: tapping/pointing at a table row highlights nodes (data-hl, data-hl2) and edges (data-e) in the pinned figure.
+---
+<script is:inline>
+  document.querySelectorAll('.terms-ref').forEach(function (box) {
+    var nodes = box.querySelectorAll('[data-v]'), edges = box.querySelectorAll('[data-e]:not(tr)'), rows = box.querySelectorAll('tbody tr');
+    function split(s) { return s ? s.split(',') : []; }
+    function show(tr) {
+      rows.forEach(function (r) { r.classList.toggle('on', r === tr); });
+      var a = split(tr.dataset.hl), b = split(tr.dataset.hl2), e = split(tr.dataset.e);
+      nodes.forEach(function (g) { g.classList.toggle('hl', a.indexOf(g.dataset.v) > -1); g.classList.toggle('hl2', b.indexOf(g.dataset.v) > -1); });
+      edges.forEach(function (l) { l.classList.toggle('hl', e.indexOf(l.dataset.e) > -1); });
+    }
+    rows.forEach(function (tr) {
+      tr.addEventListener('click', function () { show(tr); });
+      tr.addEventListener('mouseenter', function () { show(tr); });
+      tr.addEventListener('focus', function () { show(tr); });
+    });
+  });
+</script>

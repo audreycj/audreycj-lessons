@@ -1,0 +1,17 @@
+---
+// A tree drawn at build time (no JavaScript needed to see it).
+// mode 'avl' / 'bst' / 'rb' builds from insertion order; `spec` draws any binary tree, e.g. "A(B,C(,D))"; `colors` paints a BST by hand (e.g. { 20: 'B', 10: 'R' }).
+import { buildAvl, buildBst, svgTree } from '../lib/tree.js';
+import { buildRb } from '../lib/rb.js';
+import { fromSpec } from '../lib/bst.js';
+interface Props { values?: number[]; spec?: string; mode?: 'avl' | 'bst' | 'rb'; colors?: Record<string, 'R' | 'B'>; marks?: Record<string, string>; showBf?: boolean; showH?: boolean; showNil?: boolean; label?: string; minW?: number; }
+const { values = [], spec, mode = 'bst', colors, marks = {}, showBf = false, showH = false, showNil = false, label = 'Tree diagram', minW = 0 } = Astro.props;
+const root = spec ? fromSpec(spec) : mode === 'avl' ? buildAvl(values) : mode === 'rb' ? buildRb(values) : buildBst(values);
+if (colors) (function paint(n) { if (!n) return; n.c = colors[n.v] || 'B'; paint(n.l); paint(n.r); })(root);
+// spec trees are keyed by node id: translate marks given by value
+const mk2: Record<string, string> = {};
+if (spec) (function walk(n: any) { if (!n) return; if (marks[n.v]) mk2[n.id] = marks[n.v]; walk(n.l); walk(n.r); })(root);
+const svg = svgTree(root, { marks: spec ? mk2 : marks, showBf, showH, showNil, label, minW });
+---
+<div class="tree-fig" set:html={svg} />
+<style>.tree-fig { padding: 0.3rem 0; }</style>

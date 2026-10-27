@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const courses = [
+  { code: 'ITC 120', title: 'Data Structures and Algorithms', who: 'BSIT 2nd Year', href: `${base}/itc120/`, open: true, color: 'teal' },
+  { code: 'IT 110', title: 'Introduction to Computing', who: 'BSIT 1st Year', open: false, color: 'amber' },
+];
+---
+<Base title="Ma'am Audrey's Lessons">
+  <section class="wrap hero">
+    <span class="tape">self-study notebook</span>
+    <h1>Learn it at your own pace.</h1>
+    <p class="lede">Lessons in plain English, with pictures you can tap and play with. Made for your phone. Read a part, try it, then check yourself.</p>
+  </section>
+
+  <section class="wrap shelf" aria-label="Courses">
+    <h2 class="shelf-title">Pick your course</h2>
+    <ul class="books">
+      {courses.map((c) => (
+        <li class={`book ${c.color} ${c.open ? '' : 'is-closed'}`}>
+          {c.open ? (
+            <a href={c.href}>
+              <span class="b-code mono">{c.code}</span>
+              <span class="b-title hand">{c.title}</span>
+              <span class="b-who">{c.who}</span>
+              <span class="b-go">Open lessons →</span>
+            </a>
+          ) : (
+            <div>
+              <span class="b-code mono">{c.code}</span>
+              <span class="b-title hand">{c.title}</span>
+              <span class="b-who">{c.who}</span>
+              <span class="b-go">Coming soon</span>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="wrap how">
+    <h2 class="shelf-title">How to use a lesson</h2>
+    <ol class="how-list">
+      <li><b>Go in order.</b> Each part is short. Mark it as done when you finish, so you can come back later.</li>
+      <li><b>Play with the pictures.</b> Tap the buttons, try your own numbers, and guess what happens before you look.</li>
+      <li><b>Use paper.</b> Exams are on paper, so every lesson has a "Try it on paper" part. Do it first, then open the answer.</li>
+      <li><b>Check yourself.</b> The self-checks are not graded. Get them wrong here, so you get them right in the exam.</li>
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .hero { padding-block: 2rem 1rem; }
+  .hero h1 { margin-top: 0.6rem; }
+  .lede { font-size: var(--step-1); margin-top: 0.6rem; max-width: 36rem; }
+  .shelf, .how { padding-top: 2rem; }
+  .shelf-title { font-size: var(--step-2); margin-bottom: 1rem; }
+  .books { list-style: none; padding: 0; display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .book { margin: 0; }
+  .book > a, .book > div {
+    display: grid; gap: 0.35rem; min-height: 11rem; padding: 1.1rem 1.2rem 1.1rem 1.6rem;
+    color: #fff; text-decoration: none; border: 2px solid var(--ink); border-radius: 4px 10px 10px 4px;
+    box-shadow: 4px 4px 0 var(--ink); position: relative;
+  }
+  .book > a::before, .book > div::before { content: ""; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,0.35); }
+  .book.teal > * { background: var(--teal); }
+  .book.amber > * { background: var(--amber); color: var(--ink); }
+  .book.is-closed > div { opacity: 0.6; box-shadow: 2px 2px 0 var(--ink); }
+  .book > a:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .b-code { font-size: 0.8rem; letter-spacing: 0.08em; opacity: 0.9; }
+  .b-title { font-size: var(--step-2); font-weight: 700; line-height: 1.1; }
+  .b-who { font-size: var(--step--1); opacity: 0.9; }
+  .b-go { align-self: end; font-weight: 800; font-size: var(--step--1); }
+  .how-list { display: grid; gap: 0.6rem; }
+</style>

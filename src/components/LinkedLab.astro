@@ -1,0 +1,214 @@
+---
+// Linked list lab: scripted scenarios showing node boxes [data | next], references (head, current, newNode, previous),
+// and what each line of Java changes. Includes a "wrong order" demo where part of the list is lost.
+interface Props { id: string; }
+const { id } = Astro.props;
+---
+<figure class="fig lllab" id={id}>
+  <p class="fig-cap">Linked list lab</p>
+  <p class="fig-hint">Pick an operation and tap Next step. Each step runs one line of Java. Watch which arrow changes.</p>
+  <div class="btn-row ll-btns" role="group" aria-label="Operation">
+    <button type="button" class="btn" data-s="trav">Traversal</button>
+    <button type="button" class="btn" data-s="front">Insert at the beginning</button>
+    <button type="button" class="btn" data-s="after">Insert after a node</button>
+    <button type="button" class="btn" data-s="wrong">Insert: wrong order!</button>
+    <button type="button" class="btn" data-s="bypass">Delete after a node</button>
+    <button type="button" class="btn" data-s="first">Delete the first node</button>
+  </div>
+  <div class="ll-stage scroll-x"><div class="ll-svg"></div></div>
+  <p class="ll-swipe small muted">Swipe the picture sideways to see the whole list.</p>
+  <p class="ll-cap" aria-live="polite"></p>
+  <pre class="code ll-code"><code></code></pre>
+  <p class="ll-out mono small" aria-live="polite"></p>
+  <div class="btn-row ll-nav">
+    <button type="button" class="btn" data-go="back">← Back</button>
+    <button type="button" class="btn primary" data-go="next">Next step →</button>
+  </div>
+  <div class="legend">
+    <span><i class="l-cur2"></i> node being changed or visited</span>
+    <span><i class="l-new"></i> new node</span>
+    <span><i style="border-color:var(--orange)"></i> orange arrow = just changed</span>
+    <span><i style="border-color:var(--red-pen);border-style:dashed"></i> unreachable from head</span>
+  </div>
+</figure>
+
+<style is:global>
+  .lllab .ll-btns .btn { font-size: 0.8rem; min-height: 2.3rem; padding: 0.35em 0.85em; }
+  .lllab .ll-btns { margin-bottom: 0.8rem; }
+  .lllab .ll-stage { background: var(--paper); border-radius: 8px; padding: 0.5rem;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 20px 20px; }
+  .lllab .ll-svg svg { display: block; width: 100%; height: auto; }
+  .lllab .ll-swipe { display: none; }
+  @media (max-width: 40rem) { .lllab .ll-swipe { display: block; margin-top: 0.3rem; } }
+  .lllab .nb rect { fill: #fff; stroke: #1b2a2e; stroke-width: 2; }
+  .lllab .nb .div { stroke: #1b2a2e; stroke-width: 2; }
+  .lllab .nb text { font-family: var(--font-mono); font-weight: 700; font-size: 15px; fill: #1b2a2e; text-anchor: middle; dominant-baseline: central; }
+  .lllab .nb.cur rect.d { fill: var(--orange); } .lllab .nb.cur text { fill: #fff; }
+  .lllab .nb.new rect.d { fill: var(--orange-wash); }
+  .lllab .nb.lost rect { stroke: var(--red-pen); stroke-dasharray: 5 4; } .lllab .nb.lost text { fill: var(--red-pen); }
+  .lllab .lk { fill: none; stroke: #1b2a2e; stroke-width: 2; }
+  .lllab .lk.chg { stroke: var(--orange); stroke-width: 3.5; }
+  .lllab .lk.lost { stroke: var(--red-pen); stroke-dasharray: 5 4; }
+  .lllab .dot { fill: #1b2a2e; }
+  .lllab .nul { font-family: var(--font-mono); font-size: 13px; fill: #4f5f62; dominant-baseline: central; }
+  .lllab .var { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; fill: var(--teal-ink); text-anchor: middle; }
+  .lllab .var.hot { fill: var(--orange-ink); }
+  .lllab .vline { stroke: var(--teal); stroke-width: 1.5; }
+  .lllab .lost-note { font-family: var(--font-body); font-size: 12px; font-weight: 800; fill: var(--red-pen); }
+  .lllab .ll-cap { min-height: 3.6em; margin-top: 0.8rem; }
+  .lllab .ll-code { margin-top: 0.5rem; min-height: 2.6rem; }
+  .lllab .ll-out { margin-top: 0.4rem; min-height: 1.2em; color: var(--teal-ink); }
+  .lllab .ll-nav { margin-top: 0.6rem; }
+  .lllab .ll-nav .primary { flex: 1 1 auto; }
+</style>
+
+<script>
+  type St = { nodes: Record<string, { v: number; next: string | null }>; head: string | null; vars: Record<string, string | null> };
+  type Step = { st: St; cap: string; code: string; cur?: string[]; nw?: string[]; chg?: string[]; out?: string; hot?: string[] };
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const copy = (s: St): St => JSON.parse(JSON.stringify(s));
+  const chain = (vals: number[]): St => {
+    const nodes: St['nodes'] = {};
+    vals.forEach((v, i) => (nodes['n' + v] = { v, next: i + 1 < vals.length ? 'n' + vals[i + 1] : null }));
+    return { nodes, head: vals.length ? 'n' + vals[0] : null, vars: {} };
+  };
+
+  function scenario(name: string): Step[] {
+    const S: Step[] = [];
+    let st: St;
+    const push = (cap: string, code: string, o: Partial<Step> = {}) => S.push({ st: copy(st), cap, code, ...o });
+    if (name === 'trav') {
+      st = chain([10, 20, 30]); let out = '';
+      push('The list <b>10 → 20 → 30</b>. <code>head</code> refers to the first node. The last node\'s <code>next</code> is <b>null</b>: the end.', 'printList(head);');
+      st.vars.current = 'n10';
+      push('<code>current</code> starts at the same node as head. No new node is made; current is just another name for node 10.', 'Node current = start;', { cur: ['n10'], hot: ['current'] });
+      for (const id of ['n10', 'n20', 'n30']) {
+        out += st.nodes[id].v + ' -> ';
+        push(`current is not null, so print <b>${st.nodes[id].v}</b>.`, 'System.out.print(current.data + " -> ");', { cur: [id], out });
+        const nx = st.nodes[id].next; st.vars.current = nx;
+        push(nx ? `Follow next: current moves to node ${st.nodes[nx].v}. Only current moves; head and the links stay the same.` : 'Follow next: node 30\'s next is <b>null</b>, so current becomes null.', 'current = current.next;', { cur: nx ? [nx] : [], out, hot: ['current'] });
+      }
+      out += 'null';
+      push('current is null, so the loop stops. Then print "null" to mark the end. <b>head still refers to 10</b>: traversal did not change the list.', 'System.out.println("null");', { out });
+    } else if (name === 'front') {
+      st = chain([10, 20, 30]);
+      push('Insert <b>5</b> at the beginning of 10 → 20 → 30.', '');
+      st.nodes.n5 = { v: 5, next: null }; st.vars.newNode = 'n5';
+      push('Create the new node. Its next is null for now, and it is not connected to the list yet.', 'Node newNode = new Node(5);', { nw: ['n5'], hot: ['newNode'] });
+      st.nodes.n5.next = st.head;
+      push('<b>Step 1:</b> the new node refers to the old first node (10).', 'newNode.next = head;', { nw: ['n5'], chg: ['n5'] });
+      st.head = 'n5';
+      push('<b>Step 2:</b> head now refers to the new node. The list is 5 → 10 → 20 → 30. Nothing else moved.', 'head = newNode;', { nw: ['n5'], hot: ['head'] });
+    } else if (name === 'after' || name === 'wrong') {
+      st = chain([10, 20, 30]); st.vars.current = 'n20';
+      push('Insert <b>25</b> after the node holding 20. <code>current</code> already refers to node 20, so no search is needed.', '', { cur: ['n20'] });
+      st.nodes.n25 = { v: 25, next: null }; st.vars.newNode = 'n25';
+      push('Create the new node 25.', 'newNode = new Node(25);', { nw: ['n25'], hot: ['newNode'] });
+      if (name === 'after') {
+        st.nodes.n25.next = st.nodes.n20.next;
+        push('<b>Step 1:</b> 25 refers to the node that will follow it (30). current.next is the reference stored in node 20.', 'newNode.next = current.next;', { nw: ['n25'], chg: ['n25'] });
+        st.nodes.n20.next = 'n25';
+        push('<b>Step 2:</b> 20 refers to 25. The list is 10 → 20 → 25 → 30. Only two links changed; no value moved.', 'current.next = newNode;', { nw: ['n25'], chg: ['n20'], cur: ['n20'] });
+      } else {
+        st.nodes.n20.next = 'n25';
+        push('<b>Wrong order!</b> We change 20 first: 20 now refers to 25. But 20 was the only thing pointing to 30, so <b>30 is lost</b>. No node or variable refers to it anymore.', 'current.next = newNode;   // done FIRST (wrong)', { nw: ['n25'], chg: ['n20'], cur: ['n20'] });
+        st.nodes.n25.next = st.nodes.n20.next;
+        push('Then 25 copies current.next, which is now <b>25 itself</b>. 25 refers to itself, so printing the list would print 25 forever. That is why the safe order is: <b>connect the new node first, then change the old link</b>.', 'newNode.next = current.next;   // now this is 25!', { nw: ['n25'], chg: ['n25'] });
+      }
+    } else if (name === 'bypass') {
+      st = chain([10, 20, 25, 30]); st.vars.previous = 'n20';
+      push('Delete the node <b>after</b> 20 (that is, 25). A singly linked list cannot go backward, so we need a reference to the node <b>before</b> it: <code>previous</code>.', '', { cur: ['n20'] });
+      st.nodes.n20.next = 'n30';
+      push('Link around it: previous.next is 25, and 25\'s next is 30, so 20 now refers to 30. Node 25 is <b>no longer reachable</b> from head, so it is out of the list. Nothing shifted.', 'previous.next = previous.next.next;', { chg: ['n20'], cur: ['n20'] });
+    } else if (name === 'first') {
+      st = chain([5, 10, 20, 30]);
+      push('Delete the <b>first</b> node of 5 → 10 → 20 → 30.', '');
+      st.head = 'n10';
+      push('Just move head to the second node. The list is now 10 → 20 → 30. (If the list had only one node, head would become null: an empty list.)', 'head = head.next;', { hot: ['head'] });
+    }
+    return S;
+  }
+
+  function draw(s: Step) {
+    const st = s.st;
+    const order: string[] = []; const seen = new Set<string>();
+    let c = st.head; while (c && !seen.has(c)) { order.push(c); seen.add(c); c = st.nodes[c].next; }
+    const others = Object.keys(st.nodes).filter((k) => !seen.has(k));
+    const W = 66, H = 34, GAP = 104, X0 = 34, Y1 = 66, Y2 = 168;
+    const pos: Record<string, { x: number; y: number; row: number }> = {};
+    order.forEach((k, i) => (pos[k] = { x: X0 + i * GAP, y: Y1, row: 1 }));
+    others.forEach((k, i) => {
+      const t = st.nodes[k].next; const tx = t && pos[t] ? pos[t].x : null;
+      pos[k] = { x: tx != null ? Math.max(X0, tx - GAP / 2) : X0 + (order.length + i) * GAP, y: Y2, row: 2 };
+    });
+    const maxX = Math.max(...Object.values(pos).map((p) => p.x), 0) + W + 70;
+    const width = Math.max(480, maxX);
+    const lost = (k: string) => !seen.has(k) && !Object.values(st.vars).includes(k);
+    let svg = `<svg viewBox="0 0 ${width} 225" style="min-width:${Math.round(width * 0.66)}px" role="img" aria-label="Linked list diagram"><defs><marker id="llah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1b2a2e"/></marker><marker id="llah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e8662e"/></marker><marker id="llah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b23a33"/></marker></defs>`;
+    // links
+    for (const k of Object.keys(st.nodes)) {
+      const p = pos[k], n = st.nodes[k];
+      const sx = p.x + W - 12, sy = p.y + H / 2;
+      const chg = s.chg && s.chg.includes(k), ls = lost(k);
+      const cls = `lk ${chg ? 'chg' : ''} ${ls ? 'lost' : ''}`;
+      const mk = chg ? 'llah2' : ls ? 'llah3' : 'llah';
+      svg += `<circle class="dot" cx="${sx}" cy="${sy}" r="3.5"/>`;
+      if (!n.next) { svg += `<path class="${cls}" d="M${sx} ${sy} H${sx + 22}" marker-end="url(#${mk})"/><text class="nul" x="${sx + 27}" y="${sy}">null</text>`; continue; }
+      const q = pos[n.next];
+      if (n.next === k) { svg += `<path class="${cls}" d="M${sx} ${sy} C ${sx + 40} ${sy - 55}, ${p.x - 30} ${sy - 55}, ${p.x - 2} ${sy - 4}" marker-end="url(#${mk})"/>`; continue; }
+      if (q.row === p.row && q.x > p.x) svg += `<path class="${cls}" d="M${sx} ${sy} H${q.x - 3}" marker-end="url(#${mk})"/>`;
+      else { const ty = q.y + (q.row > p.row ? 0 : H); const tx = q.x + 14; svg += `<path class="${cls}" d="M${sx} ${sy} C ${sx + 30} ${sy}, ${tx} ${(sy + ty) / 2}, ${tx} ${ty + (q.row > p.row ? -3 : 3)}" marker-end="url(#${mk})"/>`; }
+    }
+    // nodes
+    for (const k of Object.keys(st.nodes)) {
+      const p = pos[k], n = st.nodes[k];
+      const cls = ['nb', s.cur && s.cur.includes(k) ? 'cur' : '', s.nw && s.nw.includes(k) ? 'new' : '', lost(k) ? 'lost' : ''].join(' ');
+      svg += `<g class="${cls}"><rect class="d" x="${p.x}" y="${p.y}" width="${W - 24}" height="${H}"/><rect x="${p.x + W - 24}" y="${p.y}" width="24" height="${H}"/><text x="${p.x + (W - 24) / 2}" y="${p.y + H / 2}">${n.v}</text></g>`;
+      if (lost(k)) svg += `<text class="lost-note" x="${p.x}" y="${p.y + H + 16}">unreachable</text>`;
+    }
+    // variables (head + others)
+    const vars: Record<string, string[]> = {};
+    const all = { head: st.head, ...st.vars } as Record<string, string | null>;
+    for (const [name, k] of Object.entries(all)) if (k) (vars[k] = vars[k] || []).push(name);
+    for (const [k, names] of Object.entries(vars)) {
+      const p = pos[k]; const x = p.x + (W - 24) / 2;
+      names.forEach((nm, i) => {
+        const above = p.row === 1;
+        const y = above ? p.y - 12 - i * 15 : p.y + H + 16 + i * 15 + (lost(k) ? 14 : 0);
+        svg += `<text class="var ${s.hot && s.hot.includes(nm) ? 'hot' : ''}" x="${x}" y="${y}">${nm}</text>`;
+      });
+      if (p.row === 1) svg += `<line class="vline" x1="${x}" y1="${p.y - 8}" x2="${x}" y2="${p.y - 2}"/>`;
+    }
+    if (st.vars.current === null && 'current' in st.vars) svg += `<text class="var hot" x="${X0 + order.length * GAP + 20}" y="${Y1 - 12}">current = null</text>`;
+    return svg + '</svg>';
+  }
+
+  document.querySelectorAll<HTMLElement>('.lllab').forEach((fig) => {
+    const box = fig.querySelector<HTMLElement>('.ll-svg')!, capEl = fig.querySelector<HTMLElement>('.ll-cap')!;
+    const codeEl = fig.querySelector<HTMLElement>('.ll-code code')!, outEl = fig.querySelector<HTMLElement>('.ll-out')!;
+    const back = fig.querySelector<HTMLButtonElement>('[data-go="back"]')!, next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
+    let steps: Step[] = [], at = 0;
+    const paint = () => {
+      const s = steps[at];
+      box.innerHTML = draw(s); capEl.innerHTML = s.cap; codeEl.innerHTML = esc(s.code || '');
+      outEl.textContent = s.out ? 'Output so far: ' + s.out : '';
+      back.disabled = at === 0; next.disabled = at === steps.length - 1;
+      next.textContent = at === steps.length - 1 ? 'Finished' : 'Next step →';
+      // On narrow screens, scroll the picture so the part that changed is in view.
+      const stage = box.parentElement!;
+      const focus = box.querySelector('.lk.chg, .nb.new, .nb.cur, .lost-note, .var.hot');
+      if (focus && stage.scrollWidth > stage.clientWidth) {
+        const r = focus.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+        stage.scrollTo({ left: stage.scrollLeft + r.left + r.width / 2 - sr.left - sr.width / 2, behavior: 'smooth' });
+      }
+    };
+    const btns = fig.querySelectorAll<HTMLButtonElement>('[data-s]');
+    btns.forEach((b) => b.addEventListener('click', () => {
+      btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      steps = scenario(b.dataset.s!); at = 0; paint();
+    }));
+    next.addEventListener('click', () => { if (at < steps.length - 1) { at++; paint(); } });
+    back.addEventListener('click', () => { if (at > 0) { at--; paint(); } });
+    btns[0].click();
+  });
+</script>

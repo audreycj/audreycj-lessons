@@ -1,0 +1,57 @@
+---
+interface Q { q: string; opts: string[]; a: number; why: string; }
+interface Props { id: string; questions: Q[]; }
+const { id, questions } = Astro.props;
+---
+<div class="quiz" id={id}>
+  <ol class="qz-list">
+    {questions.map((q) => (
+      <li class="qz-item" data-a={q.a}>
+        <p class="qz-q" set:html={q.q} />
+        <div class="qz-opts">
+          {q.opts.map((o, k) => <button type="button" class="qz-opt" data-k={k} set:html={o} />)}
+        </div>
+        <p class="qz-why" hidden set:html={q.why} />
+      </li>
+    ))}
+  </ol>
+  <p class="qz-score hand" aria-live="polite">Score: 0 / {questions.length}</p>
+  <button class="btn qz-reset" type="button">Try again</button>
+</div>
+<style>
+  .qz-list { padding-left: 1.4em; display: grid; gap: 1.4rem; }
+  .qz-item { margin: 0; }
+  .qz-q { font-weight: 800; margin-bottom: 0.5rem; }
+  .qz-opts { display: grid; gap: 0.45rem; }
+  .qz-opt { text-align: left; font: inherit; font-size: var(--step--1); color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 6px; padding: 0.6rem 0.8rem; min-height: 2.75rem; cursor: pointer; }
+  .qz-opt:hover:not(:disabled) { border-color: var(--ink); }
+  .qz-opt:disabled { cursor: default; }
+  .qz-opt.right { border-color: var(--teal); background: var(--teal-wash); font-weight: 800; }
+  .qz-opt.wrong { border-color: var(--red-pen); background: var(--red-wash); text-decoration: line-through; }
+  .qz-why { margin-top: 0.5rem; color: var(--ink-soft); font-size: var(--step--1); }
+  .qz-score { font-size: var(--step-2); font-weight: 700; margin: 1.2rem 0 0.6rem; }
+</style>
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var f = document.getElementById(id); if (!f) return;
+    var items = f.querySelectorAll('.qz-item'), score = 0, sc = f.querySelector('.qz-score');
+    function upd() { sc.textContent = 'Score: ' + score + ' / ' + items.length; }
+    items.forEach(function (it) {
+      var opts = it.querySelectorAll('.qz-opt');
+      opts.forEach(function (o) {
+        o.addEventListener('click', function () {
+          var a = Number(it.dataset.a), k = Number(o.dataset.k);
+          if (k === a) score++; else o.classList.add('wrong');
+          opts[a].classList.add('right');
+          opts.forEach(function (x) { x.disabled = true; });
+          it.querySelector('.qz-why').hidden = false; upd();
+        });
+      });
+    });
+    f.querySelector('.qz-reset').addEventListener('click', function () {
+      score = 0; upd();
+      f.querySelectorAll('.qz-opt').forEach(function (o) { o.disabled = false; o.classList.remove('right', 'wrong'); });
+      f.querySelectorAll('.qz-why').forEach(function (w) { w.hidden = true; });
+    });
+  })();
+</script>

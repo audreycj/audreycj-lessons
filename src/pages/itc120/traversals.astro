@@ -1,0 +1,230 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import BstLab from '../../components/BstLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { fromSpec, traversalSteps } from '../../lib/bst.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const treeL = 'A(B(D,E(G,)),C(,F))';
+const startBst = '40(20(10,30),60(50,70))';
+const all = (spec) => ({ pre: traversalSteps(fromSpec(spec), 'pre').out, in: traversalSteps(fromSpec(spec), 'in').out, post: traversalSteps(fromSpec(spec), 'post').out });
+const practice = [
+  { name: 'Tree S1', spec: '8(3(1,6(4,7)),10(,14(13,)))', note: 'S1 is a BST, so its in-order is sorted.' },
+  { name: 'Practice 1', spec: 'M(K(,P),Q(R,S))', note: 'Careful: K has only a right child. This tree is not a BST, so no order has to be sorted.' },
+  { name: 'Practice 2', spec: '50(30(25,40(35,)),75(,90(80,95)))', note: 'Careful: 40 has only a left child and 75 has only a right child. This is a BST, so in-order is sorted.' },
+  { name: 'Practice 3 (exam-like)', spec: '12(8(4,),24(16(,20),28))', note: 'A BST again: in-order is sorted.' },
+].map((p) => ({ ...p, r: all(p.spec) }));
+const bstOrders = all(startBst);
+
+const quiz = [
+  { q: 'Pre-order visits in which order?', opts: ['Left, Node, Right', 'Node, Left, Right', 'Left, Right, Node', 'Row by row'], a: 1, why: '<b>Pre</b> = before: the node is written <b>before</b> its subtrees (N L R).' },
+  { q: 'Tree L: what is the in-order?', opts: ['A, B, D, E, G, C, F', 'D, B, G, E, A, C, F', 'D, G, E, B, F, C, A', 'A, B, C, D, E, F, G'], a: 1, why: 'L N R at every node: D, B, G, E, A, C, F. (The last option is row by row, which is not one of the three.)' },
+  { q: 'The root is always ___ in pre-order and ___ in post-order.', opts: ['last; first', 'first; last', 'first; first', 'in the middle; last'], a: 1, why: 'Pre-order writes a node before everything under it, so the root is <b>first</b>. Post-order writes it after everything, so it is <b>last</b>.' },
+  { q: 'Which traversal of a BST always gives the values from smallest to largest?', opts: ['Pre-order', 'In-order', 'Post-order', 'None of them'], a: 1, why: 'In-order writes the smaller left side, then the node, then the larger right side, at every node.' },
+  { q: 'True or false: "When we come back to a node, we write it again."', opts: ['True', 'False'], a: 1, why: 'We may pass a node up to three times, but we write it <b>exactly once</b>. A tree with 7 nodes gives 7 entries.' },
+  { q: 'To delete a folder, everything inside must be deleted first. Which order fits?', opts: ['Pre-order', 'In-order', 'Post-order'], a: 2, why: 'Post-order handles the children (inside) first, then the node (the folder) last.' },
+];
+---
+<Base title="Tree Traversals · ITC 120" description="Tree traversals by hand: pre-order, in-order, and post-order, step by step, and why in-order on a BST is sorted." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
+    <p class="kicker">Trees and BSTs · Lesson 4 of 6</p>
+    <h1>Tree Traversals by Hand</h1>
+    <p class="lede">Visiting every node of a binary tree, in three different orders.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>learn what a traversal is;</li>
+        <li>write the <b>pre-order</b>, <b>in-order</b>, and <b>post-order</b> of a binary tree;</li>
+        <li>see why in-order on a BST gives sorted values.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/trees/'}>Trees lesson</a>, and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="what">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>What is a traversal?</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Traversal</p>
+        <p>A <b>traversal</b> processes every item <b>once</b>, in a chosen order. Here, processing means writing its value.</p>
+      </div>
+      <p>You already did this with an array (<code>i++</code>, left to right) and a linked list (<code>current = current.next</code> until null). A binary-tree node can have <b>two</b> children, so we finish one subtree, then go <b>back up</b> to the parent to do its other side. That going back up is the new part.</p>
+      <div class="remember">
+        <p class="note-label">Why it matters</p>
+        <p>A program often has to do something to every node: print all patient numbers of a barangay health center, count the students in the school's records, back up a folder and everything inside it, or delete one. To do a job on every node, we need a fixed route through the tree: a traversal.</p>
+      </div>
+      <div class="sub">
+        <h3>When do we write A?</h3>
+        <TreeFig spec="A(B,C)" label="A with children B and C" />
+        <p>Starting at A, we go down to B, back up to A, down to C, and back up to A. We pass A <b>three times</b>, but write it only once. Each choice gives a different order:</p>
+        <table class="tbl">
+          <thead><tr><th>Write A…</th><th>Order</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>before both sides</td><td><b>Pre-order</b></td><td class="mono">A, B, C</td></tr>
+            <tr><td>between the sides</td><td><b>In-order</b></td><td class="mono">B, A, C</td></tr>
+            <tr><td>after both sides</td><td><b>Post-order</b></td><td class="mono">B, C, A</td></tr>
+          </tbody>
+        </table>
+        <p class="hand" style="font-size:var(--step-1)">Pre = before. In = in between. Post = after.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="rule">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · The rule</p>
+      <h2>Three tasks at every node</h2>
+    </div>
+    <div class="flow">
+      <p>Every node has three tasks:</p>
+      <ul>
+        <li><b>N</b>: write this node.</li>
+        <li><b>L</b>: traverse its <b>entire</b> left subtree.</li>
+        <li><b>R</b>: traverse its <b>entire</b> right subtree.</li>
+      </ul>
+      <p>The three orders do the same tasks, in a different order:</p>
+      <table class="tbl">
+        <thead><tr><th>Order</th><th>Tasks</th><th>Write the node…</th></tr></thead>
+        <tbody>
+          <tr><td><b>Pre-order</b></td><td class="mono">N L R</td><td>before its left and right subtrees</td></tr>
+          <tr><td><b>In-order</b></td><td class="mono">L N R</td><td>between its left and right subtrees</td></tr>
+          <tr><td><b>Post-order</b></td><td class="mono">L R N</td><td>after its left and right subtrees</td></tr>
+        </tbody>
+      </table>
+      <div class="trap">
+        <p class="note-label">"Entire" is the key word</p>
+        <p>L does not mean "move one step left." It means "finish <b>everything</b> on the left side using the same rule, then come back to this node." If a side is empty, that task is done right away.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Watch it</p>
+      <h2>Step by step</h2>
+    </div>
+    <div class="flow">
+      <p>Pick an order. Before each tap, guess: will we write this node now, or go somewhere first? Tree L is not a BST, but all three traversals still work on it.</p>
+      <BstLab id="lab-trav" mode="traverse" input={false} cap="Traversal lab" hint="Orange = we are here. Gold = waiting (we must come back). Teal = finished (the node and its whole subtree)." legend={`<span><i class="l-cur2"></i> here now</span><span><i class="l-wait2"></i> waiting</span><span><i class="l-done2"></i> finished</span>`} presets={[
+        { label: 'Tree L', spec: treeL, order: 'pre' },
+        { label: 'Starting BST', spec: startBst, order: 'in' },
+      ]} />
+      <p>For Tree L, the three answers are:</p>
+      <table class="tbl">
+        <tbody>
+          <tr><th>Pre-order</th><td class="mono">A, B, D, E, G, C, F</td></tr>
+          <tr><th>In-order</th><td class="mono">D, B, G, E, A, C, F</td></tr>
+          <tr><th>Post-order</th><td class="mono">D, G, E, B, F, C, A</td></tr>
+        </tbody>
+      </table>
+      <div class="trap">
+        <p class="note-label">Common mistakes</p>
+        <ul>
+          <li>Writing a node every time you come back to it. Write each node <b>once</b>: 7 nodes, 7 entries.</li>
+          <li>Going right before the <b>whole</b> left subtree is done.</li>
+          <li>Reading row by row (A, B, C, D, E, F, G). That is a different order called <b>level-order</b>, not one of these three.</li>
+        </ul>
+      </div>
+      <div class="remember">
+        <p class="note-label">Always true</p>
+        <p>The root is <b>first</b> in pre-order and <b>last</b> in post-order.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="bst">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Traversals and BSTs</p>
+      <h2>In-order on a BST is sorted</h2>
+    </div>
+    <div class="flow">
+      <TreeFig spec={startBst} label="Starting BST: 40, 20, 60, 10, 30, 50, 70" />
+      <p>In a BST, everything left of 40 is smaller and everything right of it is larger. In-order writes the whole left side first (10, 20, 30), then the node (40), then the right side (50, 60, 70): <b>sorted</b>. The same thing happens inside every subtree.</p>
+      <table class="tbl">
+        <thead><tr><th>Order</th><th>Answer</th><th>Sorted?</th></tr></thead>
+        <tbody>
+          <tr><td>Pre-order</td><td class="mono">{bstOrders.pre.join(', ')}</td><td>no</td></tr>
+          <tr><td>In-order</td><td class="mono">{bstOrders.in.join(', ')}</td><td><b>yes</b></td></tr>
+          <tr><td>Post-order</td><td class="mono">{bstOrders.post.join(', ')}</td><td>no</td></tr>
+        </tbody>
+      </table>
+      <p>For a BST, in-order <b>always</b> gives the values from smallest to largest. Pre-order and post-order may happen to be sorted, but they do not guarantee it.</p>
+      <div class="sub">
+        <h3>Why three orders?</h3>
+        <p>Each order suits a different job:</p>
+        <table class="tbl">
+          <thead><tr><th>Job</th><th>Order</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Copy or list a folder</td><td>Pre-order</td><td>create the folder first, then what is inside</td></tr>
+            <tr><td>Print patient numbers from smallest to largest</td><td>In-order</td><td>sorted output from a BST</td></tr>
+            <tr><td>Delete a folder</td><td>Post-order</td><td>a folder can be deleted only when it is empty, so delete the inside first</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      <p>Write all three orders for each tree. Then open the answer.</p>
+      {practice.map((p) => (
+        <div class="paper flow">
+          <p class="note-label">{p.name}</p>
+          <TreeFig spec={p.spec} label={p.name} />
+          <details class="reveal"><summary>Show the answer</summary><div class="flow">
+            <table class="tbl"><tbody>
+              <tr><th>Pre-order</th><td class="mono">{p.r.pre.join(', ')}</td></tr>
+              <tr><th>In-order</th><td class="mono">{p.r.in.join(', ')}</td></tr>
+              <tr><th>Post-order</th><td class="mono">{p.r.post.join(', ')}</td></tr>
+            </tbody></table>
+            <p class="small">{p.note}</p>
+          </div></details>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-trav" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A traversal visits every node exactly once.</li>
+          <li>Pre-order N L R, in-order L N R, post-order L R N, at <b>every</b> node.</li>
+          <li>L and R mean the <b>entire</b> subtree.</li>
+          <li>In-order on a BST is sorted.</li>
+          <li>Root: first in pre-order, last in post-order.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/recursion/'}>Recursion and traversal code</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Programiz, "Tree Traversal: Inorder, Preorder and Postorder." <a href="https://www.programiz.com/dsa/tree-traversal">programiz.com/dsa/tree-traversal</a></li>
+          <li>Programiz, "Binary Search Tree (BST)." <a href="https://www.programiz.com/dsa/binary-search-tree">programiz.com/dsa/binary-search-tree</a></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

@@ -1,0 +1,122 @@
+---
+// Tree terminology explorer for a general tree (any number of children).
+// spec: "A(B(D,E(H,I),F),C(G))"
+interface Props { id: string; spec: string; }
+const { id, spec } = Astro.props;
+
+type N = { id: string; kids: N[]; parent?: N; x?: number; y?: number; depth?: number; height?: number };
+let i = 0;
+function parse(): N {
+  let t = '';
+  while (i < spec.length && !'(),'.includes(spec[i])) t += spec[i++];
+  const n: N = { id: t.trim(), kids: [] };
+  if (spec[i] === '(') { i++; for (;;) { const k = parse(); k.parent = n; n.kids.push(k); if (spec[i] === ',') { i++; continue; } if (spec[i] === ')') { i++; break; } } }
+  return n;
+}
+const root = parse();
+const all: N[] = [];
+let leafX = 0;
+const GX = 44, GY = 62, R = 17, P = 28;
+(function place(n: N, d: number) {
+  all.push(n); n.depth = d; n.y = P + R + d * GY;
+  if (!n.kids.length) { n.x = P + R + leafX * GX; leafX++; n.height = 0; return; }
+  n.kids.forEach((k) => place(k, d + 1));
+  n.x = (n.kids[0].x! + n.kids[n.kids.length - 1].x!) / 2;
+  n.height = 1 + Math.max(...n.kids.map((k) => k.height!));
+})(root, 0);
+const W = P * 2 + R * 2 + (leafX - 1) * GX, H = P * 2 + R * 2 + Math.max(...all.map((n) => n.depth!)) * GY;
+const desc = (n: N): string[] => n.kids.flatMap((k) => [k.id, ...desc(k)]);
+const anc = (n: N): string[] => (n.parent ? [n.parent.id, ...anc(n.parent)] : []);
+const facts = Object.fromEntries(all.map((n) => [n.id, {
+  parent: n.parent ? n.parent.id : null, kids: n.kids.map((k) => k.id),
+  sibs: n.parent ? n.parent.kids.filter((k) => k !== n).map((k) => k.id) : [],
+  anc: anc(n), desc: desc(n), depth: n.depth, height: n.height,
+}]));
+const groups = {
+  root: [root.id],
+  leaves: all.filter((n) => !n.kids.length).map((n) => n.id),
+  internal: all.filter((n) => n.kids.length).map((n) => n.id),
+};
+const deepest = Math.max(...all.map((n) => n.depth!));
+let svg = `<svg class="tree-svg" viewBox="0 0 ${W} ${H}" style="max-width:${Math.round(W * 1.2)}px" role="img" aria-label="A tree with root ${root.id}. Tap a node."><g class="t-edges">`;
+all.forEach((n) => n.kids.forEach((k) => (svg += `<line x1="${n.x}" y1="${n.y}" x2="${k.x}" y2="${k.y}"/>`)));
+svg += '</g>';
+all.forEach((n) => (svg += `<g class="t-node is-tap" data-v="${n.id}" tabindex="0" role="button" aria-label="Node ${n.id}"><circle cx="${n.x}" cy="${n.y}" r="${R}"/><text x="${n.x}" y="${n.y}">${n.id}</text><text class="t-tag" x="${n.x! + R + 4}" y="${n.y! - R + 4}" style="text-anchor:start"></text></g>`));
+svg += '</svg>';
+const total = all.length;
+---
+<figure class="fig terms" id={id}>
+  <p class="fig-cap">Tree words explorer</p>
+  <p class="fig-hint">Tap any node to see its family. Or tap a word below to highlight it in the tree.</p>
+  <div class="btn-row tl-words" role="group" aria-label="Highlight">
+    <button type="button" class="btn" data-w="root">root</button>
+    <button type="button" class="btn" data-w="leaves">leaves</button>
+    <button type="button" class="btn" data-w="internal">internal nodes</button>
+    <button type="button" class="btn" data-w="depth">depth</button>
+    <button type="button" class="btn" data-w="height">height</button>
+    <button type="button" class="btn" data-w="size">size and edges</button>
+  </div>
+  <div class="tl-svg" set:html={svg} />
+  <div class="tl-out" aria-live="polite"><p class="muted">Tap a node or a word.</p></div>
+</figure>
+
+<style is:global>
+  .terms .tl-words { margin-bottom: 0.6rem; }
+  .terms .tl-words .btn { font-size: 0.8rem; min-height: 2.3rem; padding: 0.35em 0.85em; }
+  .terms .tl-out { background: var(--paper); border-radius: 6px; padding: 0.7rem 0.9rem; margin-top: 0.6rem; min-height: 7rem; font-size: var(--step--1); }
+  .terms .tl-out table { width: 100%; border-collapse: collapse; }
+  .terms .tl-out th, .terms .tl-out td { text-align: left; padding: 0.25rem 0.4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .terms .tl-out th { width: 40%; font-weight: 800; }
+  .terms .tree-svg .m-sel circle { fill: var(--orange); stroke: var(--orange-ink); stroke-width: 3; }
+  .terms .tree-svg .m-sel text { fill: #fff; }
+  .terms .tree-svg .m-anc circle { fill: var(--butter); stroke: var(--amber); stroke-width: 2.5; }
+  .terms .tree-svg .m-desc circle { fill: var(--teal-wash); stroke: var(--teal); stroke-width: 2.5; }
+  .terms .tree-svg .m-hl circle { fill: var(--butter); stroke: var(--ink); stroke-width: 3; }
+</style>
+
+<script is:inline define:vars={{ id, facts, groups, deepest, total, rootId: root.id }}>
+  (function () {
+    var f = document.getElementById(id); if (!f) return;
+    var out = f.querySelector('.tl-out'), nodes = f.querySelectorAll('.t-node');
+    function clear() { nodes.forEach(function (g) { g.classList.remove('m-sel', 'm-anc', 'm-desc', 'm-hl'); g.querySelector('.t-tag').textContent = ''; }); f.querySelectorAll('[data-w]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); }
+    function mark(ids, cls) { nodes.forEach(function (g) { if (ids.indexOf(g.dataset.v) > -1) g.classList.add(cls); }); }
+    function list(a) { return a.length ? a.join(', ') : '<i>none</i>'; }
+    function pick(v) {
+      clear();
+      var d = facts[v];
+      mark(d.anc, 'm-anc'); mark(d.desc, 'm-desc'); mark([v], 'm-sel');
+      var kind = v === rootId ? 'the <b>root</b> (no parent)' : d.kids.length ? 'an <b>internal node</b> (it has children)' : 'a <b>leaf</b> (no children)';
+      out.innerHTML = '<p style="margin-bottom:.4rem"><b>' + v + '</b> is ' + kind + '.</p><table>' +
+        '<tr><th>Parent</th><td>' + (d.parent || '<i>none: it is the root</i>') + '</td></tr>' +
+        '<tr><th>Children</th><td>' + list(d.kids) + '</td></tr>' +
+        '<tr><th>Siblings</th><td>' + list(d.sibs) + '</td></tr>' +
+        '<tr><th>Ancestors <span style="color:var(--amber)">●</span></th><td>' + list(d.anc) + '</td></tr>' +
+        '<tr><th>Descendants <span style="color:var(--teal)">●</span></th><td>' + list(d.desc) + '</td></tr>' +
+        '<tr><th>Subtree rooted at ' + v + '</th><td>' + [v].concat(d.desc).join(', ') + ' (' + (d.desc.length + 1) + ' node' + (d.desc.length ? 's' : '') + ')</td></tr>' +
+        '<tr><th>Depth</th><td>' + d.depth + ' (edges from the root down to ' + v + ')</td></tr>' +
+        '<tr><th>Height</th><td>' + d.height + ' (edges from ' + v + ' down to its deepest leaf)</td></tr></table>';
+    }
+    nodes.forEach(function (g) {
+      g.addEventListener('click', function () { pick(g.dataset.v); });
+      g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(g.dataset.v); } });
+    });
+    f.querySelectorAll('[data-w]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        clear(); b.setAttribute('aria-pressed', 'true');
+        var w = b.dataset.w;
+        if (w === 'root' || w === 'leaves' || w === 'internal') {
+          mark(groups[w], 'm-hl');
+          out.innerHTML = w === 'root' ? '<p>The <b>root</b> is the top node, ' + rootId + '. It is the only node with no parent.</p>'
+            : w === 'leaves' ? '<p><b>Leaves</b> have no children: ' + groups.leaves.join(', ') + '.</p>'
+            : '<p><b>Internal nodes</b> have at least one child: ' + groups.internal.join(', ') + '. (The root counts too, if it has children.)</p>';
+        } else if (w === 'depth' || w === 'height') {
+          nodes.forEach(function (g) { g.querySelector('.t-tag').textContent = facts[g.dataset.v][w]; });
+          out.innerHTML = w === 'depth' ? '<p><b>Depth</b> = edges from the root <b>down to</b> the node. The root has depth 0. The small numbers show each depth.</p>'
+            : '<p><b>Height</b> of a node = edges on the longest path from it <b>down to a leaf</b>. Leaves have height 0. The <b>height of the tree</b> is the height of the root: <b>' + facts[rootId].height + '</b>.</p>';
+        } else {
+          out.innerHTML = '<p><b>Size</b> = number of nodes = <b>' + total + '</b>. Every node except the root has exactly one edge going up to its parent, so there are <b>' + (total - 1) + ' edges</b>. (Edges are always size − 1.)</p>';
+        }
+      });
+    });
+  })();
+</script>

@@ -1,0 +1,324 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreeFig from '../../components/TreeFig.astro';
+import BstLab from '../../components/BstLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const countDown = String.raw`static void countDown(int n) {
+  if (n == 0) {                  // base case
+    System.out.println("Go!");
+    return;
+  }
+  System.out.print(n + " ");
+  countDown(n - 1);              // calls itself
+}`;
+const pre = String.raw`static void preOrder(TreeNode node) {
+  if (node == null) { return; }        // stop
+  System.out.print(node.data + " ");   // N
+  preOrder(node.left);                 // L
+  preOrder(node.right);                // R
+}`;
+const ino = String.raw`static void inOrder(TreeNode node) {
+  if (node == null) { return; }        // stop
+  inOrder(node.left);                  // L
+  System.out.print(node.data + " ");   // N
+  inOrder(node.right);                 // R
+}`;
+const post = String.raw`static void postOrder(TreeNode node) {
+  if (node == null) { return; }        // stop
+  postOrder(node.left);                // L
+  postOrder(node.right);               // R
+  System.out.print(node.data + " ");   // N
+}`;
+const insRec = String.raw`static TreeNode insertRec(TreeNode node,
+                          int value) {
+  if (node == null) {                          // base case
+    return new TreeNode(value);
+  }
+  if (value < node.data) {
+    node.left = insertRec(node.left, value);   // calls itself
+  } else if (value > node.data) {
+    node.right = insertRec(node.right, value); // calls itself
+  }
+  return node;
+}`;
+const other = String.raw`void preorderRec(Node root) {
+  if (root != null) {
+    System.out.print(root.key + " ");
+    preorderRec(root.left);
+    preorderRec(root.right);
+  }
+}`;
+const bugs = String.raw`class Node {
+  int key;
+  Node left, right;
+  Node(int item) {
+    key = item;
+    left = right = null;
+  }
+}
+class BinarySearchTree {
+  Node root;
+  void insert(int key) {
+    insertRec(root, key);
+  }
+  Node insertRec(Node root, int key) {
+    if (root == null) {
+      return null;
+    }
+    if (key < root.key)
+      root.left = insertRec(root.left, key);
+    else if (key > root.key)
+      root.right = insertRec(root.left, key);
+    return root;
+  }
+  void inorderRec(Node root) {
+    if (root == null) {
+      inorderRec(root.left);
+      System.out.print(root.key + " ");
+      inorderRec(root.right);
+    }
+  }
+}`;
+
+const quiz = [
+  { q: 'What is recursion?', opts: ['A loop that never ends', 'A method that calls itself to solve a smaller version of the same problem', 'Calling two different methods', 'A kind of array'], a: 1, why: 'Recursion = a method calling <b>itself</b> on a <b>smaller</b> problem, until it reaches a base case.' },
+  { q: 'What is the base case of <code>preOrder</code>?', opts: ['A leaf', '<code>node == null</code>: an empty spot', 'The root', 'When the output is printed'], a: 1, why: 'The base case handles a situation <b>without</b> another recursive call. A leaf still prints and makes two calls; the empty spot (<code>null</code>) just returns.' },
+  { q: 'In <code>preOrder</code>, after <code>preOrder(node.left)</code> returns, which line runs next?', opts: ['Line 2', 'Line 3', 'Line 5: <code>preOrder(node.right);</code>', 'The method ends'], a: 2, why: 'When a call returns, Java continues where it made the call: the line after it, line 5.' },
+  { q: 'Which method prints the node <b>between</b> its two recursive calls?', opts: ['preOrder', 'inOrder', 'postOrder'], a: 1, why: 'inOrder: left call, print, right call (L N R).' },
+  { q: 'What happens with <code>countDown(-1)</code>?', opts: ['Prints Go!', 'Prints -1 Go!', 'It never reaches 0, so the calls keep piling up until Java crashes', 'Nothing'], a: 2, why: '-1, -2, -3… never reaches the base case (0). The call stack grows until Java throws a <code>StackOverflowError</code>.' },
+  { q: 'While inserting 45 into the starting BST, what does <code>insertRec(60, 45)</code> return?', opts: ['45', '60', '50', 'null'], a: 1, why: 'Every call returns the root of its <b>own</b> subtree. The subtree that starts at 60 still starts at 60.' },
+  { q: 'What is wrong with <code>insertRec(node.left, value);</code> (no <code>node.left =</code>)?', opts: ['Nothing', 'The returned new node is never saved, so it is never connected', 'It inserts twice', 'It deletes the left child'], a: 1, why: 'The bottom call creates the node and returns it, but nobody stores it. Always save the result: <code>node.left = insertRec(node.left, value);</code>' },
+];
+---
+<Base title="Recursion and Traversal Code · ITC 120" description="Recursion in plain English: base case, recursive case, the call stack, and the Java code for tree traversals and recursive insert." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
+    <p class="kicker">Trees and BSTs · Lesson 5 of 6</p>
+    <h1>Recursion and Traversal Code</h1>
+    <p class="lede">A method that calls itself, and how it walks a tree.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>learn what recursion is: the <b>base case</b> and the <b>recursive case</b>;</li>
+        <li>see where Java continues after a call finishes (the <b>call stack</b>);</li>
+        <li>trace <code>preOrder</code>, <code>inOrder</code>, and <code>postOrder</code> in Java;</li>
+        <li>follow the recursive version of insert, and read the same code written with other names.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bst-insert/'}>insertion</a> and <a href={base + '/itc120/traversals/'}>traversals</a> lessons, and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="recursion">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>What is recursion?</h2>
+    </div>
+    <div class="flow">
+      <p>In the traversals lesson, "traverse the entire left subtree" meant: do the <b>same job again</b>, on a <b>smaller tree</b>. That idea has a name.</p>
+      <div class="def">
+        <p class="note-label">Recursion</p>
+        <p><b>Recursion</b> is when a method calls itself to solve a smaller version of the same problem. Every recursive method has two parts:</p>
+        <ul>
+          <li><b>Base case:</b> a situation simple enough to handle directly, without calling itself. This is where it stops.</li>
+          <li><b>Recursive case:</b> the method calls itself on a smaller part.</li>
+        </ul>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of listing your Documents folder</p>
+        <p>The rule for any folder: (1) list the files in it; (2) for each subfolder, use this same rule. A folder with subfolders uses the rule again on each one (recursive case). A folder with no subfolders just lists its files and is done (base case).</p>
+      </div>
+      <div class="sub">
+        <h3>Recursion in Java: a countdown</h3>
+        <p>Before trees, here is a method that calls itself and then stops. <code>countDown(3);</code> prints <b>3 2 1 Go!</b>, like a New Year countdown.</p>
+        <pre class="code"><code set:html={hiN(countDown)} /></pre>
+        <p>We only write one call, <code>countDown(3);</code>. Line 7 makes the others automatically:</p>
+        <table class="tbl">
+          <thead><tr><th>Call</th><th>Who calls it</th><th>Prints</th></tr></thead>
+          <tbody>
+            <tr><td><code>countDown(3)</code></td><td>we do</td><td>3</td></tr>
+            <tr><td><code>countDown(2)</code></td><td><code>countDown(3)</code>, line 7</td><td>2</td></tr>
+            <tr><td><code>countDown(1)</code></td><td><code>countDown(2)</code>, line 7</td><td>1</td></tr>
+            <tr><td><code>countDown(0)</code></td><td><code>countDown(1)</code>, line 7</td><td>Go!, then stops</td></tr>
+          </tbody>
+        </table>
+        <p><b>Why does it stop?</b> Each call uses a smaller number, and at 0 it returns without calling itself again. A recursive method needs a stopping condition, and calls that eventually reach it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="preorder">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Pre-order in Java</p>
+      <h2><code>preOrder</code> and the call stack</h2>
+    </div>
+    <div class="flow">
+      <pre class="code"><code set:html={hiN(pre)} /></pre>
+      <ul>
+        <li><b>Base case, line 2:</b> if <code>node</code> is <code>null</code> (an empty spot), there is nothing to print. <code>return;</code> stops this call now.</li>
+        <li><b>Recursive case, lines 3–5:</b> print this node (N), then use the same method on the left subtree (L), then on the right (R).</li>
+      </ul>
+      <p>To print a whole tree, call <code>preOrder(root);</code>. In each call, the variable <code>node</code> holds that call's N. When line 4 runs <code>preOrder(node.left)</code>, the left child becomes the new N.</p>
+      <div class="sub">
+        <h3>What is a call stack?</h3>
+        <p>When method A calls method B, Java <b>pauses</b> A and runs B. When B finishes, A continues from where it paused. Java keeps a list of every unfinished call: the <b>call stack</b>.</p>
+        <div class="sticky">
+          <p class="note-label">Think of cooking adobo</p>
+          <p>You are cooking adobo. Your phone rings, so you pause cooking. Then someone knocks. You answer the door first (newest task), then finish the call, then go back to cooking. In Java, a new call goes on top, and only the top call runs. When it finishes, it is removed, and the call below continues where it paused.</p>
+        </div>
+        <p>Remember the Stacks lesson? It listed "method calls" as a stack use. A new call is a push; a finished call is a pop. Java does them for us.</p>
+      </div>
+      <BstLab id="lab-code" mode="code" input={false} cap="Call stack lab" hint="Watch the call stack grow and shrink. preOrder(20) means the call working on node 20 (in real code, it is preOrder(root) or preOrder(node.left))." legend={`<span><i class="l-cur2"></i> the running call's node</span><span><i class="l-wait2"></i> paused calls' nodes</span>`} presets={[
+        { label: 'Small tree', spec: '20(10,30)', order: 'pre' },
+        { label: 'Starting BST', spec: '40(20(10,30),60(50,70))', order: 'pre' },
+      ]} />
+      <div class="trap">
+        <p class="note-label">Each call has its own <code>node</code></p>
+        <p>All the calls have a variable named <code>node</code>, but each has its <b>own</b>. When <code>preOrder(10)</code> finishes, <code>preOrder(20)</code> continues at line 5, and its <code>node</code> still points to 20. <code>return;</code> ends one call only.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="others">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · In-order and post-order</p>
+      <h2>Move one line</h2>
+    </div>
+    <div class="flow">
+      <p>The other two methods are <code>preOrder</code> with one change: the print line moves.</p>
+      <div class="two-col">
+        <div><p class="small"><b>In-order</b>: print between the calls</p><pre class="code"><code set:html={hiN(ino)} /></pre></div>
+        <div><p class="small"><b>Post-order</b>: print after both calls</p><pre class="code"><code set:html={hiN(post)} /></pre></div>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>Print line is…</th><th>On the starting BST, prints</th></tr></thead>
+        <tbody>
+          <tr><td><code>preOrder</code></td><td>line 3: before both calls (N L R)</td><td class="mono">40 20 10 30 60 50 70</td></tr>
+          <tr><td><code>inOrder</code></td><td>line 4: between the calls (L N R)</td><td class="mono">10 20 30 40 50 60 70</td></tr>
+          <tr><td><code>postOrder</code></td><td>line 5: after both calls (L R N)</td><td class="mono">10 30 20 50 70 60 40</td></tr>
+        </tbody>
+      </table>
+      <p>Switch the order in the call stack lab above to watch <code>inOrder</code> wait: 20 does not print until its whole left side is done.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="insertrec">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Recursive insert</p>
+      <h2><code>insertRec</code></h2>
+    </div>
+    <div class="flow">
+      <p>In the insertion lesson, <code>insert</code> walked down with a loop. Here is the same job with recursion. The big idea: <b>every call returns the root of its own subtree</b>, and the caller saves it.</p>
+      <pre class="code"><code set:html={hiN(insRec)} /></pre>
+      <p>Call it the same way: <code>root = insertRec(root, 45);</code></p>
+      <div class="two-col">
+        <div>
+          <TreeFig spec="40(20(10,30),60(50(45,),70))" marks={{ 45: 'new', 40: 'path', 60: 'path', 50: 'path' }} label="Starting BST with 45 added as the left child of 50" />
+        </div>
+        <div class="flow">
+          <p><b>Going down:</b> at 40, 45 &gt; 40, line 9 calls on 60. At 60, 45 &lt; 60, line 7 calls on 50. At 50, 45 &lt; 50, line 7 calls on 50's left: <code>null</code>. Base case: line 4 creates node 45 and returns it.</p>
+        </div>
+      </div>
+      <p><b>Coming back up</b>, each call saves what the call below it returned, then returns its own node:</p>
+      <table class="tbl">
+        <thead><tr><th>Call</th><th>What it does</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr><td><code>insertRec(null, 45)</code></td><td>creates node 45</td><td>45</td></tr>
+          <tr><td><code>insertRec(50, 45)</code></td><td>saves 45 as 50's left: <b>connects 45</b></td><td>50</td></tr>
+          <tr><td><code>insertRec(60, 45)</code></td><td>saves 50 as 60's left again: no change</td><td>60</td></tr>
+          <tr><td><code>insertRec(40, 45)</code></td><td>saves 60 as 40's right again: no change</td><td>40</td></tr>
+        </tbody>
+      </table>
+      <p>The outer call returns 40, so 45 does <b>not</b> become the root, just like the loop version. For an empty tree, line 4 returns the new node, and <code>root =</code> saves it. For a value already there, neither line 7 nor 9 runs, and line 11 returns the node unchanged.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="names">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Other books</p>
+      <h2>Same code, different names</h2>
+    </div>
+    <div class="flow">
+      <p>Books, websites, and exams often write the same methods with other names. Only the names change:</p>
+      <table class="tbl">
+        <thead><tr><th>Our lessons</th><th>Often written as</th></tr></thead>
+        <tbody>
+          <tr><td><code>TreeNode</code></td><td><code>Node</code></td></tr>
+          <tr><td><code>data</code></td><td><code>key</code></td></tr>
+          <tr><td><code>node</code> (parameter)</td><td><code>root</code></td></tr>
+          <tr><td><code>preOrder</code></td><td><code>preorderRec</code></td></tr>
+        </tbody>
+      </table>
+      <pre class="code"><code set:html={hi(other)} /></pre>
+      <p>This does the same thing: when the node is <code>null</code>, nothing is printed and the call ends. It just puts the work inside <code>if (root != null)</code>.</p>
+      <div class="trap"><p class="note-label">Careful with "root"</p><p>In these methods, <code>root</code> is just the parameter name. It means "the root of this subtree", not always the top of the whole tree.</p></div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="mistakes">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Watch out</p>
+      <h2>Mistakes and practice</h2>
+    </div>
+    <div class="flow">
+      <p>There are three common mistakes:</p>
+      <ol>
+        <li><b>Removing the null check.</b> At a leaf, the call on <code>null</code> tries to read <code>node.data</code>: a <code>NullPointerException</code>.</li>
+        <li><b>Calling the wrong method.</b> In <code>inOrder</code>, writing <code>preOrder(node.right)</code> prints every right subtree in pre-order: a mix of two orders.</li>
+        <li><b>Forgetting <code>node.left =</code></b> in <code>insertRec</code>. The new node is created but never saved, so it is never connected.</li>
+      </ol>
+      <div class="paper flow">
+        <p class="note-label">Find the 4 bugs</p>
+        <p>This class should build a BST and print its in-order. It has 4 bugs. Find each line and fix it.</p>
+        <pre class="code"><code set:html={hiN(bugs)} /></pre>
+        <details class="reveal"><summary>Show the answer</summary><div>
+          <ul>
+            <li><b>Line 12:</b> the result is not saved. Fix: <code>root = insertRec(root, key);</code></li>
+            <li><b>Line 16:</b> the base case must create the node. Fix: <code>return new Node(key);</code></li>
+            <li><b>Line 21:</b> the right side must use the right child. Fix: <code>root.right = insertRec(root.right, key);</code></li>
+            <li><b>Line 25:</b> the work must run when the node is <b>not</b> null. Fix: <code>if (root != null)</code></li>
+          </ul>
+          <p>With the fixes, inserting 50, 30, 70, 20, 40 and printing the in-order gives <span class="mono">20 30 40 50 70</span>.</p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-rec" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Recursion: a method calls itself on a smaller problem, and stops at a base case.</li>
+          <li>The call stack keeps every unfinished call; a finished call lets its caller continue where it paused.</li>
+          <li>preOrder / inOrder / postOrder differ only in where the print line is.</li>
+          <li>For traversals, the base case is <code>node == null</code>.</li>
+          <li>insertRec: every call returns the root of its own subtree; always save it (<code>node.left = …</code>).</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/bst-delete/'}>BST deletion</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Programiz, "Java Recursion" and "Binary Search Tree." <a href="https://www.programiz.com/java-programming/recursion">programiz.com</a></li>
+          <li>GeeksforGeeks, "Insertion in Binary Search Tree." <a href="https://www.geeksforgeeks.org/insertion-in-binary-search-tree/">geeksforgeeks.org</a></li>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>, 2nd ed. Manning, 2024, chapter on recursion.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

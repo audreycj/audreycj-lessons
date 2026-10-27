@@ -1,0 +1,313 @@
+---
+import Base from '../../layouts/Base.astro';
+import SetLab from '../../components/SetLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
+
+const ops = (A, B) => {
+  const s = (xs) => [...new Set(xs)].sort((x, y) => x - y);
+  const inter = s(A.filter((x) => B.includes(x)));
+  return {
+    union: s([...A, ...B]), inter,
+    amb: s(A.filter((x) => !B.includes(x))), bma: s(B.filter((x) => !A.includes(x))),
+    sym: s([...A, ...B].filter((x) => !inter.includes(x))),
+  };
+};
+const fmt = (xs) => (xs.length ? `{ ${xs.join(', ')} }` : '{ }');
+const practice = [
+  { A: [2, 4, 6, 8, 10], B: [3, 6, 9, 12], note: '' },
+  { A: [15, 25, 35, 45], B: [45, 35, 25, 15], note: 'A and B have the same values (the order does not matter in a set), so they are equal sets. Nothing is left over in either difference, and nothing is in one but not both.' },
+  { A: [1, 2, 3], B: [], note: 'B is the empty set. Union with an empty set changes nothing, and intersection with it is always empty.' },
+].map((p) => ({ ...p, r: ops(p.A, p.B) }));
+
+const basics = String.raw`import java.util.HashSet;
+import java.util.Set;
+
+public class Attendance {
+  public static void main(String[] args) {
+    Set<String> present = new HashSet<>();
+
+    present.add("Ana");
+    present.add("Ben");
+    present.add("Carla");
+    boolean added = present.add("Ana");   // already there
+
+    System.out.println(added);                   // false
+    System.out.println(present.size());          // 3
+    System.out.println(present.contains("Ben")); // true
+    System.out.println(present.contains("Dan")); // false
+
+    present.remove("Ben");
+    System.out.println(present.size());          // 2
+
+    for (String name : present) {    // order not guaranteed
+      System.out.println(name);
+    }
+  }
+}`;
+
+const opsCode = String.raw`import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+public class SetOperations {
+  public static void main(String[] args) {
+    Set<Integer> a = new HashSet<>(Arrays.asList(1, 2, 3, 4, 5));
+    Set<Integer> b = new HashSet<>(Arrays.asList(4, 5, 6, 7));
+
+    Set<Integer> union = new HashSet<>(a);   // copy of A
+    union.addAll(b);                         // add all of B
+    System.out.println("A u B = " + union);  // 1 2 3 4 5 6 7
+
+    Set<Integer> inter = new HashSet<>(a);
+    inter.retainAll(b);                      // keep only what B has
+    System.out.println("A n B = " + inter);  // 4 5
+
+    Set<Integer> aMinusB = new HashSet<>(a);
+    aMinusB.removeAll(b);                    // take out B's values
+    System.out.println("A - B = " + aMinusB); // 1 2 3
+
+    Set<Integer> bMinusA = new HashSet<>(b);
+    bMinusA.removeAll(a);
+    System.out.println("B - A = " + bMinusA); // 6 7
+
+    Set<Integer> sym = new HashSet<>(union); // A u B ...
+    sym.removeAll(inter);                    // ... minus A n B
+    System.out.println("A sym B = " + sym);  // 1 2 3 6 7
+
+    System.out.println("A is still " + a);   // 1 2 3 4 5
+  }
+}`;
+
+const buggy = String.raw`Set<Integer> a = new HashSet<>(Arrays.asList(10, 20, 30));
+Set<Integer> b = new HashSet<>(Arrays.asList(20, 40));
+
+Set<Integer> aMinusB = new HashSet<>(a);
+aMinusB.removeAll(b);
+System.out.println("A - B: " + aMinusB);
+
+Set<Integer> bMinusA = new HashSet<>(b);
+aMinusB.removeAll(a);
+System.out.println("B - A: " + aMinusB);`;
+
+const quiz = [
+  { q: 'Which two properties describe a set?', opts: ['Sorted and indexed', 'No duplicates and no fixed order', 'Key-value pairs', 'First in, first out'], a: 1, why: 'A set holds each value <b>at most once</b> (unique), and its items have <b>no position or index</b> (unordered).' },
+  { q: 'You call <code>add(5)</code> on a set that already contains 5. What happens?', opts: ['It throws an error', 'A second 5 is added', 'Nothing changes, and add returns false', 'All values are replaced by 5'], a: 2, why: 'The set ignores the duplicate. <code>add</code> returns <code>false</code> to tell you nothing was added.' },
+  { q: 'A = {1, 2, 3}, B = {3, 4}. What is A ∩ B?', opts: ['{ 1, 2, 3, 4 }', '{ 3 }', '{ 1, 2 }', '{ 1, 2, 4 }'], a: 1, why: 'Intersection keeps only what is in <b>both</b>: 3.' },
+  { q: 'A = {1, 2, 3}, B = {3, 4}. What is A △ B (symmetric difference)?', opts: ['{ 3 }', '{ 1, 2 }', '{ 1, 2, 4 }', '{ 1, 2, 3, 4 }'], a: 2, why: 'Everything in A or B, except what they share: remove 3 from {1, 2, 3, 4}.' },
+  { q: 'If A and B are equal sets, what is A − B?', opts: ['A', 'B', 'The empty set { }', 'A ∪ B'], a: 2, why: 'Every value in A is also in B, so removing B\'s values from A leaves nothing.' },
+  { q: 'Which Java method keeps <b>only</b> the elements that are also in another set?', opts: ['addAll', 'retainAll', 'removeAll', 'containsAll'], a: 1, why: '<code>retainAll</code> = "keep only these" = intersection. <code>addAll</code> = union, <code>removeAll</code> = difference.' },
+  { q: 'Why do we write <code>new HashSet&lt;&gt;(a)</code> before calling <code>union.addAll(b)</code>?', opts: ['Java requires every set to be copied', 'addAll changes the set it is called on, so we copy A first to keep A unchanged', 'It sorts the set', 'It removes duplicates from B'], a: 1, why: '<code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code> all <b>change</b> the set they are called on. Copy first, or you destroy A and get wrong answers in later operations.' },
+  { q: 'Which Java set keeps its elements in <b>sorted</b> order?', opts: ['HashSet', 'LinkedHashSet', 'TreeSet', 'None of them'], a: 2, why: '<code>TreeSet</code> stores its elements in a red-black tree, so they come out sorted. <code>HashSet</code> has no guaranteed order; <code>LinkedHashSet</code> keeps the order you added them.' },
+];
+---
+<Base title="Sets in Java · ITC 120" description="Sets in plain English: unique, unordered collections; union, intersection, difference, and symmetric difference with Java's Set interface." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Sets and maps</p>
+    <p class="kicker">Sets and maps · Lesson 1 of 2</p>
+    <h1>Sets in Java</h1>
+    <p class="lede">A collection with one simple promise: no duplicates.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>explain what a set is: <b>unique</b> and <b>unordered</b>;</li>
+        <li>compute <b>union, intersection, difference</b>, and <b>symmetric difference</b> by hand;</li>
+        <li>use Java's <code>Set</code> (add, contains, remove, size);</li>
+        <li>do set operations in Java with <code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code>, and avoid the most common bug.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> scratch paper. You may also remember sets from math class; the ideas are the same.</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="chapter wrap" id="what">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>What a set is</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Set</p>
+        <p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p>
+      </div>
+      <p>An <b>abstract data type</b> describes <i>what</i> a structure does (its operations), not <i>how</i> it is built inside. You already met one: a stack is "push, pop, peek", whether it is built with an array or a linked list. A set is "add, remove, contains".</p>
+      <div class="sub">
+        <h3>The two properties</h3>
+        <p>Every set has these two properties:</p>
+        <ol>
+          <li><b>Uniqueness.</b> Each value appears at most once. Adding a value that is already there does nothing.</li>
+          <li><b>Unordered.</b> Items have no position. There is no "first" or "third" item, and no index like <code>[2]</code>. So {1, 2, 3} and {3, 1, 2} are the <b>same set</b>.</li>
+        </ol>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of the attendance list</p>
+        <p>When students tap their ID at the door, some tap twice. But the attendance should list each student <b>once</b>, and it does not matter who came first. That is a set. Compare with the queue at the canteen: there, order matters and the same person can line up again. That is a list or a queue, not a set.</p>
+      </div>
+      <div class="remember">
+        <p class="note-label">Where you see sets in IT</p>
+        <ul>
+          <li>Counting <b>unique visitors</b> to a website (the same person visiting 5 times counts once).</li>
+          <li>Tags on a post, or the list of permissions a user has.</li>
+          <li>Comparing two class lists: who is enrolled in both subjects? (intersection)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="chapter wrap" id="ops">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Combining sets</p>
+      <h2>Set operations</h2>
+    </div>
+    <div class="flow">
+      <p>Set operations take two sets and produce a new set. There are four types you need to know. In the examples, A = {1, 2, 3, 4, 5} and B = {4, 5, 6, 7}.</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Operation</th><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><b>Union</b></td><td class="mono">A ∪ B</td><td>in A <b>or</b> B (or both)</td><td class="mono">{1, 2, 3, 4, 5, 6, 7}</td></tr>
+          <tr><td><b>Intersection</b></td><td class="mono">A ∩ B</td><td>in A <b>and</b> B</td><td class="mono">{4, 5}</td></tr>
+          <tr><td><b>Difference</b></td><td class="mono">A − B</td><td>in A but <b>not</b> in B</td><td class="mono">{1, 2, 3}</td></tr>
+          <tr><td><b>Difference</b></td><td class="mono">B − A</td><td>in B but <b>not</b> in A</td><td class="mono">{6, 7}</td></tr>
+          <tr><td><b>Symmetric difference</b></td><td class="mono">A △ B</td><td>in A or B, but <b>not both</b></td><td class="mono">{1, 2, 3, 6, 7}</td></tr>
+        </tbody>
+      </table></div>
+      <SetLab id="setlab" a={[1, 2, 3, 4, 5]} b={[4, 5, 6, 7]} />
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ul>
+          <li><b>A − B is not the same as B − A.</b> Order matters for difference.</li>
+          <li>In a union, shared values appear <b>once</b>: {1, 2} ∪ {2, 3} = {1, 2, 3}, not {1, 2, 2, 3}.</li>
+          <li>When the result has nothing in it, write the <b>empty set</b>: { } (or ∅). Try making A and B equal in the lab.</li>
+          <li>A △ B = (A ∪ B) − (A ∩ B) = (A − B) ∪ (B − A). All three give the same answer.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · In code</p>
+      <h2>Sets in Java</h2>
+    </div>
+    <div class="flow">
+      <p>Java has a <code>Set</code> interface (the ADT: what a set can do) and several classes that implement it (how it is built). Here are the three main types:</p>
+      <table class="tbl">
+        <thead><tr><th>Class</th><th>Built with</th><th>Order when you loop through it</th></tr></thead>
+        <tbody>
+          <tr><td><code>HashSet</code></td><td>a hash table (next lesson)</td><td>no guaranteed order</td></tr>
+          <tr><td><code>LinkedHashSet</code></td><td>a hash table + a linked list</td><td>the order you added them</td></tr>
+          <tr><td><code>TreeSet</code></td><td>a red-black tree</td><td>sorted</td></tr>
+        </tbody>
+      </table>
+      <p><code>HashSet</code> is the usual choice. Its basic methods are <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code>:</p>
+      <pre class="code"><code set:html={hi(basics)} /></pre>
+
+      <div class="sub">
+        <h3>Set operations in Java</h3>
+        <p>Java does not have methods named "union" or "intersection". Instead, three methods do the work. Each one <b>changes the set it is called on</b>:</p>
+        <table class="tbl">
+          <thead><tr><th>Method</th><th>What it does to <code>x</code></th><th>Operation</th></tr></thead>
+          <tbody>
+            <tr><td><code>x.addAll(y)</code></td><td>adds every value of y into x</td><td>union</td></tr>
+            <tr><td><code>x.retainAll(y)</code></td><td>keeps only the values that are also in y</td><td>intersection</td></tr>
+            <tr><td><code>x.removeAll(y)</code></td><td>takes out every value that is in y</td><td>difference</td></tr>
+          </tbody>
+        </table>
+        <pre class="code"><code set:html={hi(opsCode)} /></pre>
+        <p class="small muted">A <code>HashSet</code> may print its values in a different order than shown in the comments. The values are what matter.</p>
+      </div>
+
+      <div class="trap">
+        <p class="note-label">The #1 bug: forgetting to copy</p>
+        <p>Because <code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code> change the set itself, always start from a <b>copy</b>: <code>new HashSet&lt;&gt;(a)</code>. If you write <code>a.addAll(b)</code> directly, A is now the union, and every later operation that uses A gives the wrong answer.</p>
+      </div>
+
+      <div class="paper flow">
+        <p class="note-label">Spot the bug</p>
+        <p>This code should print A − B and B − A. One line is wrong. Which one, and what does the code print?</p>
+        <pre class="code"><code set:html={hi(buggy)} /></pre>
+        <details class="reveal">
+          <summary>Show the answer</summary>
+          <div class="flow">
+            <p>Line 9 uses the wrong variable: <code>aMinusB.removeAll(a);</code> should be <code>bMinusA.removeAll(a);</code>, and line 10 should print <code>bMinusA</code>.</p>
+            <p>As written, it prints <code>A - B: [10, 30]</code>, then removes A's values from <code>aMinusB</code> (which empties it) and prints <code>B - A: []</code>. The correct B − A is <b>{40}</b>.</p>
+            <p>This kind of copy-paste mistake is common. When you copy a block of code, check <b>every</b> variable name in it.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="chapter wrap" id="paper">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Your turn</p>
+      <h2>Try it on paper</h2>
+    </div>
+    <div class="flow">
+      <p>For each pair, write A ∪ B, A ∩ B, A − B, B − A, and A △ B. Drawing a quick Venn diagram first makes it easy: put shared values in the middle.</p>
+      {practice.map((p, i) => (
+        <div class="paper flow">
+          <p class="note-label">Problem {i + 1}</p>
+          <p class="mono">A = {fmt(p.A)}<br />B = {fmt(p.B)}</p>
+          <details class="reveal">
+            <summary>Show the answer</summary>
+            <div class="flow">
+              <table class="tbl">
+                <tbody>
+                  <tr><th class="mono">A ∪ B</th><td class="mono">{fmt(p.r.union)}</td></tr>
+                  <tr><th class="mono">A ∩ B</th><td class="mono">{fmt(p.r.inter)}</td></tr>
+                  <tr><th class="mono">A − B</th><td class="mono">{fmt(p.r.amb)}</td></tr>
+                  <tr><th class="mono">B − A</th><td class="mono">{fmt(p.r.bma)}</td></tr>
+                  <tr><th class="mono">A △ B</th><td class="mono">{fmt(p.r.sym)}</td></tr>
+                </tbody>
+              </table>
+              {p.note && <p>{p.note}</p>}
+            </div>
+          </details>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-sets" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A set stores unique values with no order. Duplicates are ignored.</li>
+          <li>Union = or. Intersection = and. Difference = in one but not the other. Symmetric difference = in one but not both.</li>
+          <li>In Java: <code>addAll</code> (union), <code>retainAll</code> (intersection), <code>removeAll</code> (difference).</li>
+          <li>Those methods change the set itself, so copy first with <code>new HashSet&lt;&gt;(a)</code>.</li>
+          <li>HashSet: no order. LinkedHashSet: insertion order. TreeSet: sorted.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/maps/'}>Maps and hashing</a>, where you will see how a HashSet and HashMap find things so fast.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Oracle, "Set (Java SE 21 &amp; JDK 21)," "HashSet," and "TreeSet," Java API documentation. <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html">docs.oracle.com</a></li>
+          <li>Oracle, "The Set Interface," The Java Tutorials. <a href="https://docs.oracle.com/javase/tutorial/collections/interfaces/set.html">docs.oracle.com/javase/tutorial</a></li>
+          <li>K. H. Rosen, <i>Discrete Mathematics and Its Applications</i>, 8th ed. McGraw-Hill, 2019, Section 2.2 (Set operations).</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
+  .refs ol { display: grid; gap: 0.3rem; }
+</style>

@@ -1,0 +1,53 @@
+---
+// "Valid or not?" cards: hand-colored trees checked against the red-black rules at build time.
+import { buildBst, svgTree } from '../lib/tree.js';
+import { rbCheck } from '../lib/rb.js';
+interface Item { values: number[]; colors: Record<string, 'R' | 'B'>; }
+interface Props { id: string; items: Item[]; }
+const { id, items } = Astro.props;
+const cards = items.map((it) => {
+  const root = buildBst(it.values);
+  (function paint(n) { if (!n) return; n.c = it.colors[n.v] || 'B'; paint(n.l); paint(n.r); })(root);
+  const res = rbCheck(root);
+  return { svg: svgTree(root, { label: 'Colored tree', minW: 200 }), ok: res.ok, why: res.ok ? 'Every rule holds: the root is black, no red node has a red child, and every path down has the same number of black nodes.' : res.reason };
+});
+---
+<div class="rbr" id={id}>
+  {cards.map((c, i) => (
+    <div class="rbr-card" data-ok={c.ok ? '1' : '0'}>
+      <p class="rbr-n hand">Tree {i + 1}</p>
+      <div set:html={c.svg} />
+      <div class="btn-row rbr-btns">
+        <button type="button" class="btn" data-pick="1">Valid</button>
+        <button type="button" class="btn" data-pick="0">Breaks a rule</button>
+      </div>
+      <p class="rbr-out" aria-live="polite"></p>
+      <p class="rbr-why small" hidden>{c.why}</p>
+    </div>
+  ))}
+</div>
+<style is:global>
+  .rbr { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .rbr-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem 0.9rem; box-shadow: 0 2px 8px var(--shadow); }
+  .rbr-n { font-weight: 700; font-size: var(--step-1); }
+  .rbr-btns .btn { flex: 1 1 auto; }
+  .rbr-out { font-weight: 800; margin-top: 0.5rem; min-height: 1.4em; }
+  .rbr-out.ok { color: var(--teal); }
+  .rbr-out.no { color: var(--red-pen); }
+</style>
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var f = document.getElementById(id); if (!f) return;
+    f.querySelectorAll('.rbr-card').forEach(function (c) {
+      c.querySelectorAll('[data-pick]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var right = b.dataset.pick === c.dataset.ok, out = c.querySelector('.rbr-out');
+          out.className = 'rbr-out ' + (right ? 'ok' : 'no');
+          out.textContent = right ? 'Correct!' : 'Not quite.';
+          c.querySelectorAll('[data-pick]').forEach(function (x) { x.classList.toggle('is-on', x === b); });
+          c.querySelector('.rbr-why').hidden = false;
+        });
+      });
+    });
+  })();
+</script>

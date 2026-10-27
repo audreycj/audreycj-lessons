@@ -1,0 +1,364 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArrayLab from '../../components/ArrayLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const access = String.raw`int[] marks = {14, 28, 35, 49, 60};
+System.out.println(marks[2]);   // 35`;
+const traverse = String.raw`for (int i = 0; i < marks.length; i++) {
+  System.out.println(marks[i]);
+}`;
+const highest = String.raw`int[] marks = {78, 85, 91, 74, 88};
+int highest = marks[0];
+for (int i = 1; i < marks.length; i++) {
+  if (marks[i] > highest) {
+    highest = marks[i];
+  }
+}
+System.out.println(highest);   // 91`;
+const count = String.raw`int[] scores = {88, 72, 95, 64};
+int passed = 0;                              // counter starts at 0
+for (int i = 0; i < scores.length; i++) {    // visit each score
+  if (scores[i] >= 75) {                     // passing?
+    passed++;                                // one more pass
+  }
+}
+System.out.println("Passed: " + passed);     // Passed: 2`;
+const insert = String.raw`int[] arr = new int[8];      // capacity 8, fixed
+int size = 4;                // 10, 20, 30, 40 are stored
+// insert value v at index k
+for (int i = size; i > k; i--) {
+  arr[i] = arr[i - 1];       // move one slot right
+}
+arr[k] = v;
+size++;`;
+const del = String.raw`// delete the value at index k
+for (int i = k; i < size - 1; i++) {
+  arr[i] = arr[i + 1];       // move one slot left
+}
+size--;`;
+const stock = String.raw`int[] stock = {12, 0, 7, 3, 9};
+int low = 0;
+for (int i = 0; i < stock.length; i++) {
+  if (stock[i] < 5) {
+    System.out.println("Restock item " + i);
+    low++;
+  }
+}
+System.out.println("Items to restock: " + low);`;
+const practice = String.raw`public class Main {
+  public static void main(String[] args) {
+    int[] marks = {78, 85, 91, 74, 88};
+
+    // 1. print all five scores
+    for (int i = 0; i < marks.length; i++) {
+      System.out.println(marks[i]);
+    }
+
+    // 2. find the highest
+    int highest = marks[0];
+    for (int i = 1; i < marks.length; i++) {
+      if (marks[i] > highest) {
+        highest = marks[i];
+      }
+    }
+    System.out.println("Highest: " + highest);
+
+    // 3 and 4. print scores 75 and above, and count them
+    int passing = 0;
+    for (int i = 0; i < marks.length; i++) {
+      if (marks[i] >= 75) {
+        System.out.println(marks[i]);
+        passing++;
+      }
+    }
+    System.out.println("Passing: " + passing);
+  }
+}`;
+
+const quiz = [
+  { q: 'Given <code>int[] marks = {75, 80, 93, 68, 88};</code>, what is <code>marks[3]</code>?', opts: ['93', '68', '88', 'an error'], a: 1, why: 'Indexes start at 0: marks[0] = 75, marks[1] = 80, marks[2] = 93, <b>marks[3] = 68</b>.' },
+  { q: 'An array has length 5. What happens with <code>arr[5]</code>?', opts: ['It gives the last value', 'It gives 0', 'The program stops with an ArrayIndexOutOfBoundsException', 'It adds a new slot'], a: 2, why: 'The indexes are 0 to 4. Index 5 does not exist, so Java throws an <b>ArrayIndexOutOfBoundsException</b>.' },
+  { q: 'Insert 27 at index 2 of [11, 22, 33, 44, _]. Which values move?', opts: ['11 and 22', '33 and 44', 'Only 44', 'None'], a: 1, why: 'Everything from index 2 to the end moves one slot right: first 44 (to index 4), then 33 (to index 3). Then 27 goes into index 2.' },
+  { q: 'When inserting, why do we shift starting from the <b>end</b>?', opts: ['It is faster', 'So no value gets written over before it has moved', 'Java requires it', 'It does not matter'], a: 1, why: 'If we moved 30 first, it would land on top of 40, and 40 would be lost. Starting from the end, each value moves into a slot that is already free.' },
+  { q: 'Delete index 1 of [10, 25, 30, 40]. What is the array afterward (only the counted values)?', opts: ['10, 30, 40', '10, 25, 40', '25, 30, 40', '10, 30, 40, 40'], a: 0, why: '30 and 40 each move one slot left, and size drops from 4 to 3. The old 40 is still in slot 3, but it is beyond size, so we do not count it.' },
+  { q: 'Which operation is the array\'s best trick?', opts: ['Inserting at the front', 'Deleting from the middle', 'Accessing a value by its index', 'Growing bigger'], a: 2, why: 'Access takes <b>one step</b> no matter how many values there are. Inserting and deleting in the middle need shifting, and the size is fixed.' },
+];
+---
+<Base title="Arrays · ITC 120" description="Arrays in plain English: access, traversal, insertion, and deletion, with a step-by-step lab and Java code." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Arrays</p>
+    <p class="kicker">Linear data structures · Lesson 1 of 3</p>
+    <h1>Arrays: the four operations</h1>
+    <p class="lede">Access, traversal, insertion, and deletion, and why some of them cost more than others.</p>
+    <div class="goals">
+      <p class="note-label">In this lesson, you will:</p>
+      <ol>
+        <li>explain the four basic operations on an array, and use access and traversal in Java;</li>
+        <li>explain why inserting and deleting in the middle need <b>shifting</b>, and in which order;</li>
+        <li>compare arrays and linked lists, and choose one for a task.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/intro/'}>Introduction</a> (especially loops and arrays), and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="four">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The big idea</p>
+      <h2>Four things we do with data</h2>
+    </div>
+    <div class="flow">
+      <div class="mini-arr" aria-label="An array with values 19, 3, 42, 7, 56 at indexes 0 to 4">
+        {[19, 3, 42, 7, 56].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
+      </div>
+      <p>An <b>array</b> is a row of numbered slots. Each slot holds one value, and its number is its <b>index</b>, starting at 0. Above, <code>arr[2]</code> is 42. Think of a <b>piso-net shop</b>: a fixed row of numbered units, one user per PC.</p>
+      <p>Every data structure in this course is judged by how well it does these four operations:</p>
+      <table class="tbl">
+        <thead><tr><th>Operation</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td><b>Access</b></td><td>Get one value using its index.</td></tr>
+          <tr><td><b>Traverse</b></td><td>Visit every value, in order.</td></tr>
+          <tr><td><b>Insert</b></td><td>Add a new value at a position.</td></tr>
+          <tr><td><b>Delete</b></td><td>Remove the value at a position.</td></tr>
+        </tbody>
+      </table>
+      <div class="sub">
+        <h3>Where you see them</h3>
+        <p>Different programs lean on different operations:</p>
+        <table class="tbl">
+          <thead><tr><th>Situation</th><th>Mostly uses</th></tr></thead>
+          <tbody>
+            <tr><td>The registrar's list of 5,000 students in ID order. Pull up one student, or average them all.</td><td>access and traversal</td></tr>
+            <tr><td>A sari-sari store's inventory. New stock arrives and old items are dropped all day.</td><td>insert and delete</td></tr>
+            <tr><td>An office print queue. Jobs join at the back and leave from the front.</td><td>insert and delete, at the ends</td></tr>
+          </tbody>
+        </table>
+        <p>That is why there is no single best structure. The right one depends on what the program does most.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="access">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Operation 1</p>
+      <h2>Access: one step, every time</h2>
+    </div>
+    <div class="flow">
+      <div class="mini-arr" aria-label="marks: 14, 28, 35, 49, 60; index 2 highlighted">
+        {[14, 28, 35, 49, 60].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
+      </div>
+      <pre class="code"><code set:html={hi(access)} /></pre>
+      <p>Java goes <b>straight to slot 2</b>. It does not look at slots 0 and 1 first. The slots sit side by side in memory, so Java can compute where slot 2 is right away. It takes one step whether the array holds 5 values or 5,000. This is the array's best trick.</p>
+      <div class="trap">
+        <p class="note-label">Watch the last index</p>
+        <p>Indexes start at 0, so the last index is <code>length - 1</code>. For <code>marks</code> (length 5), the last index is 4. Using <code>marks[5]</code> stops the program with an <b>ArrayIndexOutOfBoundsException</b>. This is why loops use <code>i &lt; marks.length</code>, not <code>i &lt;= marks.length</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="traverse">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Operation 2</p>
+      <h2>Traversal: visit every value</h2>
+    </div>
+    <div class="flow">
+      <p>A loop does the visiting. Start at 0, keep going while <code>i</code> is less than the length, and add 1 each round:</p>
+      <pre class="code"><code set:html={hi(traverse)} /></pre>
+      <p>You already know this loop. <b>Traversal</b> is just its name in DSA. One pass through the array can answer a question, like "what is the highest score?"</p>
+      <pre class="code"><code set:html={hiN(highest)} /></pre>
+      <p><code>highest</code> starts with a real score, <code>marks[0]</code> (78), so the loop can begin at index 1. Here is the trace table:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>i</th><th>marks[i]</th><th>marks[i] &gt; highest?</th><th>highest after</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>85</td><td>85 &gt; 78: yes</td><td><b>85</b></td></tr>
+            <tr><td>2</td><td>91</td><td>91 &gt; 85: yes</td><td><b>91</b></td></tr>
+            <tr><td>3</td><td>74</td><td>74 &gt; 91: no</td><td>91</td></tr>
+            <tr><td>4</td><td>88</td><td>88 &gt; 91: no</td><td>91</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Output: <b>91</b>.</p>
+      <div class="trap">
+        <p class="note-label">Why not start <code>highest</code> at 0?</p>
+        <p>It works for quiz scores, but not always. If every value were negative, like temperatures in a freezer, the answer would wrongly be 0. Starting with <code>marks[0]</code> always uses a real value.</p>
+      </div>
+      <div class="sub">
+        <h3>Counting with a condition</h3>
+        <p>Add a counter and an <code>if</code>, and the same loop can count. This one counts the passing scores (75 and up):</p>
+        <pre class="code"><code set:html={hi(count)} /></pre>
+        <p>The counter changes only when the condition is true: for 88 and 95. So the output is <code>Passed: 2</code>.</p>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Try it: predict the output</p>
+        <pre class="code"><code set:html={hi(stock)} /></pre>
+        <p>Write exactly what this prints. Careful: what does it print, <code>i</code> or <code>stock[i]</code>?</p>
+        <details class="reveal"><summary>Show the answer</summary><div class="flow">
+          <pre class="code"><code>Restock item 1
+Restock item 3
+Items to restock: 2</code></pre>
+          <p>Only 0 (at index 1) and 3 (at index 3) are less than 5. The loop prints the <b>index</b> <code>i</code>, not the stock value.</p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="shift">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Operations 3 and 4</p>
+      <h2>Insert and delete: shifting</h2>
+    </div>
+    <div class="flow">
+      <p>An array's slots sit side by side, and its length is fixed when it is created. So to insert or delete in the middle, other values have to <b>move</b>. Programs keep two numbers:</p>
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><b>capacity</b> (<code>arr.length</code>)</td><td>How many slots the array has. It never changes.</td></tr>
+          <tr><td><b>size</b></td><td>How many slots hold real values right now. We keep it in our own variable.</td></tr>
+        </tbody>
+      </table>
+      <div class="sub">
+        <h3>Insert: later values move right</h3>
+        <p>To insert 25 at index 2 of 10, 20, 30, 40:</p>
+        <ol>
+          <li>Move 40 from slot 3 to slot 4.</li>
+          <li>Move 30 from slot 2 to slot 3.</li>
+          <li>Put 25 into slot 2. Size goes from 4 to 5.</li>
+        </ol>
+        <pre class="code"><code set:html={hiN(insert)} /></pre>
+      </div>
+      <div class="trap">
+        <p class="note-label">Start from the end</p>
+        <p>If we moved 30 first, it would land on top of 40, and 40 would be lost. Moving from the end means each value moves into a slot that is already free. That is why the loop counts <b>down</b>: <code>i--</code>.</p>
+      </div>
+      <div class="sub">
+        <h3>Delete: later values move left</h3>
+        <p>To delete index 1 of 10, 20, 25, 30, 40:</p>
+        <ol>
+          <li>Copy 25 into slot 1, on top of the 20.</li>
+          <li>Copy 30 into slot 2, then 40 into slot 3.</li>
+          <li>Size drops from 5 to 4. Slot 4 still holds an old copy of 40, but we stop counting it.</li>
+        </ol>
+        <pre class="code"><code set:html={hiN(del)} /></pre>
+        <p>This time the loop counts <b>up</b>, starting at the gap. Each value moves into the slot that was just copied from.</p>
+      </div>
+      <ArrayLab id="lab-array" />
+      <p class="small muted">Try: insert 25 at index 2, then delete index 1. Then insert at index 0 and count the moves.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="cost">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Why this matters</p>
+      <h2>Access stays cheap. Shifting does not.</h2>
+    </div>
+    <div class="flow">
+      <p>Count the work. Inserting at the front means <b>every</b> value moves one slot:</p>
+      <table class="tbl">
+        <thead><tr><th>Task</th><th>Work</th></tr></thead>
+        <tbody>
+          <tr><td>Access any index</td><td><b>1 step</b>, no matter the size</td></tr>
+          <tr><td>Insert at the front of an array holding 4 values</td><td><b>4 moves</b></td></tr>
+          <tr><td>Insert at the front of an array holding 500 values</td><td><b>500 moves</b></td></tr>
+          <tr><td>Do that 1,000 times</td><td>at least 500 × 1,000 = <b>half a million</b> moves (more, since the array keeps growing)</td></tr>
+        </tbody>
+      </table>
+      <p>So the question is not "is the array good?" It is "good for <b>which</b> operation?" Users never complain about 500 moves. They complain that the app froze.</p>
+      <div class="sub">
+        <h3>A first look ahead: linked lists</h3>
+        <p>A <b>linked list</b> stores values in nodes connected by arrows (you will learn it next). To insert B2 between B and C, it changes two arrows. A, B, and C never move.</p>
+        <div class="mini-ll" aria-label="A to B to B2 to C"><b>A</b>→<b>B</b>→<b style="background:var(--orange);color:#fff;border-color:var(--orange-ink)">B2</b>→<b>C</b>→<i>null</i></div>
+        <p>Here is the same operation in both structures:</p>
+        <div class="scroll-x">
+          <table class="tbl">
+            <thead><tr><th>Task</th><th>Array</th><th>Linked list</th></tr></thead>
+            <tbody>
+              <tr><td>Get item #500</td><td>one step</td><td>walk 500 links to reach it</td></tr>
+              <tr><td>Insert, once you are at the spot</td><td>shift every later value</td><td>change two links</td></tr>
+              <tr><td>Delete, once you are at the spot</td><td>shift every later value</td><td>change one link</td></tr>
+              <tr><td>Memory per item</td><td>just the value</td><td>the value plus a link</td></tr>
+              <tr><td>Size</td><td>fixed when created</td><td>grows as you add</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="remember"><p class="note-label">Remember</p><p>The linked list only wins once you have already found the spot. Getting there still takes walking.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Your turn</p>
+      <h2>Practice</h2>
+    </div>
+    <div class="flow">
+      <div class="paper flow">
+        <p class="note-label">Quick check (on paper)</p>
+        <ol>
+          <li>Given <code>marks = {'{'}75, 80, 93, 68, 88{'}'}</code>, what is <code>marks[3]</code>?</li>
+          <li>Insert 27 at index 2 of [11, 22, 33, 44, _]. Which values move, and in what order?</li>
+          <li>Delete index 1 of [10, 25, 30, 40, _]. Which values move, and in what order?</li>
+          <li>Which of these would a linked list make easier, and why?</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li><b>68</b>. Count from 0: 75, 80, 93, <b>68</b>.</li>
+            <li>44 moves to index 4 first, then 33 moves to index 3. Then 27 goes into index 2: [11, 22, 27, 33, 44].</li>
+            <li>30 moves to index 1 first, then 40 moves to index 2. Size drops to 3: [10, 30, 40]. (Slot 3 still holds an old 40, but it is not counted.)</li>
+            <li>Insertion and deletion (questions 2 and 3). A linked list changes one or two links instead of shifting values, once it is at the spot. Access (question 1) is easier in an array.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Coding practice</p>
+        <p>Using <code>int[] marks = {'{'}78, 85, 91, 74, 88{'}'};</code>, write a program that:</p>
+        <ol>
+          <li>prints all five scores using a loop;</li>
+          <li>finds and prints the highest score;</li>
+          <li>prints only the scores that are 75 and above;</li>
+          <li>counts and prints the number of passing scores.</li>
+        </ol>
+        <p>Checklist: Did you use a loop? Did <code>highest</code> start with <code>marks[0]</code>? Did you use a condition for scores <code>&gt;= 75</code>? You can run it in the <a href="https://www.programiz.com/java-programming/online-compiler/">Programiz online compiler</a>.</p>
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hi(practice)} /></pre>
+          <p>Output: 78, 85, 91, 74, 88 (one per line), then <code>Highest: 91</code>, then 78, 85, 91, 88, then <code>Passing: 4</code>.</p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-arrays" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Four operations: access, traversal, insertion, deletion.</li>
+          <li>Arrays give direct access when you know the index: one step.</li>
+          <li>Inserting in the middle shifts later values right (start from the end). Deleting shifts them left.</li>
+          <li>As data grows, repeated shifting means more work for the program.</li>
+          <li>Arrays and linked lists have different trade-offs. The better choice depends on the operation.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/linked-lists/'}>Linked lists</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 2.</li>
+          <li>Oracle, "Arrays," <i>The Java Tutorials</i>. <a href="https://docs.oracle.com/javase/tutorial/java/nutsandbolts/arrays.html">docs.oracle.com</a></li>
+          <li>Programiz, "Java Array." <a href="https://www.programiz.com/java-programming/arrays">programiz.com</a></li>
+          <li>N. Dale, D. T. Joyce, and C. Weems, <i>Object-Oriented Data Structures Using Java</i>, 4th ed. Jones &amp; Bartlett, 2018.</li>
+          <li>ITC 120 Course Syllabus, A.Y. 2026–2027, Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
