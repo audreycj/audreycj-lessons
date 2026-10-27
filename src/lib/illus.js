@@ -687,36 +687,38 @@ export function docsFolders() {
 
 /** Hook for BST deletion: a purok leader leaves the org chart. No one under her / one member under him / two teams under her. */
 export function leaderLeaves() {
-  const s = new Sketch(340, 386, 113);
+  const s = new Sketch(340, 522, 113);
   const card = (cx, y, name, fill, o = {}) => {
     s.round(cx - 33, y, 66, 26, 7, { fill, stroke: o.stroke || C.ink, sw: 1.7, rough: 0.7 });
     s.text(cx, y + 18, name, { font: 'body', size: 13, weight: 800 });
-    if (o.gone) { s.line(cx - 29, y + 3, cx + 29, y + 23, { stroke: C.red, sw: 2.4 }); s.line(cx - 29, y + 23, cx + 29, y + 3, { stroke: C.red, sw: 2.4 }); }
+    // thin single-stroke cross, so the name still shows through
+    if (o.gone) { s.line(cx - 27, y + 4, cx + 27, y + 22, { stroke: C.red, sw: 1.3, single: true }); s.line(cx - 27, y + 22, cx + 27, y + 4, { stroke: C.red, sw: 1.3, single: true }); }
   };
   const link = (x1, y1, x2, y2) => s.line(x1, y1, x2, y2, { sw: 1.6, single: true });
   const head = (y, t) => s.text(10, y, t, { font: 'body', size: 13.5, weight: 800, anchor: 'start', color: C.teal });
   const note = (x, y, lines) => lines.forEach((t, i) => s.text(x, y + i * 16, t, { font: 'body', size: 12, weight: 700, anchor: 'start' }));
+  const divider = (y) => s.line(10, y, 330, y, { sw: 1, stroke: C.soft, rough: 0.6, single: true });
   s.text(170, 18, 'When a purok leader leaves', { font: 'body', size: 15, weight: 800 });
-  // 1. No one under her: just remove the card.
+  // 1. No one under her: just remove the card. (links are 22 long; about 24 of space above and below each divider)
   let y = 34;
   head(y + 6, '1. No one under her');
-  card(80, y + 20, 'Kapitan', C.sky); link(80, y + 46, 80, y + 60); card(80, y + 60, 'Liza', C.pink, { gone: true });
-  note(160, y + 38, ['Liza leaves. No one is', 'under her, so we just', 'remove her card.']);
-  s.line(10, 146, 330, 146, { sw: 1, stroke: C.soft, rough: 0.6, single: true });
+  card(80, y + 20, 'Kapitan', C.sky); link(80, y + 46, 80, y + 68); card(80, y + 68, 'Liza', C.pink, { gone: true });
+  note(160, y + 46, ['Liza leaves. No one is', 'under her, so we just', 'remove her card.']);
+  divider(152);
   // 2. One member under him: the member moves up.
-  y = 152;
+  y = 176;
   head(y + 6, '2. One member under him');
-  card(80, y + 20, 'Kapitan', C.sky); link(80, y + 46, 80, y + 52); card(80, y + 52, 'Ben', C.pink, { gone: true });
-  link(80, y + 78, 80, y + 84); card(80, y + 84, 'Joy', C.tealWash, { stroke: C.teal });
-  s.curve(116, y + 96, 116, y + 66, 16, { stroke: C.teal, sw: 2, head: 7 });
-  note(160, y + 38, ['Ben leaves. Joy, the only', 'member under him,', 'moves up into his place.']);
-  s.line(10, 264, 330, 264, { sw: 1, stroke: C.soft, rough: 0.6, single: true });
+  card(80, y + 20, 'Kapitan', C.sky); link(80, y + 46, 80, y + 68); card(80, y + 68, 'Ben', C.pink, { gone: true });
+  link(80, y + 94, 80, y + 116); card(80, y + 116, 'Joy', C.tealWash, { stroke: C.teal });
+  s.curve(116, y + 129, 116, y + 81, 16, { stroke: C.teal, sw: 2, head: 7 });
+  note(160, y + 66, ['Ben leaves. Joy, the only', 'member under him,', 'moves up into his place.']);
+  divider(342);
   // 3. Two teams under her: keep the post, someone else fills it.
-  y = 270;
+  y = 366;
   head(y + 6, '3. Two teams under her');
-  card(100, y + 20, 'Kapitan', C.sky); link(100, y + 46, 100, y + 52); card(100, y + 52, 'Rosa', C.pink, { gone: true });
-  link(92, y + 78, 60, y + 84); link(108, y + 78, 140, y + 84);
-  card(60, y + 84, 'Team A', C.butter); card(140, y + 84, 'Team B', C.butter);
-  note(186, y + 30, ['Rosa leaves. Two teams', 'are under her, but', 'there is one post.', 'Keep the post, and', 'someone else fills it.']);
+  card(100, y + 20, 'Kapitan', C.sky); link(100, y + 46, 100, y + 68); card(100, y + 68, 'Rosa', C.pink, { gone: true });
+  link(92, y + 94, 60, y + 116); link(108, y + 94, 140, y + 116);
+  card(60, y + 116, 'Team A', C.butter); card(140, y + 116, 'Team B', C.butter);
+  note(186, y + 50, ['Rosa leaves. Two teams', 'are under her, but', 'there is one post.', 'Keep the post, and', 'someone else fills it.']);
   return s.svg('When a purok leader leaves, three things can happen. 1: Liza leaves and no one is under her, so we just remove her card. 2: Ben leaves and Joy, the only member under him, moves up into his place. 3: Rosa leaves and two teams are under her, but there is only one post, so we keep the post and someone else fills it.');
 }
