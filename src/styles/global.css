@@ -662,3 +662,5 @@ pre.bugfix .bug-fix-ic { display: inline-grid; place-items: center; width: 1.2em
 /* BstLab step chip: says what THIS step did, not what comes next */
 .bstlab .bl-tag-k { font-weight: 600; color: var(--ink-soft); margin-right: 0.15em; }
 .bstlab .bl-tag { max-width: calc(100% - 1rem); }
+/* Extra breathing room above a figure that follows a sentence */
+.flow > .gap-top, .gap-top { margin-top: 2rem; }
