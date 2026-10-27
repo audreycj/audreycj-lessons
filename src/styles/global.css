@@ -861,3 +861,18 @@ pre.code > code { display: block; width: max-content; min-width: 100%; }
 .cw-nav [data-go="back"] { grid-area: back; }
 .cw-nav [data-go="next"] { grid-area: next; }
 .cw-nav .btn { white-space: nowrap; }
+/* CodeWalk on phones, tall panels (.no-stick): compact layout + Picture/Code switch */
+.cw-view, .cw-full { display: none; }
+.cw-side.no-stick { gap: 0.4rem; padding: 0.55rem 0.6rem 0.65rem; }
+.cw-side.no-stick .cw-view { display: flex; gap: 0.4rem; justify-content: center; }
+.cw-view .btn { min-height: 2.1rem; padding: 0.2em 1em; font-size: 0.9rem; }
+.cw-side.no-stick.show-code .cw-full { display: block; position: relative; height: 45vh; overflow: auto; margin: 0; padding: 0.4rem 0; font-size: 0.84rem; }
+.cw-side.no-stick.show-code .cw-pic, .cw-side.no-stick.show-code .cw-run { display: none; }
+.cw-side.no-stick .cw-step { gap: 0.35rem; }
+.cw-side.no-stick .cw-pic { padding: 0.2rem; min-height: 0; }
+.cw-side.no-stick .cw-pic svg { max-height: 11rem; }
+.cw-side.no-stick .cs-pic { gap: 0.3rem; }
+.cw-side.no-stick .cs-tree .tree-svg { max-width: 15.5rem; }
+.cw-side.no-stick .cs-h { margin-bottom: 0.15rem; }
+.cw-side.no-stick .cs-list { gap: 0.2rem; padding: 0.25rem; min-height: calc(var(--rows, 4) * 1.95rem + 0.5rem); }
+.cw-side.no-stick .cs-f { padding: 0.12rem 0.5rem; font-size: 0.875rem; border-width: 1.5px; }
