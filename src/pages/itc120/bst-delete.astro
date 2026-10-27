@@ -106,7 +106,7 @@ const quiz = [
       <figure class="fig illus-fig illus"><Fragment set:html={leaderLeaves()} /><figcaption>Three situations, three fixes. Deleting from a BST works the same way, with one more rule: the values must stay in order.</figcaption></figure>
       <div class="def">
         <p class="note-label">Deleting from a BST</p>
-        <p><b>Deleting</b> a value from a binary search tree means taking that value out of the tree, so that every other node <b>stays connected</b> and the <b>BST rule still holds</b>. Usually the node that holds it is removed. In one case (Part 4), that node stays and gets a new value instead.</p>
+        <p><b>Deleting</b> a value from a binary search tree means taking that value out of the tree, so that <b>every other value stays in the tree</b> and the <b>BST rule still holds</b>. Usually the node that holds it is removed. When that node has two children (Part 4), it stays and gets the next value instead, and the node that held the next value is removed.</p>
       </div>
       <p>Here are the words this lesson uses, in plain terms:</p>
       <table class="tbl">
@@ -476,7 +476,7 @@ const quiz = [
           <li>Find the node first, like search.</li>
           <li>Case 1, a leaf: remove it. Case 2, one child: the child moves up.</li>
           <li>Case 3, two children: copy in the next value, then remove the old one (case 1 or 2).</li>
-          <li>Next value: <span class="hand">right once, then left as far as you can.</span></li>
+          <li>Next value (for a node with two children): <span class="hand">right once, then left as far as you can.</span></li>
           <li>Always write <code>root = deleteRec(root, value);</code></li>
         </ol>
       </div>
