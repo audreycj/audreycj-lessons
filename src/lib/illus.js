@@ -599,3 +599,52 @@ export function treeKinds() {
   s += lab(172, 498, 'bonus: in-order = 10, 20, 30', OK, 'start', 12, 800);
   return s + '</svg>';
 }
+
+/* ---------------- Sketches: recursion lesson ---------------- */
+
+/** A line at the registrar's window: questions go forward, answers come back (+1 each). */
+export function pilaLine() {
+  const s = new Sketch(340, 318, 83);
+  const xs = [84, 150, 216, 290], names = ['Ana', 'Bea', 'Migs', 'You'];
+  const shirts = [C.tealWash, C.orangeWash, C.sky, C.butter];
+  s.text(170, 18, 'Going forward: each person asks the one ahead', { font: 'body', size: 13, weight: 800, color: C.orange });
+  s.rect(8, 92, 36, 96, { fill: C.sky, sw: 1.6 });
+  s.line(8, 140, 44, 140, { sw: 1.2, single: true });
+  s.text(30, 140, 'REGISTRAR', { font: 'body', size: 10, weight: 800, rotate: -90 });
+  speech(s, 118, 30, 216, 30, 'right', C.card, 'How many are ahead of you?', C.orange);
+  xs.forEach((x, i) => {
+    s.path(`M${x - 21} 190 Q${x - 19} 154 ${x} 151 Q${x + 19} 154 ${x + 21} 190 Z`, { fill: shirts[i], sw: 1.6 });
+    face(s, x, 130, 16, '#e3b38c', i === 3 ? 'happy' : 'think');
+    s.path(`M${x - 16} ${128} Q${x - 15} ${108} ${x} ${110} Q${x + 15} ${108} ${x + 16} ${128} Q${x + 8} ${116} ${x} ${117} Q${x - 8} ${116} ${x - 16} ${128} Z`, { fill: C.ink, sw: 1, rough: 0.4 });
+    s.text(x, 208, names[i], { font: 'body', size: 13, weight: 800 });
+    if (i > 0) s.curve(x - 14, 104, xs[i - 1] + 14, 104, 14, { stroke: C.orange, sw: 2, head: 7 });
+    if (i < 3) {
+      s.curve(x + 14, 222, xs[i + 1] - 14, 222, 12, { stroke: C.teal, sw: 2, head: 7 });
+      const mx = (x + xs[i + 1]) / 2;
+      s.circle(mx, 252, 24, { fill: C.teal, sw: 1.2, rough: 0.4 });
+      s.text(mx, 257, String(i), { font: 'body', size: 14, weight: 800, color: '#fff' });
+    }
+  });
+  s.text(84, 282, 'nobody ahead: 0', { font: 'body', size: 12, weight: 800, color: C.teal });
+  s.text(290, 282, '2 + 1 = 3', { font: 'body', size: 14, weight: 800, color: C.teal });
+  s.text(170, 308, 'Coming back: each person adds 1 to the answer', { font: 'body', size: 13, weight: 800, color: C.teal });
+  return s.svg('A line of four people at the registrar\'s window: Ana in front, then Bea, Migs, and you at the back. You ask Migs how many are ahead of him; Migs asks Bea; Bea asks Ana. Ana has nobody ahead, so she answers 0. Bea answers 0 + 1 = 1, Migs answers 2, and you get 2 + 1 = 3.');
+}
+
+/** Cooking adobo, then the phone rings, then a knock: newest task on top, only the top one is done. */
+export function adoboStack() {
+  const s = new Sketch(340, 262, 91);
+  s.text(170, 20, 'Your tasks (newest on top)', { font: 'body', size: 15, weight: 800 });
+  const card = (y, label, status, fill, stroke, icon) => {
+    s.round(36, y, 268, 52, 9, { fill, stroke, sw: 2, rough: 0.6 });
+    icon(68, y + 26);
+    s.text(98, y + 32, label, { font: 'body', size: 15, weight: 800, anchor: 'start' });
+    s.text(292, y + 32, status, { font: 'body', size: 12, weight: 800, color: C.soft, anchor: 'end' });
+  };
+  card(40, 'Answer the door', 'doing now', C.orangeWash, C.orange, (x, y) => { s.rect(x - 11, y - 18, 22, 36, { fill: C.tealWash, sw: 1.6 }); s.circle(x + 5, y + 2, 4, { fill: C.ink, sw: 0.8 }); });
+  card(100, 'Phone call', 'paused', C.butter, C.amber, (x, y) => { s.round(x - 9, y - 17, 18, 34, 4, { fill: C.sky, sw: 1.6 }); s.line(x - 3, y + 11, x + 3, y + 11, { sw: 1.6, single: true }); });
+  card(160, 'Cooking adobo', 'paused', C.butter, C.amber, (x, y) => { s.rect(x - 15, y - 4, 30, 18, { fill: C.soft, sw: 1.6 }); s.ellipse(x, y - 5, 36, 9, { fill: C.soft, sw: 1.6 }); s.path(`M${x - 5} ${y - 12} q-4 -6 0 -10 M${x + 5} ${y - 12} q-4 -6 0 -10`, { sw: 1.4, single: true }); });
+  s.text(170, 238, 'Finish the top task first. Then the one below it', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.text(170, 256, 'continues where you paused it.', { font: 'body', size: 13, weight: 800, color: C.teal });
+  return s.svg('Three task cards stacked, newest on top: Answer the door (doing now), Phone call (paused), Cooking adobo (paused). Finish the top task first; then the one below continues where you paused it.');
+}

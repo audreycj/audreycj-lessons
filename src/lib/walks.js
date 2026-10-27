@@ -218,12 +218,12 @@ export function loopSteps(values) {
  * Before/after pictures: the left picture is the tree BEFORE one line of code runs, the right one is AFTER.
  * The line that runs is printed above the pair, so the arrow between them means "after this line runs".
  */
-const pair = (code, a, aCap, b, bCap, bad = false) =>
+export const pair = (code, a, aCap, b, bCap, bad = false) =>
   `<div class="ba${bad ? ' is-bad' : ''}"><p class="ba-run"><span class="ba-run-k">${bad ? 'The buggy line runs:' : 'This line runs:'}</span> <code>${code}</code></p>` +
   `<div class="ba-pair"><div class="ba-col"><p class="ba-cap">${aCap}</p>${a}</div><span class="ba-arrow" aria-label="after the line runs"><span class="ba-glyph">→</span><span class="ba-arrow-k">after</span></span><div class="ba-col"><p class="ba-cap">${bCap}</p>${b}</div></div></div>`;
 
 /** Add a loose node (connected to nothing) to a tree SVG string, at (x, y). */
-const loose = (svg, x, y, val, tag, mark = 'bad') => svg.replace(/<\/svg>$/, `<g class="t-node m-${mark}"><circle class="body" cx="${x}" cy="${y}" r="17" style="stroke-dasharray:4 3"/><text x="${x}" y="${y}">${val}</text>${tag ? `<text class="t-tag" x="${x}" y="${y - 25}">${tag}</text>` : ''}</g></svg>`);
+export const loose = (svg, x, y, val, tag, mark = 'bad') => svg.replace(/<\/svg>$/, `<g class="t-node m-${mark}"><circle class="body" cx="${x}" cy="${y}" r="17" style="stroke-dasharray:4 3"/><text x="${x}" y="${y}">${val}</text>${tag ? `<text class="t-tag" x="${x}" y="${y - 25}">${tag}</text>` : ''}</g></svg>`);
 
 /** The variable root drawn as a box: empty (null), or with an arrow to a node. lost = a node nobody points to. */
 function rootBox(o = {}) {
@@ -270,4 +270,161 @@ export function insertFigs() {
     svgTree(t1, { marks: { 40: 'cur', 20: 'moved', 10: 'moved', 30: 'moved' }, tags: { 40: 'current' }, label: 'current refers to 40. Its left is NOT empty: it holds 20, with 10 and 30 below.' }), 'before: 40\'s left holds 20',
     `<div class="ba-stack">${svgTree(wrong, { marks: { 25: 'bad' }, label: 'After: 40\'s left is now 25' })}<p class="ba-cap">cut off, lost:</p>${svgTree(buildBst([20, 10, 30]), { marks: { 20: 'skip', 10: 'skip', 30: 'skip' }, label: '20, 10 and 30 are cut off from the tree' })}</div>`, 'after: 25 replaced 20', true);
   return { move, connect, m1, m1fix, m2, m3, startTree: svgTree(buildBst(big), { label: 'The starting BST: 40, 20, 60, 10, 30, 50, 70' }) };
+}
+
+/* ---------------- Recursion lesson: call-stack pictures and walkthroughs ---------------- */
+
+/**
+ * A call stack picture: optional tree on top, then the stack (newest call on top), then the output so far.
+ * frames: [[name, 'run' | 'wait' | 'ret', note], ...], newest first. rows = how many frames to make room for.
+ */
+export function stackPic({ tree = '', frames = [], out, head = 'Call stack (newest on top)', rows = 4 }) {
+  const li = frames.length
+    ? frames.map(([n, st, note]) => `<li class="cs-f is-${st}"><code>${n}</code><span class="cs-note">${note}</span></li>`).join('')
+    : '<li class="cs-empty">(empty: every call has finished)</li>';
+  return `<div class="cs-pic">${tree ? `<div class="cs-tree">${tree}</div>` : ''}<div class="cs"><p class="cs-h">${head}</p><ol class="cs-list" style="--rows:${rows}">${li}</ol></div>` +
+    (out != null ? `<p class="cs-out"><span>Output so far:</span> <span class="mono">${out || '&nbsp;'}</span></p>` : '') + '</div>';
+}
+
+export const countDownCode = String.raw`static void countDown(int n) {
+  if (n == 0) {                  // base case
+    System.out.println("Go!");
+    return;
+  }
+  System.out.print(n + " ");
+  countDown(n - 1);              // calls itself
+}`;
+
+/** countDown(3), one line at a time, with the call stack growing and shrinking. */
+export function countDownSteps() {
+  const cd = (n) => `countDown(${n})`;
+  const paused = (from) => [3, 2, 1].filter((k) => k > from).reverse().map((k) => [cd(k), 'wait', 'paused at line 7']);
+  const pic = (top, note, out, st = 'run') => stackPic({ frames: top == null ? [] : [[cd(top), st, note], ...paused(top)], out });
+  const s = [];
+  s.push({ lines: [1], pic: pic(3, 'running', ''), vars: [['n', '= 3']], say: `Our program runs ${v('countDown(3);')}. Java starts one <b>call</b> of the method, with ${v('n')} = 3. <span class="cw-aside">The box lists every call that has started but not finished, newest on top. It is called the <b>call stack</b> (Part 2).</span>` });
+  s.push({ lines: [2], pic: pic(3, 'running', ''), vars: [['n', '= 3']], say: `Is ${v('n == 0')}? No, ${v('n')} is 3. So Java skips lines 3 to 5.` });
+  s.push({ lines: [6], pic: pic(3, 'running', '3'), vars: [['n', '= 3']], say: `Line 6 prints <b>3</b> and a space.` });
+  let out = '3';
+  for (const n of [3, 2, 1]) {
+    const k = n - 1;
+    s.push({ lines: [7], pic: pic(k, 'running', out), vars: [['n', `= ${k}`]], say: `${v('countDown(n - 1);')} The method <b>calls itself</b> with ${n} − 1 = ${k}. ${v(cd(n))} <b>pauses</b> at line 7, and a new call, ${v(cd(k))}, starts on top with its own ${v('n')} = ${k}.` });
+    if (k > 0) {
+      out += ` ${k}`;
+      s.push({ lines: [2, 6], pic: pic(k, 'running', out), vars: [['n', `= ${k}`]], say: `${v('n')} is ${k}, not 0, so line 6 prints <b>${k}</b>.` });
+    }
+  }
+  s.push({ lines: [2], pic: pic(0, 'running', out), vars: [['n', '= 0']], say: `Is ${v('n == 0')}? <b>Yes!</b> This is the <span class="w-key">base case</span>: the call that does not call itself again.` });
+  out += ' Go!';
+  s.push({ lines: [3], pic: pic(0, 'running', out), vars: [['n', '= 0']], say: `Line 3 prints <b>Go!</b>` });
+  s.push({ lines: [4], pic: pic(0, 'ends here', out, 'ret'), vars: [['n', '= 0']], say: `${v('return;')} ends ${v(cd(0))}, and only that call. It leaves the stack, and ${v(cd(1))} continues after line 7, where it paused.` });
+  s.push({ lines: [8], pic: pic(null, '', out), say: `${v(cd(1))} has nothing left to do: it reaches the closing ${v('}')} and finishes. Then ${v(cd(2))} finishes, then ${v(cd(3))}: newest first. The stack is empty. Output: <b>3 2 1 Go!</b>` });
+  return s;
+}
+
+export const preOrderCode = String.raw`static void preOrder(TreeNode node) {
+  if (node == null) { return; }        // stop
+  System.out.print(node.data + " ");   // N
+  preOrder(node.left);                 // L
+  preOrder(node.right);                // R
+}`;
+
+/** preOrder(root) on the tree 20(10,30): the six-step trace from the module, split into single lines. */
+export function preOrderSteps() {
+  const root = buildBst([20, 10, 30]);
+  const F = layout(root);
+  const p = (x) => `preOrder(${x})`;
+  // fr: frames newest first, as [x, state, note]; printed: values printed so far; spot: an empty slot being called
+  const pic = (fr, printed, spot) => {
+    const marks = {};
+    printed.forEach((x) => (marks[x] = 'path'));
+    fr.forEach(([x, st]) => { if (x !== 'null') marks[x] = st === 'wait' ? 'wait' : 'cur'; });
+    const top = fr[0];
+    const tags = top && top[0] !== 'null' ? { [top[0]]: 'node' } : {};
+    const tree = svgTree(root, { marks, tags, showNil: true, spot, pos: F.pos, minW: Math.max(F.w, 200), minH: F.h, label: 'The tree 20, with 10 on its left and 30 on its right' });
+    return stackPic({ tree, frames: fr.map(([x, st, note]) => [p(x), st, note]), out: printed.join(' '), rows: 3 });
+  };
+  const nd = (x) => [['node', x === 'null' ? '= null' : `→ ${x}`]];
+  return [
+    { lines: [1], pic: pic([[20, 'run', 'running']], []), vars: nd(20), say: `We call ${v('preOrder(root);')}. A new call starts, and its ${v('node')} points to <b>20</b>. <span class="cw-aside">We name this call ${v('preOrder(20)')}: "the call working on 20." You cannot type that in Java, because ${v('preOrder')} needs a node, not a number.</span>` },
+    { lines: [2], pic: pic([[20, 'run', 'running']], []), vars: nd(20), say: `Is ${v('node')} null? No, it points to 20. Keep going.` },
+    { lines: [3], pic: pic([[20, 'run', 'running']], [20]), vars: nd(20), say: `<span class="tk">N</span> Print this node: <b>20</b>.` },
+    { lines: [4], pic: pic([[10, 'run', 'running'], [20, 'wait', 'paused at line 4']], [20]), vars: nd(10), say: `<span class="tk">L</span> ${v('preOrder(node.left);')} starts a <b>new call</b> with 20's left child. ${v(p(20))} pauses at line 4. In the new call, ${v('node')} points to <b>10</b>, so 10 is now N.` },
+    { lines: [2, 3], pic: pic([[10, 'run', 'running'], [20, 'wait', 'paused at line 4']], [20, 10]), vars: nd(10), say: `Like every call, it starts at line 2. 10 is not null, so line 3 prints <b>10</b>.` },
+    { lines: [4], pic: pic([['null', 'run', 'running'], [10, 'wait', 'paused at line 4'], [20, 'wait', 'paused at line 4']], [20, 10], { key: 10, side: 'l' }), vars: nd('null'), say: `${v(p(10))} reaches line 4. 10's left spot is <b>empty</b> (yellow box), so the new call gets ${v('null')}.` },
+    { lines: [2], pic: pic([['null', 'ret', 'line 2: return'], [10, 'wait', 'paused at line 4'], [20, 'wait', 'paused at line 4']], [20, 10], { key: 10, side: 'l' }), vars: nd('null'), say: `${v('node == null')}: the <span class="w-key">base case</span>. ${v('return;')} ends this call right away. Nothing is printed.` },
+    { lines: [5], pic: pic([['null', 'ret', 'line 2: return'], [10, 'wait', 'paused at line 5'], [20, 'wait', 'paused at line 4']], [20, 10], { key: 10, side: 'r' }), vars: nd('null'), say: `${v(p(10))} continues at the next line, line 5. 10's right spot is empty too, so that call also returns at line 2.` },
+    { lines: [6], pic: pic([[20, 'run', 'continues at line 5']], [20, 10]), vars: nd(20), say: `${v(p(10))} reaches ${v('}')} and finishes. Back in ${v(p(20))}: it continues at line 5, and its own ${v('node')} <b>still points to 20</b>.` },
+    { lines: [5], pic: pic([[30, 'run', 'running'], [20, 'wait', 'paused at line 5']], [20, 10]), vars: nd(30), say: `<span class="tk">R</span> ${v('preOrder(node.right);')} starts a new call with 20's right child: <b>30</b>. ${v(p(20))} pauses at line 5.` },
+    { lines: [2, 3], pic: pic([[30, 'run', 'running'], [20, 'wait', 'paused at line 5']], [20, 10, 30]), vars: nd(30), say: `30 is not null, so line 3 prints <b>30</b>.` },
+    { lines: [4, 5], pic: pic([[30, 'run', 'running'], [20, 'wait', 'paused at line 5']], [20, 10, 30]), vars: nd(30), say: `30 is a leaf: its left and right calls both get ${v('null')} and return at line 2 right away, just like at 10.` },
+    { lines: [6], pic: pic([], [20, 10, 30]), say: `${v(p(30))} finishes. Then ${v(p(20))} reaches line 6 and finishes too. The stack is empty. Output: <b>20 10 30</b>, the pre-order.` },
+  ];
+}
+
+export const insertRecCode = String.raw`static TreeNode insertRec(TreeNode node,
+                          int value) {
+  if (node == null) {                          // base case
+    return new TreeNode(value);
+  }
+  if (value < node.data) {
+    node.left = insertRec(node.left, value);   // calls itself
+  } else if (value > node.data) {
+    node.right = insertRec(node.right, value); // calls itself
+  }
+  return node;
+}`;
+
+const START = [40, 20, 60, 10, 30, 50, 70];
+
+/** insertRec(root, 45) on the starting BST: going down, the base case, then coming back up. */
+export function insertRecSteps() {
+  const before = buildBst(START), after = buildBst([...START, 45]);
+  const F = layout(after), W = F.w + 64;
+  const ir = (x) => `insertRec(${x}, 45)`;
+  const pic = (fr, o = {}) => {
+    const marks = {};
+    fr.forEach(([x, st]) => { if (x !== 'null') marks[x] = st === 'wait' ? 'wait' : 'cur'; });
+    if (o.done) marks[45] = 'new';
+    const top = fr[0];
+    const tags = top && top[0] !== 'null' ? { [top[0]]: 'node' } : {};
+    let tree = svgTree(o.done ? after : before, { marks, tags, showNil: true, spot: o.spot, pos: F.pos, minW: W, minH: F.h, label: o.done ? 'The tree with 45 connected as the left child of 50' : 'The starting BST' });
+    if (o.loose) tree = loose(tree, W - 26, F.pos[45].y, 45, 'returned', 'new');
+    return stackPic({ tree, frames: fr.map(([x, st, note]) => [ir(x), st, note]) });
+  };
+  const nd = (x) => [['node', x === 'null' ? '= null' : `→ ${x}`], ['value', '= 45']];
+  const w40 = [40, 'wait', 'paused at line 9'], w60 = [60, 'wait', 'paused at line 7'], w50 = [50, 'wait', 'paused at line 7'];
+  return [
+    { lines: [1, 2], pic: pic([[40, 'run', 'running']]), vars: nd(40), say: `We call ${v('root = insertRec(root, 45);')} The first call works on the root, <b>40</b>. <span class="cw-aside">${v(ir(40))} is our name for "the call working on 40."</span>` },
+    { lines: [3], pic: pic([[40, 'run', 'running']]), vars: nd(40), say: `Is ${v('node')} null? No. Skip line 4.` },
+    { lines: [6, 8], pic: pic([[40, 'run', 'running']]), vars: nd(40), say: `Is 45 &lt; 40? No. Is 45 &gt; 40? <b>Yes</b>: 45 belongs on the <span class="w-right">right</span> side of 40.` },
+    { lines: [9], pic: pic([[60, 'run', 'running'], w40]), vars: nd(60), say: `Line 9 calls ${v('insertRec(node.right, value)')}: a new call on <b>60</b>. ${v(ir(40))} pauses at line 9. It is <b>waiting for an answer</b> to save in ${v('node.right')}.` },
+    { lines: [3, 6], pic: pic([[60, 'run', 'running'], w40]), vars: nd(60), say: `At 60: not null. Is 45 &lt; 60? <b>Yes</b>: go <span class="w-left">left</span>.` },
+    { lines: [7], pic: pic([[50, 'run', 'running'], w60, w40]), vars: nd(50), say: `Line 7 calls on 60's left: <b>50</b>. ${v(ir(60))} pauses at line 7, waiting for an answer to save in ${v('node.left')}.` },
+    { lines: [3, 6], pic: pic([[50, 'run', 'running'], w60, w40]), vars: nd(50), say: `At 50: not null. Is 45 &lt; 50? <b>Yes</b>: go <span class="w-left">left</span> again.` },
+    { lines: [7], pic: pic([['null', 'run', 'running'], w50, w60, w40], { spot: { key: 50, side: 'l' } }), vars: nd('null'), say: `Line 7 calls on 50's left. That spot is <b>empty</b> (yellow box), so the new call gets ${v('null')}. Four calls are on the stack now.` },
+    { lines: [3, 4], pic: pic([['null', 'ret', 'returns new node 45'], w50, w60, w40], { spot: { key: 50, side: 'l' }, loose: true }), vars: nd('null'), say: `${v('node == null')}: the <span class="w-key">base case</span>. Line 4 creates node 45 and <b>returns</b> it. It is not connected to the tree yet (dashed).` },
+    { lines: [7], pic: pic([[50, 'run', 'saves 45 as its left'], w60, w40], { done: true }), vars: nd(50), say: `Back in ${v(ir(50))}, at line 7. The call on the right of ${v('=')} is finished and gave back 45. ${v('node.left = ')} saves it: 50's left is now 45. <b>This connects 45.</b>` },
+    { lines: [11], pic: pic([[50, 'ret', 'returns 50'], w60, w40], { done: true }), vars: nd(50), say: `${v('return node;')} Here ${v('node')} is 50, so this call returns <b>50</b>: the root of its own subtree.` },
+    { lines: [7, 11], pic: pic([[60, 'ret', 'returns 60'], w40], { done: true }), vars: nd(60), say: `${v(ir(60))} continues at line 7: it saves 50 as its left again. 50 was already there, so <b>no change</b>. Line 11 returns <b>60</b>.` },
+    { lines: [9, 11], pic: pic([[40, 'ret', 'returns 40']], { done: true }), vars: nd(40), say: `${v(ir(40))} continues at line 9: it saves 60 as its right again (no change) and returns <b>40</b>. ${v('root =')} saves 40 again, so 45 did <b>not</b> become the root. 45 is a new leaf.` },
+  ];
+}
+
+/** Figures for the recursion lesson: the key step at 50, and the mistake pictures. */
+export function recFigs() {
+  const before = buildBst(START), after = buildBst([...START, 45]);
+  const F = layout(after), W = F.w + 64;
+  const o = (extra) => ({ showNil: true, pos: F.pos, minW: W, minH: F.h, ...extra });
+  const withLoose = (svg, tag, mark) => loose(svg, W - 26, F.pos[45].y, 45, tag, mark);
+  const beforePic = withLoose(svgTree(before, o({ marks: { 50: 'cur' }, tags: { 50: 'node' }, spot: { key: 50, side: 'l' }, label: 'node is 50; its left spot is empty; node 45 was just returned and is not connected yet' })), 'returned', 'new');
+  const key = pair('node.left = insertRec(node.left, value);',
+    beforePic, 'before: the call below returned 45',
+    svgTree(after, o({ marks: { 50: 'cur', 45: 'new' }, tags: { 50: 'node' }, label: '45 is now the left child of 50' })), 'after: 50\'s left is 45');
+  const m3 = pair('insertRec(node.left, value);',
+    beforePic, 'before: the call below returned 45',
+    withLoose(svgTree(before, o({ marks: { 50: 'cur' }, tags: { 50: 'node' }, spot: { key: 50, side: 'l' }, label: '50\'s left is still empty. Node 45 was returned, but nothing saved it, so it is lost.' })), 'lost', 'bad'), 'after: 50\'s left is still empty', true);
+  const small = buildBst([20, 10, 30]);
+  const m1 = svgTree(small, { marks: { 10: 'cur', 20: 'wait' }, showNil: true, spot: { key: 10, side: 'l' }, label: 'The call on 10\'s empty left spot gets null. Without the null check, it tries to read null.data and crashes.' });
+  const m2 = svgTree(before, { marks: { 60: 'bad', 50: 'bad', 70: 'bad' }, label: 'The starting BST with 60, 50, and 70 marked: this right subtree is printed in the wrong order' });
+  return { key, m1, m2, m3 };
 }
