@@ -859,6 +859,7 @@ pre.code > code { display: block; width: max-content; min-width: 100%; }
 .cw-view, .cw-full { display: none; }
 .cw-side.no-stick .cw-view { display: flex; gap: 0.4rem; justify-content: center; }
 .cw-view .btn { min-height: 2.1rem; padding: 0.2em 1em; font-size: 0.9rem; }
-.cw-side.no-stick.show-code .cw-full { display: block; position: relative; height: 45vh; overflow: auto; margin: 0; padding: 0.4rem 0; font-size: 0.84rem; }
-.cw-side.no-stick.show-code .cw-pic { display: none; }
+.cw-steps { position: relative; }
+.cw-side.no-stick.show-code .cw-full { display: block; position: absolute; top: 0; left: 0; right: 0; z-index: 2; overflow: auto; margin: 0; padding: 0.4rem 0; font-size: 0.84rem; }
+.cw-side.no-stick.show-code .cw-pic { visibility: hidden; }
 .cw-side.no-stick ~ .cw-code { display: none; }

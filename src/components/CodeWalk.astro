@@ -63,6 +63,8 @@ const used = new Set(steps.flatMap((s) => s.lines));
     const fullPre = side.querySelector<HTMLElement>('.cw-full')!;
     const full = fullPre.querySelector<HTMLElement>('code')!;
     full.innerHTML = code.querySelector('code')!.innerHTML;
+    // Code view sits exactly over the current picture (same box), so the panel keeps one height in both views.
+    side.querySelector('.cw-steps')!.appendChild(fullPre);
     full.querySelectorAll('[tabindex]').forEach((e) => e.removeAttribute('tabindex'));
     const fullLines = full.querySelectorAll<HTMLElement>('.cw-l');
     full.addEventListener('click', (e) => { const l = (e.target as HTMLElement).closest<HTMLElement>('.cw-l'); if (l && !l.classList.contains('is-off')) pick(Number(l.dataset.n)); });
@@ -80,6 +82,8 @@ const used = new Set(steps.flatMap((s) => s.lines));
       count.textContent = `Step ${i + 1} of ${groups.length}`;
       fullLines.forEach((l) => l.classList.toggle('is-on', groups[i].includes(Number(l.dataset.n))));
       const first = full.querySelector<HTMLElement>('.cw-l.is-on');
+      const pic = panes[i].querySelector<HTMLElement>('.cw-pic');
+      if (pic) fullPre.style.height = `${pic.offsetHeight}px`;
       if (first && side.classList.contains('show-code')) fullPre.scrollTop = Math.max(0, first.offsetTop - fullPre.clientHeight / 3);
       back.disabled = i === 0; reset.disabled = i === 0; next.disabled = i === groups.length - 1;
       next.textContent = i === groups.length - 1 ? 'Done' : 'Next →';
