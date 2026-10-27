@@ -7,6 +7,8 @@ import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { traverse } from '../../lib/tree.js';
 import { rbInsertSteps, buildRb } from '../../lib/rb.js';
+import { schoolLines } from '../../lib/illus.js';
+import { code1, code2, code3, code4, starterFile } from '../../lib/rbjava.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Java snippets: escape, then grey out // comments.
@@ -42,126 +44,17 @@ const practice = [
   return { ...p, notes: summarize(p.values), pre: traverse(r, 'pre'), ino: traverse(r, 'in'), post: traverse(r, 'post') };
 });
 
-const code1 = String.raw`static final boolean RED = true;
-static final boolean BLACK = false;
-
-class RBNode {
-  int data;
-  boolean color;
-  RBNode left, right;
-  RBNode parent;     // NEW: we need to go back up
-
-  RBNode(int value) {
-    data = value;
-    color = RED;     // new nodes are always red
-  }
-}
-
-static RBNode root = null;
-
-// an empty spot (null) counts as black
-static boolean isRed(RBNode node) {
-  return node != null && node.color == RED;
-}`;
-
-const code2 = String.raw`static void insert(int value) {
-  // Step 1: normal BST insert
-  RBNode parent = null;
-  RBNode current = root;
-  while (current != null) {
-    parent = current;
-    if (value < current.data) {
-      current = current.left;
-    } else if (value > current.data) {
-      current = current.right;
-    } else {
-      return;               // duplicate: do nothing
-    }
-  }
-  RBNode x = new RBNode(value);   // red
-  x.parent = parent;
-  if (parent == null) {
-    root = x;
-  } else if (value < parent.data) {
-    parent.left = x;
-  } else {
-    parent.right = x;
-  }
-  fixUp(x);                 // Step 2: fix the colors
-}`;
-
-const code3 = String.raw`static void fixUp(RBNode x) {
-  while (isRed(x.parent)) {       // red-red problem
-    RBNode p = x.parent;
-    RBNode g = p.parent;          // grandparent
-    if (p == g.left) {
-      RBNode u = g.right;         // uncle
-      if (isRed(u)) {             // uncle red: recolor
-        p.color = BLACK;
-        u.color = BLACK;
-        g.color = RED;
-        x = g;                    // check g next
-      } else {                    // uncle black: rotate
-        if (x == p.right) {       // triangle (LR)
-          rotateLeft(p);
-          x = p;
-          p = x.parent;
-        }
-        rotateRight(g);           // line (LL)
-        p.color = BLACK;
-        g.color = RED;
-      }
-    } else {                      // mirror image
-      RBNode u = g.left;
-      if (isRed(u)) {
-        p.color = BLACK;
-        u.color = BLACK;
-        g.color = RED;
-        x = g;
-      } else {
-        if (x == p.left) {        // triangle (RL)
-          rotateRight(p);
-          x = p;
-          p = x.parent;
-        }
-        rotateLeft(g);            // line (RR)
-        p.color = BLACK;
-        g.color = RED;
-      }
-    }
-  }
-  root.color = BLACK;             // rule 2
-}`;
-
-const code4 = String.raw`static void rotateLeft(RBNode z) {
-  RBNode y = z.right;             // y moves up
-  z.right = y.left;               // moved child
-  if (y.left != null) {
-    y.left.parent = z;
-  }
-  y.parent = z.parent;            // y takes z's spot
-  if (z.parent == null) {
-    root = y;
-  } else if (z == z.parent.left) {
-    z.parent.left = y;
-  } else {
-    z.parent.right = y;
-  }
-  y.left = z;                     // z goes down, left
-  z.parent = y;
-}
-// rotateRight is the mirror image:
-// swap every "left" and "right" above.`;
+const starter = starterFile();
 
 const quiz = [
-  { q: 'What color is every newly inserted node (before any fixing)?', opts: ['Black', 'Red', 'The same color as its parent', 'The opposite color of its parent'], a: 1, why: 'New nodes are always <b>red</b>. Adding a red node never changes the black counts (rule 5), so the only possible problem is red-red (rule 4).' },
+  { q: 'What color is every newly inserted node (before any fixing)?', opts: ['Black', 'Red', 'The same color as its parent', 'The opposite color of its parent'], a: 1, why: 'New nodes are always <b>red</b>. Adding a red node never changes the black counts (rule 5), so the only possible problem is red-red (rule 4), or a red root if the tree was empty.' },
   { q: 'Which of these is <b>not</b> a red-black tree rule?', opts: ['The root is black', 'A red node cannot have a red child', 'Every path from a node down to a NIL leaf has the same number of black nodes', 'Red and black nodes must alternate on every level'], a: 3, why: 'Colors do not have to alternate. Two black nodes in a row are fine; even an all-black tree is valid if its black counts match. Only <b>two reds in a row</b> are forbidden.' },
   { q: 'You insert a node. Its parent is red and its <b>uncle is red</b>. What do you do?', opts: ['Rotate at the grandparent', 'Recolor: parent and uncle become black, grandparent becomes red', 'Delete the new node', 'Nothing; this is allowed'], a: 1, why: 'Red uncle → <b>recolor only</b>, no rotation. Then check the grandparent, because it just turned red and may now clash with its own parent.' },
   { q: 'Parent is red, uncle is black (or NIL), and the new node forms a <b>straight line</b> with its parent and grandparent (left-left). What is the fix?', opts: ['Recolor only', 'Rotate left at the parent', 'Rotate right at the grandparent, then swap the colors of parent and grandparent', 'Two rotations'], a: 2, why: 'A line (LL) gets one <b>right</b> rotation at the grandparent, just like AVL. Then the parent (now on top) becomes black and the old grandparent becomes red.' },
   { q: 'Insert 10, 30, 20 into an empty red-black tree. Which shape appears when 20 is inserted?', opts: ['Line (RR)', 'Triangle (RL)', 'Triangle (LR)', 'No problem appears'], a: 1, why: 'From 10 the path goes right (30), then left (20): a <b>triangle</b>, RL. The uncle is NIL (black), so: right rotation at 30, then left rotation at 10, then swap colors. Result: 20 black on top, 10 and 30 red.' },
   { q: 'An empty child (NIL) counts as what color?', opts: ['Red', 'Black', 'No color; it is ignored', 'The same color as its sibling'], a: 1, why: 'Every NIL leaf is <b>black</b> (rule 3). That is why an empty uncle means "uncle is black → rotate".' },
   { q: 'After recoloring, the root has become red. What do you do?', opts: ['Rotate at the root', 'Color the root black', 'Leave it red', 'Start over'], a: 1, why: 'Rule 2: the root is always black. Turning the root black never breaks any other rule (it adds one black to every path equally).' },
-  { q: 'Compared with an AVL tree, a red-black tree is:', opts: ['More strictly balanced', 'Less strictly balanced, but usually needs fewer rotations', 'Not a binary search tree', 'Always taller than a plain BST'], a: 1, why: 'AVL keeps heights within 1, so it is shorter. Red-black only promises the longest path is at most twice the shortest, so it rotates less often. Both are BSTs.' },
+  { q: 'Compared with an AVL tree, a red-black tree is:', opts: ['More strictly balanced', 'Less strictly balanced, but usually needs fewer rotations', 'Not a binary search tree', 'Always taller than a plain BST'], a: 1, why: 'AVL keeps heights within 1, so it is usually shorter. Red-black only promises the longest path is at most twice the shortest, so it rotates less often. Both are BSTs.' },
 ];
 ---
 <Base title="Red-Black Trees · ITC 120" description="Red-black trees in plain English: the five rules, recoloring, rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
@@ -171,16 +64,18 @@ const quiz = [
     <h1>Red-Black Trees</h1>
     <p class="lede">Another self-balancing BST. Instead of measuring heights, it paints each node red or black and follows a few color rules.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>learn the <b>five rules</b> of a red-black tree and check if a tree follows them;</li>
-        <li>see why the rules keep the tree from leaning too much;</li>
-        <li>fix an insertion using the <b>uncle</b>: recolor or rotate;</li>
-        <li>insert a list of values into a red-black tree <b>by hand</b>;</li>
-        <li>compare red-black trees with AVL trees, and read the Java code.</li>
+        <li>state the <b>five rules</b>, and say whether a colored tree follows them (and which rule it breaks);</li>
+        <li>explain why the rules keep the longest path at most twice as long as the shortest;</li>
+        <li>fix a red-red problem after an insertion: check the <b>uncle</b>, then recolor or rotate (line or triangle);</li>
+        <li>insert a list of values into a red-black tree <b>by hand</b>, showing every fix;</li>
+        <li>match each part of the Java insertion code to a step of the procedure;</li>
+        <li>write the <code>rotateRight</code> method for the given code and check it with the built-in tests.</li>
       </ol>
     </div>
-    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/avl-trees/'}>AVL trees lesson</a> (especially rotations and the LL, RR, LR, RL shapes), scratch paper, and a pen. A red and a black pen help a lot!</p>
+    <p class="small"><b>Scope:</b> this lesson covers <b>insertion</b> only. Deleting from a red-black tree uses a different, longer fix with more cases, and it is not covered here.</p>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/avl-trees/'}>AVL trees lesson</a> (especially rotations and the LL, RR, LR, RL shapes), scratch paper, and a pen (a red and a black pen help a lot). For Part 8: a phone or computer with internet.</p>
   </header>
 
   <!-- 1 -->
@@ -202,12 +97,14 @@ const quiz = [
 
       <div class="sticky">
         <p class="note-label">Think of lining up</p>
-        <p>Imagine a school rule for lining up: <b>no two "red-shirt" students may stand next to each other</b>, and <b>every line must have the same number of "black-shirt" students</b>. With those two rules, no line can get much longer than the others: the longest a line can be is black, red, black, red... and that is at most twice the shortest line (all black).</p>
+        <p>Imagine a school rule for lining up: <b>the first student in every line wears black</b>, <b>no two "red-shirt" students may stand next to each other</b>, and <b>every line must have the same number of "black-shirt" students</b>. With those rules, no line can get much longer than the others. The shortest a line can be is all black. The longest goes black, red, black, red..., with at most one red after each black, so it is at most <b>twice</b> as long.</p>
       </div>
+
+      <figure class="fig illus-fig illus"><Fragment set:html={schoolLines()} /><figcaption>Both allowed lines have 3 black shirts. The longest line can add only one red after each black, so it has at most 6 students: twice the shortest. In a red-black tree, each line is a path from the root down, and the shirts are the node colors (the black first student is the black root).</figcaption></figure>
 
       <div class="remember">
         <p class="note-label">Where you see this in IT</p>
-        <p>Java's built-in <code>TreeMap</code> and <code>TreeSet</code> classes are red-black trees. You will use them in the Sets and Maps lessons. Every time you add a key, Java does the recoloring and rotations from this lesson for you.</p>
+        <p>Java's built-in <code>TreeMap</code> class is a red-black tree, and <code>TreeSet</code> is built on a <code>TreeMap</code>. You will use them in the Sets and Maps lessons. Every time you add a key, Java does the recoloring and rotations from this lesson for you.</p>
       </div>
     </div>
   </section>
@@ -223,10 +120,18 @@ const quiz = [
       <ol class="rules">
         <li><b>Color rule.</b> Every node is either red or black.</li>
         <li><b>Root rule.</b> The root is black.</li>
-        <li><b>NIL rule.</b> Every empty spot (a <code>null</code> child, called a <b>NIL leaf</b>) counts as black.</li>
+        <li><b>NIL rule.</b> Every empty spot (a <code>null</code> child, called a <b>NIL leaf</b>) counts as black. See "What is NIL?" below.</li>
         <li><b>Red rule.</b> A red node cannot have a red child. <span class="hl">No two reds in a row.</span></li>
         <li><b>Black rule.</b> From any node, every path down to a NIL leaf passes through the <span class="hl">same number of black nodes</span>.</li>
       </ol>
+
+      <div class="def">
+        <p class="note-label">What is NIL?</p>
+        <p><b>NIL</b> means "nothing here." It is an <b>empty child spot</b>: a place where a child could be, but there is none. In Java, it is a <code>null</code> link, like <code>node.left == null</code>.</p>
+        <p>Every node has two child spots, so the Part 1 tree, with 7 nodes, has 14 spots. Real nodes fill 6 of them, so 8 are NIL. You will see all 8 drawn as small black boxes in the picture below.</p>
+        <p>Rule 3 treats every NIL spot as a tiny <b>black</b> leaf for two reasons. First, every path down then ends at the same kind of thing, so we can count black nodes the same way on every path (rule 5). Second, when a node's uncle is missing, the uncle counts as black (you will need this in Part 3).</p>
+        <p class="small"><b>Careful with the word "leaf":</b> in earlier lessons, a leaf is a real node with no children, like 4, 20, and 28 here. A <b>NIL leaf</b> is one of the empty spots below a node. In the red-black rules, "leaf" always means NIL leaf.</p>
+      </div>
 
       <div class="sub">
         <h3>Seeing rule 5</h3>
@@ -281,7 +186,7 @@ const quiz = [
     </div>
     <div class="flow">
       <p>Every insertion starts the same way: insert the value like a normal BST, and <b>color it red</b>.</p>
-      <p>Why red? A red node does not change any black count, so rule 5 stays safe. The only rule that can break is <b>rule 4</b>: if the new node's parent is also red, we have a <b>red-red problem</b>.</p>
+      <p>Why red? A red node does not change any black count, so rule 5 stays safe. The only rule that can break is <b>rule 4</b>: if the new node's parent is also red, we have a <b>red-red problem</b>. (One exception: in an empty tree, the new node is the root, so just color it black for rule 2.)</p>
 
       <div class="sub">
         <h3>Meet the family</h3>
@@ -315,7 +220,7 @@ const quiz = [
         <div class="remember">
           <p class="note-label">How to remember</p>
           <p><b>Red uncle → recolor. Black uncle → rotate.</b></p>
-          <p>After rotating, the node on top becomes <b>black</b> and its two children are <b>red</b>. After a rotation, you are done.</p>
+          <p>After rotating, the node on top becomes <b>black</b> and its two children are <b>red</b>. In insertion, after a rotation, you are done.</p>
         </div>
       </div>
 
@@ -358,7 +263,7 @@ const quiz = [
         <li>Finally, make sure the <b>root is black</b>.</li>
       </ol>
 
-      <AvlLab id="lab-rb-full" kind="rb" cap="Worked example" hint="This list shows every situation, including a recolor that moves the problem up the tree (watch 60). Turn on NIL leaves to see why an empty uncle counts as black. Then try your own numbers." custom presets={[
+      <AvlLab id="lab-rb-full" kind="rb" cap="Worked example" hint="This list shows all three situations from the table, with both shapes (a triangle at 25 and a line at 60), including a recolor that moves the problem up the tree (watch 60). Turn on NIL leaves to see why an empty uncle counts as black. Then try your own numbers." custom presets={[
         { label: 'Worked example', values: [5, 45, 25, 10, 35, 75, 70, 90, 60] },
       ]} />
 
@@ -436,7 +341,7 @@ const quiz = [
           <TreeFig values={[1, 2, 3, 4, 5, 6, 7, 8]} mode="rb" label="Red-black tree after inserting 1 to 8" />
         </figure>
       </div>
-      <p>Same input, both balanced. They happen to have the same shape here, but that is not always true: for other inputs the red-black tree may be one level taller.</p>
+      <p>Same input, both balanced. They happen to have the same shape here, but that is not always true: for other inputs the red-black tree can be a little taller.</p>
     </div>
   </section>
 
@@ -452,6 +357,7 @@ const quiz = [
       <div class="sub">
         <h3>1. The node and a color helper</h3>
         <pre class="code"><code set:html={hi(code1)} /></pre>
+        <p>All the pieces in this part go inside one class (in Part 8 it is called <code>Main</code>). <code>RBNode</code> is a <code>static</code> class so that the <code>static</code> methods can make nodes with <code>new RBNode(value)</code>. Without <code>static</code>, Java stops with "non-static variable this cannot be referenced from a static context".</p>
       </div>
       <div class="sub">
         <h3>2. Insert like a BST, then fix</h3>
@@ -471,9 +377,109 @@ const quiz = [
   </section>
 
   <!-- 8 -->
+  <section class="chapter wrap" id="task">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Your coding task</p>
+      <h2>Write rotateRight and test it</h2>
+    </div>
+    <div class="flow">
+      <p>Part 7 showed the whole insertion code except one method: <code>rotateRight</code>. Your task is to write it. Everything else, including the tests, is given to you in one file.</p>
+      <p>Why this method? Every line fix (LL) and both triangle fixes (LR and RL) use it, so the tests can only pass when it is right. It is also the part that is new compared with AVL: a rotation must keep every <code>parent</code> link correct, and the tests check every link.</p>
+
+      <div class="sub">
+        <h3>1. Prepare on paper</h3>
+        <p>Do these three things on paper first. They make the code much easier to write.</p>
+        <ol class="procedure">
+          <li>Insert 30, 20, 10. Before any fix, the tree is a line: 30, then 20 as its left child, then 10 as 20's left child. Draw it, then draw it again after <b>rotate right at 30</b>.</li>
+          <li>Go through <code>rotateLeft</code> in Part 7 line by line, and write the mirror of each line: swap every <code>left</code> and <code>right</code>.</li>
+          <li>Trace your lines on your drawing. At the end, check every node: does its <code>parent</code> point to the node just above it? Does <code>root</code> point to the top node?</li>
+        </ol>
+      </div>
+
+      <div class="sub">
+        <h3>2. Run the starter file</h3>
+        <p>Next, run the file once without changing it:</p>
+        <ol class="procedure">
+          <li>Open any free online Java compiler, for example Programiz or OneCompiler. It works in a phone browser.</li>
+          <li>Tap <b>Copy the whole file</b>, paste it into the compiler (replace the code already there), and tap <b>Run</b>. The class is called <code>Main</code>, as these sites expect.</li>
+          <li>You should see <b>2 of 8 tests passed</b>. The other tests fail with "rotateRight is not written yet". That is expected.</li>
+        </ol>
+        <div class="btn-row">
+          <button type="button" class="btn primary" id="rb-copy">Copy the whole file</button>
+          <span class="copy-out small" id="rb-copy-out" aria-live="polite"></span>
+        </div>
+        <details class="reveal">
+          <summary>Show the starter file ({starter.split('\n').length} lines)</summary>
+          <pre class="code"><code id="rb-starter" set:html={hi(starter)} /></pre>
+        </details>
+      </div>
+
+      <div class="sub">
+        <h3>3. Write rotateRight and test it</h3>
+        <p>Now write the method:</p>
+        <ol class="procedure">
+          <li>Find <code>YOUR TASK</code> in the file. Delete the <code>throw</code> statement (both of its lines), then type your method.</li>
+          <li>Tap Run. Fix and run again until you see <b>8 of 8 tests passed</b>.</li>
+          <li>Then change the numbers in the last line of <code>main</code> to one of the Part 5 problems, and compare the printed tree with your paper answer.</li>
+        </ol>
+        <p>The tests print a tree as text: <code>20B(10R,30R)</code> means 20 is black, with 10 (red) on its left and 30 (red) on its right; a <code>-</code> is an empty spot. This table explains each kind of message:</p>
+        <table class="tbl">
+          <thead><tr><th>Message</th><th>What it means</th></tr></thead>
+          <tbody>
+            <tr><td><code>PASS</code></td><td>The tree is exactly right, and every rule and every <code>parent</code> link was correct after each insert.</td></tr>
+            <tr><td><code>wrong tree</code></td><td>The shape or the colors are wrong. Compare the <code>expected</code> and <code>got</code> lines.</td></tr>
+            <tr><td><code>wrong parent link at N</code></td><td>N's <code>parent</code> points to the wrong node. Check every line that sets a <code>.parent</code>.</td></tr>
+            <tr><td><code>NullPointerException</code></td><td>The code followed an empty (null) link. Often <code>root</code> or a parent's child link was not updated.</td></tr>
+            <tr><td><code>links form a loop</code> or <code>still running</code></td><td>Some node points back up to a node above it. Check which child (left or right) each line sets.</td></tr>
+          </tbody>
+        </table>
+        <div class="trap">
+          <p class="note-label">Don't stop at 7 of 8</p>
+          <p>The first seven tests use small trees. Some mistakes only show up in bigger trees, when the node that moves up has a child that changes parent. That is what the 300 random lists are for.</p>
+        </div>
+      </div>
+
+      <div class="plain">
+        <p class="note-label">No phone or data right now?</p>
+        <p>Do step 1, write your method on paper, and trace it on this tree: rotate right at 50. Here 30 moves up, and 40 changes parent.</p>
+        <TreeFig spec="50(30(20,40),60)" label="Practice tree for tracing rotate right at 50: 50 on top, 30 and 60 below it, 20 and 40 under 30" />
+        <p>This is good preparation, but it is only a <b>temporary fallback</b>: a paper trace shows you understand the steps; it does not show that your code compiles and passes the tests. Run it as soon as you can, for example in a campus computer lab. Your teacher will tell you how to submit this task.</p>
+      </div>
+
+      <div class="remember">
+        <p class="note-label">What this task covers, and what it doesn't</p>
+        <p>You write one important method and test it inside a full, working insertion. You do <b>not</b> write the whole insertion (<code>insert</code> and <code>fixUp</code>) from scratch, and deletion is not part of this lesson.</p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var b = document.getElementById('rb-copy'), out = document.getElementById('rb-copy-out');
+      var code = document.getElementById('rb-starter');
+      if (!b || !code) return;
+      function said(t) { out.textContent = t; }
+      function fallback(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        said(ok ? 'Copied! Now paste it into the compiler.' : 'Could not copy. Open "Show the starter file" and copy it by hand.');
+      }
+      b.addEventListener('click', function () {
+        var text = code.textContent;
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(function () { said('Copied! Now paste it into the compiler.'); }, function () { fallback(text); });
+        } else fallback(text);
+      });
+    })();
+  </script>
+
+  <!-- 9 -->
   <section class="chapter wrap" id="check">
     <div class="chapter-head">
-      <p class="chapter-num">Part 8 · Check yourself</p>
+      <p class="chapter-num">Part 9 · Check yourself</p>
       <h2>Self-check</h2>
     </div>
     <div class="flow">
@@ -485,9 +491,10 @@ const quiz = [
         <ol>
           <li>A red-black tree is a BST where every node is red or black.</li>
           <li>Root is black. NIL leaves are black. No two reds in a row. Same number of blacks on every path down.</li>
-          <li>New nodes are red. The only possible problem is red-red.</li>
+          <li>New nodes are red. The only possible problem is red-red (or a red root in an empty tree).</li>
           <li><b>Red uncle → recolor</b> (and check higher). <b>Black uncle → rotate</b> (line: 1, triangle: 2) and swap colors.</li>
           <li>The root always ends up black.</li>
+          <li>In code, a rotation must also fix every <code>parent</code> link.</li>
           <li>Red-black trees are a little less balanced than AVL trees but rotate less often. Java's <code>TreeMap</code> uses one.</li>
         </ol>
       </div>

@@ -621,7 +621,7 @@ export function pilaLine() {
   s.text(150, 16, 'Going forward: each person asks the one ahead', { font: 'body', size: 13, weight: 800, color: C.orange });
   s.rect(8, 92, 36, 96, { fill: C.sky, sw: 1.6 });
   s.line(8, 140, 44, 140, { sw: 1.2, single: true });
-  s.text(30, 140, 'REGISTRAR', { font: 'body', size: 10, weight: 800, rotate: -90 });
+  s.text(4, 86, 'Registrar', { font: 'body', size: 11, weight: 800, anchor: 'start' });
   sayBubble(s, 112, 28, 222, ['How many are in front of you?'], shirts[3], edges[3], [293, 104], 302, 13);
   xs.forEach((x, i) => {
     s.path(`M${x - 21} 190 Q${x - 19} 154 ${x} 151 Q${x + 19} 154 ${x + 21} 190 Z`, { fill: shirts[i], stroke: edges[i], sw: 1.8 });
@@ -721,4 +721,30 @@ export function leaderLeaves() {
   card(60, y + 116, 'Team A', C.butter); card(140, y + 116, 'Team B', C.butter);
   note(186, y + 50, ['Rosa leaves. Two teams', 'are under her, but', 'there is one post.', 'Keep the post, and', 'someone else fills it.']);
   return s.svg('When a purok leader leaves, three things can happen. 1: Liza leaves and no one is under her, so we just remove her card. 2: Ben leaves and Joy, the only member under him, moves up into his place. 3: Rosa leaves and two teams are under her, but there is only one post, so we keep the post and someone else fills it.');
+}
+
+/** Red-black "lining up" analogy: shortest line (all black), longest line (black, red, ...), and a forbidden red-red pair. */
+export function schoolLines() {
+  const s = new Sketch(340, 318, 47);
+  const rows = [
+    { title: 'Shortest line: all black, 3 students', shirts: 'BBB', color: C.ink },
+    { title: 'Longest line: 6 students = 2 × 3', shirts: 'BRBRBR', color: C.ink },
+    { title: 'Not allowed: two reds side by side', shirts: 'BRRB', color: C.red },
+  ];
+  rows.forEach((row, r) => {
+    const top = 6 + r * 104, base = top + 92;
+    s.text(170, top + 14, row.title, { font: 'body', size: 13, weight: 800, color: row.color });
+    s.text(19, base - 30, 'front', { font: 'body', size: 10, weight: 800, color: C.soft });
+    [...row.shirts].forEach((c, i) => {
+      const x = 56 + i * 46, k = 11 / 16, cy = base - 44;
+      const fill = c === 'B' ? C.ink : C.red;
+      s.path(`M${x - 16} ${base} Q${x - 15} ${base - 27} ${x} ${base - 31} Q${x + 15} ${base - 27} ${x + 16} ${base} Z`, { fill, stroke: fill, sw: 1.6 });
+      s.text(x, base - 9, c, { font: 'body', size: 12, weight: 800, color: '#fff' });
+      face(s, x, cy, 11, '#e3b38c', 'happy');
+      s.path(`M${x - 16 * k} ${cy - 2 * k} Q${x - 15 * k} ${cy - 22 * k} ${x} ${cy - 20 * k} Q${x + 15 * k} ${cy - 22 * k} ${x + 16 * k} ${cy - 2 * k} Q${x + 8 * k} ${cy - 14 * k} ${x} ${cy - 13 * k} Q${x - 8 * k} ${cy - 14 * k} ${x - 16 * k} ${cy - 2 * k} Z`, { fill: C.ink, sw: 1, rough: 0.4 });
+    });
+    if (r === 2) s.ellipse(56 + 1.5 * 46, base - 30, 110, 74, { stroke: C.red, sw: 1.4, single: true });
+  });
+  // Rough.js writes ~15 decimals per number; 1 decimal looks the same and cuts the size a lot (phones on mobile data).
+  return s.svg('Three lines of students. Shortest line: 3 students, all in black shirts. Longest line: 6 students, alternating black, red, black, red, black, red, still with 3 black shirts, so it is 2 times as long. Not allowed: a line where two red-shirt students stand side by side, circled in red. Every line starts with a black shirt at the front.').replace(/(\d+\.\d)\d+/g, '$1');
 }
