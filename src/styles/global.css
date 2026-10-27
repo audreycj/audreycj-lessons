@@ -863,3 +863,7 @@ pre.code > code { display: block; width: max-content; min-width: 100%; }
 .cw-side.no-stick.show-code .cw-full { display: block; position: absolute; top: 0; left: 0; right: 0; z-index: 2; overflow: auto; margin: 0; padding: 0.4rem 0; font-size: 0.84rem; }
 .cw-side.no-stick.show-code .cw-pic { visibility: hidden; }
 .cw-side.no-stick ~ .cw-code { display: none; }
+
+/* Sidebar: lesson name at the top (Oct 28) */
+.toc-panel .toc-lesson { font-family: var(--font-display); font-weight: 600; font-size: var(--step-0); line-height: 1.25; color: var(--teal-ink); padding-bottom: 0.65rem; margin: 0 0 0.75rem; border-bottom: 1px solid var(--line); }
+.toc-panel .toc-code { display: block; font-family: var(--font-body); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.15rem; }

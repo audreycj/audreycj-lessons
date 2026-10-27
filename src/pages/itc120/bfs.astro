@@ -3,9 +3,11 @@ import Base from '../../layouts/Base.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import TraverseLab from '../../components/TraverseLab.astro';
 import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
 import { course } from '../../data/itc120.js';
 import { city, oneWay, islands } from '../../data/graphs.js';
 import { bfsSteps } from '../../lib/graph.js';
+import { treeVsGraph, bfsWaves, newsWaves, bfsInIT, canteenLine, queueSnapshots } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -29,6 +31,7 @@ const p2 = {
   nodes: [{ id: 'A', x: 60, y: 60 }, { id: 'B', x: 190, y: 45 }, { id: 'C', x: 120, y: 170 }, { id: 'D', x: 300, y: 110 }, { id: 'E', x: 250, y: 225 }, { id: 'F', x: 40, y: 230 }],
   edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'B'], ['D', 'E'], ['E', 'C'], ['F', 'A']].map(([a, b]) => ({ a, b })),
 };
+const wavesSvg = bfsWaves();
 const r1 = bfsSteps(p1, 'D');
 const r2 = bfsSteps(p2, 'A');
 const lv = (run) => {
@@ -122,18 +125,31 @@ const quiz = [
         <p>A <b>graph traversal</b> visits every vertex that can be reached from a starting vertex, each one <b>exactly once</b>. There are two main types: breadth-first search (this lesson) and depth-first search (next lesson).</p>
       </div>
       <p>For trees, you learned pre-order, in-order, and post-order. Graphs need something new: they have no root and can have <b>cycles</b>, so if we are not careful, we could go around a cycle forever. The fix is to remember which vertices we have already <b>seen</b>.</p>
+      <figure class="fig illus-fig"><Fragment set:html={treeVsGraph()} /><figcaption>A tree has one root and no cycles, so every path down ends. A graph can have a cycle: A, B, C, D, and back to A. Without a "seen" list, a traversal could go around forever. With one, it skips A the second time, so each vertex is visited once.</figcaption></figure>
       <div class="def">
         <p class="note-label">Breadth-first search (BFS)</p>
         <p><b>Breadth-first search</b> visits the start vertex first, then all vertices 1 edge away, then all vertices 2 edges away, and so on. It explores the graph <b>level by level</b>, using a <b>queue</b>.</p>
       </div>
+      <div class="def">
+        <p class="note-label">Level</p>
+        <p>A vertex's <b>level</b> is how many edges away it is from the start. The start itself is <b>level 0</b> (0 edges away). Its neighbors are level 1, their new neighbors are level 2, and so on. In this course, the start is always level 0.</p>
+      </div>
+      <div class="remember">
+        <p class="note-label">Good to know: some books start at 1</p>
+        <p>Some textbooks count levels from <b>1</b> instead, mostly for trees: the root is level 1, its children are level 2, and so on. It is the same picture; only the numbers move up by one. If a quiz or a book from somewhere else says "level", check which way it counts. "Number of edges from the start" (also called the <b>distance</b>) always starts at 0, so it never changes.</p>
+      </div>
+      <figure class="fig illus-fig"><Fragment set:html={wavesSvg} /><figcaption>The graph you will use in Part 3, sorted into levels from A. A level is how many edges away a vertex is from the start. BFS visits all of level 1 before any of level 2, and the queue holds the vertices in exactly that order.</figcaption></figure>
       <div class="sticky">
         <p class="note-label">Think of news spreading in a barangay</p>
         <p>You tell the news to your next-door neighbors first. Then each of them tells <i>their</i> neighbors. Then those people tell theirs. The news spreads outward in waves: everyone 1 house away hears it before anyone 2 houses away. That is BFS.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={newsWaves()} /><figcaption>Each number is the house's level. You start with the news, so you are level 0. Orange arrows: you tell your next-door neighbors (level 1, the first wave). Amber arrows: one of them tells its own neighbors (level 2). The corner houses hear it last (level 3). Here the houses are the vertices, and "next door" is an edge.</figcaption></figure>
       <div class="remember">
         <p class="note-label">Where you see BFS in IT</p>
-        <p><b>"People you may know"</b> suggestions often come from level 2: friends of your friends. In <b>networks</b>, BFS can find the route with the fewest hops between two computers. Web crawlers that collect pages for search engines can also explore links level by level.</p>
+        <p><b>"People you may know"</b> suggestions often come from level 2: friends of your friends. In <b>networks</b>, BFS can find the route with the fewest hops between two computers.</p>
+        <p>A <b>web crawler</b> is a program that search engines use to find web pages by following links. It can go level by level, like BFS: first the pages 1 link away, then 2 links away.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={bfsInIT()} /><figcaption>Three places BFS shows up. Friend suggestions come from level 2 (people, with friendships as edges). Network routes count hops (devices, with links as edges). A crawler collects pages level by level (pages, with links as edges).</figcaption></figure>
     </div>
   </section>
 
@@ -144,8 +160,10 @@ const quiz = [
       <h2>Why a queue?</h2>
     </div>
     <div class="flow">
-      <p>Recall the queue from the linear data structures lessons: you <b>enqueue</b> at the rear and <b>dequeue</b> from the front, like a line at the cashier. First in, first out.</p>
+      <p>Recall the queue from the linear data structures lessons: you <b>enqueue</b> at the rear and <b>dequeue</b> from the front, like a line at the canteen. First in, first out.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={canteenLine()} /><figcaption>A canteen line is a queue. Student 1 came first, so student 1 is served first and leaves from the front (<b>dequeue</b>). A new student joins at the rear (<b>enqueue</b>), so the new student waits for students 1 to 4.</figcaption></figure>
       <p>BFS puts every newly found vertex at the <b>rear</b> of the queue. Since all level-1 vertices are found before any level-2 vertex, they are also in line first. So the queue automatically keeps the waves in order: <span class="hl">closer vertices are always visited before farther ones</span>.</p>
+      <figure class="fig illus-fig"><Fragment set:html={queueSnapshots()} /><figcaption>BFS from A on <Peek label="the wave picture's graph" title="From Part 1" html={wavesSvg} />. Visiting A added B and D. Then visiting B added C and E at the rear. D is still in front of them, because it joined first. So the closer vertex D (level 1) is visited before the farther ones C and E (level 2).</figcaption></figure>
       <div class="sub">
         <h3>The BFS procedure</h3>
         <p>Every BFS follows these steps:</p>
@@ -326,7 +344,7 @@ const quiz = [
       <div class="remember">
         <p class="note-label">Key takeaways</p>
         <ol>
-          <li>BFS visits a graph level by level, starting from one vertex.</li>
+          <li>BFS visits a graph level by level, starting from one vertex. The start is level 0.</li>
           <li>It uses a <b>queue</b>: dequeue the front, enqueue unseen neighbors at the rear.</li>
           <li>Mark vertices as seen when you enqueue them, so nothing is visited twice.</li>
           <li>In an unweighted graph, BFS levels give the fewest edges from the start, and the "found by" table gives a shortest path.</li>

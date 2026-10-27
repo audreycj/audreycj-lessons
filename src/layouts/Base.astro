@@ -39,7 +39,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <p>Prepared by Audrey Carmel Jay J. Nanual, Instructor, BSIT program, Davao Oriental State University.</p>
     <p>For self-study. The practice questions here are not graded: use them to check yourself, as many times as you want.</p>
   </footer>
-  {toc && <Toc course={course} />}
+  {toc && <Toc course={course} lesson={title.split(' · ')[0]} />}
   <script>
     import { growOnly } from '../lib/stable.js';
     document.querySelectorAll<HTMLElement>('[data-grow]').forEach(growOnly);

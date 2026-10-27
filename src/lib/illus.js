@@ -926,3 +926,247 @@ export function graphsInIT() {
   s.text(170, 498, 'Same idea every time: things + connections', { size: 16, color: C.teal });
   return s.svg('Four graphs from IT. Computer network: a laptop, phone, printer, and tablet each linked to one Wi-Fi router. Social media: You are friends with Ana and Migs; both are friends with Bea, so the app asks "You may know Bea?". Maps and delivery: Home, School, Market, and Beach joined by roads marked with travel minutes 10, 6, 7, and 4. The web: the Home page links to News and Enroll, and News links to Enroll; links are one-way arrows.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+/* ---------------- BFS lesson, Part 1 (chat 10) ---------------- */
+
+/** Clean: a tree (one root, no cycles) vs a graph with a cycle, and the "seen" fix. */
+export function treeVsGraph() {
+  const T = C.teal, O = C.orange, R = C.red, ink = C.ink, soft = C.soft;
+  const lab = (x, y, t, c = ink, a = 'middle', sz = 13, w = 700, f = 'Nunito, sans-serif') => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='${f}' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
+  const node = (x, y, t, fill = '#fff', stroke = ink) => `<circle cx="${x}" cy="${y}" r="14" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>` + lab(x, y + 5, t, ink, 'middle', 14, 800);
+  const edge = (a, b, c = ink, extra = '') => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="1.8"${extra}/>`;
+  const card = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>`;
+  const head = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 1L9 5L0 9z" fill="${c}"/></marker>`;
+  let s = `<svg class="objbox" viewBox="0 0 340 456" role="img" aria-label="A tree has one root and no cycles, so a traversal always ends. A graph has no root and can have a cycle: A, B, C, D, then back to A, again and again forever. The fix: keep a seen list. At D, the next vertex is A, but A is already seen, so it is skipped and the traversal ends."><defs>${head('tgO', O)}</defs>`;
+
+  // Tree card
+  s += card(4, 4, 164, 250) + lab(18, 30, 'Tree', T, 'start', 15, 800);
+  const P = { A: [86, 70], B: [50, 122], C: [122, 122], D: [30, 174], E: [70, 174], F: [142, 174] };
+  for (const [a, b] of [['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F']]) s += edge(P[a], P[b]);
+  for (const [k, [x, y]] of Object.entries(P)) s += node(x, y, k, k === 'A' ? C.butter : '#fff');
+  s += lab(106, 58, 'root', O, 'start', 12, 800);
+  s += lab(86, 220, 'one root: start here', soft, 'middle', 12) + lab(86, 238, 'no cycles: paths end', soft, 'middle', 12);
+
+  // Graph card
+  s += card(172, 4, 164, 250) + lab(186, 30, 'Graph', O, 'start', 15, 800);
+  const G = { A: [214, 72], B: [294, 72], C: [294, 152], D: [214, 152] };
+  for (const [a, b] of [['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A']]) s += edge(G[a], G[b]);
+  for (const [k, [x, y]] of Object.entries(G)) s += node(x, y, k);
+  // circling arrow in the middle of the cycle
+  s += `<path d="M254 88 A 24 24 0 1 1 231 118" fill="none" stroke="${O}" stroke-width="2.2" marker-end="url(#tgO)"/>`;
+  s += lab(254, 194, 'A, B, C, D, A, B, C, D, …', R, 'middle', 12, 800);
+  s += lab(254, 220, 'no root: start anywhere', soft, 'middle', 12) + lab(254, 238, 'cycles: can loop forever', soft, 'middle', 12);
+
+  // Fix card
+  s += card(4, 266, 332, 178) + lab(18, 292, 'The fix: remember what you have seen', T, 'start', 15, 800);
+  const F = { A: [44, 330], B: [118, 330], C: [118, 400], D: [44, 400] };
+  for (const [a, b] of [['A', 'B'], ['B', 'C'], ['C', 'D']]) s += edge(F[a], F[b], T, ' stroke-width="2.4"');
+  s += edge([44, 386], [44, 344], soft, ' stroke-dasharray="4 4"');
+  for (const [k, [x, y]] of Object.entries(F)) s += node(x, y, k, k === 'D' ? C.orangeWash : C.tealWash, k === 'D' ? O : T);
+  s += `<circle cx="44" cy="365" r="9" fill="#fff" stroke="${R}" stroke-width="1.6"/>` + lab(44, 370, '✗', R, 'middle', 13, 800);
+  s += `<rect x="156" y="314" width="168" height="30" rx="7" fill="${C.tealWash}" stroke="${T}" stroke-width="1.4"/>`;
+  s += lab(166, 334, 'seen:', T, 'start', 13, 800) + lab(208, 334, 'A ✓  B ✓  C ✓  D ✓', ink, 'start', 13, 700);
+  s += lab(158, 370, 'At D, the next vertex is A.', ink, 'start', 12.5) + lab(158, 390, 'A is already seen: skip it.', R, 'start', 12.5, 800) + lab(158, 410, 'Each vertex is visited once.', ink, 'start', 12.5);
+  return s + '</svg>';
+}
+
+/** Clean: the Part 3 graph (city) sorted into BFS levels from A, with the queue order underneath. */
+export function bfsWaves() {
+  const ink = C.ink, soft = C.soft;
+  const lab = (x, y, t, c = ink, a = 'middle', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
+  const band = ['#fdeee6', '#fdf5e0', '#e9f4f2', '#e9f1f8'];
+  const box = [C.orangeWash, C.butter, C.tealWash, C.sky];
+  const col = [C.orange, '#a8650f', C.teal, '#2f6fa8'];
+  const sub = ['the start', '1 edge', '2 edges', '3 edges'];
+  const xs = [4, 87, 170, 253, 336], top = 44, bot = 262;
+  const curve = (x, up = true) => up ? `L${x} ${top} Q${x + 16} ${(top + bot) / 2} ${x} ${bot}` : `L${x} ${bot} Q${x + 16} ${(top + bot) / 2} ${x} ${top}`;
+  let s = `<svg class="objbox" viewBox="0 0 340 356" role="img" aria-label="The graph from Part 3 sorted into levels from A. Level 0: A. Level 1, one edge away: B and D. Level 2, two edges away: C and E. Level 3, three edges away: F and G. The queue holds them in the same order: A, then B D, then C E, then F G.">`;
+  s += lab(170, 28, 'BFS from A: one wave at a time', ink, 'middle', 15, 800);
+  for (let i = 0; i < 4; i++) {
+    const L = xs[i], Rr = xs[i + 1];
+    const left = i === 0 ? `M${L} ${bot} L${L} ${top}` : `M${L} ${bot} Q${L + 16} ${(top + bot) / 2} ${L} ${top}`;
+    const right = i === 3 ? `L${Rr} ${top} L${Rr} ${bot}` : `L${Rr} ${top} Q${Rr + 16} ${(top + bot) / 2} ${Rr} ${bot}`;
+    s += `<path d="${left} ${right} Z" fill="${band[i]}"/>`;
+    const cx = (L + Rr) / 2 + (i ? 4 : 0);
+    s += lab(cx, 66, 'Level ' + i, col[i], 'middle', 14, 800) + lab(cx, 82, sub[i], soft, 'middle', 11.5, 700);
+  }
+  for (const x of xs.slice(1, 4)) s += `<path d="M${x} ${top} Q${x + 16} ${(top + bot) / 2} ${x} ${bot}" fill="none" stroke="${soft}" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+  s += `<rect x="4" y="${top}" width="332" height="${bot - top}" rx="10" fill="none" stroke="#d9dedb" stroke-width="1.5"/>`;
+  const P = { A: [46, 180], B: [130, 130], D: [130, 228], C: [214, 122], E: [214, 206], F: [297, 138], G: [297, 230] };
+  const lvl = { A: 0, B: 1, D: 1, C: 2, E: 2, F: 3, G: 3 };
+  for (const [a, b] of [['A', 'B'], ['A', 'D'], ['B', 'C'], ['B', 'E'], ['D', 'E'], ['C', 'F'], ['E', 'F'], ['E', 'G'], ['F', 'G']]) s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${soft}" stroke-width="1.8"/>`;
+  for (const [k, [x, y]] of Object.entries(P)) s += `<circle cx="${x}" cy="${y}" r="16" fill="${box[lvl[k]]}" stroke="${col[lvl[k]]}" stroke-width="2"/>` + lab(x, y + 5, k, ink, 'middle', 15, 800);
+  // queue strip
+  s += lab(4, 290, 'The queue gets them in the same order:', soft, 'start', 12.5, 800);
+  const groups = [['A'], ['B', 'D'], ['C', 'E'], ['F', 'G']];
+  let x = 15;
+  groups.forEach((g, i) => {
+    const gx = x;
+    for (const v of g) { s += `<rect x="${x}" y="300" width="40" height="32" fill="${box[i]}" stroke="${ink}" stroke-width="1.6"/>` + lab(x + 20, 322, v, ink, 'middle', 15, 800); x += 40; }
+    s += lab((gx + x) / 2, 350, 'L' + i, col[i], 'middle', 12, 800);
+    x += 10;
+  });
+  return s + '</svg>';
+}
+
+/** Sketch: news spreading through a block of houses, each house numbered by the wave that reaches it. */
+export function newsWaves() {
+  const s = new Sketch(340, 296, 41);
+  const wall = { 1: '#f5bf45', 2: '#5dbcad', 3: '#8db3e6' };
+  const roof = '#d9cfb8';
+  const cx = (c) => 38 + 66 * c, by = (r) => 70 + 82 * r;
+  for (let r = 0; r < 3; r++) s.line(6, by(r) + 1, 334, by(r) + 1, { sw: 1.2, stroke: C.soft, rough: 0.6 });
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) {
+    const x = cx(c), y = by(r), d = Math.abs(c - 2) + Math.abs(r - 1), you = d === 0;
+    s.path(`M${x - 25} ${y - 30} L${x} ${y - 52} L${x + 25} ${y - 30} Z`, { fill: you ? C.orange : roof, sw: 1.6 });
+    s.rect(x - 20, y - 30, 40, 30, { fill: you ? C.orangeWash : wall[d], sw: 1.6, rough: 0.8 });
+    if (you) s.text(x, y - 10, 'You', { font: 'body', size: 13, weight: 800, color: C.ink });
+    else { s.circle(x, y - 15, 20, { fill: C.card, sw: 1.2 }); s.text(x, y - 10, String(d), { font: 'body', size: 13, weight: 800 }); }
+  }
+  // first wave: you tell your next-door neighbors (orange)
+  const O = { stroke: C.orange, sw: 2.4, head: 8 };
+  s.arrow(148, by(1) - 18, 126, by(1) - 18, O).arrow(192, by(1) - 18, 214, by(1) - 18, O);
+  s.arrow(170, by(1) - 54, 170, by(0) + 4, O).arrow(170, by(1) + 4, 170, by(2) - 54, O);
+  // second wave: one neighbor passes it on (amber)
+  const A = { stroke: '#c98a1c', sw: 2.2, head: 8 };
+  s.arrow(258, by(1) - 18, 280, by(1) - 18, A);
+  s.arrow(236, by(1) - 54, 236, by(0) + 4, A).arrow(236, by(1) + 4, 236, by(2) - 54, A);
+  // legend
+  [['0', 'level 0', C.orangeWash], ['1', 'level 1', wall[1]], ['2', 'level 2', wall[2]], ['3', 'level 3', wall[3]]].forEach(([n, t, f], i) => {
+    const x = 14 + i * 82;
+    s.rect(x, 268, 20, 18, { fill: f, sw: 1.3, rough: 0.6 });
+    s.text(x + 10, 282, n, { font: 'body', size: 12, weight: 800 });
+    s.text(x + 28, 282, t, { font: 'body', size: 13, weight: 700, anchor: 'start', color: C.soft });
+  });
+  return s.svg('A block of 15 houses in three rows, with your house in the middle (level 0: you already know the news). Your four next-door houses are marked 1 (level 1): they hear the news first (orange arrows from your house). Houses two steps away are marked 2, and the four corner houses, three steps away, are marked 3. Amber arrows show one of your neighbors passing the news on to its own neighbors.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: three places BFS shows up in IT (friend suggestions, fewest hops, web crawler). */
+export function bfsInIT() {
+  const s = new Sketch(340, 664, 53);
+  const BLUE = '#2f6fa8', DARK = '#a8650f';
+  const seg = (a, b, ta, tb, o = {}, arrow = false) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+    const p = [a[0] + ux * ta, a[1] + uy * ta, b[0] - ux * tb, b[1] - uy * tb].map((v) => Math.round(v * 10) / 10);
+    return arrow ? s.arrow(...p, o) : s.line(...p, o);
+  };
+  const panel = (y0, h, title, color, note) => {
+    s.round(4, y0, 332, h, 12, { fill: C.card, sw: 1.4, stroke: C.soft, rough: 0.5 });
+    s.text(18, y0 + 28, title, { font: 'body', size: 15, weight: 800, color, anchor: 'start' });
+    s.text(170, y0 + h - 16, note, { font: 'body', size: 12, weight: 700, color: C.soft });
+  };
+  const t = (x, y, str, o = {}) => s.text(x, y, str, { font: 'body', size: 12, weight: 700, ...o });
+
+  // 1. People you may know
+  {
+    const y0 = 4;
+    panel(y0, 204, 'People you may know', C.orange, 'Bea and Carlo are friends of your friends (level 2).');
+    const P = { You: [42, y0 + 106, 0], Ana: [126, y0 + 78, 1], Migs: [126, y0 + 138, 1], Bea: [210, y0 + 78, 2], Carlo: [210, y0 + 138, 2] };
+    [['You', 'Ana'], ['You', 'Migs'], ['Ana', 'Bea'], ['Migs', 'Bea'], ['Migs', 'Carlo']].forEach(([a, b]) => seg(P[a], P[b], 20, 20, { sw: 1.8, stroke: C.orange }));
+    const shirt = [C.orangeWash, C.tealWash, C.sky];
+    Object.entries(P).forEach(([n, [x, y, l]]) => {
+      s.circle(x, y - 8, 16, { fill: C.butter, sw: 1.5 });
+      s.path(`M${x - 12} ${y + 13} Q${x} ${y - 4} ${x + 12} ${y + 13} Z`, { fill: shirt[l], sw: 1.5 });
+      t(x, n === 'You' ? y + 30 : (y < y0 + 100 ? y - 22 : y + 30), n);
+      t(n === 'You' ? x - 15 : x + 15, y + 12, 'L' + l, { size: 10.5, weight: 800, color: C.teal, anchor: n === 'You' ? 'end' : 'start' });
+    });
+    s.round(252, y0 + 66, 74, 86, 8, { fill: C.orangeWash, sw: 1.3, stroke: C.orange, rough: 0.5 });
+    t(289, y0 + 88, 'Suggested', { size: 12, weight: 800, color: C.orange });
+    t(289, y0 + 114, 'Bea  +', { size: 13 });
+    t(289, y0 + 138, 'Carlo  +', { size: 13 });
+  }
+
+  // 2. Fewest hops in a network
+  {
+    const y0 = 220;
+    panel(y0, 208, 'Fewest hops', C.teal, 'One link = one hop. BFS finds the fewest hops.');
+    const PC = [36, y0 + 104], SV = [304, y0 + 104];
+    const top = [[122, y0 + 70], [214, y0 + 70]], low = [[104, y0 + 140], [170, y0 + 140], [236, y0 + 140]];
+    [PC, ...top, SV].forEach((p, i, a) => i && seg(a[i - 1], p, 22, 22, { sw: 3.2, stroke: C.teal }));
+    [PC, ...low, SV].forEach((p, i, a) => i && seg(a[i - 1], p, 22, 22, { sw: 1.6, stroke: '#9aa7a8' }));
+    for (const [x, y] of [...top, ...low]) {
+      s.round(x - 17, y - 9, 34, 18, 5, { fill: C.tealWash, sw: 1.4, rough: 0.6 });
+      [-7, 0, 7].forEach((d) => s.circle(x + d, y, 3, { fill: C.teal, sw: 0.7 }));
+    }
+    s.rect(PC[0] - 15, PC[1] - 14, 30, 20, { fill: C.sky, sw: 1.5, rough: 0.6 });
+    s.path(`M${PC[0] - 19} ${PC[1] + 6} H${PC[0] + 19} L${PC[0] + 16} ${PC[1] + 11} H${PC[0] - 16} Z`, { fill: C.butter, sw: 1.4 });
+    t(PC[0], PC[1] + 30, 'your PC');
+    s.rect(SV[0] - 12, SV[1] - 20, 24, 40, { fill: C.card, sw: 1.5, rough: 0.6 });
+    [-10, 0, 10].forEach((d) => s.line(SV[0] - 7, SV[1] + d, SV[0] + 7, SV[1] + d, { sw: 1.2, single: true }));
+    t(SV[0], SV[1] + 36, 'server');
+    t(168, y0 + 52, '3 hops ✓', { size: 13, weight: 800, color: C.teal });
+    t(170, y0 + 164, '4 hops', { size: 12, color: C.soft });
+  }
+
+  // 3. Web crawler
+  {
+    const y0 = 440;
+    panel(y0, 220, 'Web crawler', DARK, 'It visits pages 1 link away, then 2 links away.');
+    const page = (x, y, f) => {
+      s.path(`M${x - 11} ${y - 14} H${x + 5} L${x + 11} ${y - 8} V${y + 14} H${x - 11} Z`, { fill: f, sw: 1.4, rough: 0.6 });
+      [-3, 3, 9].forEach((d) => s.line(x - 6, y + d, x + 6, y + d, { sw: 1, single: true, stroke: C.soft }));
+    };
+    const L0 = [40, y0 + 104], L1 = [[126, y0 + 64], [126, y0 + 104], [126, y0 + 144]], L2 = [[214, y0 + 64], [214, y0 + 104], [214, y0 + 144]];
+    L1.forEach((p) => seg(L0, p, 18, 18, { sw: 1.6, stroke: DARK, head: 7 }, true));
+    [[0, 0], [0, 1], [1, 1], [2, 2]].forEach(([a, b]) => seg(L1[a], L2[b], 16, 17, { sw: 1.4, stroke: C.soft, head: 7 }, true));
+    page(...L0, C.butter); L1.forEach((p) => page(...p, C.orangeWash)); L2.forEach((p) => page(...p, C.sky));
+    t(40, y0 + 176, 'level 0', { size: 11.5, color: C.soft });
+    t(126, y0 + 176, 'level 1', { size: 11.5, color: C.soft });
+    t(214, y0 + 176, 'level 2', { size: 11.5, color: C.soft });
+    // crawler bot
+    const bx = 290, byy = y0 + 102;
+    s.line(bx, byy - 22, bx, byy - 32, { sw: 1.4 }); s.circle(bx, byy - 34, 6, { fill: C.orange, sw: 1.2 });
+    s.round(bx - 20, byy - 22, 40, 32, 8, { fill: C.tealWash, sw: 1.6, rough: 0.6 });
+    s.circle(bx - 8, byy - 7, 7, { fill: C.ink, sw: 0.8 }); s.circle(bx + 8, byy - 7, 7, { fill: C.ink, sw: 0.8 });
+    t(bx, byy + 28, 'crawler', { size: 12 });
+  }
+  return s.svg('Three places BFS is used in IT. People you may know: You are friends with Ana and Migs (level 1); Bea and Carlo are their friends (level 2), so the app suggests Bea and Carlo. Fewest hops: from your PC to a server, the top route through 2 routers takes 3 hops and the bottom route through 3 routers takes 4 hops; BFS finds the 3-hop route. Web crawler: a robot starts at one page, collects the 3 pages it links to (level 1), then the pages those link to (level 2).').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: a canteen line = a queue (served at the front, join at the rear). */
+export function canteenLine() {
+  const s = new Sketch(340, 212, 29);
+  s.line(4, 150, 336, 150, { sw: 1.4, stroke: C.soft, rough: 0.6 });
+  s.text(31, 86, 'Canteen', { size: 15, color: C.ink });
+  s.rect(6, 96, 50, 54, { fill: C.butter, sw: 1.6, rough: 0.8 });
+  s.rect(12, 104, 38, 10, { fill: C.orangeWash, sw: 1.1, rough: 0.6 });
+  const shirts = [C.orangeWash, C.tealWash, C.sky, C.pink];
+  const person = (x, f, n, dashed = false) => {
+    s.circle(x, 98, 22, { fill: C.butter, sw: 1.5 });
+    s.path(`M${x - 16} 148 Q${x - 15} 112 ${x} 112 Q${x + 15} 112 ${x + 16} 148 Z`, { fill: f, sw: 1.5 });
+    if (n) s.text(x, 140, n, { font: 'body', size: 13, weight: 800 });
+  };
+  [96, 146, 196, 246].forEach((x, i) => person(x, shirts[i], String(i + 1)));
+  person(310, C.card, '');
+  s.text(310, 140, 'new', { font: 'body', size: 11, weight: 800, color: C.teal });
+  s.text(96, 64, 'front', { font: 'body', size: 13, weight: 800, color: C.orange });
+  s.text(246, 64, 'rear', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.arrow(80, 124, 62, 124, { stroke: C.orange, sw: 2.4, head: 8 });
+  s.arrow(292, 124, 266, 124, { stroke: C.teal, sw: 2.4, head: 8 });
+  s.text(76, 178, 'served first, leaves', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(76, 196, 'the front = dequeue', { font: 'body', size: 12.5, weight: 800, color: C.orange });
+  s.text(264, 178, 'joins at the rear', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(264, 196, '= enqueue', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  return s.svg('A canteen line of four students numbered 1 to 4. Student 1 at the front is served first and leaves: that is dequeue. A new student joins at the rear, behind student 4: that is enqueue.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: one moment of BFS on the Part 3 graph: D (level 1) is still ahead of C and E (level 2). */
+export function queueSnapshots() {
+  const ink = C.ink, soft = C.soft, O = C.orange, T = C.teal, AM = '#a8650f';
+  const lab = (x, y, t, c = ink, a = 'middle', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
+  const head = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 1L9 5L0 9z" fill="${c}"/></marker>`;
+  let s = `<svg class="objbox" viewBox="0 0 340 226" role="img" aria-label="The queue right after BFS visits A and then B. The queue holds D, C, E. D was found by A and is level 1; C and E were just found by B and are level 2. D is at the front, so D leaves next: all of level 1 leaves before any of level 2."><defs>${head('qsO', O)}${head('qsT', T)}</defs>`;
+  s += `<rect x="4" y="4" width="332" height="218" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>`;
+  s += lab(18, 30, 'The queue right after visiting B', ink, 'start', 15, 800);
+  const X = 96, W = 60;
+  [['D', C.butter, AM], ['C', C.tealWash, T], ['E', C.tealWash, T]].forEach(([v, f, c], i) => {
+    s += `<rect x="${X + i * W}" y="62" width="${W}" height="42" fill="${f}" stroke="${c}" stroke-width="1.8"/>` + lab(X + i * W + W / 2, 90, v, ink, 'middle', 17, 800);
+  });
+  s += lab(X + W / 2, 126, 'level 1', AM, 'middle', 12.5, 800) + lab(X + W / 2, 143, 'found by A', AM, 'middle', 11.5, 700) + lab(X + 2 * W, 126, 'level 2', T, 'middle', 12.5, 800) + lab(X + 2 * W, 143, 'just found by B', T, 'middle', 11.5, 700);
+  s += `<path d="M${X - 6} 83 H38" stroke="${O}" stroke-width="2.4" fill="none" marker-end="url(#qsO)"/>` + lab(56, 76, 'out next', O, 'middle', 12, 800);
+  s += lab(56, 102, 'front', soft, 'middle', 11.5, 700);
+  s += `<path d="M322 83 H${X + 3 * W + 8}" stroke="${T}" stroke-width="2.4" fill="none" marker-end="url(#qsT)"/>` + lab(300, 76, 'new ones', T, 'middle', 12, 800) + lab(300, 102, 'rear', soft, 'middle', 11.5, 700);
+  s += lab(170, 178, 'D joined first, so D leaves first.', ink, 'middle', 13, 800);
+  s += lab(170, 200, 'All of level 1 leaves before any of level 2.', soft, 'middle', 12.5, 700);
+  return s + '</svg>';
+}

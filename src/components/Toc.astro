@@ -3,12 +3,13 @@
 // every <section class="chapter"> with an h2 becomes a chapter, every .sub > h3 a subsection.
 // Desktop: sticky left sidebar (can be hidden). Narrow screens: a floating button that opens a drawer.
 // Progress ("mark chapter as done") and last position are saved in this browser only.
-interface Props { course?: { code: string; href: string } }
-const { course } = Astro.props;
+interface Props { course?: { code: string; href: string }; lesson?: string }
+const { course, lesson } = Astro.props;
 ---
 <div id="toc-root">
   <div class="toc-bar" aria-hidden="true"><span></span></div>
   <aside class="toc-panel" id="toc-panel" aria-label="On this page">
+    {lesson && <p class="toc-lesson">{course && <span class="toc-code">{course.code} lesson</span>}{lesson}</p>}
     <div class="toc-top">
       <p class="toc-title hand">On this page</p>
       <button type="button" class="toc-x" id="toc-close" aria-label="Hide contents">Hide</button>
