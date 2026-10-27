@@ -15,7 +15,6 @@ const used = new Set(steps.flatMap((s) => s.lines));
   <p class="fig-hint">{hint}</p>
   <div class="cw-grid">
     <div class="cw-side">
-      <div class="cw-run" aria-hidden="true"><p class="cw-run-k">This line runs:</p><pre class="code cw-run-code"><code></code></pre></div>
       <div class="cw-steps">
       {steps.map((s, i) => (
         <div class={i === 0 ? 'cw-step' : 'cw-step is-hidden'} data-i={i} aria-hidden={i === 0 ? 'false' : 'true'}>
@@ -27,6 +26,7 @@ const used = new Set(steps.flatMap((s) => s.lines));
         </div>
       ))}
       </div>
+      <div class="cw-run" aria-hidden="true"><p class="cw-run-k">This line runs:</p><pre class="code cw-run-code"><code></code></pre></div>
       <div class="cw-nav">
         <button type="button" class="btn" data-go="reset" aria-label="Start over from step 1" title="Start over">↺ Start over</button>
         <button type="button" class="btn" data-go="back" aria-label="Previous step">←</button>
