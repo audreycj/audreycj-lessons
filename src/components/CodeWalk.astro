@@ -15,6 +15,7 @@ const used = new Set(steps.flatMap((s) => s.lines));
   <p class="fig-hint">{hint}</p>
   <div class="cw-grid">
     <div class="cw-side">
+      <div class="cw-run" aria-hidden="true"><p class="cw-run-k">This line runs:</p><pre class="code cw-run-code"><code></code></pre></div>
       <div class="cw-steps">
       {steps.map((s, i) => (
         <div class={i === 0 ? 'cw-step' : 'cw-step is-hidden'} data-i={i} aria-hidden={i === 0 ? 'false' : 'true'}>
@@ -55,13 +56,21 @@ const used = new Set(steps.flatMap((s) => s.lines));
     // A sticky panel taller than half the screen would cover the code on one-column screens: let it scroll away instead.
     const side = fig.querySelector<HTMLElement>('.cw-side')!;
     const twoCols = matchMedia('(min-width: 60rem)');
-    const fit = () => side.classList.toggle('no-stick', !twoCols.matches && side.offsetHeight > innerHeight * 0.5);
+    // When the panel scrolls away, it shows the running line(s) itself, so phone readers can step without scrolling to the code.
+    const run = side.querySelector<HTMLElement>('.cw-run')!;
+    const runCode = run.querySelector<HTMLElement>('code')!;
+    const runK = run.querySelector<HTMLElement>('.cw-run-k')!;
+    runCode.style.minHeight = `${Math.max(1, ...groups.map((g) => g.length)) * 1.6}em`;
+    const fit = () => side.classList.toggle('no-stick', !twoCols.matches && side.offsetHeight - run.offsetHeight > innerHeight * 0.5);
     fit(); addEventListener('resize', fit); addEventListener('load', fit);
     let at = 0;
     function show(i: number) {
       panes.forEach((p, k) => { p.classList.toggle('is-hidden', k !== i); p.setAttribute('aria-hidden', String(k !== i)); });
       lines.forEach((l) => l.classList.toggle('is-on', groups[i].includes(Number(l.dataset.n))));
       count.textContent = `Step ${i + 1} of ${groups.length}`;
+      const on = [...lines].filter((l) => groups[i].includes(Number(l.dataset.n)));
+      runK.textContent = on.length > 1 ? 'These lines run:' : on.length ? 'This line runs:' : 'No new line runs in this step.';
+      runCode.innerHTML = on.map((l) => `<span class="cw-l is-on">${l.innerHTML}</span>`).join('');
       back.disabled = i === 0; reset.disabled = i === 0; next.disabled = i === groups.length - 1;
       next.textContent = i === groups.length - 1 ? 'Done' : 'Next →';
     }

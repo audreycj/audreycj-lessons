@@ -523,7 +523,7 @@ svg.objbox { max-width: 20rem; }
 .cw-say { margin: 0; font-size: var(--step--1); line-height: 1.5; min-height: 3em; }
 .cw-say code { font-size: 0.85em; }
 .cw-nav { display: grid; grid-template-columns: auto auto 1fr auto; gap: 0.5rem; align-items: center; }
-@media (max-width: 26rem) { .cw-nav [data-go="reset"] { font-size: 0; padding-inline: 0.7em; } .cw-nav [data-go="reset"]::before { content: "↺"; font-size: 1rem; } }
+@media (max-width: 26rem) { .cw-nav .btn[data-go="reset"] { font-size: 0; padding-inline: 0.7em; } .cw-nav .btn[data-go="reset"]::before { content: "↺"; font-size: 1rem; } }
 .cw-nav .btn { min-height: 2.4rem; padding: 0.3em 0.9em; font-size: 0.9rem; }
 .cw-count { text-align: center; color: var(--ink-soft); }
 .cw-code { margin: 0; padding: 0.6rem 0; }
@@ -848,3 +848,9 @@ pre.code > code { display: block; width: max-content; min-width: 100%; }
 .ba-run { overflow-x: auto; }
 /* CodeWalk: tall panels don't stick on one-column screens (set by CodeWalk script) */
 .cw-side.no-stick { position: static; }
+/* CodeWalk on phones: when the panel does not stick, it repeats the running line(s) (set by CodeWalk script) */
+.cw-run { display: none; }
+.cw-side.no-stick .cw-run { display: grid; gap: 0.3rem; }
+.cw-run-k { margin: 0; font-size: var(--step--1); font-weight: 800; color: var(--ink-soft); }
+.cw-run-code { margin: 0; padding: 0.4rem 0; font-size: 0.84rem; }
+.cw-run-code .cw-l { cursor: default; }
