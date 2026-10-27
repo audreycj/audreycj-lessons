@@ -93,7 +93,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
   transform: rotate(-2deg);
   box-shadow: 0 1px 2px var(--shadow);
 }
-.tape.teal { background: repeating-linear-gradient(45deg, transparent 0 7px, rgba(255,255,255,0.12) 7px 14px), #7fc7bc; box-shadow: 0 1px 3px rgba(27,42,46,0.3);
+.tape.teal { background: repeating-linear-gradient(45deg, transparent 0 7px, rgba(255,255,255,0.18) 7px 14px), #ade0d8; box-shadow: 0 1px 3px rgba(27,42,46,0.25);
   /* "ITC 120" has digits: Fredoka, not Kalam (its 1 and 2 blur); bigger and darker so it reads on the teal */
   font-family: var(--font-display); font-weight: 600; font-size: var(--step-0); letter-spacing: 0.06em; color: #0b2522; padding: 0.25em 1em; }
 .tape.amber { background: repeating-linear-gradient(45deg, transparent 0 6px, rgba(255,255,255,0.3) 6px 12px), var(--butter); }
@@ -810,3 +810,33 @@ pre.code .rg-rec { display: inline-block; width: 100%; background: rgba(127, 179
 .ns.is-flash .ns-code.is-on .ns-t:not(.is-hot) { animation: ns-flash 1.3s ease; }
 @keyframes ns-flash { 0%, 45% { background: rgba(240, 169, 59, 0.55); } 100% { background: transparent; } }
 @media (prefers-reduced-motion: reduce) { .ns-code, .ns-code.is-on, .bugs .bug-line { transition: none; } .ns.is-flash .ns-code.is-on .ns-t { animation: none; } }
+
+/* BST deletion (Oct 27): sorted-list boxes, linked-list skip, tap-a-node trees, 4-color deleteRec shading */
+.tree-svg .sl-box { fill: var(--card); stroke: var(--ink); stroke-width: 1.5; }
+.tree-svg .m-bad .sl-box { fill: var(--red-wash); stroke: var(--red-pen); stroke-width: 2.5; }
+.tree-svg .m-moved .sl-box { fill: var(--butter); stroke: var(--amber); stroke-width: 2.5; }
+.tree-svg .m-skip .sl-box { fill: #f1f3f3; stroke: #b5c0c1; stroke-dasharray: 3 3; }
+.tree-svg .sl-dot { stroke: var(--ink-soft); stroke-width: 1.3; stroke-dasharray: 2 4; }
+.tree-svg .ls-arrow { stroke: var(--ink); stroke-width: 2; fill: none; }
+.tree-svg .ls-head { fill: var(--ink); }
+.tt-pic .t-node.is-tap { cursor: pointer; outline: none; }
+.tt-pic .t-node.is-tap:hover circle.body { stroke-width: 3.5; }
+.tt-pic .t-node.is-tap:focus-visible circle.body { stroke: var(--teal); stroke-width: 4; }
+.tt-say { min-height: 5em; margin: 0.5rem 0 0; padding: 0.55rem 0.8rem; border-radius: 8px; background: var(--paper); border: 1.5px solid var(--line); }
+.tt-say.is-in { animation: tt-in 0.3s ease; }
+@keyframes tt-in { from { opacity: 0.25; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tt-say.is-in { animation: none; } }
+.ss .cw-steps { margin-bottom: 0.6rem; }
+.ss .cw-nav { grid-template-columns: auto auto 1fr auto; }
+.mk-ans.mk-solo { max-width: 24rem; }
+pre.code .rg-found { display: inline-block; width: 100%; background: rgba(240, 169, 59, 0.24); box-shadow: inset 4px 0 0 #f0a93b; }
+pre.code .rg-c3 { display: inline-block; width: 100%; background: rgba(154, 115, 201, 0.24); box-shadow: inset 4px 0 0 #a986d6; }
+.rg-key .k-found { background: #fbe7c3; border: 2px solid #b97a12; }
+.rg-key .k-c3 { background: #e7dcf3; border: 2px solid #6f4a9e; }
+.c-found { color: #8a5a0b; font-weight: 800; }
+.c-c3 { color: #6f4a9e; font-weight: 800; }
+
+/* Course page: the lesson the student just came back from glows briefly */
+.step.is-back > a { animation: back-glow 2.6s ease-out; }
+@keyframes back-glow { 0%, 35% { background: var(--butter); box-shadow: inset 4px 0 0 var(--amber); } 100% { background: transparent; box-shadow: inset 4px 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .step.is-back > a { animation: none; background: var(--butter); } }

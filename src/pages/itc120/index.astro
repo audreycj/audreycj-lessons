@@ -55,7 +55,7 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
               </header>
               <ol class="path">
                 {u.lessons.map((l, i) => (
-                  <li class={`step s-${l.status}`}>
+                  <li class={`step s-${l.status}`} id={'l-' + l.href.split('/').filter(Boolean).pop()}>
                     {l.status === 'live' ? (
                       <a href={href(l.href)} data-lesson={href(l.href)}>
                         <span class="num">{i + 1}</span>
@@ -137,6 +137,18 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
       try { var v = localStorage.getItem(k); if (v !== null) d.open = v === '1'; } catch (e) {}
       d.addEventListener('toggle', function () { try { localStorage.setItem(k, d.open ? '1' : '0'); } catch (e) {} });
     });
+  })();
+  // Coming back from a lesson (link ends in #l-<lesson>): open its term, scroll it to the middle, and glow it briefly.
+  (function () {
+    var h = location.hash;
+    if (h.indexOf('#l-') !== 0) return;
+    var li = document.getElementById(h.slice(1));
+    if (!li) return;
+    var d = li.closest('details');
+    if (d) d.open = true;
+    li.scrollIntoView({ block: 'center' });
+    li.classList.add('is-back');
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   })();
   // Show progress saved by each lesson's contents panel ("Mark chapter as done"), on this device only.
   (function () {

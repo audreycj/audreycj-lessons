@@ -1,5 +1,5 @@
 // Step lists for <CodeWalk>: each step highlights some lines and shows a picture of what they do.
-import { node, buildBst, bstInsert, svgTree, layout } from './tree.js';
+import { node, buildBst, bstInsert, svgTree, layout, clone } from './tree.js';
 import { nodeBox } from './illus.js';
 
 const v = (x) => `<code>${x}</code>`;
@@ -219,7 +219,7 @@ export function loopSteps(values) {
  * The line that runs is printed above the pair, so the arrow between them means "after this line runs".
  */
 export const pair = (code, a, aCap, b, bCap, bad = false) =>
-  `<div class="ba${bad ? ' is-bad' : ''}"><p class="ba-run"><span class="ba-run-k">${bad ? 'The buggy line runs:' : 'This line runs:'}</span> <code>${code}</code></p>` +
+  `<div class="ba${bad ? ' is-bad' : ''}">${code ? `<p class="ba-run"><span class="ba-run-k">${bad ? 'The buggy line runs:' : 'This line runs:'}</span> <code>${code}</code></p>` : ''}` +
   `<div class="ba-pair"><div class="ba-col"><p class="ba-cap">${aCap}</p>${a}</div><span class="ba-arrow" aria-label="after the line runs"><span class="ba-glyph">→</span><span class="ba-arrow-k">after</span></span><div class="ba-col"><p class="ba-cap">${bCap}</p>${b}</div></div></div>`;
 
 /** Add a loose node (connected to nothing) to a tree SVG string, at (x, y). */
@@ -427,4 +427,227 @@ export function recFigs() {
   const m1 = svgTree(small, { marks: { 10: 'cur', 20: 'wait' }, showNil: true, spot: { key: 10, side: 'l' }, label: 'The call on 10\'s empty left spot gets null. Without the null check, it tries to read null.data and crashes.' });
   const m2 = svgTree(before, { marks: { 60: 'bad', 50: 'bad', 70: 'bad' }, label: 'The starting BST with 60, 50, and 70 marked: this right subtree is printed in the wrong order' });
   return { key, m1, m2, m3 };
+}
+
+/* ---------------- BST deletion lesson: figures, step shows, walkthroughs ---------------- */
+
+export const deleteCode = String.raw`static TreeNode deleteRec(TreeNode node,
+                          int value) {
+  if (node == null) {                            // not found
+    return null;
+  }
+  if (value < node.data) {                       // search
+    node.left = deleteRec(node.left, value);
+  } else if (value > node.data) {
+    node.right = deleteRec(node.right, value);
+  } else {
+    // found it
+    if (node.left == null) {                     // case 1, 2
+      return node.right;
+    }
+    if (node.right == null) {
+      return node.left;
+    }
+    TreeNode successor = node.right;             // case 3
+    while (successor.left != null) {
+      successor = successor.left;
+    }
+    node.data = successor.data;
+    node.right = deleteRec(node.right,
+                           successor.data);
+  }
+  return node;
+}`;
+
+// Every node keeps an id (its first value), so a spot keeps its place and marks even after a new value is copied in.
+const ids = (n) => { if (n) { n.id = n.v; ids(n.l); ids(n.r); } return n; };
+export const T = (vals) => ids(buildBst(vals));
+const edit = (n, id, f) => { if (!n) return n; if (String(n.id) === String(id)) return f(n); n.l = edit(n.l, id, f); n.r = edit(n.r, id, f); return n; };
+const drop = (t, id) => edit(clone(t), id, () => null);
+const lift = (t, id) => edit(clone(t), id, (n) => n.l || n.r);
+const setv = (t, id, v) => edit(clone(t), id, (n) => ({ ...n, v }));
+
+/** The sorted (in-order) list drawn under the tree, each box right below its node, with dotted lines. */
+function sortedPic(t, del, next, label) {
+  const L = layout(t), y0 = L.h + 16;
+  let add = '';
+  for (const [k, p] of Object.entries(L.pos)) {
+    const m = String(k) === String(del) ? 'm-bad' : String(k) === String(next) ? 'm-moved' : '';
+    add += `<line class="sl-dot" x1="${p.x}" y1="${p.y + 19}" x2="${p.x}" y2="${y0 - 2}"/><g class="t-node ${m}"><rect class="sl-box" x="${p.x - 17}" y="${y0}" width="34" height="28" rx="3"/><text x="${p.x}" y="${y0 + 14}">${p.n.v}</text></g>`;
+    if (m === 'm-moved') add += `<text class="t-tag" x="${p.x}" y="${y0 + 44}">next value</text>`;
+  }
+  return svgTree(t, { marks: { [del]: 'bad', [next]: 'moved' }, minH: L.h + 64, label }).replace(/<\/svg>$/, add + '</svg>');
+}
+
+/** Linked-list delete: 60 → 50 → 45, then 60 skips 50 and points to 45. */
+function listSkip() {
+  const box = (x, y, val, cls = '') => `<g class="t-node ${cls}"><rect class="sl-box" x="${x}" y="${y}" width="52" height="34" rx="4"/><text x="${x + 26}" y="${y + 17}">${val}</text></g>`;
+  const arr = (x1, x2, y) => `<line class="ls-arrow" x1="${x1}" y1="${y}" x2="${x2 - 8}" y2="${y}"/><path class="ls-head" d="M${x2} ${y} l-9 -5 v10 z"/>`;
+  let s = `<svg class="tree-svg" viewBox="0 0 300 168" style="max-width:345px" role="img" aria-label="Before: 60 points to 50, and 50 points to 45. After: 60 skips 50 and points straight to 45.">`;
+  s += `<text class="t-tag" x="10" y="16" style="text-anchor:start">before</text>` + box(10, 26, 60) + arr(62, 124, 43) + box(124, 26, 50, 'm-bad') + arr(176, 238, 43) + box(238, 26, 45);
+  s += `<text class="t-tag" x="10" y="100" style="text-anchor:start">after</text>` + box(10, 116, 60) + box(124, 116, 50, 'm-skip') + box(238, 116, 45, 'm-moved');
+  s += `<path class="ls-arrow" d="M36 116 Q 150 66 260 112" fill="none"/><path class="ls-head" d="M264 116 l-3 -10 l-7 7 z"/><text class="t-tag" x="150" y="96">skips 50</text>`;
+  return s + '</svg>';
+}
+
+export function delFigs() {
+  const start = T(START), F = layout(start);
+  const fx = (extra) => ({ pos: F.pos, minW: F.w, minH: F.h, ...extra });
+  const wc = T([...START, 45]), ws = T([...START, 45, 42, 48]), w55 = T([...START, 55]);
+  // Part 1: just removing 20 would cut off 10 and 30.
+  let cutAfter = svgTree(drop(start, 20), fx({ label: 'After removing only 20: 40 has no left child, and 10 and 30 float alone, cut off from the tree' }));
+  cutAfter = loose(loose(cutAfter, F.pos[10].x, F.pos[10].y, 10, 'cut off', 'skip'), F.pos[30].x, F.pos[30].y, 30, 'cut off', 'skip');
+  const cut = pair('', svgTree(start, fx({ marks: { 20: 'bad' }, tags: { 20: 'remove?' }, label: 'The starting BST with 20 marked to remove' })), 'before: just remove 20?', cutAfter, 'after: 10 and 30 are cut off', true);
+  // Case 1: delete 10.
+  const case1 = pair('', svgTree(start, { marks: { 40: 'path', 20: 'path', 10: 'bad' }, tags: { 10: 'delete' }, label: 'Find 10: 40, then 20, then 10' }), 'before: delete 10 (a leaf)',
+    svgTree(drop(start, 10), { showNil: true, spot: { key: 20, side: 'l' }, label: '10 is gone; 20\'s left is now null' }), 'after: 20\'s left is null');
+  // Case 2: delete 50 (one child), then the same with a subtree under 45.
+  const case2 = pair('', svgTree(wc, { marks: { 40: 'path', 60: 'path', 50: 'bad', 45: 'moved' }, tags: { 50: 'delete' }, label: 'Find 50: 40, then 60, then 50. 50 has one child, 45.' }), 'before: delete 50 (one child)',
+    svgTree(lift(wc, 50), { marks: { 45: 'moved' }, tags: { 45: 'moved up' }, label: '45 moved up: 60\'s left is now 45' }), 'after: 60\'s left is 45');
+  const case2sub = pair('', svgTree(ws, { marks: { 50: 'bad', 45: 'moved', 42: 'moved', 48: 'moved' }, tags: { 50: 'delete' }, label: 'Delete 50. Its one child, 45, has children 42 and 48.' }), 'before: delete 50',
+    svgTree(lift(ws, 50), { marks: { 45: 'moved', 42: 'moved', 48: 'moved' }, label: '45, 42, and 48 moved up together' }), 'after: 45, 42, 48 moved up together');
+  // Case 3 pictures.
+  const two = svgTree(start, { marks: { 20: 'bad', 10: 'moved', 30: 'moved' }, tags: { 20: 'delete' }, label: '20 has two children, 10 and 30, but there is only one spot' });
+  const sorted = sortedPic(start, 20, 30, 'The starting BST with its sorted list below; each node sits right above its box. The box right after 20 is 30.');
+  const succ40 = svgTree(ws, { marks: { 40: 'bad', 60: 'path', 50: 'path', 45: 'path', 42: 'moved' }, tags: { 42: 'next value' }, label: 'Next value after 40: right to 60, then left to 50, 45, 42' });
+  const why = svgTree(ws, { marks: { 40: 'bad', 60: 'wait', 50: 'wait', 70: 'wait', 45: 'wait', 48: 'wait', 42: 'new' }, tags: { 42: 'smallest' }, label: 'Everything on 40\'s right side is bigger than 40 (yellow). The node furthest left there, 42, is the smallest of them.' });
+  const succ20 = svgTree(start, { marks: { 20: 'bad', 30: 'moved' }, tags: { 30: 'next value' }, label: 'For 20: right once to 30. No left child, so stop.' });
+  const n55 = svgTree(w55, { marks: { 40: 'bad', 60: 'path', 50: 'moved', 55: 'wait' }, tags: { 50: 'next value', 55: 'right child' }, label: '50 is the next value after 40. It has no left child, only a right child, 55.' });
+  // Java: when the next value has a child; why root = matters.
+  const c55 = setv(w55, 40, 50);
+  const with55 = pair('node.right = deleteRec(node.right, successor.data);',
+    svgTree(c55, { marks: { 40: 'new', 50: 'bad', 55: 'moved' }, tags: { 40: 'copy', 50: 'old 50' }, label: 'Line 22 copied 50 into the root. The old 50 is still there, with its right child 55.' }), 'before: 50 copied into the root',
+    svgTree(lift(c55, 50), { marks: { 40: 'new', 55: 'moved' }, tags: { 55: 'moved up' }, label: 'The old 50 is removed (case 2): 60\'s left is now 55' }), 'after: old 50 removed (case 2)');
+  const rootPair = pair('root = deleteRec(root, 20);',
+    svgTree(T([20, 30]), { marks: { 20: 'bad', 30: 'moved' }, tags: { 20: 'root' }, label: 'A small tree: root 20 with one right child, 30' }), 'before: root is 20',
+    svgTree(T([30]), { marks: { 30: 'moved' }, tags: { 30: 'root' }, label: '30 is now the root' }), 'after: root is 30');
+  // Mistakes.
+  const m1 = pair('deleteRec(node.left, value);',
+    svgTree(start, { marks: { 20: 'cur', 10: 'bad' }, tags: { 20: 'node', 10: 'delete' }, label: 'Delete 10. The call for 20 calls on its left child, 10.' }), 'before: delete 10',
+    svgTree(start, { marks: { 20: 'cur', 10: 'bad' }, tags: { 20: 'node', 10: 'still here' }, label: 'The call for 10 returned null, but nobody saved it. 20\'s left still points to 10.' }), 'after: 10 is still there', true);
+  const c20 = setv(start, 20, 30);
+  const m2 = pair('node.data = successor.data;',
+    svgTree(start, { marks: { 20: 'bad', 30: 'moved' }, tags: { 20: 'delete', 30: 'next value' }, label: 'Delete 20; its next value is 30' }), 'before: delete 20',
+    svgTree(c20, { marks: { 20: 'bad', 30: 'bad' }, tags: { 20: 'copy', 30: 'old 30' }, label: '30 was copied into 20\'s spot, but the old 30 was never removed: 30 appears twice' }), 'after: 30 appears twice', true);
+  const broken = { v: 60, id: 'r', l: T([20, 10, 30]), r: { v: 70, id: 70, l: { v: 50, id: 50, l: null, r: null }, r: null } };
+  const m3 = pair('node.data = node.right.data;',
+    svgTree(start, { marks: { 40: 'bad', 60: 'moved' }, tags: { 40: 'delete', 60: 'right child' }, label: 'Delete 40. Someone takes its right child, 60, as the new value.' }), 'before: delete 40',
+    svgTree(broken, { marks: { r: 'new', 50: 'bad' }, tags: { r: 'root', 50: '50 < 60' }, label: 'The root is now 60, but 50 is in its right subtree, and 50 is less than 60. The BST rule is broken.' }), 'after: 50 is on the wrong side', true);
+  return { cut, case1, case2, case2sub, list: listSkip(), two, sorted, succ40, why, succ20, n55, with55, rootPair, m1, m2, m3,
+    startTree: svgTree(start, { label: 'The starting BST: 40; 20 and 60; 10, 30, 50, 70' }) };
+}
+
+/** Delete 20 and delete the root 40, by hand: five pictures each (find, next value, copy, remove old, done). */
+export function caseThreeShows() {
+  const start = T(START), F = layout(start);
+  const p = (t, marks, tags, label) => svgTree(t, { marks, tags, pos: F.pos, minW: F.w, minH: F.h, label });
+  const show = (d, nx, findPath, nextPath, findSay, nextSay) => {
+    const c = setv(start, d, nx), done = drop(c, nx);
+    return [
+      { pic: p(start, { ...findPath, [d]: 'bad' }, { [d]: 'delete' }, `Find ${d}`), say: `<b>Step 1. Find ${d}.</b> ${findSay} It has two children: <span class="w-key">case 3</span>.` },
+      { pic: p(start, { [d]: 'bad', ...nextPath, [nx]: 'moved' }, { [d]: 'delete', [nx]: 'next value' }, `The next value after ${d} is ${nx}`), say: `<b>Step 2. Find its next value.</b> ${nextSay}` },
+      { pic: p(c, { [d]: 'new', [nx]: 'moved' }, { [d]: 'copy', [nx]: 'old ' + nx }, `${nx} copied into ${d}'s spot; ${nx} appears twice`), say: `<b>Step 3. Copy ${nx} into ${d}'s spot.</b> ${d} is gone. But now <b>${nx} appears twice</b>.` },
+      { pic: p(c, { [d]: 'new', [nx]: 'bad' }, { [nx]: 'remove' }, `Remove the old ${nx}`), say: `<b>Step 4. Remove the old ${nx}.</b> It is a leaf, so this is just <span class="w-key">case 1</span>.` },
+      { pic: p(done, { [d]: 'new' }, {}, `Done: ${nx} is in ${d}'s old spot`), say: `<b>Step 5. Done.</b> ${d}'s old spot now holds ${nx}. In-order: ${[10, 20, 30, 40, 50, 60, 70].filter((x) => x !== d).join(' ')}. Still sorted, and every node is still connected. ✓` },
+    ];
+  };
+  return {
+    del20: show(20, 30, { 40: 'path' }, {}, '20 &lt; 40, so go left. Found.', 'Right once to 30. 30 has no left child, so stop. The next value is <b>30</b>.'),
+    del40: show(40, 50, {}, { 60: 'path' }, '40 is the root, so we find it right away.', 'Right once to 60. Then left to 50. 50 has no left child, so stop. The next value is <b>50</b>.'),
+  };
+}
+
+/** Tap-a-node data: which case is each node? (tree with 45 under 50) */
+export function caseTaps() {
+  const t = T([...START, 45]);
+  const out = {};
+  (function walk(n) {
+    if (!n) return;
+    const kids = [n.l, n.r].filter(Boolean).map((k) => k.v);
+    const marks = { [n.v]: 'bad' };
+    let say;
+    if (!kids.length) say = `<b>${n.v}</b> has no children: <span class="w-key">case 1</span>. Just remove it.`;
+    else if (kids.length === 1) { marks[kids[0]] = 'moved'; say = `<b>${n.v}</b> has one child (${kids[0]}): <span class="w-key">case 2</span>. ${kids[0]} moves up into its place.`; }
+    else { kids.forEach((k) => (marks[k] = 'wait')); say = `<b>${n.v}</b> has two children (${kids.join(' and ')}): <span class="w-key">case 3</span>. Both cannot move up into one spot, so the spot stays and gets a new value (Part 4).`; }
+    out[n.v] = { pic: svgTree(t, { marks, label: `${n.v} is selected` }), say };
+    walk(n.l); walk(n.r);
+  })(t);
+  return { base: svgTree(t, { label: 'A BST: 40; 20 and 60; 10, 30, 50, 70; 45 under 50' }), picks: out };
+}
+
+/** Tap-a-node data: the next value of each node (tree with 45, 42, 48). */
+export function nextTaps() {
+  const t = T([...START, 45, 42, 48]);
+  const out = {};
+  (function walk(n) {
+    if (!n) return;
+    const marks = { [n.v]: 'bad' }, tags = {};
+    let say;
+    if (!n.r) say = `<b>${n.v}</b> has no right child, so the rule cannot start. That is fine: deleting ${n.v} is case 1 or case 2, so we never need its next value.`;
+    else {
+      let s = n.r; const lefts = [];
+      marks[s.v] = 'path';
+      while (s.l) { s = s.l; lefts.push(s.v); marks[s.v] = 'path'; }
+      marks[s.v] = 'moved'; tags[s.v] = 'next value';
+      say = `Next value after <b>${n.v}</b>: right once (${n.r.v}), ${lefts.length ? `then left: ${lefts.join(', ')}. ${s.v} has no left child, so stop` : `${n.r.v} has no left child, so stop right away`}: <b>${s.v}</b>.`;
+    }
+    out[n.v] = { pic: svgTree(t, { marks, tags, label: `${n.v} is selected` }), say };
+    walk(n.l); walk(n.r);
+  })(t);
+  return { base: svgTree(t, { label: 'A BST: 40; 20 and 60; 10, 30, 50, 70; 45 under 50; 42 and 48 under 45' }), picks: out };
+}
+
+/** Call stack + tree for deleteRec walkthroughs. fr: [[label, id, state, note], ...] newest first. */
+function delPic(t, F, fr, o = {}) {
+  const marks = { ...(o.marks || {}) };
+  fr.forEach(([, id, st]) => { if (marks[id] == null) marks[id] = st === 'wait' ? 'wait' : 'cur'; });
+  const tags = { ...(fr[0] ? { [fr[0][1]]: 'node' } : {}), ...(o.tags || {}) };
+  let tree = svgTree(t, { marks, tags, pos: F.pos, minW: F.w, minH: F.h, label: o.label || 'The tree' });
+  if (o.ghost) tree = loose(tree, F.pos[o.ghost].x, F.pos[o.ghost].y, o.ghost, 'cut out', 'skip');
+  return stackPic({ tree, frames: fr.map(([lab, , st, note]) => [`call for ${lab}`, st, note]), rows: 3 });
+}
+
+/** deleteRec(root, 50) where 50 has one child, 45: going down, case 2, coming back up. */
+export function delete50Steps() {
+  const t = T([...START, 45]), F = layout(t), after = lift(t, 50);
+  const P = (fr, o) => delPic(o && o.after ? after : t, F, fr, o);
+  const nd = (x) => [['node', `→ ${x}`], ['value', '= 50']];
+  const w40 = ['40', 40, 'wait', 'paused at line 9'], w60 = ['60', 60, 'wait', 'paused at line 7'];
+  return [
+    { lines: [1, 2], pic: P([['40', 40, 'run', 'running']]), vars: nd(40), say: `We type ${v('root = deleteRec(root, 50);')} The first call gets ${v('node')} → <b>40</b> (the root) and ${v('value')} = 50. <span class="cw-aside">"Call for 40" is our name for the call whose ${v('node')} points to 40.</span>` },
+    { lines: [3], pic: P([['40', 40, 'run', 'running']]), vars: nd(40), say: `Is ${v('node')} null? No. Skip line 4.` },
+    { lines: [6, 8], pic: P([['40', 40, 'run', 'running']]), vars: nd(40), say: `Is 50 &lt; 40? No. Is 50 &gt; 40? <b>Yes</b>: 50 is on the <span class="w-right">right</span>.` },
+    { lines: [9], pic: P([['60', 60, 'run', 'running'], w40]), vars: nd(60), say: `Line 9 makes a new call on 40's right child, <b>60</b>, with the same ${v('value')}, 50. The call for 40 pauses at line 9, waiting for a node to save in ${v('node.right')}.` },
+    { lines: [3, 6], pic: P([['60', 60, 'run', 'running'], w40]), vars: nd(60), say: `At 60: not null. Is 50 &lt; 60? <b>Yes</b>: go <span class="w-left">left</span>.` },
+    { lines: [7], pic: P([['50', 50, 'run', 'running'], w60, w40]), vars: nd(50), say: `Line 7 calls on 60's left child, <b>50</b>. The call for 60 pauses at line 7.` },
+    { lines: [3, 6, 8, 10], pic: P([['50', 50, 'run', 'running'], w60, w40]), vars: nd(50), say: `At 50: not null, not smaller, not larger. So the ${v('else')} on line 10 runs: <b>found it</b>.` },
+    { lines: [12], pic: P([['50', 50, 'run', 'running'], w60, w40], { marks: { 45: 'moved' } }), vars: nd(50), say: `Is 50's left null? No, it is 45. Skip line 13.` },
+    { lines: [15, 16], pic: P([['50', 50, 'ret', 'returns 45'], w60, w40], { marks: { 50: 'bad', 45: 'moved' } }), vars: nd(50), say: `Is 50's right null? <b>Yes.</b> 50 has one child: <span class="w-key">case 2</span>. Line 16 gives back its left child, <b>45</b>: the node that takes 50's place.` },
+    { lines: [7], pic: P([['60', 60, 'run', 'saves 45 as its left'], w40], { after: true, ghost: 50, marks: { 45: 'moved' } }), vars: nd(60), say: `Back in the call for 60, at line 7. The right side of ${v('=')} gave back 45, and ${v('node.left =')} stores it. 60's left is now 45: <b>50 is cut out</b>.` },
+    { lines: [26], pic: P([['60', 60, 'ret', 'returns 60'], w40], { after: true, marks: { 45: 'moved' } }), vars: nd(60), say: `${v('return node;')} The call for 60 gives back <b>60</b>, its own node.` },
+    { lines: [9, 26], pic: P([['40', 40, 'ret', 'returns 40']], { after: true, marks: { 45: 'moved' } }), vars: nd(40), say: `The call for 40 continues at line 9: it saves 60 as its right again (no change) and returns <b>40</b>. Finally ${v('root =')} saves 40, so the root stays 40.` },
+  ];
+}
+
+/** deleteRec(root, 20): case 3, with the successor loop and the extra call that removes the old 30. */
+export function delete20Steps() {
+  const t = T(START), F = layout(t), c = setv(t, 20, 30), done = drop(c, 30);
+  const nd = (x, val = 20) => [['node', `→ ${x}`], ['value', `= ${val}`]];
+  const w40 = ['40', 40, 'wait', 'paused at line 7'], w20 = ['20', 20, 'wait', 'paused at line 23'];
+  const run20 = ['20', 20, 'run', 'running'];
+  const spot = [['node', '→ 20\'s spot'], ['value', '= 20']];
+  return [
+    { lines: [1, 2], pic: delPic(t, F, [['40', 40, 'run', 'running']]), vars: nd(40), say: `We type ${v('root = deleteRec(root, 20);')} The first call: ${v('node')} → 40, ${v('value')} = 20.` },
+    { lines: [6, 7], pic: delPic(t, F, [run20, w40]), vars: nd(20), say: `20 &lt; 40, so line 7 calls on 40's left child, <b>20</b>. The call for 40 pauses at line 7.` },
+    { lines: [3, 6, 8, 10], pic: delPic(t, F, [run20, w40]), vars: nd(20), say: `At 20: not null, not smaller, not larger: <b>found it</b>.` },
+    { lines: [12, 15], pic: delPic(t, F, [run20, w40], { marks: { 10: 'wait', 30: 'wait' } }), vars: nd(20), say: `Is 20's left null? No (10). Is its right null? No (30). Two children: <span class="w-key">case 3</span>. Lines 13 and 16 do not run.` },
+    { lines: [18], pic: delPic(t, F, [run20, w40], { marks: { 30: 'moved' }, tags: { 30: 'successor' } }), vars: [...nd(20), ['successor', '→ 30']], say: `Line 18 makes a new variable, ${v('successor')}, and starts it at 20's right child, <b>30</b>. That is "right once."` },
+    { lines: [19], pic: delPic(t, F, [run20, w40], { marks: { 30: 'moved' }, tags: { 30: 'successor' } }), vars: [...nd(20), ['successor', '→ 30']], say: `Does 30 have a left child? No, so line 20 never runs. ${v('successor')} stays at 30: the next value. ("Left, left, left…" is zero steps here.)` },
+    { lines: [22], pic: delPic(c, F, [run20, w40], { marks: { 20: 'new', 30: 'moved' }, tags: { 30: 'successor' } }), vars: [['node', '→ 20\'s spot'], ['node.data', '= 30']], say: `${v('node.data = successor.data;')} copies 30 into 20's spot. 20 is gone, but now <b>30 appears twice</b>.` },
+    { lines: [23, 24], pic: delPic(c, F, [['old 30', 30, 'run', 'running'], w20, w40], { marks: { 20: 'new' } }), vars: nd('old 30', 30), say: `Lines 23–24 make one more call, on the right subtree, with ${v('value')} = ${v('successor.data')} = <b>30</b>. Its job: remove the old 30. <span class="cw-aside">The paused call for 20 still has ${v('value')} = 20, even though its ${v('node.data')} is now 30.</span>` },
+    { lines: [3, 6, 8, 10, 12, 13], pic: delPic(c, F, [['old 30', 30, 'ret', 'returns null'], w20, w40], { marks: { 20: 'new', 30: 'bad' } }), vars: nd('old 30', 30), say: `In the new call, 30 is not smaller or larger than 30: found. Its left is null, so line 13 returns its right, which is also <b>null</b>. The old 30 is a leaf: <span class="w-key">case 1</span>.` },
+    { lines: [23], pic: delPic(done, F, [['20', 20, 'run', 'saves null as its right'], w40], { marks: { 20: 'new' } }), vars: spot, say: `Back in the call for 20, ${v('node.right =')} saves that null. <b>The old 30 is gone.</b>` },
+    { lines: [26], pic: delPic(done, F, [['20', 20, 'ret', 'returns its node (now 30)'], w40], { marks: { 20: 'new' } }), vars: spot, say: `${v('return node;')} gives back the same node: 20's old spot, which now holds 30.` },
+    { lines: [7, 26], pic: delPic(done, F, [['40', 40, 'ret', 'returns 40']], { marks: { 20: 'new' } }), vars: nd(40), say: `The call for 40 saves that node as its left again (same node, no change) and returns 40. ${v('root =')} saves 40. In-order: <b>10 30 40 50 60 70</b> ✓` },
+  ];
 }

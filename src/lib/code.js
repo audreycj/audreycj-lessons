@@ -16,3 +16,11 @@ export const hiR = (src, base = [], rec = []) => src.split('\n').map((l, i) => {
   const c = base.includes(i + 1) ? 'rg-base' : rec.includes(i + 1) ? 'rg-rec' : '';
   return c ? `<span class="${c}">${body}</span>` : body;
 }).join('\n');
+
+/** Numbered code with groups of lines shaded: groups = { className: [line numbers] } (e.g. rg-base, rg-rec, rg-found, rg-c3). */
+export const hiC = (src, groups = {}) => src.split('\n').map((l, i) => {
+  const n = String(i + 1).padStart(2, ' ');
+  const body = `<span class="ln">${n}</span>${line(l)}`;
+  const c = Object.keys(groups).find((k) => groups[k].includes(i + 1));
+  return c ? `<span class="${c}">${body}</span>` : body;
+}).join('\n');

@@ -1,0 +1,36 @@
+---
+// Tap a node in a tree to see something about it (its case, its next value, ...).
+// picks: { [node key]: { pic: svg string with that node's marks, say: html } }. Every pic is the same tree, so the panel never changes height.
+interface Pick { pic: string; say: string }
+interface Props { id: string; base: string; picks: Record<string, Pick>; start: string; cap?: string; hint?: string; }
+const { id, base, picks, start, cap = 'Tap a node', hint = 'Tap (or click) any node in the tree.' } = Astro.props;
+---
+<figure class="fig tt" id={id} data-picks={JSON.stringify(picks)}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">{hint}</p>
+  <div class="tt-pic" set:html={base} />
+  <p class="tt-say" aria-live="polite" set:html={start} />
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.tt').forEach((fig) => {
+    const picks: Record<string, { pic: string; say: string }> = JSON.parse(fig.dataset.picks || '{}');
+    const pic = fig.querySelector<HTMLElement>('.tt-pic')!;
+    const say = fig.querySelector<HTMLElement>('.tt-say')!;
+    const wire = () => pic.querySelectorAll<SVGGElement>('.t-node').forEach((g) => {
+      if (!picks[g.dataset.k || '']) return;
+      g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', 'Node ' + g.dataset.v);
+      g.classList.add('is-tap');
+    });
+    function choose(k: string) {
+      const p = picks[k]; if (!p) return;
+      pic.innerHTML = p.pic; say.innerHTML = p.say; wire();
+      say.classList.remove('is-in'); void say.offsetWidth; say.classList.add('is-in');
+      pic.querySelector<SVGGElement>(`.t-node[data-k="${k}"]`)?.focus({ preventScroll: true });
+    }
+    const target = (e: Event) => (e.target as Element).closest<SVGGElement>('.t-node');
+    pic.addEventListener('click', (e) => { const g = target(e); if (g) choose(g.dataset.k || ''); });
+    pic.addEventListener('keydown', (e) => { const g = target(e); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); choose(g.dataset.k || ''); } });
+    wire();
+  });
+</script>

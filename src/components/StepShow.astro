@@ -1,0 +1,47 @@
+---
+// Picture-only stepper (no code): one picture + one sentence per step, Back / Next / Start over.
+// All steps share one grid cell (reuses the CodeWalk .cw-steps styles), so the panel never changes height.
+interface Step { pic: string; say: string }
+interface Props { id: string; steps: Step[]; cap?: string; hint?: string; }
+const { id, steps, cap = 'Step by step', hint = 'Use Next to go through the steps.' } = Astro.props;
+---
+<figure class="fig ss" id={id}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">{hint}</p>
+  <div class="cw-steps">
+    {steps.map((s, i) => (
+      <div class={i === 0 ? 'cw-step' : 'cw-step is-hidden'} aria-hidden={i === 0 ? 'false' : 'true'}>
+        <div class="cw-pic" set:html={s.pic} />
+        <p class="cw-say" set:html={s.say} />
+      </div>
+    ))}
+  </div>
+  <div class="cw-nav">
+    <button type="button" class="btn" data-go="reset" aria-label="Start over from step 1" title="Start over">↺ Start over</button>
+    <button type="button" class="btn" data-go="back" aria-label="Previous step">←</button>
+    <span class="cw-count mono small" aria-live="polite">Step 1 of {steps.length}</span>
+    <button type="button" class="btn primary" data-go="next">Next →</button>
+  </div>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.ss').forEach((fig) => {
+    const panes = fig.querySelectorAll<HTMLElement>('.cw-step');
+    const back = fig.querySelector<HTMLButtonElement>('[data-go="back"]')!;
+    const next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
+    const reset = fig.querySelector<HTMLButtonElement>('[data-go="reset"]')!;
+    const count = fig.querySelector<HTMLElement>('.cw-count')!;
+    let at = 0;
+    function go(i: number) {
+      at = Math.max(0, Math.min(panes.length - 1, i));
+      panes.forEach((p, k) => { p.classList.toggle('is-hidden', k !== at); p.setAttribute('aria-hidden', String(k !== at)); });
+      count.textContent = `Step ${at + 1} of ${panes.length}`;
+      back.disabled = at === 0; reset.disabled = at === 0; next.disabled = at === panes.length - 1;
+      next.textContent = at === panes.length - 1 ? 'Done' : 'Next →';
+    }
+    next.addEventListener('click', () => go(at + 1));
+    back.addEventListener('click', () => go(at - 1));
+    reset.addEventListener('click', () => go(0));
+    go(0);
+  });
+</script>

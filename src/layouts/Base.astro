@@ -2,7 +2,10 @@
 import '../styles/global.css';
 import Toc from '../components/Toc.astro';
 interface Props { title: string; description?: string; course?: { code: string; href: string }; toc?: boolean; }
-const { title, description = "Ma'am Audrey's lessons for self-study: plain-English explanations with pictures you can play with.", course, toc = false } = Astro.props;
+const { title, description = "Ma'am Audrey's lessons for self-study: plain-English explanations with pictures you can play with.", course: given, toc = false } = Astro.props;
+// From a lesson page, the course links end in #l-<lesson>, so the course page opens at the lesson the student just left.
+const slug = Astro.url.pathname.split('/').filter(Boolean).pop();
+const course = given && slug && !given.href.replace(/\/$/, '').endsWith('/' + slug) ? { ...given, href: given.href + '#l-' + slug } : given;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
