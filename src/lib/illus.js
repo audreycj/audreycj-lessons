@@ -782,26 +782,53 @@ export function pedicabTilt() {
     top(145, T + 132, 'left', C.sky, blue);
     if (p) {
       s.circle(145, T + 174, 16, { stroke: C.orange, sw: 1.2, single: true, fill: 'none' });  // empty spot
-      s.curve(130, T + 168, 117, T + 104, 10, { stroke: C.orange, sw: 2, head: 7 });
+      // thick orange arrow with a white halo so it stands out on red/teal/blue (checked in a plain render)
+      s.curve(128, T + 172, 112, T + 98, 12, { stroke: '#fff', sw: 7, head: 11, single: true });
+      s.curve(128, T + 172, 112, T + 98, 12, { stroke: C.orange, sw: 3.5, head: 11, single: true });
     } else top(145, T + 174, 'left', C.orangeWash, C.orange);
-    // side view (front on the right): shows the tilt
-    const gy = T + 180, rw = 228, fw = 296;
-    s.text(262, T + 44, p ? 'Level!' : 'Tilts back!', { font: 'body', size: 14, weight: 800, color: p ? C.teal : C.red });
-    s.text(262, T + 58, p ? 'nobody got off' : 'bottom nearly scrapes,', { font: 'body', size: 10, weight: 700, color: p ? C.teal : C.red });
-    if (!p) s.text(262, T + 71, 'back wheels strained', { font: 'body', size: 10, weight: 700, color: C.red });
+    // side view from the passenger side (front on the right): back of the cab closed with a window,
+    // front of the cab open (front seat and the driver beyond it visible), motorcycle front wheel ahead.
+    const gy = T + 180, rw = 232;
+    s.text(262, T + 40, p ? 'Level!' : 'Tilts back!', { font: 'body', size: 14, weight: 800, color: p ? C.teal : C.red });
+    s.text(262, T + 54, p ? 'nobody got off' : 'bottom nearly scrapes,', { font: 'body', size: 10, weight: 700, color: p ? C.teal : C.red });
+    if (!p) s.text(262, T + 67, 'back wheels strained', { font: 'body', size: 10, weight: 700, color: C.red });
     if (!p) s.raw(`<g transform="rotate(-11 ${rw} ${gy})">`);
-    s.path(`M200 ${gy - 12} L200 ${gy - 70} Q200 ${gy - 80} 210 ${gy - 80} L298 ${gy - 80} Q312 ${gy - 78} 316 ${gy - 50} L318 ${gy - 12} Z`, { fill: C.paper, sw: 1.8 });
-    s.path(`M200 ${gy - 12} L200 ${gy - 40} L318 ${gy - 40} L318 ${gy - 12} Z`, { fill: C.red, stroke: C.ink, sw: 1.5 });
-    s.line(202, gy - 30, 316, gy - 30, { stroke: '#fff', sw: 3, single: true });
-    s.rect(212, gy - 72, 58, 26, { fill: C.soft, stroke: C.ink, sw: 1.2 });               // side opening (back)
-    s.path(`M280 ${gy - 72} L300 ${gy - 72} Q308 ${gy - 70} 310 ${gy - 48} L280 ${gy - 48} Z`, { fill: C.sky, stroke: C.ink, sw: 1.2 }); // front window
-    s.path(`M198 ${gy - 76} Q200 ${gy - 88} 214 ${gy - 88} L296 ${gy - 88} Q306 ${gy - 88} 304 ${gy - 78} L198 ${gy - 76} Z`, { fill: C.ink, sw: 1.3 }); // black roof
-    for (const wx of [rw, fw]) s.circle(wx, gy - 11, 22, { fill: C.ink, sw: 1 });
+    s.line(324, gy - 11, 318, gy - 56, { sw: 2.2 });                                         // motorcycle fork
+    s.circle(318, gy - 58, 8, { fill: C.butter, sw: 1.2 });                                  // headlight
+    s.circle(324, gy - 11, 22, { fill: C.ink, sw: 1 });                                      // motorcycle front wheel
+    // driver on the far side, seated on the motorcycle seat beside the front seat (checked in a plain render)
+    s.path(`M300 ${gy - 30} L316 ${gy - 30} L319 ${gy - 44} L312 ${gy - 44} Z`, { fill: C.soft, stroke: C.ink, sw: 1 }); // motorcycle body
+    s.round(286, gy - 37, 26, 7, 3, { fill: C.ink, sw: 1 });                                 // motorcycle seat
+    s.path(`M290 ${gy - 37} Q291 ${gy - 57} 299 ${gy - 59} Q307 ${gy - 57} 308 ${gy - 37} Z`, { fill: C.butter, stroke: C.amber, sw: 1.3 }); // shirt
+    s.circle(299, gy - 66, 12, { fill: C.ink, sw: 1 });                                      // head
+    s.round(297, gy - 44, 18, 7, 3, { fill: '#8a6d4b', stroke: C.ink, sw: 1 });             // thigh, forward
+    s.round(309, gy - 41, 6, 18, 3, { fill: '#8a6d4b', stroke: C.ink, sw: 1 });             // shin, down to the footrest
+    s.line(304, gy - 50, 316, gy - 52, { stroke: C.amber, sw: 2.4 });                        // arm
+    s.line(314, gy - 56, 320, gy - 50, { sw: 2 });                                           // handlebar
+    s.rect(266, gy - 58, 8, 30, { fill: C.soft, stroke: C.ink, sw: 1.1 });                  // front seat back
+    s.rect(266, gy - 32, 30, 8, { fill: C.soft, stroke: C.ink, sw: 1.1 });                  // front seat cushion
+    if (p) {                                                                                  // orange passenger, facing front
+      s.path(`M268 ${gy - 30} Q267 ${gy - 52} 278 ${gy - 55} Q288 ${gy - 52} 288 ${gy - 30} Z`, { fill: C.orangeWash, stroke: C.orange, sw: 1.4 });
+      s.circle(279, gy - 63, 14, { fill: C.ink, sw: 1 });
+      s.round(272, gy - 37, 24, 9, 4, { fill: '#4f86b8', stroke: C.ink, sw: 1 });              // lap (thigh)
+      s.round(288, gy - 34, 8, 20, 3, { fill: '#4f86b8', stroke: C.ink, sw: 1 });              // shin, feet behind the sill
+    }
+    s.path(`M262 ${gy - 24} L322 ${gy - 24} L322 ${gy - 12} L262 ${gy - 12} Z`, { fill: C.red, stroke: C.ink, sw: 1.4 }); // low front sill
+    // closed back
+    s.path(`M200 ${gy - 12} L200 ${gy - 76} L262 ${gy - 76} L262 ${gy - 12} Z`, { fill: C.paper, sw: 1.8 });
+    s.rect(206, gy - 70, 50, 24, { fill: C.sky, stroke: C.ink, sw: 1.2 });                  // back window
+    const heads = p ? [[238, C.sky, blue]] : [[222, C.sky, blue], [242, C.orangeWash, C.orange]];
+    heads.forEach(([x, f2, e2]) => { s.path(`M${x - 8} ${gy - 46} Q${x - 7} ${gy - 55} ${x} ${gy - 56} Q${x + 7} ${gy - 55} ${x + 8} ${gy - 46} Z`, { fill: f2, stroke: e2, sw: 1.1 }); s.circle(x, gy - 61, 11, { fill: C.ink, sw: 0.8 }); });
+    s.path(`M200 ${gy - 12} L200 ${gy - 42} L262 ${gy - 42} L262 ${gy - 12} Z`, { fill: C.red, stroke: C.ink, sw: 1.5 });
+    s.line(202, gy - 32, 260, gy - 32, { stroke: '#fff', sw: 3, single: true });
+    s.line(322, gy - 24, 322, gy - 82, { sw: 2 });                                            // front roof post
+    s.path(`M196 ${gy - 76} L196 ${gy - 86} Q200 ${gy - 90} 210 ${gy - 90} L322 ${gy - 90} Q328 ${gy - 88} 326 ${gy - 80} L196 ${gy - 76} Z`, { fill: C.ink, sw: 1.3 }); // black canvas roof
+    s.circle(rw, gy - 11, 22, { fill: C.ink, sw: 1 });                                         // cab wheel (back)
     if (!p) s.raw('</g>');
     s.line(186, gy, 330, gy, { stroke: C.soft, sw: 1.2, single: true });
     if (!p) for (const [x1, y1, x2, y2] of [[196, gy - 2, 188, gy - 8], [200, gy - 1, 196, gy - 11], [205, gy - 1, 206, gy - 11]]) s.line(x1, y1, x2, y2, { stroke: C.red, sw: 1.3, single: true });
     s.text(206, gy + 14, 'back', { font: 'body', size: 10, weight: 700, color: C.soft });
     s.text(312, gy + 14, 'front', { font: 'body', size: 10, weight: 700, color: C.soft });
   });
-  return s.svg('A Mati pedicab, twice. Each time, a top view on the left, front at the top: the driver sits at the front left with the front seat beside him, and at the back two benches face each other. A side view is on the right, front on the right. Before: all four passengers, one in orange, sit on the back benches and the front seat is empty; from the side, the pedicab tilts backward, its front wheel lifts, its bottom nearly scrapes the road, and the back wheels are strained. After: the passenger in orange has moved to the front seat; from the side, it is level. Nobody got off.').replace(/(\d+\.\d)\d+/g, '$1');
+  return s.svg('A Mati pedicab, twice. Each time, a top view on the left, front at the top: the driver sits at the front left with the front seat beside him, and at the back two benches face each other. A side view from the passenger side is on the right, front on the right: the back of the cab is closed with a window, the front is open, showing the front seat and the driver beyond it. Before: all four passengers, one in orange, sit on the back benches and the front seat is empty; from the side, the pedicab tilts backward, its front wheel lifts, its bottom nearly scrapes the road, and the back wheels are strained. After: the passenger in orange has moved to the front seat; from the side, it is level. Nobody got off.').replace(/(\d+\.\d)\d+/g, '$1');
 }
