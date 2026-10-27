@@ -1,11 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import TraverseLab from '../../components/TraverseLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { city, oneWay, islands } from '../../data/graphs.js';
 import { dfsSteps, bfsSteps } from '../../lib/graph.js';
+import { dfsDive, folderDive, stackIsPath, bfsVsDfs } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -86,6 +88,7 @@ const quiz = [
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Graphs</p>
     <p class="kicker">Graphs · Lesson 3 of 3</p>
     <h1>Depth-First Search (DFS)</h1>
+    <KindChips />
     <p class="lede">Go as far as you can down one path. At a dead end, back up and try the next way.</p>
     <div class="goals">
       <p class="note-label">By the end, you can:</p>
@@ -111,10 +114,12 @@ const quiz = [
         <p class="note-label">Depth-first search (DFS)</p>
         <p><b>Depth-first search (DFS)</b> is a <b>graph traversal algorithm</b> that visits every vertex reachable from a starting vertex. It starts at one vertex and keeps moving to an unvisited neighbor, going as <b>deep</b> as possible. When it reaches a vertex with no unvisited neighbors (a dead end), it <b>backtracks</b>: it goes back to the previous vertex and tries another neighbor. It uses a <b>stack</b>.</p>
       </div>
+      <figure class="fig illus-fig"><Fragment set:html={dfsDive()} /><figcaption>DFS from A on the main example (the same graph as the lab in Part 3). It goes A → B → C → F → E → D. D has no unvisited neighbors (a dead end), so DFS backs up to E and goes on to G. G is a dead end too, so DFS backs up again, all the way to A.</figcaption></figure>
       <div class="sticky">
         <p class="note-label">Think of opening folders</p>
         <p>You are looking for a file on a computer. You open the first folder, then the first folder inside it, then the first folder inside <i>that</i>... until a folder has no more folders inside. Then you click <b>Back</b> once and open the next folder there. The Back button is the stack: it remembers the way you came.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={folderDive()} /><figcaption>Open folders deep first: Documents, ITC120, Week 9. Week 9 has no folders inside, so click <b>Back</b>: you return to ITC120, the folder you came from, and open Week 10. Two more Backs bring you to Documents, which still has Photos.</figcaption></figure>
       <p>Compare with BFS: BFS spreads out in waves (wide first). DFS dives down one path (deep first). Same graph, same start, different order:</p>
       <table class="tbl">
         <tbody>
@@ -134,6 +139,7 @@ const quiz = [
     <div class="flow">
       <p>Recall the stack: you <b>push</b> onto the top and <b>pop</b> from the top. Last in, first out, like a stack of plates.</p>
       <p>In DFS, the stack holds the <b>path you are currently on</b>. The top is where you are now. Pushing = taking one step deeper. Popping = taking one step back. Because the most recent vertex comes off first, you always back up to <span class="hl">the place you just came from</span>.</p>
+      <figure class="fig illus-fig"><Fragment set:html={stackIsPath()} /><figcaption>One moment of DFS from A: it has just reached D. The stack, bottom to top, is A, B, C, F, E, D: exactly the path it walked. D is a dead end, so pop it. The new top, E, is the vertex DFS came from, so that is where it goes back to.</figcaption></figure>
       <div class="sub">
         <h3>The DFS procedure</h3>
         <p>Every DFS follows these steps:</p>
@@ -241,7 +247,9 @@ const quiz = [
       <h2>BFS vs. DFS</h2>
     </div>
     <div class="flow">
-      <p>Both are graph traversals: they visit every reachable vertex once. They differ in these ways:</p>
+      <p>Here is the same graph searched both ways from A. The small numbers show the visit order, and the arrows show how each vertex was first reached.</p>
+      <figure class="fig illus-fig"><Fragment set:html={bfsVsDfs()} /><figcaption>BFS reaches D third, straight from A, because D is one edge away. DFS reaches D sixth, at the end of a long path. Both visit all seven vertices, just in a different order.</figcaption></figure>
+      <p>Both are graph traversal algorithms: they visit every reachable vertex once. They differ in these ways:</p>
       <table class="tbl">
         <thead><tr><th></th><th>BFS</th><th>DFS</th></tr></thead>
         <tbody>
