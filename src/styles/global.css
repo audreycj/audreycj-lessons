@@ -840,3 +840,9 @@ pre.code .rg-c3 { display: inline-block; width: 100%; background: rgba(154, 115,
 .step.is-back > a { animation: back-glow 2.6s ease-out; }
 @keyframes back-glow { 0%, 35% { background: var(--butter); box-shadow: inset 4px 0 0 var(--amber); } 100% { background: transparent; box-shadow: inset 4px 0 0 transparent; } }
 @media (prefers-reduced-motion: reduce) { .step.is-back > a { animation: none; background: var(--butter); } }
+
+/* Code always scrolls sideways on small phones (never wraps, never widens the page). */
+pre, pre.code { max-width: 100%; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+pre.code > code { display: block; width: max-content; min-width: 100%; }
+.cw-grid > *, .ns-code, .peek-card, .ba, .sub, .paper, .two-col > *, .flow > * { min-width: 0; }
+.ba-run { overflow-x: auto; }

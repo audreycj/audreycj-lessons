@@ -47,13 +47,13 @@ node.data = successor.data;
 const rightChild = String.raw`// "the next value is just the right child"
 node.data = node.right.data;
 node.right = deleteRec(node.right, node.right.data);`;
-const blanks = String.raw`TreeNode successor = node.___A___;
-while (successor.___B___ != null) {
+const blanks = String.raw`TreeNode successor = node.______;   // A
+while (successor.______ != null) {  // B
   successor = successor.left;
 }
-node.data = ___C___;
+node.data = ______;                 // C
 node.right = deleteRec(node.right,
-                       ___D___);`;
+                       ______);     // D`;
 
 // Peeks: earlier figures, without scrolling.
 const startPeek = figs.startTree;
@@ -446,7 +446,7 @@ const quiz = [
         <ol start="3">
           <li>From this tree (65 added), delete 70. Which case? Draw the result.</li>
           <li>Using <code>deleteRec</code>, we delete 30 from the starting BST. In the call for 30, which line returns, and what does it return? Which line saves it, and in which node?</li>
-          <li>Fill in the blanks A to D for case 3:</li>
+          <li>Fill in the four blanks for case 3. The comment at the end of each line (A to D) names its blank:</li>
         </ol>
         <pre class="code"><code set:html={hi(blanks)} /></pre>
         <details class="reveal"><summary>Show the answer key (for self-study, not for grading)</summary><div class="flow">
