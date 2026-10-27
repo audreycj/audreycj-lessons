@@ -875,3 +875,5 @@ pre.code .code-copy { font: 700 0.75rem/1 var(--font-body); color: #d7e8e5; back
 pre.code .code-copy:hover { background: rgba(255, 255, 255, 0.16); }
 pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95); border-color: var(--butter, #f8dc95); }
 .peek-card pre.code .code-bar { display: none; }
+/* Lab "Start at" buttons: phones (iOS Safari) paint button text blue unless a color is set (Oct 28) */
+.trlab .tr-start-btns button { color: var(--ink); -webkit-appearance: none; appearance: none; padding: 0; }
