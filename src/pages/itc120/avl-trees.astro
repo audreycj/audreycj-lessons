@@ -359,7 +359,7 @@ const quiz = [
         <p class="note-label">Exam traps</p>
         <ul>
           <li>Name the case from the <b>unbalanced node</b>, not from the root.</li>
-          <li>Fix only the <b>lowest</b> unbalanced node (closest to the new value). After that one fix, the nodes above it are balanced too.</li>
+          <li>Fix only the <b>lowest</b> unbalanced node (closest to the new value). After that one fix (one or two rotations), the nodes above it are balanced too. This is true for <b>insertion</b>; deleting a value can need more fixes higher up.</li>
           <li>Do not forget the child that <b>changes parent</b> during a rotation. Losing it is the most common mistake.</li>
         </ul>
       </div>
