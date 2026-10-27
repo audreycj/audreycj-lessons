@@ -49,19 +49,19 @@ export function searchSteps(root, t) {
   const steps = [];
   const seen = [];
   let c = root;
-  steps.push(S(root, `Search for <b>${t}</b>. Start: <code>current = root</code>.`, { tag: 'Start', extra: vis([]) }));
+  steps.push(S(root, `Search for <b>${t}</b>. Start: <code>current = root</code>.`, { tag: 'Start at the root', extra: vis([]) }));
   while (c) {
     seen.push(c);
     if (t === c.v) {
-      steps.push(S(root, `Current node: <b>${c.v}</b>. ${t} = ${c.v} → <b>FOUND!</b> (return true)`, { tag: 'Found', marks: pathMarks(seen, c, 'found'), tags: { [c.id]: 'current' }, extra: vis(seen, ` &nbsp;(${seen.length} node${seen.length > 1 ? 's' : ''} checked)`) }));
+      steps.push(S(root, `Current node: <b>${c.v}</b>. ${t} = ${c.v} → <b>FOUND!</b> (return true)`, { tag: `At ${c.v}: found!`, marks: pathMarks(seen, c, 'found'), tags: { [c.id]: 'current' }, extra: vis(seen, ` &nbsp;(${seen.length} node${seen.length > 1 ? 's' : ''} checked)`) }));
       return { steps, found: true, visited: seen.map((n) => n.v) };
     }
     const left = t < c.v;
-    steps.push(S(root, `Current node: <b>${c.v}</b>. ${t} ${rel(t, c.v)} ${c.v} → go <b>${left ? 'LEFT' : 'RIGHT'}</b>.`, { tag: left ? 'Go left' : 'Go right', marks: pathMarks(seen, c, 'cur'), tags: { [c.id]: 'current' }, extra: vis(seen) }));
+    steps.push(S(root, `Current node: <b>${c.v}</b>. ${t} ${rel(t, c.v)} ${c.v} → go <b>${left ? 'LEFT' : 'RIGHT'}</b>.`, { tag: `At ${c.v}`, marks: pathMarks(seen, c, 'cur'), tags: { [c.id]: 'current' }, extra: vis(seen) }));
     c = left ? c.l : c.r;
   }
   const last = seen[seen.length - 1];
-  steps.push(S(root, `Current is <b>null</b> (an empty spot). <b>NOT FOUND:</b> ${t} is not in the tree (return false).`, { tag: 'Not found', marks: pathMarks(seen, null), extra: vis(seen, ' → null') }));
+  steps.push(S(root, `Current is <b>null</b> (an empty spot). <b>NOT FOUND:</b> ${t} is not in the tree (return false).`, { tag: 'Reached null: not found', marks: pathMarks(seen, null), extra: vis(seen, ' → null') }));
   return { steps, found: false, visited: seen.map((n) => n.v), last: last && last.v };
 }
 
@@ -75,22 +75,22 @@ export function insertSteps(root, v) {
   }
   const seen = [];
   let c = root;
-  steps.push(S(root, `Insert <b>${v}</b>. Line 6: <code>TreeNode current = root;</code> current refers to ${c.v}.`, { tag: 'Start', tags: { [c.id]: 'current' }, marks: { [c.id]: 'cur' } }));
+  steps.push(S(root, `Insert <b>${v}</b>. Line 6: <code>TreeNode current = root;</code> current refers to ${c.v}.`, { tag: 'Start at the root', tags: { [c.id]: 'current' }, marks: { [c.id]: 'cur' } }));
   for (;;) {
     seen.push(c);
     if (v === c.v) {
-      steps.push(S(root, `At ${c.v}: ${v} = ${c.v}. <b>Already in the tree</b>, so skip it (lines 8–9: <code>return root;</code>). Nothing changes.`, { tag: 'Equal', marks: pathMarks(seen, c, 'found'), tags: { [c.id]: 'current' } }));
+      steps.push(S(root, `At ${c.v}: ${v} = ${c.v}. <b>Already in the tree</b>, so skip it (lines 8–9: <code>return root;</code>). Nothing changes.`, { tag: `At ${c.v}: already there`, marks: pathMarks(seen, c, 'found'), tags: { [c.id]: 'current' } }));
       return { root, steps };
     }
     const left = v < c.v, side = left ? 'l' : 'r', word = left ? 'left' : 'right';
     const child = c[side];
     if (!child) {
       const n = mk(v); c[side] = n;
-      steps.push(S(root, `At ${c.v}: ${v} ${rel(v, c.v)} ${c.v}, so look ${word}. ${c.v}'s ${word} is <b>null</b> → <b>connect</b>: <code>current.${word} = new TreeNode(${v});</code> (line ${left ? 12 : 18}), then <code>return root;</code>. current still refers to ${c.v}.`, { tag: 'Connect', marks: { ...pathMarks(seen, c, 'cur'), [n.id]: 'new' }, tags: { [c.id]: 'current' } }));
+      steps.push(S(root, `At ${c.v}: ${v} ${rel(v, c.v)} ${c.v}, so look ${word}. ${c.v}'s ${word} is <b>null</b> → <b>connect</b>: <code>current.${word} = new TreeNode(${v});</code> (line ${left ? 12 : 18}), then <code>return root;</code>. current still refers to ${c.v}.`, { tag: `At ${c.v}: connected ${v}`, marks: { ...pathMarks(seen, c, 'cur'), [n.id]: 'new' }, tags: { [c.id]: 'current' } }));
       steps.push(S(root, `Done. The path was ${seen.map((x) => x.v).join(' → ')}. <b>${v}</b> is the ${word} child of ${c.v}. Only this last step changed the tree.`, { tag: 'Done', marks: { [n.id]: 'new' } }));
       return { root, steps };
     }
-    steps.push(S(root, `At ${c.v}: ${v} ${rel(v, c.v)} ${c.v}, so look ${word}. ${c.v}'s ${word} is ${child.v}, not null → <b>move</b>: <code>current = current.${word};</code> (line ${left ? 15 : 21}). The tree has not changed.`, { tag: 'Move ' + word, marks: { ...pathMarks(seen), [child.id]: 'cur' }, tags: { [child.id]: 'current' } }));
+    steps.push(S(root, `At ${c.v}: ${v} ${rel(v, c.v)} ${c.v}, so look ${word}. ${c.v}'s ${word} is ${child.v}, not null → <b>move</b>: <code>current = current.${word};</code> (line ${left ? 15 : 21}). The tree has not changed.`, { tag: `At ${c.v}: moved ${word}`, marks: { ...pathMarks(seen), [child.id]: 'cur' }, tags: { [child.id]: 'current' } }));
     c = child;
   }
 }

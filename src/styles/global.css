@@ -649,3 +649,16 @@ pre.bugfix .bug-fix-ic { display: inline-grid; place-items: center; width: 1.2em
 .bl-nav .btn, .lab-nav .btn, .al-nav .btn, .ll-nav .btn, .tr-nav .btn { white-space: nowrap; min-width: 0; }
 .bl-nav .primary, .lab-nav .primary, .al-nav .primary, .ll-nav .primary, .tr-nav .primary { flex: 1 1 auto; }
 @media (max-width: 26rem) { .bl-nav .btn, .lab-nav .btn, .al-nav .btn, .ll-nav .btn, .tr-nav .btn { padding-inline: 0.7em; font-size: 0.88rem; } }
+
+/* BST insert: the one empty spot where the new node will go */
+.tree-svg rect.t-nil.is-spot, .cw-pic .tree-svg rect.t-nil.is-spot { fill: var(--butter); stroke: var(--orange); stroke-width: 2.2; stroke-dasharray: none; }
+.tree-svg line.t-nil-edge.is-spot { stroke: var(--orange); stroke-width: 2.4; }
+/* Before/after pairs of small trees */
+.ba-pair { display: flex; align-items: center; justify-content: center; gap: 0.4rem; flex-wrap: wrap; }
+.ba-col { flex: 1 1 9rem; min-width: 0; max-width: 16rem; text-align: center; }
+.ba-col .tree-svg { width: 100%; height: auto; }
+.ba-cap { font-size: var(--step--1); font-weight: 800; color: var(--ink-soft); margin: 0 0 0.2rem; }
+.ba-arrow { font-size: 1.6rem; font-weight: 800; color: var(--orange); }
+/* BstLab step chip: says what THIS step did, not what comes next */
+.bstlab .bl-tag-k { font-weight: 600; color: var(--ink-soft); margin-right: 0.15em; }
+.bstlab .bl-tag { max-width: calc(100% - 1rem); }

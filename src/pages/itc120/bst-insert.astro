@@ -3,41 +3,18 @@ import Base from '../../layouts/Base.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import Peek from '../../components/Peek.astro';
+import TreeBuilder from '../../components/TreeBuilder.astro';
+import { idInsert, treeNodePic } from '../../lib/illus.js';
+import { insertCode, insertSteps, loopCode, loopSteps, insertFigs, searchCode, treeNodeCode } from '../../lib/walks.js';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
-import { build } from '../../lib/bst.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const start = [40, 20, 60, 10, 30, 50, 70];
-const insert = String.raw`static TreeNode insert(TreeNode root,
-                       int value) {
-  if (root == null) {
-    return new TreeNode(value);
-  }
-  TreeNode current = root;
-  while (true) {
-    if (value == current.data) {
-      return root;
-    } else if (value < current.data) {
-      if (current.left == null) {
-        current.left = new TreeNode(value);
-        return root;
-      }
-      current = current.left;
-    } else {
-      if (current.right == null) {
-        current.right = new TreeNode(value);
-        return root;
-      }
-      current = current.right;
-    }
-  }
-}`;
-const loop = String.raw`int[] values = {40, 20, 60, 10, 30, 50, 70};
-TreeNode root = null;               // empty tree
-for (int i = 0; i < values.length; i++) {
-  root = insert(root, values[i]);
-}`;
+const figs = insertFigs();
+const searchPeek = `<pre class="code"><code>${hiN(searchCode)}</code></pre>`;
 const bugCode = String.raw`} else if (value < current.data) {
   if (current.left == null) {
     current = new TreeNode(value);
@@ -56,16 +33,16 @@ const quiz = [
   { q: 'Does <code>root = insert(root, 45);</code> make 45 the root?', opts: ['Yes', 'No: 45 is added at the bottom, and insert gives back the same top node', 'Only if 45 is the largest', 'Only in an AVL tree'], a: 1, why: 'The method returns the same top node it received (unless the tree was empty). <code>root =</code> just saves it again.' },
 ];
 ---
-<Base title="BST Insertion in Java · ITC 120" description="Inserting into a binary search tree, by hand and with a Java loop: move current, connect a new node." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="BST Insertion · ITC 120" description="Inserting into a binary search tree, by hand and with a Java loop: move current, connect a new node." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 3 of 6</p>
-    <h1>BST Insertion in Java</h1>
-    <p class="lede">Search for the value; where the search falls off the tree, attach the new node.</p>
+    <h1>BST Insertion</h1>
+    <p class="lede">Adding a value by hand, then in Java: search for the value, and where the search falls off the tree, attach the new node.</p>
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>
       <ol>
-        <li>review how to insert into a BST by hand;</li>
+        <li>insert into a BST <b>by hand</b>, using the same questions as search;</li>
         <li>learn the two actions in the code: <b>move</b> <code>current</code> and <b>connect</b> a new node;</li>
         <li>trace <code>insert</code>, including a value that is already there and an empty tree;</li>
         <li>build a whole BST with a loop, and avoid three common mistakes.</li>
@@ -76,21 +53,37 @@ const quiz = [
 
   <section class="chapter wrap" id="hand">
     <div class="chapter-head">
-      <p class="chapter-num">Part 1 · Review</p>
+      <p class="chapter-num">Part 1 · By hand</p>
       <h2>Insertion by hand</h2>
     </div>
     <div class="flow">
-      <p>A new student enrolls, and their ID must be added to the tree in a place where search will find it later. Putting it anywhere would break the BST rule. So: <span class="hl">search for the value; where the search reaches null, attach the new node</span>.</p>
-      <p>Insert asks the same questions as search. Only the endings are different:</p>
+      <p>A new student enrolls, and their ID must be added to the tree in a place where search will find it later. Putting it anywhere would break the BST rule. So: <span class="w-key">search for the value; where the search reaches null, attach the new node</span>.</p>
+      <figure class="fig illus-fig illus">
+        <Fragment set:html={idInsert()} />
+        <figcaption>The registrar program does not look for "any free spot." It asks the same questions as a search, and the first empty spot it reaches is the only correct place.</figcaption>
+      </figure>
+      <p>Insert asks the same questions as <Peek label="the search method" title="From the BST lesson" html={searchPeek} />. Only the endings are different, as this table shows:</p>
       <table class="tbl">
         <thead><tr><th>Check</th><th>Search</th><th>Insert</th></tr></thead>
         <tbody>
           <tr><td>Tree empty?</td><td>return false</td><td>the new node becomes the root</td></tr>
           <tr><td>Equal?</td><td>found</td><td>already there: skip</td></tr>
-          <tr><td>Smaller?</td><td>go left</td><td>left empty? attach there. If not, go left</td></tr>
-          <tr><td>Larger?</td><td>go right</td><td>right empty? attach there. If not, go right</td></tr>
+          <tr><td>Smaller?</td><td><span class="w-left">go left</span></td><td>left empty? <b>attach there</b>. If not, <span class="w-left">go left</span></td></tr>
+          <tr><td>Larger?</td><td><span class="w-right">go right</span></td><td>right empty? <b>attach there</b>. If not, <span class="w-right">go right</span></td></tr>
         </tbody>
       </table>
+      <p>Put together, inserting by hand follows a short checklist. It is the search checklist with new endings:</p>
+      <div class="remember">
+        <p class="note-label">Insert checklist</p>
+        <p>Empty tree? The new node becomes the root. Otherwise, start at the root and compare the new value with the current node:</p>
+        <ol>
+          <li><b>equal?</b> → already in the tree. Skip it. Stop.</li>
+          <li><b>smaller?</b> → look <span class="w-left">left</span>. Empty? Attach it there and stop. Not empty? Go left, back to 1.</li>
+          <li><b>larger?</b> → look <span class="w-right">right</span>. Empty? Attach it there and stop. Not empty? Go right, back to 1.</li>
+        </ol>
+        <p>The new value always ends up as a new <b>leaf</b>. No other node moves.</p>
+      </div>
+      <p>Try it in the lab below. Each example shows the walk down, one check at a time. The chip at the top left of the tree says what <b>this</b> step did; the tree shows where we are now.</p>
       <BstLab id="lab-insert" mode="insert" cap="Insert lab" hint="Watch the “current” label. The tree only changes at the very last step. Then insert your own numbers: each one is added to the same tree." legend={`<span><i class="l-cur2"></i> current</span><span><i class="l-path"></i> checked</span><span><i class="l-new"></i> new node</span>`} presets={[
         { label: 'Insert 45', values: start, op: 45 },
         { label: 'Insert 30 (already there)', values: start, op: 30 },
@@ -105,9 +98,7 @@ const quiz = [
       <h2>The insert method</h2>
     </div>
     <div class="flow">
-      <p>Here is one way to write insert in Java. It uses a loop, like the search method. The line numbers on the left are used below.</p>
-      <pre class="code"><code set:html={hiN(insert)} /></pre>
-      <p>These are the names in the code:</p>
+      <p>Here is one way to write insert in Java. It uses a loop, like the search method, and builds new nodes with <Peek label="the TreeNode class" title="From the Trees lesson" html={`<pre class="code"><code>${hi(treeNodeCode)}</code></pre>` + treeNodePic()} />. Before reading it line by line, meet the names it uses. This table lists each one:</p>
       <table class="tbl">
         <thead><tr><th>Name</th><th>Meaning</th></tr></thead>
         <tbody>
@@ -125,24 +116,32 @@ const quiz = [
           <div class="paper flow">
             <p class="note-label">1. Move current (line 15 or 21)</p>
             <p class="mono">current = current.right;</p>
+            <Fragment set:html={figs.move} />
             <p><code>current</code> moves to a child that already exists. <b>The tree does not change</b>. Think of <code>current</code> as a finger pointing at one node: moving the finger does not change the tree.</p>
           </div>
           <div class="paper flow">
             <p class="note-label">2. Connect a new node (line 12 or 18)</p>
             <p class="mono">current.left = new TreeNode(45);</p>
+            <Fragment set:html={figs.connect} />
             <p>A new node is connected through the empty left (or right) of the node <code>current</code> refers to. <b>The tree changes</b>, but <code>current</code> does not move.</p>
           </div>
         </div>
         <div class="remember"><p class="note-label">Compare</p><p><code>current = ...</code> moves the arrow. <code>current.left = ...</code> changes the tree.</p></div>
       </div>
       <div class="sub">
+        <h3>Step through the code</h3>
+        <p>Now watch the whole method insert 45 into the starting tree. The dashed boxes are the empty (<code>null</code>) spots; the yellow one is where 45 will go.</p>
+        <CodeWalk id="walk-insert" code={insertCode} steps={insertSteps([40, 20, 60, 10, 30, 50, 70], 45)} cap="insert(root, 45), step by step" />
+      </div>
+      <div class="sub">
         <h3>What each part does</h3>
+        <p>Here is the same method as a short summary, part by part:</p>
         <ul>
           <li><b>Lines 3–5:</b> empty tree? The new node is the root.</li>
           <li><b>Line 6:</b> start at the root, like search.</li>
           <li><b>Lines 8–9:</b> equal? The value is already there. Stop.</li>
-          <li><b>Lines 11–14, 17–20:</b> empty spot on that side? Connect the new node there, then stop.</li>
-          <li><b>Lines 15, 21:</b> not empty? Move to that child, then check again.</li>
+          <li><b>Lines 11–14, 17–20:</b> empty spot on that side? <b>Connect</b> the new node there, then stop.</li>
+          <li><b>Lines 15, 21:</b> not empty? <b>Move</b> to that child, then check again.</li>
         </ul>
         <p><code>return</code> exits the <b>whole method</b> right away, not just the <code>if</code> or the loop.</p>
       </div>
@@ -158,15 +157,19 @@ const quiz = [
       <p>Java first runs <code>insert(root, 45)</code>: it adds 45, then gives back the top of the tree. Then <code>root =</code> saves what it gave back.</p>
       <div class="trap">
         <p class="note-label">Does 45 become the root?</p>
-        <p><b>No!</b> 45 is added at the bottom (as 50's left child). The method gives back the same top node it was given (40), and <code>root =</code> just saves that same node again.</p>
+        <p><b>No!</b> 45 is added at the bottom (as 50's left child, as you saw in <Peek label="the last step of the walkthrough" title="Connecting 45 (10 and 30 not shown)" html={figs.connect} />). The method gives back the same top node it was given (40), and <code>root =</code> just saves that same node again.</p>
       </div>
       <p><b>Then why save it?</b> When the tree is <b>empty</b>, the new node becomes the top. The method gives back a <i>new</i> top, and we must save it. Try "Empty tree, insert 7" in the lab.</p>
       <div class="sub">
         <h3>Build a whole tree with a loop</h3>
-        <pre class="code"><code set:html={hi(loop)} /></pre>
-        <p>Each time through the loop, one value is inserted, and the earlier nodes never move. After 7 inserts:</p>
-        <TreeFig values={start} label="The BST built from 40, 20, 60, 10, 30, 50, 70" />
-        <p>The order of insertion decides the shape. Inserting 10, 20, 30, … 70 in sorted order would make a chain instead.</p>
+        <p>To build a whole tree, call insert once for each value. Step through the loop and watch the first pass: that is the empty-tree case, where <code>root =</code> really matters.</p>
+        <CodeWalk id="walk-loop" code={loopCode} steps={loopSteps(start)} cap="Building a BST with a loop" hint="Use Next to go through the loop one pass at a time, or tap a line." />
+        <p><span class="w-key">The order of insertion decides the shape.</span> Here are the same four values, inserted in two different orders:</p>
+        <div class="two-col">
+          <figure class="fig"><p class="fig-cap">Order: 30, 10, 40, 20</p><TreeFig values={[30, 10, 40, 20]} label="BST from 30, 10, 40, 20: 30 at the root, 10 and 40 below, 20 under 10" /><p class="small">Short and wide: height 2.</p></figure>
+          <figure class="fig"><p class="fig-cap">Order: 10, 20, 30, 40 (sorted)</p><TreeFig values={[10, 20, 30, 40]} label="BST from 10, 20, 30, 40: a chain going right" /><p class="small">A chain: height 3. Search becomes as slow as a linked list.</p></figure>
+        </div>
+        <p>Inserting 10, 20, 30, … 70 in sorted order would make an even longer chain. Fixing this is the job of AVL trees, later in the course.</p>
       </div>
     </div>
   </section>
@@ -177,6 +180,7 @@ const quiz = [
       <h2>Three common mistakes</h2>
     </div>
     <div class="flow">
+      <p>These three mistakes are the most common ones in student code. Each one compiles and runs, but the tree comes out wrong:</p>
       <div class="trap">
         <p class="note-label">1. Forgetting <code>root =</code></p>
         <p><code>insert(root, 25);</code> on an empty tree creates node 25 and returns it, but nothing saves it. <code>root</code> is still <code>null</code>. Fix: always write <code>root = insert(root, 25);</code></p>
@@ -184,10 +188,12 @@ const quiz = [
       <div class="trap">
         <p class="note-label">2. Moving instead of connecting</p>
         <p><code>current = new TreeNode(45);</code> only moves the arrow. 50's left is still <code>null</code>, so 45 is never connected. Fix: <code>current.left = new TreeNode(45);</code></p>
+        <Fragment set:html={figs.lost45} />
       </div>
       <div class="trap">
         <p class="note-label">3. Connecting without checking for null</p>
         <p>Insert 25: at 40, 25 &lt; 40, so we look left. If the code writes <code>current.left = new TreeNode(25);</code> without checking, it <b>replaces</b> 20, and 20, 10, and 30 are cut off from the tree. That is why the code checks <code>if (current.left == null)</code> first.</p>
+        <Fragment set:html={figs.cut} />
       </div>
     </div>
   </section>
@@ -200,7 +206,7 @@ const quiz = [
     <div class="flow">
       <div class="paper flow">
         <p class="note-label">Problem 1: trace table</p>
-        <p>Using the starting BST (40, 20, 60, 10, 30, 50, 70), make a trace table for <code>insert(root, 55)</code>: one row each time the loop checks a node.</p>
+        <p>Using <Peek label="the starting BST" title="The starting BST" html={figs.startTree} /> (40, 20, 60, 10, 30, 50, 70), make a trace table for <code>insert(root, 55)</code>: one row each time the loop checks a node.</p>
         <details class="reveal"><summary>Show the answer</summary><div>
           <table class="tbl"><thead><tr><th>current.data</th><th>Compare</th><th>Child on that side</th><th>Then</th></tr></thead>
             <tbody>
@@ -213,6 +219,8 @@ const quiz = [
       <div class="paper flow">
         <p class="note-label">Problem 2: build and answer</p>
         <p>Start with an empty tree. Insert, in this order: <span class="mono">{prac.join(', ')}</span></p>
+        <p>Draw it on paper first. Then build it below, placing the values in the same order, and tap Check.</p>
+        <TreeBuilder id="build-prac" values={prac} target="50(30(25,40(35,)),75(,90(80,95)))" cap="Build the final BST" />
         <ol><li>Draw the final BST.</li><li>Which node is the parent of 35?</li><li>If we then call <code>insert(root, 85)</code>, which nodes does <code>current</code> visit? Where is 85 connected?</li><li>What happens if we call <code>insert(root, 40)</code>?</li></ol>
         <details class="reveal"><summary>Show the answer</summary><div class="flow">
           <TreeFig values={prac} label="BST built from 50, 30, 75, 25, 40, 35, 90, 80, 95" />

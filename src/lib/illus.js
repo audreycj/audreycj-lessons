@@ -181,6 +181,55 @@ export function namesBst(find = 'Ocampo') {
   return s + '</svg>';
 }
 
+/** A new enrollee's ID being inserted into the registrar's BST of student IDs. */
+export function idInsert() {
+  const D = 100; // everything below the computer is shifted down by this much
+  const s = new Sketch(340, 438 + D, 53);
+  // The new student says hello (top); the registrar's computer sits well below the speech bubble
+  face(s, 44, 54, 20, C.orangeWash, 'happy');
+  s.text(44, 94, 'Joy', { font: 'body', size: 14, weight: 800 });
+  s.text(44, 109, 'new enrollee', { font: 'body', size: 11, weight: 600, color: C.soft });
+  speech(s, 84, 10, 156, 32, 'left', C.orangeWash, 'I just enrolled!');
+  // Monitor: bezel, screen, title bar, then the stand (nudged down for space under the speech bubble)
+  s.raw('<g transform="translate(0 12)">');
+  s.round(96, 70, 230, 128, 8, { fill: '#3b4a4e', sw: 2 });
+  s.rect(106, 80, 210, 108, { fill: C.card, sw: 1.2, rough: 0.4 });
+  s.rect(106, 80, 210, 20, { fill: C.teal, sw: 1.2, rough: 0.4 });
+  for (const [i, f] of [[0, '#f6d6d0'], [1, C.butter], [2, C.tealWash]]) s.circle(116 + i * 11, 90, 6, { fill: f, sw: 0.8, rough: 0.3 });
+  s.text(220, 95, 'DOrSU Registrar', { font: 'body', size: 11, weight: 800, color: '#fff' });
+  s.text(211, 122, 'Add new student', { font: 'body', size: 13, weight: 800 });
+  s.text(118, 141, 'Student ID', { font: 'body', size: 10, weight: 700, color: C.soft, anchor: 'start' });
+  s.rect(118, 146, 116, 24, { fill: C.paper, sw: 1.4, rough: 0.5 });
+  s.text(126, 163, '2025180', { font: 'mono', size: 14, weight: 600, anchor: 'start' });
+  s.rect(242, 146, 62, 24, { fill: C.teal, sw: 1.4, rough: 0.5 });
+  s.text(273, 163, 'Add', { font: 'body', size: 13, weight: 800, color: '#fff' });
+  s.path('M199 198 L223 198 L227 214 L195 214 Z', { fill: '#3b4a4e', sw: 1.6, rough: 0.4 });
+  s.round(167, 213, 88, 9, 4, { fill: '#3b4a4e', sw: 1.6, rough: 0.4 });
+  s.raw('</g>');
+  s.raw(`<g transform="translate(0 ${D})">`);
+  s.line(16, 140, 324, 140, { sw: 1, stroke: '#cdd7d8', rough: 0.4 });
+  s.text(170, 166, 'behind the screen: where does 2025180 go?', { size: 15, color: C.teal });
+  // The BST of IDs, with the path and the empty spot
+  const P = { a: [170, 204, '2025150'], b: [78, 256, '2025075'], c: [262, 256, '2025230'], d: [42, 306, '2025010'] };
+  s.line(170, 216, 78, 244, { sw: 1.8 });
+  s.line(170, 216, 262, 244, { sw: 3.2, stroke: C.orange });
+  s.line(78, 268, 46, 294, { sw: 1.8 });
+  s.line(262, 268, 222, 296, { sw: 3.2, stroke: C.orange });
+  for (const [k, [x, y, t]] of Object.entries(P)) {
+    s.round(x - 38, y - 12, 76, 24, 12, { fill: k === 'a' || k === 'c' ? C.tealWash : C.card, sw: 1.8, rough: 0.5 });
+    s.text(x, y + 5, t, { font: 'body', size: 13, weight: 800 });
+  }
+  s.raw(`<rect x="182" y="296" width="80" height="26" rx="13" fill="${C.butter}" stroke="${C.orange}" stroke-width="2.4" stroke-dasharray="6 4"/>`);
+  s.text(222, 314, '2025180', { font: 'body', size: 13, weight: 800, color: '#b4461a' });
+  s.text(222, 344, 'empty spot: it goes here!', { size: 15, color: C.orange });
+  // The two checks, written out (body font: the hand font's 5 looks like S)
+  s.round(16, 366, 308, 62, 10, { fill: C.paper, sw: 1.2, stroke: C.soft, rough: 0.5 });
+  s.text(28, 390, '1. 2025180 > 2025150 → go right', { font: 'body', size: 13, weight: 700, anchor: 'start' });
+  s.text(28, 414, '2. 2025180 < 2025230 → go left: empty!', { font: 'body', size: 13, weight: 700, anchor: 'start' });
+  s.raw('</g>');
+  return s.svg('Joy, a new enrollee, is added to the registrar system with ID 2025180. Behind the screen, the IDs are in a BST. 2025180 is larger than the root 2025150, so go right to 2025230. It is smaller than 2025230, so go left, and that spot is empty. 2025180 is attached there as a new leaf.');
+}
+
 /* ---------------- Clean: one object in memory ---------------- */
 
 /**

@@ -161,7 +161,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 /**
  * Draw a tree as an SVG string.
- * opts: { marks, showBf, showH, showNil, pos (override positions), alpha (per-node opacity), label, minW }
+ * opts: { marks, showBf, showH, showNil, spot ({ key, side: 'l'|'r' }: highlight one empty slot), pos (override positions), alpha (per-node opacity), label, minW }
  * Red-black nodes carry n.c = 'R' or 'B'; their marks are drawn as a ring (halo) so the fill keeps its color.
  */
 export function svgTree(root, opts = {}) {
@@ -185,7 +185,8 @@ export function svgTree(root, opts = {}) {
       [['l', -1], ['r', 1]].forEach(([side, d]) => {
         if (n[side]) return;
         const nx = p.x + off + d * 14, ny = p.y + 40;
-        s += `<line class="t-nil-edge" x1="${p.x + off}" y1="${p.y}" x2="${nx}" y2="${ny - 6}" /><rect class="t-nil" x="${nx - 7}" y="${ny - 6}" width="14" height="11" rx="1.5" />`;
+        const sp = opts.spot && String(opts.spot.key) === String(key) && opts.spot.side === side ? ' is-spot' : '';
+        s += `<line class="t-nil-edge${sp}" x1="${p.x + off}" y1="${p.y}" x2="${nx}" y2="${ny - 6}" /><rect class="t-nil${sp}" x="${nx - 7}" y="${ny - 6}" width="14" height="11" rx="1.5" />`;
       });
     }
   }

@@ -31,7 +31,7 @@ export const terms = [
       { name: 'Trees and binary search trees', icon: 'tree', lessons: [
         { title: 'Trees and binary trees', href: '/itc120/trees/', status: 'live', blurb: 'Root, parent, child, leaf, depth, height. Tap any node to see its family.' },
         { title: 'Binary search trees and BST search', href: '/itc120/bst/', status: 'live', blurb: 'The BST rule, searching by hand, and the search method in Java.' },
-        { title: 'BST insertion in Java', href: '/itc120/bst-insert/', status: 'live', blurb: 'Search, then attach at the null spot. Move current vs. connect a new node.' },
+        { title: 'BST insertion', href: '/itc120/bst-insert/', status: 'live', blurb: 'Inserting by hand, then the insert method in Java. Search, then attach at the null spot. Move current vs. connect a new node.' },
         { title: 'Tree traversals', href: '/itc120/traversals/', status: 'live', blurb: 'Pre-order, in-order, and post-order, step by step.' },
         { title: 'Recursion and traversal code', href: '/itc120/recursion/', status: 'live', blurb: 'Base case, recursive case, and the call stack. Traversals and insert in Java.' },
         { title: 'BST deletion', href: '/itc120/bst-delete/', status: 'live', blurb: 'The three cases, the next value, and deleteRec in Java.' },

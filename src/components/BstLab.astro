@@ -132,7 +132,7 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
     }
     function paint(animate = true) {
       const s = steps[at];
-      capEl.innerHTML = s.caption; tagEl.textContent = s.tag || ''; extraEl.innerHTML = s.extra || '';
+      capEl.innerHTML = s.caption; tagEl.innerHTML = s.tag ? `<span class="bl-tag-k">This step:</span> ${s.tag}` : ''; extraEl.innerHTML = s.extra || '';
       back.disabled = at === 0; next.disabled = at === steps.length - 1;
       next.textContent = at === steps.length - 1 ? 'Finished' : 'Next step →';
       cancelAnimationFrame(anim);
