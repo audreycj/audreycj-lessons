@@ -99,7 +99,7 @@ const bushy = [40, 20, 60, 10, 30, 50, 70];
 
 // Paper practice: answers are computed from the same code the labs use, so they always match.
 const practice = [
-  { id: 'p1', values: [21, 9, 15, 5, 30, 26, 23], rotations: 'Two fixes. Inserting 15 makes 21 unbalanced (+2): the <b>LR case</b> (left rotation at 9, then right rotation at 21). Inserting 23 makes 21 unbalanced (−2): the <b>RL case</b> (right rotation at 26, then left rotation at 21).' },
+  { id: 'p1', values: [21, 9, 15, 5, 30, 26, 23], rotations: 'Two fixes. Inserting 15 makes 21 unbalanced (+2): the <b>LR case</b> (left rotation at 9, then right rotation at 21). Inserting 26 makes 21 unbalanced (−2). From 21 the path went right (30), then left (26): the <b>RL case</b> (right rotation at 30, then left rotation at 21). Inserting 23 needs no fix.' },
   { id: 'p2', values: [1, 2, 3, 4, 5, 6, 7], rotations: 'Four fixes, all the <b>RR case</b> (one left rotation each): when inserting 3 (at 1), 5 (at 3), 6 (at 2, the root), and 7 (at 5). Sorted input that made a chain in a plain BST becomes a perfectly bushy tree.' },
   { id: 'p3', values: [50, 30, 70, 20, 40, 35], rotations: 'One fix. Inserting 35 makes 50 unbalanced (+2). From 50 the path went left (30), then right (40): the <b>LR case</b>. Left rotation at 30, then right rotation at 50. Watch 35: it changes parent and ends up as the right child of 30.' },
 ].map((p) => {
@@ -125,13 +125,13 @@ const quiz = [
     <h1>AVL Trees</h1>
     <p class="lede">A binary search tree that fixes its own shape, so searching stays fast.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>see why a BST can become slow, and what "balanced" means;</li>
-        <li>compute the <b>height</b> and <b>balance factor</b> of any node;</li>
-        <li>name the four types of imbalance (<b>LL, RR, LR, RL</b>) and fix each one with rotations;</li>
-        <li>insert a list of values into an AVL tree <b>by hand</b>, the way the exam asks;</li>
-        <li>read the Java code for AVL insertion.</li>
+        <li>explain why a BST built from sorted values is slow, using its height;</li>
+        <li>compute the <b>height</b> and <b>balance factor</b> (left − right) of any node;</li>
+        <li>name the case at an unbalanced node (<b>LL, RR, LR, RL</b>) and fix it with the right rotation(s);</li>
+        <li>insert a list of values into an AVL tree <b>by hand</b> and write its traversals, the way the exam asks;</li>
+        <li>point to the lines in the Java <code>insertRec</code> that update heights and fix each case.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the BST lessons (insertion and traversals), scratch paper, and a pen.</p>
@@ -230,7 +230,7 @@ const quiz = [
         <ul>
           <li>It is <b>left minus right</b>, not right minus left. Getting the order wrong flips every sign.</li>
           <li>It uses <b>heights</b>, not the number of nodes.</li>
-          <li>Check <b>every</b> node. A tree can be fine at the root but unbalanced lower down (like 60 above).</li>
+          <li>Check <b>every</b> node. A tree can be fine at the root but unbalanced lower down (like 60 in the explorer above: −2, while the root 40 is 0).</li>
         </ul>
       </div>
     </div>
@@ -359,7 +359,7 @@ const quiz = [
         <p class="note-label">Exam traps</p>
         <ul>
           <li>Name the case from the <b>unbalanced node</b>, not from the root.</li>
-          <li>Fix the <b>lowest</b> unbalanced node (closest to the new value) first.</li>
+          <li>Fix only the <b>lowest</b> unbalanced node (closest to the new value). After that one fix, the nodes above it are balanced too.</li>
           <li>Do not forget the child that <b>changes parent</b> during a rotation. Losing it is the most common mistake.</li>
         </ul>
       </div>
