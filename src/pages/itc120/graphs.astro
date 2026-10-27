@@ -4,6 +4,7 @@ import GraphFig from '../../components/GraphFig.astro';
 import MatrixLab from '../../components/MatrixLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import PinScript from '../../components/PinScript.astro';
+import { graphsInIT } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { small, smallDir, weighted, withLoop } from '../../data/graphs.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -102,13 +103,13 @@ public class ListGraph {
     <h1>Graphs, and How to Store Them</h1>
     <p class="lede">Trees let each node have one parent. Graphs remove that rule: anything can connect to anything.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>explain what a graph is and how it differs from a tree;</li>
-        <li>use graph words: vertex, edge, adjacent, degree, path, cycle, loop;</li>
-        <li>tell <b>directed</b> from undirected, and <b>weighted</b> from unweighted;</li>
-        <li>read and build an <b>adjacency matrix</b> and an <b>adjacency list</b>;</li>
-        <li>choose between the two, and store a graph in Java.</li>
+        <li>say what a graph is and give two ways it differs from a tree;</li>
+        <li>point out a vertex's neighbors, degree (in- and out-degree for arrows), a path, a cycle, and a loop in a drawing;</li>
+        <li>tell from a drawing or a matrix whether a graph is <b>directed</b> and whether it is <b>weighted</b>;</li>
+        <li>write the <b>adjacency matrix</b> and <b>adjacency list</b> of a small graph, and draw a graph from either one;</li>
+        <li>choose the matrix or the list for a given graph and explain why, and read Java code that stores a graph both ways.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the linked lists lesson (for adjacency lists), the trees lessons, and scratch paper.</p>
@@ -148,11 +149,12 @@ public class ListGraph {
         <p>Graphs are everywhere in IT. Here are some examples:</p>
         <ul>
           <li><b>Computer networks:</b> devices (vertices) connected by cables or Wi-Fi links (edges).</li>
-          <li><b>Social media:</b> people (vertices) and friendships (edges). "People you may know" are friends of your friends.</li>
+          <li><b>Social media:</b> people (vertices) and friendships (edges). "People you may know" are often friends of your friends.</li>
           <li><b>Maps and delivery apps:</b> places (vertices) and roads (edges), used to find a route.</li>
           <li><b>The web:</b> pages (vertices) and links (edges) from one page to another.</li>
         </ul>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={graphsInIT()} /><figcaption>The four examples as small graphs. On social media, you are not friends with Bea yet (dashed line), but two of your friends are, so the app may suggest her. On the map, the numbers are travel minutes (made-up), so it is a <b>weighted</b> graph. On the web, a link goes one way, so the edges are arrows (a <b>directed</b> graph). You will meet both words in Part 2.</figcaption></figure>
     </div>
   </section>
 
@@ -160,7 +162,7 @@ public class ListGraph {
   <section class="chapter wrap" id="words">
     <div class="chapter-head">
       <p class="chapter-num">Part 2 · Vocabulary</p>
-      <h2>Graph words</h2>
+      <h2>Graph terminology</h2>
     </div>
     <div class="flow">
       <p>These are the basic terms used with graphs. The examples refer to the small graph above. <b>Tap any row</b> to see it in the graph (on a computer, just point at the row).</p>
@@ -178,7 +180,7 @@ public class ListGraph {
             <tr tabindex="0" data-hl="B,C" data-hl2="" data-e="B-C"><td><b>Adjacent</b> (neighbors)</td><td>two vertices joined by an edge</td><td>B and C are adjacent; A and C are not</td></tr>
             <tr tabindex="0" data-hl="B" data-hl2="A,C,D" data-e="A-B,B-C,B-D"><td><b>Degree</b></td><td>the number of edges touching a vertex</td><td>B has degree 3</td></tr>
             <tr tabindex="0" data-hl="A,C" data-hl2="B" data-e="A-B,B-C"><td><b>Path</b></td><td>a sequence of vertices, each joined to the next by an edge</td><td>A → B → C</td></tr>
-            <tr tabindex="0" data-hl="A" data-hl2="B,D" data-e="A-B,B-D,A-D"><td><b>Cycle</b></td><td>a path that starts and ends at the same vertex, without reusing edges</td><td>A → B → D → A</td></tr>
+            <tr tabindex="0" data-hl="A" data-hl2="B,D" data-e="A-B,B-D,A-D"><td><b>Cycle</b></td><td>a path that starts and ends at the same vertex, without repeating any edge or any other vertex</td><td>A → B → D → A</td></tr>
             <tr tabindex="0" data-hl="" data-hl2="" data-e=""><td><b>Loop</b></td><td>an edge from a vertex to itself</td><td>(none here)</td></tr>
             <tr tabindex="0" data-hl="A,B,C,D" data-hl2="" data-e="A-B,A-D,B-C,B-D"><td><b>Connected</b></td><td>every vertex can be reached from every other vertex</td><td>this graph is connected</td></tr>
             </tbody>
@@ -233,7 +235,8 @@ public class ListGraph {
       <h2>Adjacency matrix</h2>
     </div>
     <div class="flow">
-      <p>A drawing is for people. A program needs to store the graph in memory. There are two common ways. The first uses a 2D array, which you know from arrays.</p>
+      <p>The circles-and-lines pictures in these lessons are drawn for <b>people</b>: our eyes can follow the lines and see who connects to whom. A computer cannot look at a picture. It needs the same facts written down as <b>data</b> in memory: which vertex has an edge to which.</p>
+      <p>Where each circle sits on the page does not matter. Move the circles around and it is still the same graph, because only the connections count. So the computer stores only the connections. There are two common ways to do it: the <b>adjacency matrix</b> (this part) and the <b>adjacency list</b> (Part 4). Both hold exactly the same graph as the drawing. The matrix uses a 2D array, which you know from the arrays lesson.</p>
       <div class="def">
         <p class="note-label">Adjacency matrix</p>
         <p>An <b>adjacency matrix</b> is a 2D array with one row and one column for each vertex. The cell <b>[row][column]</b> is <b>1</b> if there is an edge <b>from</b> the row vertex <b>to</b> the column vertex, and <b>0</b> if there is not.</p>
@@ -247,7 +250,7 @@ public class ListGraph {
         <ol>
           <li><b>Undirected = mirror image.</b> Every undirected edge A–B is stored twice, as [A][B] and [B][A]. So the matrix matches itself across the diagonal (it is <b>symmetric</b>).</li>
           <li><b>The diagonal means loops.</b> Cell [C][C] is an edge from C to itself. If the diagonal is all 0, there are no loops.</li>
-          <li><b>Weights replace the 1s.</b> In a weighted graph, the cell stores the weight instead of 1.</li>
+          <li><b>Weights replace the 1s.</b> In a weighted graph, the cell stores the weight instead of 1. In this course, 0 still means "no edge". Some books write ∞ or leave the cell blank instead, because a real edge could have weight 0.</li>
         </ol>
         <div class="two-col">
           <figure class="fig">
@@ -317,7 +320,7 @@ public class ListGraph {
       <table class="tbl">
         <thead><tr><th>Question</th><th>Adjacency matrix</th><th>Adjacency list</th></tr></thead>
         <tbody>
-          <tr><td><b>Memory used</b></td><td>always vertices × vertices cells (100 vertices → 10,000 cells), even with few edges</td><td>only the edges that exist</td></tr>
+          <tr><td><b>Memory used</b></td><td>always vertices × vertices cells (100 vertices → 10,000 cells), even with few edges</td><td>one list per vertex, plus one cell per edge that exists (two for an undirected edge)</td></tr>
           <tr><td><b>"Is there an edge A → B?"</b></td><td>look at one cell: [A][B]. Fast.</td><td>walk through A's list until you find B</td></tr>
           <tr><td><b>"Who are A's neighbors?"</b></td><td>scan the whole row, including all the 0s</td><td>walk A's list: only real neighbors</td></tr>
           <tr><td><b>Best when</b></td><td>the graph is <b>dense</b> (many edges) or small</td><td>the graph is <b>sparse</b> (few edges per vertex)</td></tr>
@@ -367,6 +370,7 @@ public class ListGraph {
         <pre class="code"><code set:html={hi(code2)} /></pre>
       </div>
       <p>Notice the difference when listing B's neighbors: the matrix loop checks all <code>n</code> cells in row 1, while the list loop only visits B's real neighbors.</p>
+      <p>One more difference: the matrix loop always gives neighbors in index order (A, B, C, …), but an <code>ArrayList</code> keeps them in the order the edges were added. Here both give A C D. In the next lessons, this order matters: it decides which neighbor BFS and DFS visit first.</p>
     </div>
   </section>
 

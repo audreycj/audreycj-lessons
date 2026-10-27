@@ -832,3 +832,97 @@ export function pedicabTilt() {
   });
   return s.svg('A Mati pedicab, twice. Each time, a top view on the left, front at the top: the driver sits at the front left with the front seat beside him, and at the back two benches face each other. A side view from the passenger side is on the right, front on the right: the back of the cab is closed with a window, the front is open, showing the front seat and the driver beyond it. Before: all four passengers, one in orange, sit on the back benches and the front seat is empty; from the side, the pedicab tilts backward, its front wheel lifts, its bottom nearly scrapes the road, and the back wheels are strained. After: the passenger in orange has moved to the front seat; from the side, it is level. Nobody got off.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+/** Four everyday IT graphs: a home network, friends on social media, a map with travel minutes, and web pages with links. */
+export function graphsInIT() {
+  const s = new Sketch(340, 504, 73);
+  const BLUE = '#2f6fa8', DARK = '#a8650f';
+  // line from a to b, trimmed ta units at a and tb units at b
+  const seg = (a, b, ta, tb, o = {}, arrow = false) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+    const p = [a[0] + ux * ta, a[1] + uy * ta, b[0] - ux * tb, b[1] - uy * tb].map((v) => Math.round(v * 10) / 10);
+    return arrow ? s.arrow(...p, o) : s.line(...p, o);
+  };
+  const panel = (x0, y0, title, color, l1, l2) => {
+    s.round(x0, y0, 164, 230, 12, { fill: C.card, sw: 1.4, stroke: C.soft, rough: 0.5 });
+    s.text(x0 + 82, y0 + 24, title, { font: 'body', size: 15, weight: 800, color });
+    s.text(x0 + 82, y0 + 200, l1, { font: 'body', size: 12, weight: 700, color: C.soft });
+    s.text(x0 + 82, y0 + 217, l2, { font: 'body', size: 12, weight: 700, color: C.soft });
+  };
+  const label = (x, y, t) => s.text(x, y, t, { font: 'body', size: 12, weight: 700 });
+
+  // 1. Home network: four devices linked to one Wi-Fi router
+  {
+    const x0 = 4, y0 = 4;
+    panel(x0, y0, 'Computer network', C.teal, 'vertices: devices', 'edges: cables or Wi-Fi');
+    const R = [x0 + 82, y0 + 112];
+    const D = [[x0 + 34, y0 + 60, 'laptop'], [x0 + 130, y0 + 60, 'phone'], [x0 + 34, y0 + 146, 'printer'], [x0 + 130, y0 + 146, 'tablet']];
+    D.forEach(([x, y]) => seg([x, y], R, 20, 22, { sw: 1.6, stroke: C.teal }));
+    s.line(R[0] - 8, R[1] - 10, R[0] - 12, R[1] - 24, { sw: 1.5 }); s.line(R[0] + 8, R[1] - 10, R[0] + 12, R[1] - 24, { sw: 1.5 });
+    s.round(R[0] - 20, R[1] - 10, 40, 20, 5, { fill: C.tealWash, sw: 1.6, rough: 0.6 });
+    [-8, 0, 8].forEach((d) => s.circle(R[0] + d, R[1], 3, { fill: C.teal, sw: 0.8 }));
+    label(R[0], R[1] + 26, 'router');
+    D.forEach(([x, y, n]) => {
+      if (n === 'laptop') { s.rect(x - 15, y - 14, 30, 20, { fill: C.sky, sw: 1.5, rough: 0.6 }); s.path(`M${x - 19} ${y + 6} H${x + 19} L${x + 16} ${y + 11} H${x - 16} Z`, { fill: C.butter, sw: 1.4 }); }
+      else if (n === 'phone') { s.round(x - 9, y - 16, 18, 30, 4, { fill: C.sky, sw: 1.5, rough: 0.6 }); s.circle(x, y + 9, 3, { fill: C.card, sw: 0.8 }); }
+      else if (n === 'printer') { s.rect(x - 9, y - 16, 18, 10, { fill: C.card, sw: 1.3, rough: 0.5 }); s.round(x - 16, y - 7, 32, 16, 4, { fill: C.butter, sw: 1.5, rough: 0.6 }); s.rect(x - 9, y + 5, 18, 9, { fill: C.card, sw: 1.3, rough: 0.5 }); }
+      else { s.round(x - 15, y - 13, 30, 24, 4, { fill: C.sky, sw: 1.5, rough: 0.6 }); }
+      label(x, y + 30, n);
+    });
+  }
+
+  // 2. Social media: friendships; Bea is a friend of two of your friends
+  {
+    const x0 = 172, y0 = 4;
+    panel(x0, y0, 'Social media', C.orange, 'vertices: people', 'edges: friendships');
+    const P = { You: [x0 + 38, y0 + 72], Ana: [x0 + 126, y0 + 72], Migs: [x0 + 38, y0 + 146], Bea: [x0 + 126, y0 + 146] };
+    [['You', 'Ana'], ['You', 'Migs'], ['Ana', 'Bea'], ['Migs', 'Bea']].forEach(([a, b]) => seg(P[a], P[b], 24, 24, { sw: 1.8, stroke: C.orange }));
+    const a = P.You, b = P.Bea, L = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L;
+    s.raw(`<line x1="${(a[0] + ux * 24).toFixed(1)}" y1="${(a[1] + uy * 24).toFixed(1)}" x2="${(b[0] - ux * 24).toFixed(1)}" y2="${(b[1] - uy * 24).toFixed(1)}" stroke="${C.soft}" stroke-width="1.6" stroke-dasharray="5 5" stroke-linecap="round"/>`);
+    const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    s.circle(m[0], m[1], 22, { fill: C.paper, sw: 1.3, stroke: C.soft });
+    s.text(m[0], m[1] + 6, '?', { font: 'body', size: 16, weight: 800, color: C.soft });
+    Object.entries(P).forEach(([n, [x, y]], i) => {
+      const shirt = [C.orangeWash, C.tealWash, C.sky, C.pink][i];
+      s.circle(x, y - 8, 18, { fill: C.butter, sw: 1.5 });
+      s.path(`M${x - 13} ${y + 14} Q${x} ${y - 4} ${x + 13} ${y + 14} Z`, { fill: shirt, sw: 1.5 });
+      label(x, i < 2 ? y - 24 : y + 30, n);
+    });
+  }
+
+  // 3. Map: places joined by roads, with travel minutes (made-up)
+  {
+    const x0 = 4, y0 = 242;
+    panel(x0, y0, 'Maps and delivery', DARK, 'vertices: places', 'edges: roads (minutes)');
+    const P = { Home: [x0 + 36, y0 + 74], School: [x0 + 128, y0 + 74], Market: [x0 + 36, y0 + 150], Beach: [x0 + 128, y0 + 150] };
+    const roads = [['Home', 'School', 10], ['Home', 'Market', 6], ['Market', 'Beach', 7], ['School', 'Beach', 4]];
+    roads.forEach(([a, b]) => seg(P[a], P[b], 16, 16, { sw: 4, stroke: '#d9cfb8', single: true }));
+    roads.forEach(([a, b, w]) => {
+      const m = [(P[a][0] + P[b][0]) / 2, (P[a][1] + P[b][1]) / 2];
+      s.circle(m[0], m[1], 22, { fill: C.card, sw: 1.3, stroke: DARK });
+      s.text(m[0], m[1] + 5, String(w), { font: 'body', size: 13, weight: 800, color: DARK });
+    });
+    Object.entries(P).forEach(([n, [x, y]], i) => {
+      s.path(`M${x} ${y + 10} C${x - 4} ${y + 2} ${x - 11} ${y - 3} ${x - 11} ${y - 10} A11 11 0 1 1 ${x + 11} ${y - 10} C${x + 11} ${y - 3} ${x + 4} ${y + 2} ${x} ${y + 10} Z`, { fill: C.orangeWash, sw: 1.5, stroke: C.red });
+      s.circle(x, y - 10, 7, { fill: C.card, sw: 1 });
+      label(x, i < 2 ? y - 27 : y + 28, n);
+    });
+  }
+
+  // 4. The web: pages and one-way links (arrows)
+  {
+    const x0 = 172, y0 = 242;
+    panel(x0, y0, 'The web', BLUE, 'vertices: pages', 'edges: links (one way)');
+    const P = { Home: [x0 + 82, y0 + 74], News: [x0 + 34, y0 + 148], Enroll: [x0 + 130, y0 + 148] };
+    [['Home', 'News'], ['Home', 'Enroll'], ['News', 'Enroll']].forEach(([a, b]) => seg(P[a], P[b], 26, 30, { sw: 1.8, stroke: BLUE, head: 9 }, true));
+    Object.entries(P).forEach(([n, [x, y]]) => {
+      s.rect(x - 15, y - 19, 30, 38, { fill: C.card, sw: 1.5, rough: 0.6 });
+      s.rect(x - 15, y - 19, 30, 8, { fill: C.sky, sw: 1.2, rough: 0.4 });
+      [-3, 4, 11].forEach((d, i) => s.line(x - 9, y + d, x + (i === 2 ? 3 : 9), y + d, { sw: 1, stroke: C.soft, single: true }));
+      label(x, n === 'Home' ? y - 26 : y + 34, n);
+    });
+  }
+
+  s.text(170, 498, 'Same idea every time: things + connections', { size: 16, color: C.teal });
+  return s.svg('Four graphs from IT. Computer network: a laptop, phone, printer, and tablet each linked to one Wi-Fi router. Social media: You are friends with Ana and Migs; both are friends with Bea, so the app asks "You may know Bea?". Maps and delivery: Home, School, Market, and Beach joined by roads marked with travel minutes 10, 6, 7, and 4. The web: the Home page links to News and Enroll, and News links to Enroll; links are one-way arrows.').replace(/(\d+\.\d)\d+/g, '$1');
+}
