@@ -520,7 +520,8 @@ svg.objbox { max-width: 20rem; }
 .cw-var b { color: var(--teal-ink); }
 .cw-say { margin: 0; font-size: var(--step--1); line-height: 1.5; min-height: 3em; }
 .cw-say code { font-size: 0.85em; }
-.cw-nav { display: grid; grid-template-columns: auto 1fr auto; gap: 0.5rem; align-items: center; }
+.cw-nav { display: grid; grid-template-columns: auto auto 1fr auto; gap: 0.5rem; align-items: center; }
+@media (max-width: 26rem) { .cw-nav [data-go="reset"] { font-size: 0; padding-inline: 0.7em; } .cw-nav [data-go="reset"]::before { content: "↺"; font-size: 1rem; } }
 .cw-nav .btn { min-height: 2.4rem; padding: 0.3em 0.9em; font-size: 0.9rem; }
 .cw-count { text-align: center; color: var(--ink-soft); }
 .cw-code { margin: 0; padding: 0.6rem 0; }
@@ -653,12 +654,28 @@ pre.bugfix .bug-fix-ic { display: inline-grid; place-items: center; width: 1.2em
 /* BST insert: the one empty spot where the new node will go */
 .tree-svg rect.t-nil.is-spot, .cw-pic .tree-svg rect.t-nil.is-spot { fill: var(--butter); stroke: var(--orange); stroke-width: 2.2; stroke-dasharray: none; }
 .tree-svg line.t-nil-edge.is-spot { stroke: var(--orange); stroke-width: 2.4; }
-/* Before/after pairs of small trees */
-.ba-pair { display: flex; align-items: center; justify-content: center; gap: 0.4rem; flex-wrap: wrap; }
-.ba-col { flex: 1 1 9rem; min-width: 0; max-width: 16rem; text-align: center; }
+/* Before/after pairs: the line of code that runs, then BEFORE → AFTER pictures. Stacks (with ↓) on phones. */
+.ba { border: 1.5px solid var(--line); border-radius: 8px; background: var(--paper); padding: 0.7rem 0.6rem 0.6rem; }
+.ba.is-bad { border-color: var(--red-pen); background: #fff; }
+.ba-run { margin: 0 0 0.5rem; text-align: center; font-size: var(--step--1); }
+.ba-run-k { font-weight: 800; color: var(--ink-soft); margin-right: 0.3em; }
+.ba.is-bad .ba-run-k { color: var(--red-pen); }
+.ba-run code { font-size: 0.95em; white-space: nowrap; }
+.ba-pair { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.5rem; }
+.ba-col { min-width: 0; text-align: center; }
 .ba-col .tree-svg { width: 100%; height: auto; }
+.ba-stack { display: grid; gap: 0.2rem; justify-items: center; }
 .ba-cap { font-size: var(--step--1); font-weight: 800; color: var(--ink-soft); margin: 0 0 0.2rem; }
-.ba-arrow { font-size: 1.6rem; font-weight: 800; color: var(--orange); }
+.ba-arrow { display: flex; flex-direction: column; align-items: center; color: var(--orange-ink); }
+.ba-glyph { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+.ba-arrow-k { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+@media (max-width: 40rem) {
+  .ba-pair { grid-template-columns: 1fr; }
+  .ba-col .tree-svg { max-width: 20rem; margin-inline: auto; }
+  .ba-glyph { transform: rotate(90deg); }
+}
+/* A note-label in the plain title font, for labels with numbers or code (Kalam's 5 looks like S) */
+.note-label.is-plain { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; }
 /* BstLab step chip: says what THIS step did, not what comes next */
 .bstlab .bl-tag-k { font-weight: 600; color: var(--ink-soft); margin-right: 0.15em; }
 .bstlab .bl-tag { max-width: calc(100% - 1rem); }

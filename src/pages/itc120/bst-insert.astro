@@ -111,22 +111,30 @@ const quiz = [
       </table>
       <div class="sub">
         <h3>The two actions</h3>
-        <p>To understand the code, learn these two actions first:</p>
-        <div class="two-col">
-          <div class="paper flow">
-            <p class="note-label">1. Move current (line 15 or 21)</p>
-            <p class="mono">current = current.right;</p>
-            <Fragment set:html={figs.move} />
-            <p><code>current</code> moves to a child that already exists. <b>The tree does not change</b>. Think of <code>current</code> as a finger pointing at one node: moving the finger does not change the tree.</p>
-          </div>
-          <div class="paper flow">
-            <p class="note-label">2. Connect a new node (line 12 or 18)</p>
-            <p class="mono">current.left = new TreeNode(45);</p>
-            <Fragment set:html={figs.connect} />
-            <p>A new node is connected through the empty left (or right) of the node <code>current</code> refers to. <b>The tree changes</b>, but <code>current</code> does not move.</p>
-          </div>
+        <p>To understand the code, learn these two actions first. Each one has a picture pair: the tree <b>before</b> the line runs (left) and <b>after</b> it runs (right). The arrow between them means "after this line runs." On a phone, the pictures stack, and the arrow points down.</p>
+        <div class="paper flow">
+          <p class="note-label is-plain">Action 1: Move current (line 15 or 21)</p>
+          <Fragment set:html={figs.move} />
+          <p><code>current</code> moves to a child that already exists. <b>The tree does not change</b>. Think of <code>current</code> as a finger pointing at one node: moving the finger does not change the tree. (Line 21 is the same, going right: <code>current = current.right;</code>)</p>
         </div>
-        <div class="remember"><p class="note-label">Compare</p><p><code>current = ...</code> moves the arrow. <code>current.left = ...</code> changes the tree.</p></div>
+        <div class="paper flow">
+          <p class="note-label is-plain">Action 2: Connect a new node (line 12 or 18)</p>
+          <Fragment set:html={figs.connect} />
+          <p>A new node is connected through the empty left of the node <code>current</code> refers to. <b>The tree changes</b>, but <code>current</code> does not move. (Line 18 is the same, on the right: <code>current.right = new TreeNode(value);</code>)</p>
+        </div>
+        <div class="plain">
+          <p class="note-label">How to read these lines aloud</p>
+          <p>Java runs the <b>right side</b> of <code>=</code> first, then stores the result in the <b>left side</b>. A dot (<code>.</code>) means "go into this node and use its part." So read each line from right to left, like this:</p>
+          <div class="scroll-x"><table class="tbl">
+            <thead><tr><th>Line</th><th>Read it as</th></tr></thead>
+            <tbody>
+              <tr><td><code>current = current.left;</code></td><td>Take <span class="w-left">the left child of the current node</span>, and make it <b>the new current node</b>.</td></tr>
+              <tr><td><code>current = current.right;</code></td><td>Take <span class="w-right">the right child of the current node</span>, and make it <b>the new current node</b>.</td></tr>
+              <tr><td><code>current.left = new TreeNode(45);</code></td><td>Make a <b>new node</b> holding 45, and store it as <span class="w-left">the left child of the current node</span>.</td></tr>
+            </tbody>
+          </table></div>
+          <p>Spot the difference: if the left side is just <code>current</code>, only the arrow moves. If the left side is <code>current.left</code> or <code>current.right</code>, a link <b>inside the tree</b> changes.</p>
+        </div>
       </div>
       <div class="sub">
         <h3>Step through the code</h3>
@@ -180,20 +188,29 @@ const quiz = [
       <h2>Three common mistakes</h2>
     </div>
     <div class="flow">
-      <p>These three mistakes are the most common ones in student code. Each one compiles and runs, but the tree comes out wrong:</p>
-      <div class="trap">
-        <p class="note-label">1. Forgetting <code>root =</code></p>
-        <p><code>insert(root, 25);</code> on an empty tree creates node 25 and returns it, but nothing saves it. <code>root</code> is still <code>null</code>. Fix: always write <code>root = insert(root, 25);</code></p>
+      <p>These three mistakes are the most common ones in student code. Each one compiles and runs with no error message, but the tree comes out wrong. For each one, read the situation, look at what the buggy line does to the tree, then read the fix.</p>
+      <div class="trap flow">
+        <p class="note-label is-plain">Mistake 1: Forgetting <code>root =</code></p>
+        <p><b>The situation:</b> we start with an empty tree (<code>TreeNode root = null;</code>) and want to insert 25. A student writes <code>insert(root, 25);</code> with no <code>root =</code> in front.</p>
+        <Fragment set:html={figs.m1} />
+        <p><b>What went wrong:</b> inside <code>insert</code>, the tree is empty, so line 4 makes node 25 and <b>returns</b> it. But the caller never saves what was returned. <code>root</code> is still <code>null</code>, and node 25 is lost. The tree is still empty.</p>
+        <p><b>The fix:</b> save what insert gives back.</p>
+        <Fragment set:html={figs.m1fix} />
+        <p class="small">Why is this bug sneaky? On a tree that already has nodes, insert returns the <b>same</b> root, so forgetting <code>root =</code> seems to work. It only breaks on the very first insert, into an empty tree. So always write <code>root = insert(root, value);</code></p>
       </div>
-      <div class="trap">
-        <p class="note-label">2. Moving instead of connecting</p>
-        <p><code>current = new TreeNode(45);</code> only moves the arrow. 50's left is still <code>null</code>, so 45 is never connected. Fix: <code>current.left = new TreeNode(45);</code></p>
-        <Fragment set:html={figs.lost45} />
+      <div class="trap flow">
+        <p class="note-label is-plain">Mistake 2: Moving instead of connecting</p>
+        <p><b>The situation:</b> we insert 45 into the starting tree. <code>current</code> has walked down 40 → 60 → 50, and 50's left is empty (the yellow box), so 45 belongs there. But the student wrote <code>current = new TreeNode(45);</code> on line 12.</p>
+        <Fragment set:html={figs.m2} />
+        <p><b>What went wrong:</b> the left side is just <code>current</code>, so this line only <b>moves the arrow</b>. Node 45 is made, and <code>current</code> now refers to it, but no node in the tree links to 45. 50's left is still <code>null</code>. When the method returns, <code>current</code> disappears, and 45 is lost with it.</p>
+        <p><b>The fix:</b> connect it through the parent: <code>current.left = new TreeNode(45);</code> Compare with <Peek label="the correct picture" title="Action 2: connect a new node" html={figs.connect} />.</p>
       </div>
-      <div class="trap">
-        <p class="note-label">3. Connecting without checking for null</p>
-        <p>Insert 25: at 40, 25 &lt; 40, so we look left. If the code writes <code>current.left = new TreeNode(25);</code> without checking, it <b>replaces</b> 20, and 20, 10, and 30 are cut off from the tree. That is why the code checks <code>if (current.left == null)</code> first.</p>
-        <Fragment set:html={figs.cut} />
+      <div class="trap flow">
+        <p class="note-label is-plain">Mistake 3: Connecting without checking for null</p>
+        <p><b>The situation:</b> we insert 25 into the starting tree. At 40, 25 &lt; 40, so we look left. The student skipped the <code>if (current.left == null)</code> check and connects right away.</p>
+        <Fragment set:html={figs.m3} />
+        <p><b>What went wrong:</b> 40's left was <b>not</b> empty: it held 20, and 10 and 30 hang below 20 (the yellow nodes). Storing 25 in 40's left <b>replaces</b> the link to 20. Now no node links to 20, so 20, 10, and 30 are cut off from the tree. Three values are gone, and the BST is wrong.</p>
+        <p><b>The fix:</b> always check for null first. If the spot is taken, <b>move</b> instead (line 15). Done right, 25 goes 40 → 20 → 30 and becomes the <b>left child of 30</b>.</p>
       </div>
     </div>
   </section>

@@ -214,29 +214,60 @@ export function loopSteps(values) {
   return s;
 }
 
-/** Small before/after pictures for the "two actions" and the mistakes. */
-const pair = (a, aCap, b, bCap, mid = '→') => `<div class="ba-pair"><div class="ba-col"><p class="ba-cap">${aCap}</p>${a}</div><span class="ba-arrow" aria-hidden="true">${mid}</span><div class="ba-col"><p class="ba-cap">${bCap}</p>${b}</div></div>`;
+/**
+ * Before/after pictures: the left picture is the tree BEFORE one line of code runs, the right one is AFTER.
+ * The line that runs is printed above the pair, so the arrow between them means "after this line runs".
+ */
+const pair = (code, a, aCap, b, bCap, bad = false) =>
+  `<div class="ba${bad ? ' is-bad' : ''}"><p class="ba-run"><span class="ba-run-k">${bad ? 'The buggy line runs:' : 'This line runs:'}</span> <code>${code}</code></p>` +
+  `<div class="ba-pair"><div class="ba-col"><p class="ba-cap">${aCap}</p>${a}</div><span class="ba-arrow" aria-label="after the line runs"><span class="ba-glyph">→</span><span class="ba-arrow-k">after</span></span><div class="ba-col"><p class="ba-cap">${bCap}</p>${b}</div></div></div>`;
+
+/** Add a loose node (connected to nothing) to a tree SVG string, at (x, y). */
+const loose = (svg, x, y, val, tag, mark = 'bad') => svg.replace(/<\/svg>$/, `<g class="t-node m-${mark}"><circle class="body" cx="${x}" cy="${y}" r="17" style="stroke-dasharray:4 3"/><text x="${x}" y="${y}">${val}</text>${tag ? `<text class="t-tag" x="${x}" y="${y - 25}">${tag}</text>` : ''}</g></svg>`);
+
+/** The variable root drawn as a box: empty (null), or with an arrow to a node. lost = a node nobody points to. */
+function rootBox(o = {}) {
+  const W = 240, H = 104;
+  let s = `<svg class="tree-svg" viewBox="0 0 ${W} ${H}" style="max-width:${W * 1.15}px" role="img" aria-label="${o.label || 'The variable root'}">`;
+  s += `<text x="58" y="22" style="font-family:var(--font-mono);font-size:13px;font-weight:600;fill:var(--teal-ink)">root</text>`;
+  s += `<rect x="20" y="36" width="76" height="40" rx="4" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>`;
+  if (o.to != null) {
+    s += `<circle cx="58" cy="56" r="4" fill="var(--ink)"/><line x1="58" y1="56" x2="${o.x - 21}" y2="56" stroke="var(--ink)" stroke-width="2"/><path d="M${o.x - 19} 56 l-9 -5 v10 z" fill="var(--ink)"/>`;
+    s += `<g class="t-node m-new"><circle class="body" cx="${o.x}" cy="56" r="17"/><text x="${o.x}" y="56">${o.to}</text></g>`;
+  } else s += `<text x="58" y="56" style="font-family:var(--font-mono);font-size:14px;font-weight:600;fill:var(--ink-soft)">null</text>`;
+  if (o.lost != null) s += `<g class="t-node m-bad"><circle class="body" cx="186" cy="56" r="17" style="stroke-dasharray:4 3"/><text x="186" y="56">${o.lost}</text><text class="t-tag" x="186" y="27">lost</text></g>`;
+  return s + '</svg>';
+}
+
 export function insertFigs() {
-  const small = [40, 20, 60, 50, 70];
-  const F = layout(buildBst([...small, 45]));
-  const o = (extra) => ({ showNil: true, pos: F.pos, minW: F.w, minH: F.h, ...extra });
-  const t1 = buildBst(small);
-  const move = pair(
-    svgTree(t1, o({ marks: { 60: 'cur' }, tags: { 60: 'current' }, label: 'current refers to 60' })), 'before',
-    svgTree(t1, o({ marks: { 50: 'cur' }, tags: { 50: 'current' }, label: 'current now refers to 50; the tree is the same' })), 'after: same tree, arrow moved');
-  const t2 = buildBst([...small, 45]);
-  const connect = pair(
-    svgTree(t1, o({ marks: { 50: 'cur' }, tags: { 50: 'current' }, spot: { key: 50, side: 'l' }, label: 'current refers to 50; its left spot is empty' })), 'before',
-    svgTree(t2, o({ marks: { 50: 'cur', 45: 'new' }, tags: { 50: 'current' }, label: '45 is now the left child of 50; current still refers to 50' })), 'after: 45 added, arrow stayed');
-  // Mistake 2: 45 is made, but nothing connects it.
-  const lost45 = pair(
-    svgTree(t1, o({ marks: { 50: 'path' }, spot: { key: 50, side: 'l' }, label: '50 still has an empty left spot' })), 'the tree: 50\'s left is still null',
-    svgTree(buildBst([45]), { marks: { 45: 'bad' }, tags: { 45: 'current' }, label: 'Node 45 floating alone, connected to nothing', minW: 110 }), 'node 45: nothing points to it', ' ');
-  // Mistake 3: 25 written over 20, so 20, 10, 30 are cut off.
   const big = [40, 20, 60, 10, 30, 50, 70];
+  const FB = layout(buildBst([...big, 45]));
+  const o = (extra) => ({ showNil: true, pos: FB.pos, minW: FB.w, minH: FB.h, ...extra });
+  const t1 = buildBst(big);
+  const t2 = buildBst([...big, 45]);
+  // The two actions, on the starting tree. Both go LEFT, to match the code shown on the cards.
+  const move = pair('current = current.left;',
+    svgTree(t1, o({ marks: { 60: 'cur' }, tags: { 60: 'current' }, label: 'current refers to 60' })), 'before: current is at 60',
+    svgTree(t1, o({ marks: { 60: 'path', 50: 'cur' }, tags: { 50: 'current' }, label: 'current now refers to 50; the tree is the same' })), 'after: same tree, current moved to 50');
+  const connect = pair('current.left = new TreeNode(45);',
+    svgTree(t1, o({ marks: { 50: 'cur' }, tags: { 50: 'current' }, spot: { key: 50, side: 'l' }, label: 'current refers to 50; its left spot is empty' })), 'before: 50\'s left is empty',
+    svgTree(t2, o({ marks: { 50: 'cur', 45: 'new' }, tags: { 50: 'current' }, label: '45 is now the left child of 50; current still refers to 50' })), 'after: 45 added, current stayed at 50');
+  // Mistake 1: insert's return value is not saved.
+  const m1 = pair('insert(root, 25);',
+    rootBox({ label: 'root is null: the tree is empty' }), 'before: empty tree',
+    rootBox({ lost: 25, label: 'root is still null; node 25 was made and returned, but nothing refers to it' }), 'after: root is still null, 25 is lost', true);
+  const m1fix = pair('root = insert(root, 25);',
+    rootBox({ label: 'root is null: the tree is empty' }), 'before: empty tree',
+    rootBox({ to: 25, x: 160, label: 'root now refers to node 25' }), 'after: root refers to 25');
+  // Mistake 2: current is moved to the new node instead of connecting it.
+  const W2 = FB.w + 64;
+  const m2 = pair('current = new TreeNode(45);',
+    svgTree(t1, o({ marks: { 50: 'cur' }, tags: { 50: 'current' }, spot: { key: 50, side: 'l' }, label: 'current refers to 50; its left spot is empty' })), 'before: current is at 50',
+    loose(svgTree(t1, o({ minW: W2, spot: { key: 50, side: 'l' }, label: 'The tree is unchanged and 50\'s left is still empty. current now refers to a new node 45 off to the side, connected to nothing.' })), W2 - 26, FB.pos[45].y, 45, 'current'), 'after: 50\'s left is still empty', true);
+  // Mistake 3: connecting without the null check overwrites 20 (and everything under it).
   const wrong = { v: 40, l: { v: 25, l: null, r: null }, r: buildBst([60, 50, 70]) };
-  const cut = pair(
-    svgTree(wrong, { marks: { 25: 'bad' }, label: 'The tree after the mistake: 40 with 25 on its left, and 60, 50, 70 on its right' }), 'the tree after the mistake',
-    svgTree(buildBst([20, 10, 30]), { marks: { 20: 'skip', 10: 'skip', 30: 'skip' }, label: '20, 10 and 30 cut off from the tree' }), 'cut off: lost!', ' ');
-  return { move, connect, lost45, cut, startTree: svgTree(buildBst(big), { label: 'The starting BST: 40, 20, 60, 10, 30, 50, 70' }) };
+  const m3 = pair('current.left = new TreeNode(25);',
+    svgTree(t1, { marks: { 40: 'cur', 20: 'moved', 10: 'moved', 30: 'moved' }, tags: { 40: 'current' }, label: 'current refers to 40. Its left is NOT empty: it holds 20, with 10 and 30 below.' }), 'before: 40\'s left holds 20',
+    `<div class="ba-stack">${svgTree(wrong, { marks: { 25: 'bad' }, label: 'After: 40\'s left is now 25' })}<p class="ba-cap">cut off, lost:</p>${svgTree(buildBst([20, 10, 30]), { marks: { 20: 'skip', 10: 'skip', 30: 'skip' }, label: '20, 10 and 30 are cut off from the tree' })}</div>`, 'after: 25 replaced 20', true);
+  return { move, connect, m1, m1fix, m2, m3, startTree: svgTree(buildBst(big), { label: 'The starting BST: 40, 20, 60, 10, 30, 50, 70' }) };
 }
