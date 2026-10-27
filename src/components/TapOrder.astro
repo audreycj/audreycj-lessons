@@ -1,0 +1,103 @@
+---
+// Tap the nodes of a tree in traversal order. Right taps get a number; a wrong tap says why;
+// after two misses in a row, the right node glows. Panel heights stay fixed (no jumping).
+import { svgTree } from '../lib/tree.js';
+import { fromSpec } from '../lib/bst.js';
+type Ord = 'pre' | 'in' | 'post';
+interface Props { id: string; spec: string; cap: string; orders?: Ord[]; }
+const { id, spec, cap, orders = ['pre', 'in', 'post'] } = Astro.props;
+const root = fromSpec(spec);
+const seq = (o: Ord) => { const out: string[] = []; (function w(n: any) { if (!n) return; if (o === 'pre') out.push(n.id); w(n.l); if (o === 'in') out.push(n.id); w(n.r); if (o === 'post') out.push(n.id); })(root); return out; };
+const ans = Object.fromEntries(orders.map((o) => [o, seq(o)]));
+const vals: Record<string, string> = {};
+(function w(n: any) { if (!n) return; vals[n.id] = String(n.v); w(n.l); w(n.r); })(root);
+const svg = svgTree(root, { label: cap });
+const NAME = { pre: 'Pre-order (N L R)', in: 'In-order (L N R)', post: 'Post-order (L R N)' };
+---
+<figure class="fig taporder" id={id} data-cfg={JSON.stringify({ ans, vals })}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">Pick an order. Then tap the nodes in that order, one at a time.</p>
+  <div class="btn-row to-orders" role="group" aria-label="Order">
+    {orders.map((o, i) => <button type="button" class="btn" data-o={o} aria-pressed={i === 0 ? 'true' : 'false'}>{NAME[o]}</button>)}
+  </div>
+  <div class="to-tree" set:html={svg} />
+  <p class="to-out" aria-live="polite"></p>
+  <p class="to-msg" aria-live="polite"></p>
+  <div class="btn-row"><button type="button" class="btn" data-reset>Start over</button></div>
+</figure>
+
+<script>
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const RULE: Record<string, string> = {
+    pre: 'Pre-order writes a node as soon as you reach it, <b>before</b> both of its sides.',
+    in: 'In-order writes a node only after its <b>whole left side</b> is written (or empty), and before its right side.',
+    post: 'Post-order writes a node only after <b>both</b> of its sides are written (or empty).',
+  };
+  const WHY: Record<string, (v: string) => string> = {
+    pre: (v) => `Yes! We just reached ${v}, so we write it now.`,
+    in: (v) => `Yes! Everything on ${v}'s left is done, so we write ${v}.`,
+    post: (v) => `Yes! Both sides of ${v} are done, so we write ${v}.`,
+  };
+  document.querySelectorAll<HTMLElement>('.taporder').forEach((fig) => {
+    const { ans, vals } = JSON.parse(fig.dataset.cfg || '{}');
+    let o = Object.keys(ans)[0], k = 0, miss = 0;
+    const out = fig.querySelector('.to-out')!, msg = fig.querySelector('.to-msg')!;
+    const nodes = [...fig.querySelectorAll<SVGGElement>('.t-node')];
+    const say = (html: string, cls = '') => { msg.className = 'to-msg ' + cls; msg.innerHTML = html; };
+    function render() {
+      nodes.forEach((g) => {
+        const i = ans[o].indexOf(g.dataset.k);
+        const done = i > -1 && i < k;
+        g.classList.toggle('m-done', done);
+        g.classList.remove('m-hint', 'm-bad');
+        let t = g.querySelector('.to-num');
+        if (done) {
+          if (!t) {
+            const c = g.querySelector('circle.body')!;
+            t = document.createElementNS(SVGNS, 'text');
+            t.setAttribute('class', 'to-num');
+            t.setAttribute('x', String(+c.getAttribute('cx')! + 19));
+            t.setAttribute('y', String(+c.getAttribute('cy')! - 14));
+            g.appendChild(t);
+          }
+          t.textContent = String(i + 1);
+        } else if (t) t.remove();
+      });
+      out.innerHTML = '<b>Written:</b> ' + (k ? ans[o].slice(0, k).map((id: string) => vals[id]).join(', ') : '<i>(nothing yet)</i>');
+    }
+    function reset(newO?: string) {
+      if (newO) o = newO;
+      k = 0; miss = 0;
+      fig.querySelectorAll<HTMLButtonElement>('[data-o]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.o === o)));
+      render();
+      say('Which node is written <b>first</b>? Tap it.');
+    }
+    nodes.forEach((g) => {
+      g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button');
+      const tap = () => {
+        if (k >= ans[o].length) return;
+        const id = g.dataset.k!, v = vals[id], want = ans[o][k];
+        if (id === want) {
+          k++; miss = 0; render();
+          if (k === ans[o].length) say(`Done! All ${k} nodes, each written once: <b>${ans[o].map((x: string) => vals[x]).join(', ')}</b>`, 'is-ok');
+          else say(WHY[o](v), 'is-ok');
+          return;
+        }
+        miss++;
+        render();
+        g.classList.add('m-bad');
+        if (ans[o].indexOf(id) < k) say(`${v} is already written. Each node is written <b>once</b>.`, 'is-bad');
+        else say(`Not ${v} yet. ${RULE[o]}`, 'is-bad');
+        if (miss >= 2) {
+          nodes.find((n) => n.dataset.k === want)?.classList.add('m-hint');
+          msg.innerHTML += ' <b>Hint:</b> the glowing node is next.';
+        }
+      };
+      g.addEventListener('click', tap);
+      g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } });
+    });
+    fig.querySelectorAll<HTMLButtonElement>('[data-o]').forEach((b) => b.addEventListener('click', () => reset(b.dataset.o)));
+    fig.querySelector('[data-reset]')!.addEventListener('click', () => reset());
+    reset();
+  });
+</script>

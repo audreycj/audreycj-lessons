@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { course, terms } from '../../data/itc120.js';
+import { dsDoodles } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const href = (p) => base + p;
 const tones = ['teal', 'orange', 'amber', 'ink'];
@@ -26,37 +27,7 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
       <h1>{course.title}</h1>
       <p class="muted">{course.who}</p>
     </div>
-    <svg class="head-art" viewBox="0 0 365 204" width="320" height="179" role="img" aria-label="Small drawings of the structures in this course: array, linked list, map, stack, queue, tree, and graph">
-      <g fill="#fff" stroke="#1b2a2e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
-        <!-- array -->
-        <rect x="8" y="20" width="24" height="24"/><rect x="32" y="20" width="24" height="24"/><rect x="56" y="20" width="24" height="24" fill="#e8662e"/><rect x="80" y="20" width="24" height="24"/>
-        <!-- linked list -->
-        <rect x="122" y="21" width="20" height="22" fill="#e3f1ef"/><rect x="142" y="21" width="10" height="22"/>
-        <rect x="166" y="21" width="20" height="22" fill="#e3f1ef"/><rect x="186" y="21" width="10" height="22"/>
-        <rect x="210" y="21" width="20" height="22" fill="#e3f1ef"/><rect x="230" y="21" width="10" height="22"/><path d="M231 41l8-18" fill="none"/>
-        <path d="M147 32h14M191 32h14" fill="none"/><path d="M158 28l4 4-4 4M202 28l4 4-4 4" fill="none"/>
-        <!-- map: key -> value -->
-        <rect x="268" y="14" width="24" height="18" fill="#f8dc95"/><rect x="316" y="14" width="40" height="18"/>
-        <rect x="268" y="38" width="24" height="18" fill="#f8dc95"/><rect x="316" y="38" width="40" height="18"/>
-        <path d="M296 23h14M296 47h14M306 19l4 4-4 4M306 43l4 4-4 4" fill="none"/>
-        <!-- stack -->
-        <path d="M12 100v72h56v-72" fill="none"/><rect x="18" y="150" width="44" height="15"/><rect x="18" y="132" width="44" height="15"/><rect x="18" y="114" width="44" height="15" fill="#f0a93b"/>
-        <!-- queue -->
-        <path d="M88 124h88M88 160h88" fill="none"/><rect x="96" y="131" width="22" height="22"/><rect x="123" y="131" width="22" height="22"/><rect x="150" y="131" width="22" height="22" fill="#e8662e"/>
-        <path d="M180 142h12M188 138l4 4-4 4" fill="none"/>
-        <!-- tree -->
-        <path d="M240 106l-19 28M240 106l19 28M221 134l-10 28M221 134l10 28" fill="none"/>
-        <circle cx="240" cy="106" r="9" fill="#e8662e"/><circle cx="221" cy="134" r="8"/><circle cx="259" cy="134" r="8"/><circle cx="211" cy="162" r="7"/><circle cx="231" cy="162" r="7" fill="#f8dc95"/>
-        <!-- graph -->
-        <path d="M296 110l50-6M296 110l26 32M346 104l-24 38M322 142l-20 30M322 142l30 26M302 172l50-4" fill="none"/>
-        <circle cx="296" cy="110" r="7"/><circle cx="346" cy="104" r="7" fill="#e3f1ef"/><circle cx="322" cy="142" r="7"/><circle cx="302" cy="172" r="7"/><circle cx="352" cy="168" r="7" fill="#e3f1ef"/>
-      </g>
-      <g font-family="Nunito, sans-serif" font-size="14" font-weight="700" fill="#37474a" text-anchor="middle" stroke="none">
-        <text x="20" y="59" font-size="11">0</text><text x="44" y="59" font-size="11">1</text><text x="68" y="59" font-size="11">2</text><text x="92" y="59" font-size="11">3</text>
-        <text x="56" y="82">array</text><text x="181" y="82">linked list</text><text x="312" y="82">map</text>
-        <text x="40" y="196">stack</text><text x="132" y="196">queue</text><text x="232" y="196">tree</text><text x="324" y="196">graph</text>
-      </g>
-    </svg>
+    <Fragment set:html={dsDoodles()} />
   </section>
 
   {terms.map((t) => {

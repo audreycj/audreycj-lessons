@@ -681,3 +681,32 @@ pre.bugfix .bug-fix-ic { display: inline-grid; place-items: center; width: 1.2em
 .bstlab .bl-tag { max-width: calc(100% - 1rem); }
 /* Extra breathing room above a figure that follows a sentence */
 .flow > .gap-top, .gap-top { margin-top: 2rem; }
+
+/* TapOrder (traversals): tap the nodes in order */
+.taporder .to-tree { display: flex; justify-content: center; }
+.taporder .t-node { cursor: pointer; outline: none; }
+.taporder .t-node:focus-visible circle.body { stroke: var(--orange); stroke-width: 3.5; }
+.taporder .tree-svg .t-node .to-num { font-family: var(--font-body); font-size: 13px; font-weight: 800; fill: var(--teal-ink); }
+.taporder .m-hint circle.body { fill: var(--butter); stroke: var(--amber); stroke-width: 3.5; animation: toGlow 1.1s ease-in-out infinite; }
+@keyframes toGlow { 50% { stroke-width: 6; } }
+.taporder .to-out { min-height: 1.7em; margin-top: 0.4rem; font-family: var(--font-mono); font-size: var(--step--1); }
+.taporder .to-msg { min-height: 4.8em; padding: 0.5rem 0.7rem; border-radius: 8px; background: var(--paper); font-size: var(--step--1); animation: stepIn 0.3s ease; }
+.taporder .to-msg.is-ok { background: var(--teal-wash); }
+.taporder .to-msg.is-bad { background: #fdf0ee; }
+/* Walk-around-the-tree figures */
+.tour-row { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.tour-row figure { margin: 0; background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 0.5rem; }
+.tour-row figcaption { font-size: var(--step--1); text-align: center; }
+.tourfig { display: block; margin: 0 auto; width: 100%; height: auto; }
+.k-pre { color: #b4461a; font-weight: 800; background: var(--orange-wash); border-radius: 4px; padding: 0 0.2em; }
+.k-in { color: var(--teal-ink); font-weight: 800; background: var(--teal-wash); border-radius: 4px; padding: 0 0.2em; }
+.k-post { color: #7a5200; font-weight: 800; background: var(--butter); border-radius: 4px; padding: 0 0.2em; }
+
+/* Home: Ma'am Audrey waving, as a taped card */
+.home-hero { display: grid; gap: 1.5rem; align-items: center; }
+@media (min-width: 46rem) { .home-hero { grid-template-columns: 1fr 15rem; gap: 2.5rem; } }
+.hello-card { position: relative; margin: 1rem auto 0; width: min(15rem, 72vw); padding: 2.9rem 0.9rem 0; background: #fbf1d6; border: 2px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 var(--ink); transform: rotate(2deg); }
+.hello-card::before { content: ""; position: absolute; top: -0.75rem; left: 50%; width: 5.5rem; height: 1.45rem; transform: translateX(-50%) rotate(-4deg); background: repeating-linear-gradient(45deg, transparent 0 6px, rgba(255,255,255,0.35) 6px 12px), var(--teal-wash); opacity: 0.92; }
+.hello-card img { display: block; width: 100%; height: auto; }
+.hello-bubble { position: absolute; top: 0.55rem; right: -0.9rem; z-index: 1; margin: 0; padding: 0.15rem 0.7rem; background: #fff; border: 2px solid var(--ink); border-radius: 14px; font-family: var(--font-hand); font-weight: 700; font-size: 1.05rem; transform: rotate(-4deg); white-space: nowrap; }
+.hello-bubble::after { content: ""; position: absolute; left: 1.4rem; bottom: -0.55rem; width: 0.8rem; height: 0.8rem; background: #fff; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); }

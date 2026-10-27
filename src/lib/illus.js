@@ -1,6 +1,8 @@
 // Illustrations for ITC 120 lessons.
 // Sketch style (hand-drawn) = real-life examples. Clean style = the data structures themselves.
 import { Sketch, C } from './sketch.js';
+import { fromSpec } from './bst.js';
+import { layout } from './tree.js';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -375,4 +377,124 @@ export function listSearchPic() {
   });
   s += `<text x="185" y="88" text-anchor="middle" font-family="Kalam, cursive" font-size="14" font-weight="700" fill="${C.soft}">orange numbers = the order of the checks</text>`;
   return s + '</svg>';
+}
+
+/* ---------------- Clean: walk around the tree (traversals) ---------------- */
+
+const ORDER_COLOR = { pre: C.orange, in: C.teal, post: C.amber };
+let tourId = 0;
+/**
+ * The "walk around the tree" picture: a dashed route circles the tree, starting at the root's left side.
+ * Every node has three spots on the route: its left side (L), its bottom (B), and its right side (R).
+ * o: { spec, order: 'pre'|'in'|'post' (numbered dot on L, B, or R of every node), marks: [[value, 'L'|'B'|'R'|'T', text, color, textColor]],
+ *      route (default true), bad: [values] (red ring), label }
+ */
+export function tourFig(o) {
+  const root = fromSpec(o.spec), Lay = layout(root), R = 17, D = 26, M = 12;
+  const at = (n, side) => { const p = Lay.pos[n.id]; return { L: [p.x - D, p.y], B: [p.x, p.y + D], R: [p.x + D, p.y], T: [p.x, p.y - D - 2] }[side]; };
+  const pts = [];
+  (function walk(n) {
+    const p = Lay.pos[n.id];
+    pts.push(at(n, 'L'));
+    if (n.l) walk(n.l); else pts.push([p.x - 19, p.y + 19]);
+    pts.push(at(n, 'B'));
+    if (n.r) walk(n.r); else pts.push([p.x + 19, p.y + 19]);
+    pts.push(at(n, 'R'));
+  })(root);
+  const f = (v) => Math.round(v * 10) / 10;
+  let d = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    d += ` C${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(p1[1] + (p2[1] - p0[1]) / 6)} ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(p2[1] - (p3[1] - p1[1]) / 6)} ${f(p2[0])} ${f(p2[1])}`;
+  }
+  const W = Lay.w + M * 2, H = Lay.h + M * 2 + 4, id = 'tour' + tourId++;
+  const all = []; (function w(n) { if (!n) return; all.push(n); w(n.l); w(n.r); })(root);
+  const by = Object.fromEntries(all.map((n) => [String(n.v), n]));
+  let s = `<svg class="objbox tourfig" viewBox="${-M} ${-M} ${W} ${H}" style="max-width:${Math.round(W * 1.2)}px" role="img" aria-label="${esc(o.label || 'A route around the tree')}">`;
+  s += `<defs><marker id="${id}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="${C.soft}"/></marker></defs>`;
+  for (const n of all) for (const k of [n.l, n.r]) if (k) { const a = Lay.pos[n.id], b = Lay.pos[k.id]; s += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${C.ink}" stroke-width="2"/>`; }
+  if (o.route !== false) s += `<path d="${d}" fill="none" stroke="${C.soft}" stroke-width="1.8" stroke-dasharray="5 4" stroke-linecap="round" marker-end="url(#${id})"/>`;
+  const bad = new Set((o.bad || []).map(String));
+  for (const n of all) {
+    const p = Lay.pos[n.id], isBad = bad.has(String(n.v));
+    s += `<circle cx="${p.x}" cy="${p.y}" r="${R}" fill="${isBad ? '#f6d6d0' : C.card}" stroke="${isBad ? C.red : C.ink}" stroke-width="${isBad ? 3 : 2}"/>`;
+    s += `<text x="${p.x}" y="${p.y + 5}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="14" font-weight="800" fill="${C.ink}">${esc(n.v)}</text>`;
+  }
+  const dot = ([x, y], text, color, tc = '#fff') => {
+    const w = Math.max(19, String(text).length * 8 + 9);
+    return `<rect x="${x - w / 2}" y="${y - 9.5}" width="${w}" height="19" rx="9.5" fill="${color}" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y + 4.5}" text-anchor="middle" font-family="Nunito, sans-serif" font-size="12.5" font-weight="800" fill="${tc}">${esc(text)}</text>`;
+  };
+  if (o.order) {
+    const side = { pre: 'L', in: 'B', post: 'R' }[o.order], out = [];
+    (function w(n) { if (!n) return; if (o.order === 'pre') out.push(n); w(n.l); if (o.order === 'in') out.push(n); w(n.r); if (o.order === 'post') out.push(n); })(root);
+    out.forEach((n, i) => (s += dot(at(n, side), i + 1, ORDER_COLOR[o.order], o.order === 'post' ? C.ink : '#fff')));
+  }
+  for (const [v, side, text, color, tc] of o.marks || []) s += dot(at(by[String(v)], side), text, color || C.orange, tc || '#fff');
+  if (o.route !== false && o.ends !== false) {
+    const [sx, sy] = at(root, 'L'), [ex, ey] = at(root, 'R');
+    s += `<text x="${sx - 14}" y="${sy - 4}" text-anchor="end" font-family="Kalam, cursive" font-size="14" font-weight="700" fill="${C.soft}">start</text>`;
+    s += `<text x="${ex + 14}" y="${ey - 4}" text-anchor="start" font-family="Kalam, cursive" font-size="14" font-weight="700" fill="${C.soft}">end</text>`;
+  }
+  return s + '</svg>';
+}
+
+/* ---------------- Sketch: two folder jobs, two orders ---------------- */
+
+/** Copying a folder (pre-order: the folder first) vs. deleting it (post-order: the folder last). */
+export function folderJobs() {
+  const s = new Sketch(340, 492, 61);
+  const panel = (y0, title, sub, nums, color, note) => {
+    s.round(8, y0, 324, 234, 12, { fill: C.card, sw: 1.4, stroke: C.soft, rough: 0.5 });
+    s.text(170, y0 + 28, title, { font: 'body', size: 16, weight: 800, color });
+    s.text(170, y0 + 48, sub, { font: 'body', size: 12, weight: 700, color: C.soft });
+    const F = { top: [170, y0 + 66], a: [95, y0 + 150], b: [245, y0 + 150] };
+    s.line(156, y0 + 127, 100, y0 + 148, { sw: 1.8 });
+    s.line(184, y0 + 127, 240, y0 + 148, { sw: 1.8 });
+    s.folder(F.top[0] - 26, F.top[1], 'Grade 2', { w: 52, h: 38, fill: C.amber, size: 13 });
+    s.folder(F.a[0] - 23, F.a[1], 'Quizzes', { fill: C.butter, size: 13 });
+    s.folder(F.b[0] - 23, F.b[1], 'Exams', { fill: C.butter, size: 13 });
+    const badge = ([x, y], n) => { s.circle(x - 38, y + 16, 26, { fill: color, sw: 1.4, rough: 0.4 }); s.text(x - 38, y + 21, String(n), { font: 'body', size: 14, weight: 800, color: '#fff' }); };
+    badge(F.top, nums[0]); badge(F.a, nums[1]); badge(F.b, nums[2]);
+    s.text(170, y0 + 222, note, { size: 15, color });
+  };
+  panel(4, 'Copy a folder: pre-order', 'make the folder, then copy what is inside', [1, 2, 3], C.orange, 'Grade 2 comes first');
+  panel(254, 'Delete a folder: post-order', 'empty it first, then remove the folder', [3, 1, 2], C.teal, 'Grade 2 comes last');
+  return s.svg('Two jobs on the same folders. Copying Grade 2 (pre-order): 1 make Grade 2, 2 copy Quizzes, 3 copy Exams. Deleting Grade 2 (post-order): 1 delete Quizzes, 2 delete Exams, 3 delete Grade 2, which is now empty.');
+}
+
+/* ---------------- Sketch: course header doodles (ITC 120 page) ---------------- */
+
+/** Hand-drawn, muted doodles of the course's structures, so they sit quietly beside the title. */
+export function dsDoodles() {
+  const s = new Sketch(365, 210, 120);
+  const ink = '#5b6b6e', o = { stroke: ink, sw: 1.5, rough: 1.2, bow: 1 };
+  const MU = { orange: '#e9a27f', amber: '#e8c57a', teal: '#a9cfc9', butter: '#f3e3b8', wash: '#e4efed' };
+  const hat = (c) => ({ ...o, fill: c, fillStyle: 'hachure', gap: 3.6, fw: 1.4 });
+  const ar = (x1, y1, x2, y2) => s.arrow(x1, y1, x2, y2, { ...o, sw: 1.3, head: 5 });
+  // array
+  for (let i = 0; i < 4; i++) s.rect(8 + i * 24, 20, 24, 24, i === 2 ? hat(MU.orange) : o);
+  // linked list
+  for (const x of [122, 166, 210]) { s.rect(x, 21, 20, 22, { ...o, fill: MU.wash }); s.rect(x + 20, 21, 10, 22, o); }
+  s.line(231, 41, 239, 23, o);
+  ar(147, 32, 162, 32); ar(191, 32, 206, 32);
+  // map: key -> value
+  for (const y of [14, 38]) { s.rect(268, y, 24, 18, hat(MU.amber)); s.rect(316, y, 40, 18, o); ar(296, y + 9, 311, y + 9); }
+  // stack
+  s.path('M12 102 L12 172 L68 172 L68 102', o);
+  s.rect(18, 151, 44, 15, o); s.rect(18, 133, 44, 15, o); s.rect(18, 115, 44, 15, hat(MU.amber));
+  // queue
+  s.line(88, 124, 176, 124, o); s.line(88, 160, 176, 160, o);
+  s.rect(96, 131, 22, 22, o); s.rect(123, 131, 22, 22, o); s.rect(150, 131, 22, 22, hat(MU.orange));
+  ar(180, 142, 194, 142);
+  // tree
+  for (const [a, b, c, d] of [[240, 106, 221, 134], [240, 106, 259, 134], [221, 134, 211, 162], [221, 134, 231, 162]]) s.line(a, b, c, d, o);
+  s.circle(240, 106, 18, { ...o, fill: MU.orange }); s.circle(221, 134, 16, { ...o, fill: '#fff' }); s.circle(259, 134, 16, { ...o, fill: '#fff' });
+  s.circle(211, 162, 14, { ...o, fill: '#fff' }); s.circle(231, 162, 14, { ...o, fill: MU.butter });
+  // graph
+  for (const [a, b, c, d] of [[296, 110, 346, 104], [296, 110, 322, 142], [346, 104, 322, 142], [322, 142, 302, 172], [322, 142, 352, 168], [302, 172, 352, 168]]) s.line(a, b, c, d, o);
+  for (const [x, y, f] of [[296, 110, '#fff'], [346, 104, MU.teal], [322, 142, '#fff'], [302, 172, '#fff'], [352, 168, MU.teal]]) s.circle(x, y, 14, { ...o, fill: f });
+  // labels: hand font for words; body font for the index numbers (Kalam's digits are hard to read)
+  ['0', '1', '2', '3'].forEach((t, i) => s.text(20 + i * 24, 59, t, { font: 'body', size: 11, weight: 700, color: ink }));
+  for (const [x, y, t] of [[56, 84, 'array'], [181, 84, 'linked list'], [312, 84, 'map'], [40, 199, 'stack'], [132, 199, 'queue'], [232, 199, 'tree'], [324, 199, 'graph']]) s.text(x, y, t, { size: 16, color: ink });
+  return s.svg('Small hand-drawn sketches of the structures in this course: array, linked list, map, stack, queue, tree, and graph', 'head-art');
 }
