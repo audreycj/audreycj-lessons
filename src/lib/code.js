@@ -8,3 +8,11 @@ export const hiN = (src, mark = []) => src.split('\n').map((l, i) => {
   const body = `<span class="ln">${n}</span>${line(l)}`;
   return mark.includes(i + 1) ? `<span class="hl-line">${body}</span>` : body;
 }).join('\n');
+
+/** Numbered code with the base case (green) and recursive case (blue) lines shaded, like the module. */
+export const hiR = (src, base = [], rec = []) => src.split('\n').map((l, i) => {
+  const n = String(i + 1).padStart(2, ' ');
+  const body = `<span class="ln">${n}</span>${line(l)}`;
+  const c = base.includes(i + 1) ? 'rg-base' : rec.includes(i + 1) ? 'rg-rec' : '';
+  return c ? `<span class="${c}">${body}</span>` : body;
+}).join('\n');

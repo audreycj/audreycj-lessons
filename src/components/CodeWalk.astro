@@ -5,12 +5,12 @@
 // Use it for the FIRST code examples of a lesson only. Practice and self-checks stay plain, so students learn to read code alone.
 import { hi } from '../lib/code.js';
 interface Step { lines: number[]; say: string; pic: string; vars?: [string, string][] }
-interface Props { id: string; code: string; steps: Step[]; cap?: string; hint?: string; }
-const { id, code, steps, cap = 'Code walkthrough', hint = 'Tap any line to see what it does, or use Next to go through the code in order.' } = Astro.props;
+interface Props { id: string; code: string; steps: Step[]; cap?: string; hint?: string; layout?: 'side' | 'stack'; }
+const { id, code, steps, layout = 'side', cap = 'Code walkthrough', hint = 'Tap any line to see what it does, or use Next to go through the code in order.' } = Astro.props;
 const lines = hi(code).split('\n');
 const used = new Set(steps.flatMap((s) => s.lines));
 ---
-<figure class="fig cw" id={id}>
+<figure class={layout === 'stack' ? 'fig cw is-stack' : 'fig cw'} id={id}>
   <p class="fig-cap">{cap}</p>
   <p class="fig-hint">{hint}</p>
   <div class="cw-grid">

@@ -602,33 +602,42 @@ export function treeKinds() {
 
 /* ---------------- Sketches: recursion lesson ---------------- */
 
-/** A line at the registrar's window: questions go forward, answers come back (+1 each). */
+/** A wobbly, hand-drawn speech bubble whose tail points at the speaker (tip). baseX = where the tail leaves the bubble. */
+function sayBubble(s, x, y, w, lines, fill, stroke, tip, baseX, size = 12) {
+  const lh = size + 3, h = lines.length * lh + 13;
+  s.round(x, y, w, h, 11, { fill, stroke, sw: 1.8, rough: 1.3, bow: 1.4 });
+  const ey = tip[1] < y ? y : y + h, mx = (baseX + tip[0]) / 2, my = (ey + tip[1]) / 2;
+  s.path(`M${baseX - 7} ${ey} Q${mx - 4} ${my} ${tip[0]} ${tip[1]} Q${mx + 5} ${my} ${baseX + 7} ${ey}`, { fill, stroke, sw: 1.8, rough: 0.9 });
+  s.line(baseX - 5, ey, baseX + 5, ey, { stroke: fill, sw: 4.5, rough: 0, single: true });
+  lines.forEach((t, i) => s.text(x + w / 2, y + size + 7 + i * lh, t, { font: 'body', size, weight: 800 }));
+}
+
+/** A line at the registrar's window: questions go forward, answers come back (+1 each). Each answer bubble matches its speaker's shirt. */
 export function pilaLine() {
-  const s = new Sketch(340, 318, 83);
-  const xs = [84, 150, 216, 290], names = ['Ana', 'Bea', 'Migs', 'You'];
+  const s = new Sketch(340, 380, 83);
+  const xs = [80, 141, 210, 290], names = ['Ana', 'Bea', 'Migs', 'You'];
   const shirts = [C.tealWash, C.orangeWash, C.sky, C.butter];
-  s.text(170, 18, 'Going forward: each person asks the one ahead', { font: 'body', size: 13, weight: 800, color: C.orange });
+  const edges = [C.teal, C.orange, '#4f86b8', C.amber];
+  s.text(150, 16, 'Going forward: each person asks the one ahead', { font: 'body', size: 13, weight: 800, color: C.orange });
   s.rect(8, 92, 36, 96, { fill: C.sky, sw: 1.6 });
   s.line(8, 140, 44, 140, { sw: 1.2, single: true });
   s.text(30, 140, 'REGISTRAR', { font: 'body', size: 10, weight: 800, rotate: -90 });
-  speech(s, 118, 30, 216, 30, 'right', C.card, 'How many are ahead of you?', C.orange);
+  sayBubble(s, 112, 28, 222, ['How many are in front of you?'], shirts[3], edges[3], [293, 104], 302, 13);
   xs.forEach((x, i) => {
-    s.path(`M${x - 21} 190 Q${x - 19} 154 ${x} 151 Q${x + 19} 154 ${x + 21} 190 Z`, { fill: shirts[i], sw: 1.6 });
+    s.path(`M${x - 21} 190 Q${x - 19} 154 ${x} 151 Q${x + 19} 154 ${x + 21} 190 Z`, { fill: shirts[i], stroke: edges[i], sw: 1.8 });
     face(s, x, 130, 16, '#e3b38c', i === 3 ? 'happy' : 'think');
     s.path(`M${x - 16} ${128} Q${x - 15} ${108} ${x} ${110} Q${x + 15} ${108} ${x + 16} ${128} Q${x + 8} ${116} ${x} ${117} Q${x - 8} ${116} ${x - 16} ${128} Z`, { fill: C.ink, sw: 1, rough: 0.4 });
-    s.text(x, 208, names[i], { font: 'body', size: 13, weight: 800 });
+    s.text(x, 204, names[i], { font: 'body', size: 13, weight: 800 });
     if (i > 0) s.curve(x - 14, 104, xs[i - 1] + 14, 104, 14, { stroke: C.orange, sw: 2, head: 7 });
-    if (i < 3) {
-      s.curve(x + 14, 222, xs[i + 1] - 14, 222, 12, { stroke: C.teal, sw: 2, head: 7 });
-      const mx = (x + xs[i + 1]) / 2;
-      s.circle(mx, 252, 24, { fill: C.teal, sw: 1.2, rough: 0.4 });
-      s.text(mx, 257, String(i), { font: 'body', size: 14, weight: 800, color: '#fff' });
-    }
+    if (i < 3) s.curve(x + 12, 219, xs[i + 1] - 12, 219, 5, { stroke: C.teal, sw: 2, head: 6 });
   });
-  s.text(84, 282, 'nobody ahead: 0', { font: 'body', size: 12, weight: 800, color: C.teal });
-  s.text(290, 282, '2 + 1 = 3', { font: 'body', size: 14, weight: 800, color: C.teal });
-  s.text(170, 308, 'Coming back: each person adds 1 to the answer', { font: 'body', size: 13, weight: 800, color: C.teal });
-  return s.svg('A line of four people at the registrar\'s window: Ana in front, then Bea, Migs, and you at the back. You ask Migs how many are ahead of him; Migs asks Bea; Bea asks Ana. Ana has nobody ahead, so she answers 0. Bea answers 0 + 1 = 1, Migs answers 2, and you get 2 + 1 = 3.');
+  // Answers: two staggered rows, so every tail reaches its own speaker without crossing another bubble
+  sayBubble(s, 22, 234, 104, ["No one's in", 'front of me.'], shirts[0], edges[0], [80, 211], 76);
+  sayBubble(s, 148, 234, 132, ['There are 2 people', 'in front of me.'], shirts[2], edges[2], [210, 211], 212);
+  sayBubble(s, 64, 290, 136, ["There's 1 person", 'in front of me.'], shirts[1], edges[1], [141, 211], 137);
+  sayBubble(s, 208, 290, 126, ['Hm, so there must', 'be 3 people in', 'front of me!'], shirts[3], edges[3], [290, 211], 298);
+  s.text(170, 372, 'Coming back: each person adds 1 to the answer', { font: 'body', size: 13, weight: 800, color: C.teal });
+  return s.svg('A line of four people at the registrar\'s window: Ana in front, then Bea, Migs, and you at the back. You ask Migs how many are in front of him; Migs asks Bea; Bea asks Ana. Ana says: no one\'s in front of me. Bea says: there\'s 1 person in front of me. Migs says: there are 2 people in front of me. You think: so there must be 3 people in front of me.');
 }
 
 /** Cooking adobo, then the phone rings, then a knock: newest task on top, only the top one is done. */
@@ -647,4 +656,29 @@ export function adoboStack() {
   s.text(170, 238, 'Finish the top task first. Then the one below it', { font: 'body', size: 13, weight: 800, color: C.teal });
   s.text(170, 256, 'continues where you paused it.', { font: 'body', size: 13, weight: 800, color: C.teal });
   return s.svg('Three task cards stacked, newest on top: Answer the door (doing now), Phone call (paused), Cooking adobo (paused). Finish the top task first; then the one below continues where you paused it.');
+}
+
+/** Listing a Documents folder: it has folders inside (recursive case); ITC120 and Photos have none (base case). */
+export function docsFolders() {
+  const s = new Sketch(340, 262, 97);
+  const GREEN = '#2e7d4f', BLUE = '#2f6fa8';
+  const box = (x, y, w, h, name, fill) => {
+    s.path(`M${x} ${y} L${x} ${y - 14} L${x + name.length * 8 + 18} ${y - 14} L${x + name.length * 8 + 26} ${y} Z`, { fill, sw: 1.6 });
+    s.rect(x, y, w, h, { fill, sw: 1.6 });
+    s.text(x + 8, y - 2, name, { font: 'body', size: 13, weight: 800, anchor: 'start' });
+  };
+  const file = (x, y, name) => { s.rect(x, y, name.length * 7.4 + 14, 22, { fill: C.card, sw: 1.2, rough: 0.5 }); s.text(x + 7, y + 16, name, { font: 'mono', size: 11, weight: 600, anchor: 'start' }); };
+  box(8, 26, 324, 228, 'Documents', C.sky);
+  file(20, 40, 'resume.pdf');
+  s.text(322, 50, 'has folders inside:', { font: 'body', size: 12, weight: 800, color: BLUE, anchor: 'end' });
+  s.text(322, 66, 'recursive case', { font: 'body', size: 12, weight: 800, color: BLUE, anchor: 'end' });
+  box(20, 96, 146, 146, 'ITC120', C.butter);
+  file(30, 108, 'Lesson1.pdf'); file(30, 136, 'Lesson2.pdf');
+  box(176, 96, 146, 146, 'Photos', C.butter);
+  file(186, 108, 'selfie.jpg');
+  for (const x of [93, 249]) {
+    s.text(x, 210, 'no folders inside:', { font: 'body', size: 12, weight: 800, color: GREEN });
+    s.text(x, 228, 'base case', { font: 'body', size: 12, weight: 800, color: GREEN });
+  }
+  return s.svg('The Documents folder holds resume.pdf and two folders, ITC120 and Photos, so it uses the rule again on each one (recursive case). ITC120 holds Lesson1.pdf and Lesson2.pdf, and Photos holds selfie.jpg. They have no folders inside, so they just list their files (base case).');
 }

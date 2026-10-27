@@ -1,0 +1,55 @@
+---
+// Same code, two sets of names: switch between "our lessons" and "many books" (crossfade, changed words flash),
+// and tap a row of the table to light up that name in the code. Both versions share one grid cell, so nothing jumps.
+import { hi } from '../lib/code.js';
+interface Props { id: string; code: string; pairs: [string, string][]; cap?: string; }
+const { id, code, pairs, cap = 'Switch the names' } = Astro.props;
+const idx: Record<string, number> = Object.fromEntries(pairs.map((p, i) => [p[0], i]));
+const re = new RegExp(`\\b(${pairs.map((p) => p[0]).join('|')})\\b`, 'g');
+// Replace only text between tags, never inside a tag.
+const render = (book: boolean) => hi(code).replace(/(^|>)([^<]*)/g, (_m, a, txt) => a + txt.replace(re, (w: string) => `<span class="ns-t" data-p="${idx[w]}">${book ? pairs[idx[w]][1] : w}</span>`));
+---
+<figure class="fig ns" id={id}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">Switch between our names and the names many books use. Tap a row of the table to find that name in the code (tap it again to clear).</p>
+  <div class="ns-bar" role="group" aria-label="Which names to show">
+    <button type="button" class="ns-mode is-on" data-mode="ours" aria-pressed="true">Our lessons</button>
+    <button type="button" class="ns-mode" data-mode="book" aria-pressed="false">Many books</button>
+  </div>
+  <div class="ns-grid">
+    <table class="tbl ns-tbl">
+      <thead><tr><th>Our lessons</th><th>Many books</th></tr></thead>
+      <tbody>
+        {pairs.map((p, i) => <tr data-p={i} tabindex="0" role="button" aria-pressed="false"><td><code>{p[0]}</code></td><td><code>{p[1]}</code></td></tr>)}
+      </tbody>
+    </table>
+    <div class="ns-codes">
+      <pre class="code ns-code is-on" data-mode="ours"><code set:html={render(false)} /></pre>
+      <pre class="code ns-code" data-mode="book" aria-hidden="true"><code set:html={render(true)} /></pre>
+    </div>
+  </div>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.ns').forEach((fig) => {
+    const modes = fig.querySelectorAll<HTMLButtonElement>('.ns-mode');
+    const codes = fig.querySelectorAll<HTMLElement>('.ns-code');
+    const rows = fig.querySelectorAll<HTMLTableRowElement>('.ns-tbl tbody tr');
+    let hot: string | null = null;
+    const setMode = (m: string) => {
+      modes.forEach((b) => { const on = b.dataset.mode === m; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
+      codes.forEach((c) => { const on = c.dataset.mode === m; c.classList.toggle('is-on', on); c.setAttribute('aria-hidden', String(!on)); });
+      fig.classList.remove('is-flash'); void fig.offsetWidth; fig.classList.add('is-flash');
+    };
+    const setHot = (p: string) => {
+      hot = hot === p ? null : p;
+      rows.forEach((r) => { const on = r.dataset.p === hot; r.classList.toggle('is-hot', on); r.setAttribute('aria-pressed', String(on)); });
+      fig.querySelectorAll<HTMLElement>('.ns-t').forEach((t) => t.classList.toggle('is-hot', t.dataset.p === hot));
+    };
+    modes.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode!)));
+    rows.forEach((r) => {
+      r.addEventListener('click', () => setHot(r.dataset.p!));
+      r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setHot(r.dataset.p!); } });
+    });
+  });
+</script>
