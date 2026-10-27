@@ -498,3 +498,104 @@ export function dsDoodles() {
   for (const [x, y, t] of [[56, 84, 'array'], [181, 84, 'linked list'], [312, 84, 'map'], [40, 199, 'stack'], [132, 199, 'queue'], [232, 199, 'tree'], [324, 199, 'graph']]) s.text(x, y, t, { size: 16, color: ink });
   return s.svg('Small hand-drawn sketches of the structures in this course: array, linked list, map, stack, queue, tree, and graph', 'head-art');
 }
+
+/* ---------------- Traversals: why we need them ---------------- */
+
+/** Four everyday jobs that must touch every node once: list, count, copy, delete. */
+export function travJobs() {
+  const s = new Sketch(340, 424, 71);
+  const DARK = '#a8650f';
+  const panel = (x0, y0, title, color, kind, result, cap) => {
+    s.round(x0, y0, 162, 196, 12, { fill: C.card, sw: 1.4, stroke: C.soft, rough: 0.5 });
+    s.text(x0 + 81, y0 + 24, title, { font: 'body', size: 15, weight: 800, color });
+    const cx = x0 + 81, P = [[cx, y0 + 54], [cx - 42, y0 + 104], [cx + 42, y0 + 104]];
+    s.line(P[0][0] - 8, P[0][1] + 14, P[1][0] + 6, P[1][1] - 16, { sw: 1.6 });
+    s.line(P[0][0] + 8, P[0][1] + 14, P[2][0] - 6, P[2][1] - 16, { sw: 1.6 });
+    P.forEach(([x, y], i) => {
+      if (kind === 'num') { s.round(x - 22, y - 13, 44, 26, 6, { fill: C.tealWash, sw: 1.5, rough: 0.6 }); s.text(x, y + 5, ['1042', '1017', '1088'][i], { font: 'body', size: 12, weight: 800 }); }
+      else if (kind === 'person') { s.circle(x, y - 6, 15, { fill: C.butter, sw: 1.5 }); s.path(`M${x - 11} ${y + 14} Q${x} ${y - 2} ${x + 11} ${y + 14} Z`, { fill: C.orangeWash, sw: 1.5 }); }
+      else { s.folder(x - 16, y - 14, '', { w: 32, h: 26, fill: i ? C.butter : C.amber }); if (kind === 'del') { s.line(x - 12, y - 10, x + 12, y + 12, { stroke: C.red, sw: 2.4, single: true }); s.line(x + 12, y - 10, x - 12, y + 12, { stroke: C.red, sw: 2.4, single: true }); } }
+    });
+    s.arrow(cx, y0 + 124, cx, y0 + 140, { stroke: color, sw: 1.8, head: 7 });
+    result(cx, y0 + 160);
+    s.text(cx, y0 + 186, cap, { font: 'body', size: 12, weight: 700, color: C.soft });
+  };
+  panel(4, 4, 'Show a list', C.teal, 'num', (x, y) => { s.rect(x - 62, y - 14, 124, 24, { fill: C.paper, sw: 1.3, rough: 0.6 }); s.text(x, y + 3, '1017, 1042, 1088', { font: 'body', size: 12, weight: 800 }); }, 'print every patient number');
+  panel(174, 4, 'Count', C.orange, 'person', (x, y) => { s.text(x, y + 4, '3 students', { font: 'body', size: 15, weight: 800, color: C.orange }); }, 'count every student');
+  panel(4, 206, 'Save a copy', DARK, 'folder', (x, y) => { s.folder(x - 30, y - 14, '', { w: 26, h: 20, fill: C.butter }); s.folder(x - 22, y - 8, '', { w: 26, h: 20, fill: C.amber }); s.text(x + 10, y + 7, 'copied', { font: 'body', size: 13, weight: 800, color: DARK, anchor: 'start' }); }, 'back up everything inside');
+  panel(174, 206, 'Delete', C.red, 'del', (x, y) => { s.rect(x - 10, y - 10, 20, 22, { fill: C.card, sw: 1.6 }); s.line(x - 14, y - 12, x + 14, y - 12, { sw: 1.8 }); s.text(x + 18, y + 7, 'all gone', { font: 'body', size: 13, weight: 800, color: C.red, anchor: 'start' }); }, 'remove everything inside');
+  s.text(170, 418, 'Every job: visit every node, exactly once.', { size: 17, color: C.teal });
+  return s.svg('Four jobs that touch every node of a tree once. Show a list: print every patient number (1017, 1042, 1088). Count: count every student (3 students). Save a copy: back up a folder and everything inside. Delete: remove a folder and everything inside.');
+}
+
+/** Three everyday trees: phone folders, a family tree, and an online shop's categories. */
+export function everydayTrees() {
+  const s = new Sketch(340, 204, 72);
+  const tree = (x0, title, labels, draw) => {
+    const cx = x0 + 55;
+    s.text(cx, 20, title, { font: 'body', size: 13, weight: 800 });
+    const P = [[cx, 48], [cx - 30, 134], [cx + 30, 134]];
+    s.line(cx - 6, 86, P[1][0] + 4, 116, { sw: 1.5 }); s.line(cx + 6, 86, P[2][0] - 4, 116, { sw: 1.5 });
+    P.forEach(([x, y], i) => { draw(x, y, i); s.text(x, y + 30, labels[i], { font: 'body', size: 12, weight: 700 }); });
+  };
+  tree(2, 'Phone folders', ['Files', 'DCIM', 'Docs'], (x, y, i) => s.folder(x - 14, y - 12, '', { w: 28, h: 22, fill: i ? C.butter : C.amber }));
+  tree(116, 'Family tree', ['Lola', 'Mama', 'Tito'], (x, y, i) => { s.circle(x, y - 3, 22, { fill: i ? C.butter : C.orangeWash, sw: 1.5 }); s.circle(x - 3, y - 5, 2, { fill: C.ink, sw: 1 }); s.circle(x + 3, y - 5, 2, { fill: C.ink, sw: 1 }); s.path(`M${x - 4} ${y + 1} Q${x} ${y + 5} ${x + 4} ${y + 1}`, { sw: 1.2 }); });
+  tree(228, 'Online shop', ['All', 'Gadgets', 'Shoes'], (x, y, i) => { s.path(`M${x - 16} ${y - 10} H${x + 8} L${x + 16} ${y} L${x + 8} ${y + 10} H${x - 16} Z`, { fill: i ? C.tealWash : C.teal, sw: 1.5 }); s.circle(x + 7, y, 4, { fill: C.card, sw: 1 }); });
+  s.text(170, 198, 'a root at the top, branches, and leaves', { size: 15, color: C.soft });
+  return s.svg('Three everyday trees. Phone folders: Files holds DCIM and Docs. A family tree: Lola, with her children Mama and Tito. An online shop: All, split into Gadgets and Shoes.');
+}
+
+/** Clean: an array and a linked list have one way forward; a binary tree has two ways down and needs a way back up. */
+export function routesPic() {
+  const T = C.teal, O = C.orange, ink = C.ink, soft = C.soft;
+  const lab = (x, y, t, c = ink, a = 'start', sz = 15, w = 800, f = 'Nunito, sans-serif') => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='${f}' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
+  const head = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 1L9 5L0 9z" fill="${c}"/></marker>`;
+  const card = (y, h, title, color, side) => `<rect x="4" y="${y}" width="332" height="${h}" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>` + lab(18, y + 24, title, color, 'start', 15) + lab(322, y + 24, side, soft, 'end', 12, 700);
+  let s = `<svg class="objbox" viewBox="0 0 340 452" role="img" aria-label="An array and a linked list have only one way forward. A binary tree node has two ways down: go down one side, come back up, then go down the other side."><defs>${head('rpT', T)}${head('rpO', O)}</defs>`;
+  s += card(4, 104, 'Array', T, 'one way forward');
+  [5, 8, 2, 9].forEach((v, i) => { s += `<rect x="${40 + i * 50}" y="38" width="50" height="36" fill="${i ? '#fff' : C.tealWash}" stroke="${ink}" stroke-width="1.8"/>` + lab(65 + i * 50, 62, String(v), ink, 'middle', 15); });
+  s += `<path d="M58 90 H226" stroke="${T}" stroke-width="2.2" fill="none" marker-end="url(#rpT)"/>` + lab(246, 95, 'i++', T, 'start', 14, 600, '"IBM Plex Mono", monospace');
+  s += card(116, 104, 'Linked list', T, 'one way forward');
+  [10, 20, 30].forEach((v, i) => { const x = 34 + i * 86; s += `<rect x="${x}" y="150" width="52" height="34" rx="7" fill="${i ? '#fff' : C.tealWash}" stroke="${ink}" stroke-width="1.8"/>` + lab(x + 26, 173, String(v), ink, 'middle', 15); s += `<path d="M${x + 54} 167 H${x + (i < 2 ? 83 : 79)}" stroke="${T}" stroke-width="2.2" marker-end="url(#rpT)"/>`; });
+  s += lab(292, 172, 'null', soft, 'start', 13, 700);
+  s += lab(170, 208, 'current = current.next', T, 'middle', 12, 600, '"IBM Plex Mono", monospace');
+  s += card(228, 216, 'Binary tree', O, 'TWO ways down');
+  const A = [170, 282], B = [94, 368], Cc = [246, 368];
+  s += `<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${ink}" stroke-width="1.8"/><line x1="${A[0]}" y1="${A[1]}" x2="${Cc[0]}" y2="${Cc[1]}" stroke="${ink}" stroke-width="1.8"/>`;
+  s += `<path d="M148 284 Q 96 300 80 344" stroke="${O}" stroke-width="2.2" fill="none" marker-end="url(#rpO)"/>`;
+  s += `<path d="M118 358 Q 158 336 160 302" stroke="${O}" stroke-width="2.2" fill="none" stroke-dasharray="5 4" marker-end="url(#rpO)"/>`;
+  s += `<path d="M192 284 Q 244 300 260 344" stroke="${O}" stroke-width="2.2" fill="none" marker-end="url(#rpO)"/>`;
+  for (const [p, t, f] of [[A, 'A', C.butter], [B, 'B', '#fff'], [Cc, 'C', '#fff']]) s += `<circle cx="${p[0]}" cy="${p[1]}" r="19" fill="${f}" stroke="${ink}" stroke-width="1.8"/>` + lab(p[0], p[1] + 5, t, ink, 'middle', 15);
+  const badge = (x, y, n, t, a) => `<circle cx="${x}" cy="${y}" r="9" fill="${O}"/>` + lab(x, y + 4, n, '#fff', 'middle', 11, 800) + lab(a === 'end' ? x - 13 : x + 13, y + 4, t, O, a, 12, 800);
+  s += badge(80, 300, '1', 'down', 'end') + badge(178, 346, '2', 'back up', 'start') + badge(260, 300, '3', 'down', 'start');
+  s += lab(170, 412, 'Finish one side, come back up,', soft, 'middle', 13, 700) + lab(170, 429, 'then do the other side.', soft, 'middle', 13, 700);
+  return s + '</svg>';
+}
+
+/** Clean: which kinds of trees each traversal works on. */
+export function treeKinds() {
+  const ink = C.ink, soft = C.soft, OK = '#0e6b63', NO = C.red;
+  const lab = (x, y, t, c = ink, a = 'start', sz = 13, w = 800) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Nunito, sans-serif" font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
+  const node = (x, y, t, f = '#fff') => `<circle cx="${x}" cy="${y}" r="15" fill="${f}" stroke="${ink}" stroke-width="1.6"/>` + lab(x, y + 5, t, ink, 'middle', 13);
+  const edge = (a, b) => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${ink}" stroke-width="1.6"/>`;
+  const verdict = (x, y, rows) => rows.map(([name, ok, color], i) => `<rect x="${x}" y="${y + i * 27 - 16}" width="154" height="23" rx="5" fill="${ok ? '#fff' : '#f6e1de'}" stroke="${ok ? '#d9dedb' : NO}" stroke-width="1.2"/>` + lab(x + 8, y + i * 27, name, color, 'start', 13) + lab(x + 146, y + i * 27, ok ? '✓ works' : '✗ no', ok ? OK : NO, 'end', 12)).join('');
+  const P = [['Pre-order', '#b4461a'], ['In-order', '#0a5650'], ['Post-order', '#7a5200']];
+  const card = (y, h, title, sub) => `<rect x="4" y="${y}" width="332" height="${h}" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>` + lab(16, y + 23, title, ink, 'start', 15) + lab(16, y + 41, sub, soft, 'start', 12, 700);
+  let s = `<svg class="objbox" viewBox="0 0 340 512" role="img" aria-label="Any tree: pre-order and post-order work; in-order does not, because a node with three children has no single in-between spot. Binary tree: all three work. BST: all three work, and in-order comes out sorted.">`;
+  s += card(4, 168, '1. Any tree', 'a node may have 3 or more children');
+  const r1 = [82, 72], k1 = [[36, 130], [82, 130], [128, 130]];
+  k1.forEach((k) => (s += edge(r1, k))); s += node(...r1, 'P', C.butter); ['X', 'Y', 'Z'].forEach((t, i) => (s += node(...k1[i], t)));
+  s += lab(82, 160, 'write P between which two?', NO, 'middle', 11, 700);
+  s += verdict(172, 86, [[P[0][0], true, P[0][1]], [P[1][0], false, P[1][1]], [P[2][0], true, P[2][1]]]);
+  s += card(180, 156, '2. Binary tree', 'at most 2 children: a left and a right');
+  const r2 = [82, 248], k2 = [[46, 304], [118, 304]];
+  k2.forEach((k) => (s += edge(r2, k))); s += node(...r2, 'A', C.butter) + node(...k2[0], 'B') + node(...k2[1], 'C');
+  s += lab(46, 328, 'left', soft, 'middle', 11, 700) + lab(118, 328, 'right', soft, 'middle', 11, 700);
+  s += verdict(172, 262, P.map(([n, c]) => [n, true, c]));
+  s += card(344, 164, '3. BST', 'a binary tree, so all three work');
+  const r3 = [82, 412], k3 = [[46, 468], [118, 468]];
+  k3.forEach((k) => (s += edge(r3, k))); s += node(...r3, '20', C.butter) + node(...k3[0], '10') + node(...k3[1], '30');
+  s += verdict(172, 422, P.map(([n, c]) => [n, true, c]));
+  s += lab(172, 498, 'bonus: in-order = 10, 20, 30', OK, 'start', 12, 800);
+  return s + '</svg>';
+}

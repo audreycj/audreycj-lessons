@@ -39,7 +39,8 @@ const groups = {
   leaves: all.filter((n) => !n.kids.length).map((n) => n.id),
   internal: all.filter((n) => n.kids.length).map((n) => n.id),
 };
-const deepest = Math.max(...all.map((n) => n.depth!));
+const deepNode = all.reduce((a, b) => (b.depth! > a.depth! ? b : a));
+const deepest = [...anc(deepNode)].reverse().concat(deepNode.id);
 let svg = `<svg class="tree-svg" viewBox="0 0 ${W} ${H}" style="max-width:${Math.round(W * 1.2)}px" role="img" aria-label="A tree with root ${root.id}. Tap a node."><g class="t-edges">`;
 all.forEach((n) => n.kids.forEach((k) => (svg += `<line data-e="${n.id}-${k.id}" x1="${n.x}" y1="${n.y}" x2="${k.x}" y2="${k.y}"/>`)));
 svg += '</g>';
@@ -54,9 +55,9 @@ const total = all.length;
     <button type="button" class="btn" data-w="root">root</button>
     <button type="button" class="btn" data-w="leaves">leaves</button>
     <button type="button" class="btn" data-w="internal">internal nodes</button>
+    <button type="button" class="btn" data-w="size">size and edges</button>
     <button type="button" class="btn" data-w="depth">depth</button>
     <button type="button" class="btn" data-w="height">height</button>
-    <button type="button" class="btn" data-w="size">size and edges</button>
   </div>
   <div class="tl-svg" set:html={svg} />
   <div class="tl-out" aria-live="polite"><p class="muted">Tap a node or a word.</p></div>
@@ -75,6 +76,8 @@ const total = all.length;
   .terms .tree-svg .m-desc circle { fill: var(--teal-wash); stroke: var(--teal); stroke-width: 2.5; }
   .terms .tree-svg .m-hl circle { fill: var(--butter); stroke: var(--ink); stroke-width: 3; }
   .terms .tree-svg line.e-hl { stroke: var(--orange); stroke-width: 4.5; }
+  .terms .tree-svg line.e-dp { stroke: var(--amber); stroke-width: 4.5; }
+  .terms .tl-out .w-am { color: #a8650f; font-weight: 800; }
   .terms .tl-out .w-or { color: var(--orange-ink); font-weight: 800; }
 </style>
 
@@ -83,15 +86,18 @@ const total = all.length;
     var f = document.getElementById(id); if (!f) return;
     var out = f.querySelector('.tl-out'), nodes = f.querySelectorAll('.t-node');
     var lines = f.querySelectorAll('line[data-e]');
-    function edges(path) { lines.forEach(function (l) { var p = l.dataset.e.split('-'); var i = path.indexOf(p[0]); l.classList.toggle('e-hl', i > -1 && path[i + 1] === p[1]); }); }
+    function onPath(l, path) { var p = l.dataset.e.split('-'), i = path.indexOf(p[0]); return i > -1 && path[i + 1] === p[1]; }
+    function edges(path) { lines.forEach(function (l) { l.classList.toggle('e-hl', onPath(l, path)); }); }
+    function upEdges(path) { lines.forEach(function (l) { l.classList.toggle('e-dp', onPath(l, path)); }); }
+    function upPath(v) { return facts[v].anc.slice().reverse().concat(v); }
     function allEdges(on) { lines.forEach(function (l) { l.classList.toggle('e-hl', on); }); }
-    function clear() { edges([]); nodes.forEach(function (g) { g.classList.remove('m-sel', 'm-anc', 'm-desc', 'm-hl'); g.querySelector('.t-tag').textContent = ''; }); f.querySelectorAll('[data-w]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); }
+    function clear() { edges([]); upEdges([]); nodes.forEach(function (g) { g.classList.remove('m-sel', 'm-anc', 'm-desc', 'm-hl'); g.querySelector('.t-tag').textContent = ''; }); f.querySelectorAll('[data-w]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); }
     function mark(ids, cls) { nodes.forEach(function (g) { if (ids.indexOf(g.dataset.v) > -1) g.classList.add(cls); }); }
     function list(a) { return a.length ? a.join(', ') : '<i>none</i>'; }
     function pick(v) {
       clear();
       var d = facts[v];
-      mark(d.anc, 'm-anc'); mark(d.desc, 'm-desc'); mark([v], 'm-sel'); edges(d.down);
+      mark(d.anc, 'm-anc'); mark(d.desc, 'm-desc'); mark([v], 'm-sel'); edges(d.down); upEdges(upPath(v));
       var kind = v === rootId ? 'the <b>root</b> (no parent)' : d.kids.length ? 'an <b>internal node</b> (it has children)' : 'a <b>leaf</b> (no children)';
       out.innerHTML = '<p style="margin-bottom:.4rem"><b>' + v + '</b> is ' + kind + '.</p><table>' +
         '<tr><th>Parent</th><td>' + (d.parent || '<i>none: it is the root</i>') + '</td></tr>' +
@@ -100,7 +106,7 @@ const total = all.length;
         '<tr><th>Ancestors <span style="color:var(--amber)">●</span></th><td>' + list(d.anc) + '</td></tr>' +
         '<tr><th>Descendants <span style="color:var(--teal)">●</span></th><td>' + list(d.desc) + '</td></tr>' +
         '<tr><th>Subtree rooted at ' + v + '</th><td>' + [v].concat(d.desc).join(', ') + ' (' + (d.desc.length + 1) + ' node' + (d.desc.length ? 's' : '') + ')</td></tr>' +
-        '<tr><th>Depth</th><td>' + d.depth + ' (edges from the root down to ' + v + ')</td></tr>' +
+        '<tr><th>Depth</th><td>' + d.depth + (v === rootId ? ' (the root: no edges above it)' : ': edges from the root down to ' + v + ', along <span class="w-am">' + upPath(v).join(' → ') + '</span> (gold lines)') + '</td></tr>' +
         '<tr><th>Height</th><td>' + d.height + (d.height ? ': the <span class="w-or">longest</span> path down is <span class="w-or">' + d.down.join(' → ') + '</span> (orange lines)' : ' (a leaf: nothing below it)') + '</td></tr></table>';
     }
     // Reserve room for the tallest panel, so tapping different nodes never changes the height.
@@ -124,9 +130,9 @@ const total = all.length;
             : '<p><b>Internal nodes</b> have at least one child: ' + groups.internal.join(', ') + '. (The root counts too, if it has children.)</p>';
         } else if (w === 'depth' || w === 'height') {
           nodes.forEach(function (g) { g.querySelector('.t-tag').textContent = facts[g.dataset.v][w]; });
-          out.innerHTML = w === 'depth' ? '<p><b>Depth</b> = edges from the root <b>down to</b> the node. The root has depth 0. The small numbers show each depth.</p>'
+          out.innerHTML = w === 'depth' ? '<p><b>Depth</b> = edges from the root <b>down to</b> the node. The root has depth 0. The small numbers show each depth. The deepest node is <b>' + deepest[deepest.length - 1] + '</b>, at depth <b>' + (deepest.length - 1) + '</b>, along the gold path <span class="w-am">' + deepest.join(' → ') + '</span>. Tap any node to see its path from the root.</p>'
             : '<p><b>Height</b> of a node = edges on the <b>longest</b> path from it <b>down to a leaf</b>. Leaves have height 0. The <b>height of the tree</b> is the height of the root: <b>' + facts[rootId].height + '</b>, along the orange path ' + facts[rootId].down.join(' → ') + '. Tap any node to see its longest path.</p>';
-          if (w === 'height') edges(facts[rootId].down);
+          if (w === 'height') edges(facts[rootId].down); else upEdges(deepest);
         } else {
           mark(Object.keys(facts), 'm-hl'); allEdges(true);
           out.innerHTML = '<p><b>Size</b> = number of nodes = <b>' + total + '</b>. Every node except the root has exactly one edge going up to its parent, so there are <b>' + (total - 1) + ' edges</b>. (Edges are always size − 1.)</p>';

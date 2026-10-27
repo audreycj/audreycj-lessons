@@ -5,7 +5,7 @@ import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import Peek from '../../components/Peek.astro';
 import TapOrder from '../../components/TapOrder.astro';
-import { tourFig, folderJobs } from '../../lib/illus.js';
+import { tourFig, folderJobs, folderTree, travJobs, everydayTrees, routesPic, treeKinds } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { fromSpec, traversalSteps } from '../../lib/bst.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -30,9 +30,11 @@ const m3 = tourFig({ spec: treeL, route: false, label: 'Reading row by row: A, B
 const bstTour = tourFig({ spec: startBst, order: 'in', label: 'In-order of the starting BST: 10, 20, 30, 40, 50, 60, 70, numbered 1 to 7 under the nodes' });
 const ruleTable = `<table class="tbl"><thead><tr><th>Order</th><th>Tasks</th></tr></thead><tbody><tr><td><b>Pre-order</b></td><td class="mono">N L R</td></tr><tr><td><b>In-order</b></td><td class="mono">L N R</td></tr><tr><td><b>Post-order</b></td><td class="mono">L R N</td></tr></tbody></table><p class="small">N = write the node. L, R = finish the <b>entire</b> left or right subtree.</p>`;
 const bstRule = `<p>For <b>every</b> node: everything in its <span class="w-left">left</span> subtree is smaller, and everything in its <span class="w-right">right</span> subtree is larger.</p>`;
+const folderTreePeek = `<div class="illus">${folderTree()}</div><p class="small">Internal storage is the root. DCIM holds Camera and Screenshots.</p>`;
 const folderPeek = `<div class="illus">${folderJobs()}</div>`;
 
 const quiz = [
+  { q: 'Which is the best definition of a tree traversal?', opts: ['Visiting the nodes row by row, from top to bottom', 'Visiting every node exactly once, following a fixed rule', 'Visiting only the leaves of the tree', 'Visiting the nodes from smallest to largest'], a: 1, why: 'A traversal visits <b>every</b> node, <b>exactly once</b>, in an order decided by a <b>fixed rule</b>. Row by row and smallest to largest are only some possible orders.' },
   { q: 'Pre-order visits in which order?', opts: ['Left, Node, Right', 'Node, Left, Right', 'Left, Right, Node', 'Row by row'], a: 1, why: '<b>Pre</b> = before: the node is written <b>before</b> its subtrees (N L R).' },
   { q: 'Tree L: what is the in-order?', opts: ['A, B, D, E, G, C, F', 'D, B, G, E, A, C, F', 'D, G, E, B, F, C, A', 'A, B, C, D, E, F, G'], a: 1, why: 'L N R at every node: D, B, G, E, A, C, F. (The last option is row by row, which is not one of the three.)' },
   { q: 'The root is always ___ in pre-order and ___ in post-order.', opts: ['last; first', 'first; last', 'first; first', 'in the middle; last'], a: 1, why: 'Pre-order writes a node before everything under it, so the root is <b>first</b>. Post-order writes it after everything, so it is <b>last</b>.' },
@@ -51,7 +53,7 @@ const quiz = [
     <div class="goals">
       <p class="note-label">In this lesson, you will:</p>
       <ol>
-        <li>learn what a traversal is;</li>
+        <li>define a traversal and see where programs need one in real life;</li>
         <li>write the <b>pre-order</b>, <b>in-order</b>, and <b>post-order</b> of a binary tree;</li>
         <li>check your answer with the <b>walk around the tree</b> picture;</li>
         <li>see why in-order on a BST gives sorted values.</li>
@@ -66,14 +68,36 @@ const quiz = [
       <h2>What is a traversal?</h2>
     </div>
     <div class="flow">
+      <p>Imagine the nurse at your barangay health center has to print a list of <b>every</b> patient in the records. She must not skip anyone, and she must not print anyone twice. If the records are stored in a tree, she needs a plan for moving through it, node by node. That plan is called a traversal.</p>
       <div class="def">
-        <p class="note-label">Traversal</p>
-        <p>A <b>traversal</b> processes every item <b>once</b>, in a chosen order. Here, processing means writing its value.</p>
+        <p class="note-label">Tree traversal</p>
+        <p>A <b>tree traversal</b> is the process of <b>visiting every node</b> of a tree <b>exactly once</b>, following a <b>fixed rule</b> that decides which node comes next.</p>
+        <p>To <b>visit</b> a node means to do the job on it: print it, count it, copy it, delete it, or anything else the program needs.</p>
       </div>
-      <p>You already did this with an array (<code>i++</code>, left to right) and a linked list (<code>current = current.next</code> until null). A binary-tree node can have <b>two</b> children, so we finish one subtree, then go <b>back up</b> to the parent to do its other side. That going back up is the new part.</p>
-      <div class="remember">
-        <p class="note-label">Why it matters</p>
-        <p>A program often has to do something to every node: print all patient numbers of a barangay health center, count the students in the school's records, back up a folder and everything inside it, or delete one. To do a job on every node, we need a fixed route through the tree: a traversal.</p>
+      <p>Each part of the definition matters. This table explains them one by one:</p>
+      <table class="tbl">
+        <thead><tr><th>The definition says…</th><th>In plain words</th></tr></thead>
+        <tbody>
+          <tr><td><b>every node</b></td><td>no node is skipped</td></tr>
+          <tr><td><b>exactly once</b></td><td>no node is done twice, even if we pass by it again</td></tr>
+          <tr><td><b>a fixed rule</b></td><td>the same steps at every node, so everyone who follows the rule gets the same answer</td></tr>
+          <tr><td><b>visit</b></td><td>do the job on that node</td></tr>
+        </tbody>
+      </table>
+      <p class="small"><b>In this lesson,</b> we practice traversals by hand, so our "job" at each node is simply to <b>write its value</b> on paper. A real program might print, count, copy, or delete instead. The order of the visits is the same, whatever the job is.</p>
+      <div class="sub">
+        <h3>Why does this matter?</h3>
+        <p>Trees are everywhere in IT. You already use these three, even if you never called them trees:</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={everydayTrees()} /><figcaption>Folders on your phone, a family tree, and the categories of an online shop. Each one has a root, branches, and leaves. (Remember <Peek label="the folder tree" title="From the Trees lesson" html={folderTreePeek} />?)</figcaption></figure>
+        <p>A program often has to do <b>one job to every node</b> of trees like these. The picture shows four common jobs:</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={travJobs()} /><figcaption>Print every patient number, count every student, back up a folder, or delete a folder. Each job needs a route that reaches every node, once.</figcaption></figure>
+        <p>That route is a traversal. Later, in Part 5, you will see that some jobs also need a <b>specific order</b>. For example, a folder can be deleted only after everything inside it is gone.</p>
+      </div>
+      <div class="sub">
+        <h3>What is new about trees?</h3>
+        <p>You have traversed before, with arrays and linked lists. The picture compares them with a binary tree:</p>
+        <figure class="fig illus-fig"><Fragment set:html={routesPic()} /><figcaption>An array (<code>i++</code>) and a linked list (<code>current = current.next</code>) have only one way forward. A binary-tree node can have two ways down.</figcaption></figure>
+        <p>In an array or a linked list, there is only one "next" item, so the route is a straight line. In a binary tree, a node can have <b>two</b> children. So we pick a side, finish it, then go <b>back up</b> to the parent to do its other side. That going back up is the new part, and it is why we need a rule.</p>
       </div>
       <div class="sub">
         <h3>When do we write A?</h3>
@@ -90,6 +114,16 @@ const quiz = [
         </table>
         <p class="hand" style="font-size:var(--step-1)">Pre = before. In = in between. Post = after.</p>
       </div>
+      <div class="sub">
+        <h3>Which trees can we traverse?</h3>
+        <p>Before we go on, it helps to know which kinds of trees these three orders work on. The picture checks three kinds:</p>
+        <figure class="fig illus-fig"><Fragment set:html={treeKinds()} /><figcaption>Pre-order and post-order work on <b>any</b> tree. In-order needs exactly one left side and one right side, so it works only on <b>binary</b> trees. A BST is a binary tree, so all three work there too.</figcaption></figure>
+        <p>Why does in-order fail on P? In-order writes the node <b>in between</b> its left and right sides. P has three children, X, Y, and Z, so there is no single "in between" spot: between X and Y, or between Y and Z? Pre-order (P first) and post-order (P last) have no such problem.</p>
+        <div class="remember">
+          <p class="note-label">In this lesson</p>
+          <p>We use <b>binary trees</b>, so all three orders work. They do not have to be BSTs.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -101,22 +135,44 @@ const quiz = [
     <div class="flow">
       <p>To traverse any binary tree, every node has the same three tasks. They are listed here:</p>
       <ul>
-        <li><span class="w-key">N</span>: write this node.</li>
-        <li><span class="w-left">L</span>: traverse its <b>entire</b> left subtree.</li>
-        <li><span class="w-right">R</span>: traverse its <b>entire</b> right subtree.</li>
+        <li><span class="tk">N</span> write this node.</li>
+        <li><span class="tk">L</span> traverse its <b>entire</b> left subtree.</li>
+        <li><span class="tk">R</span> traverse its <b>entire</b> right subtree.</li>
       </ul>
       <p>The three orders do the same tasks, in a different order:</p>
       <table class="tbl">
         <thead><tr><th>Order</th><th>Tasks</th><th>Write the node…</th></tr></thead>
         <tbody>
-          <tr><td><span class="k-pre">Pre-order</span></td><td class="mono">N L R</td><td>before its left and right subtrees</td></tr>
-          <tr><td><span class="k-in">In-order</span></td><td class="mono">L N R</td><td>between its left and right subtrees</td></tr>
-          <tr><td><span class="k-post">Post-order</span></td><td class="mono">L R N</td><td>after its left and right subtrees</td></tr>
+          <tr><td><span class="k-pre">Pre-order</span></td><td><span class="tk">N</span> <span class="tk">L</span> <span class="tk">R</span></td><td>before its left and right subtrees</td></tr>
+          <tr><td><span class="k-in">In-order</span></td><td><span class="tk">L</span> <span class="tk">N</span> <span class="tk">R</span></td><td>between its left and right subtrees</td></tr>
+          <tr><td><span class="k-post">Post-order</span></td><td><span class="tk">L</span> <span class="tk">R</span> <span class="tk">N</span></td><td>after its left and right subtrees</td></tr>
         </tbody>
       </table>
       <div class="trap">
         <p class="note-label">"Entire" is the key word</p>
-        <p><span class="w-left">L</span> does not mean "move one step left." It means "finish <b>everything</b> on the left side using the same rule, then come back to this node." If a side is empty, that task is done right away.</p>
+        <p><span class="tk">L</span> does not mean "move one step left." It means "finish <b>everything</b> on the left side using the same rule, then come back to this node."</p>
+      </div>
+      <div class="sub">
+        <h3>Subtrees inside subtrees</h3>
+        <p>From now on, we use this tree, called <b>Tree L</b>. We are at A (orange). Its left subtree is everything under B (light teal), and its right subtree is everything under C (gold):</p>
+        <figure class="fig"><p class="fig-cap">Tree L</p><TreeFig spec={treeL} marks={{ A: 'cur', B: 'path', D: 'path', E: 'path', G: 'path', C: 'wait', F: 'wait' }} label="Tree L: A at the top. A's left subtree is B, D, E, G. A's right subtree is C, F." /><figcaption>At A, <span class="tk">L</span> means "do <b>all</b> of B, D, E, G," not just B.</figcaption></figure>
+        <p>Every subtree has smaller subtrees inside it. Here are the subtrees of Tree L:</p>
+        <ul>
+          <li>B's subtree: B, D, E, G.</li>
+          <li>E's subtree: E, G. It is inside B's subtree.</li>
+          <li>D's subtree: just D. A leaf is a subtree too.</li>
+          <li>C's subtree: C, F.</li>
+        </ul>
+        <p>When we go down into B's subtree, <b>B becomes the node we are working on</b>: B is now the <span class="tk">N</span>. B does its own three tasks on its own, smaller subtree. The two pictures compare A's turn and B's turn:</p>
+        <div class="two-col">
+          <figure class="fig"><p class="fig-cap">A's turn: A is N</p><TreeFig spec={treeL} marks={{ A: 'cur', B: 'path', D: 'path', E: 'path', G: 'path', C: 'wait', F: 'wait' }} label="A's turn: A is N. Its L is B, D, E, G. Its R is C, F." /><figcaption><span class="tk">N</span> = A. <span class="tk">L</span> = B, D, E, G (light teal). <span class="tk">R</span> = C, F (gold).</figcaption></figure>
+          <figure class="fig"><p class="fig-cap">B's turn: now B is N</p><TreeFig spec={treeL} marks={{ B: 'cur', D: 'path', E: 'wait', G: 'wait' }} label="B's turn: B is N. Its L is D. Its R is E, G." /><figcaption><span class="tk">N</span> = B. <span class="tk">L</span> = D (light teal). <span class="tk">R</span> = E, G (gold). A waits for B to finish.</figcaption></figure>
+        </div>
+        <p>When B's whole subtree is finished, we go back up, and A is the N again, ready for its next task. Inside E's subtree, E takes a turn as N, and so on. <b>Every node takes one turn as N</b>, and the rule is the same each time.</p>
+        <div class="remember">
+          <p class="note-label">Empty sides</p>
+          <p>If a side is empty (like the left of C, or the right of E), that task is done right away. Skip it and do the node's next task.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -127,8 +183,8 @@ const quiz = [
       <h2>Step by step</h2>
     </div>
     <div class="flow">
-      <p>Pick an order. Before each tap, guess: will we write this node now, or go somewhere first? Tree L is not a BST, but all three traversals still work on it.</p>
-      <BstLab id="lab-trav" mode="traverse" input={false} cap="Traversal lab" hint="Orange = we are here. Gold = waiting (we must come back). Teal = finished (the node and its whole subtree)." legend={`<span><i class="l-cur2"></i> here now</span><span><i class="l-wait2"></i> waiting</span><span><i class="l-done2"></i> finished</span>`} presets={[
+      <p>Pick an order. Before each tap, guess: will we write this node now, or go somewhere first? Start with Tree L from Part 2.</p>
+      <BstLab id="lab-trav" mode="traverse" input={false} cap="Traversal lab" hint="Tap Next step. Orange = the node we are on. Gold = waiting (we must come back). Teal = finished (the node and its whole subtree). #1, #2, … = the order the nodes were written. Below the tree, the task row shows which of the current node's three tasks are done." legend={`<span><i class="l-cur2"></i> here now</span><span><i class="l-wait2"></i> waiting</span><span><i class="l-done2"></i> finished</span>`} presets={[
         { label: 'Tree L', spec: treeL, order: 'pre' },
         { label: 'Starting BST', spec: startBst, order: 'in' },
       ]} />
@@ -150,7 +206,7 @@ const quiz = [
         </ul>
         <p>The numbers show the order in which the route reaches each spot. Follow the route with your finger and count along:</p>
         <Fragment set:html={tourRow} />
-        <p class="small">This is only a shortcut for checking. The N L R rule from Part 2 is what explains <b>why</b> each order works, and it is what the Java code in the next lesson follows.</p>
+        <p class="small">This is only a shortcut for checking. <Peek label="The three-task rule from Part 2" title="From Part 2" html={ruleTable} /> is what explains <b>why</b> each order works, and it is what the Java code in the next lesson follows.</p>
       </div>
     </div>
   </section>
@@ -163,25 +219,43 @@ const quiz = [
     <div class="flow">
       <p>These three mistakes come up often on quizzes. For each one, read the situation, look at the picture of the wrong answer, then read the fix.</p>
       <div class="trap flow">
-        <p class="note-label">Mistake 1: Writing a node every time you pass it</p>
-        <p><b>The situation:</b> a student traverses the small tree from Part 1 and writes a node each time the route reaches it.</p>
-        <figure class="fig illus-fig"><Fragment set:html={m1} /></figure>
+        <p class="note-label">Mistake 1 · <span class="k-pre">pre-order</span>: writing a node every time you pass it</p>
+        <p><b>The situation:</b> a student is asked for the <span class="k-pre">pre-order</span> of the small tree from Part 1. They write a node each time the route reaches it.</p>
+        <div class="mk-row">
+          <figure class="fig illus-fig"><Fragment set:html={m1} /></figure>
+          <div class="mk-ans">
+            <p class="mk-wrong"><b>✗ Wrong pre-order</b><span class="mono">A, B, A, C, A</span></p>
+            <p class="mk-right is-pre"><b>✓ Right pre-order</b><span class="mono">A, B, C</span></p>
+          </div>
+        </div>
         <p><b>What went wrong:</b> following the numbers, the answer is A, B, A, C, A. The tree has 3 nodes, but the answer has 5 entries, because A was written at all three passes (the red ones).</p>
-        <p><b>The fix:</b> write each node <b>exactly once</b>, at the one pass your order chooses. Count your answer: 3 nodes, 3 entries. In pre-order, A is written only at pass 1: A, B, C.</p>
+        <p><b>The fix:</b> write each node <b>exactly once</b>, at the one pass your order chooses. Count your answer: 3 nodes, 3 entries. In <span class="k-pre">pre-order</span>, A is written only at pass 1: A, B, C.</p>
       </div>
       <div class="trap flow">
-        <p class="note-label">Mistake 2: Going only one step down</p>
-        <p><b>The situation:</b> a student writes the in-order of Tree L as D, B, E, G, A, C, F.</p>
-        <figure class="fig illus-fig"><Fragment set:html={m2} /></figure>
-        <p><b>What went wrong:</b> at E, the student treated <span class="w-left">L</span> as "E has no left child next to it, so write E." But G is in E's left subtree. In-order must finish E's <b>entire</b> left subtree (G) before writing E. Follow the route: it passes under G before it passes under E.</p>
-        <p><b>The fix:</b> before writing a node in in-order, ask "is <b>everything</b> on its left already written?" The right answer is D, B, <b>G, E</b>, A, C, F. Compare with <Peek label="the in-order picture" title="In-order of Tree L" html={tourL.in} />.</p>
+        <p class="note-label">Mistake 2 · <span class="k-in">in-order</span>: going only one step down</p>
+        <p><b>The situation:</b> a student is asked for the <span class="k-in">in-order</span> of Tree L and writes D, B, E, G, A, C, F.</p>
+        <div class="mk-row">
+          <figure class="fig illus-fig"><Fragment set:html={m2} /></figure>
+          <div class="mk-ans">
+            <p class="mk-wrong"><b>✗ Wrong in-order</b><span class="mono">D, B, E, G, A, C, F</span></p>
+            <p class="mk-right is-in"><b>✓ Right in-order</b><span class="mono">D, B, G, E, A, C, F</span></p>
+          </div>
+        </div>
+        <p><b>What went wrong:</b> at E, the student treated <span class="tk">L</span> as "E has no left child next to it, so write E." But G is in E's left subtree. <span class="k-in">In-order</span> must finish E's <b>entire</b> left subtree (G) before writing E. Follow the route: it passes under G before it passes under E.</p>
+        <p><b>The fix:</b> before writing a node in <span class="k-in">in-order</span>, ask "is <b>everything</b> on its left already written?" The right answer is D, B, <b>G, E</b>, A, C, F. Compare with <Peek label="the in-order picture" title="In-order of Tree L" html={tourL.in} />.</p>
       </div>
       <div class="trap flow">
-        <p class="note-label">Mistake 3: Reading row by row</p>
-        <p><b>The situation:</b> a student is asked for the pre-order of Tree L and reads the tree from the top, row by row.</p>
-        <figure class="fig illus-fig"><Fragment set:html={m3} /></figure>
-        <p><b>What went wrong:</b> the answer A, B, C, D, E, F, G is a real order called <b>level-order</b>, but it is not one of these three. Pre-order goes <b>deep</b> first: it finishes all of B's side (B, D, E, G) before it ever reaches C.</p>
-        <p><b>The fix:</b> follow N L R at every node. The right pre-order is A, B, D, E, G, C, F. Compare with <Peek label="the pre-order picture" title="Pre-order of Tree L" html={tourL.pre} />.</p>
+        <p class="note-label">Mistake 3 · <span class="k-pre">pre-order</span>: reading row by row</p>
+        <p><b>The situation:</b> a student is asked for the <span class="k-pre">pre-order</span> of Tree L and reads the tree from the top, row by row.</p>
+        <div class="mk-row">
+          <figure class="fig illus-fig"><Fragment set:html={m3} /></figure>
+          <div class="mk-ans">
+            <p class="mk-wrong"><b>✗ Wrong pre-order</b><span class="mono">A, B, C, D, E, F, G</span></p>
+            <p class="mk-right is-pre"><b>✓ Right pre-order</b><span class="mono">A, B, D, E, G, C, F</span></p>
+          </div>
+        </div>
+        <p><b>What went wrong:</b> the answer A, B, C, D, E, F, G is a real order called <b>level-order</b>, but it is not one of these three. <span class="k-pre">Pre-order</span> goes <b>deep</b> first: it finishes all of B's side (B, D, E, G) before it ever reaches C.</p>
+        <p><b>The fix:</b> follow <span class="tk">N</span> <span class="tk">L</span> <span class="tk">R</span> at every node. The right <span class="k-pre">pre-order</span> is A, B, D, E, G, C, F. Compare with <Peek label="the pre-order picture" title="Pre-order of Tree L" html={tourL.pre} />.</p>
       </div>
       <div class="remember">
         <p class="note-label">Always true</p>
@@ -207,7 +281,7 @@ const quiz = [
           <tr><td>Post-order</td><td class="mono">{bstOrders.post.join(', ')}</td><td>no</td></tr>
         </tbody>
       </table>
-      <p><span class="w-key">For a BST, in-order <b>always</b> gives the values from smallest to largest.</span> Pre-order and post-order may happen to be sorted, but they do not guarantee it.</p>
+      <p><b>For a BST, in-order always gives the values from smallest to largest.</b> Pre-order and post-order may happen to be sorted, but they do not guarantee it.</p>
       <div class="sub">
         <h3>Why three orders?</h3>
         <p>Each order suits a different job. The picture shows two of them on a teacher's "Grade 2" folder: copying it and deleting it.</p>
@@ -266,7 +340,7 @@ const quiz = [
       <div class="remember">
         <p class="note-label">Key takeaways</p>
         <ol>
-          <li>A traversal visits every node exactly once.</li>
+          <li>A traversal visits every node exactly once, following a fixed rule. Programs use it to list, count, copy, or delete everything in a tree.</li>
           <li>Pre-order N L R, in-order L N R, post-order L R N, at <b>every</b> node.</li>
           <li>L and R mean the <b>entire</b> subtree.</li>
           <li>In-order on a BST is sorted.</li>

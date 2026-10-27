@@ -20,8 +20,10 @@ const listNode = String.raw`class Node {
   Node next;     // one link
 }`;
 const SPEC = 'A(B(D,E(H,I(J)),F),C(G))';
-const depthPic = pathTree({ spec: SPEC, focus: 'E', paths: [{ ids: ['A', 'B', 'E'], color: '#0e6b63', wash: '#d7ece9', nums: true }], label: 'Depth of E: count the edges from the root A down to E: 2' });
-const heightPic = pathTree({ spec: SPEC, focus: 'E', paths: [{ ids: ['E', 'I', 'J'], color: '#e8662e', nums: true }], faded: [['E', 'H']], notes: [{ x: 58, y: 252, text: 'shorter:', size: 13, color: '#37474a' }, { x: 58, y: 268, text: 'not counted', size: 13, color: '#37474a' }], label: 'Height of E: count the edges on the longest path down from E: E to I to J, 2 edges. E to H is shorter and does not count.' });
+// For the depth vs. height pair: G gets K, L, M below it, deeper than J, to show that a longer path elsewhere does not count for E.
+const SPEC_DH = 'A(B(D,E(H,I(J)),F),C(G(K(L(M)))))';
+const depthPic = pathTree({ spec: SPEC_DH, focus: 'E', paths: [{ ids: ['A', 'B', 'E'], color: '#0e6b63', wash: '#d7ece9', nums: true }], label: 'Depth of E: count the edges from the root A down to E: 2' });
+const heightPic = pathTree({ spec: SPEC_DH, focus: 'E', paths: [{ ids: ['E', 'I', 'J'], color: '#e8662e', nums: true }], faded: [['E', 'H'], ['G', 'K'], ['K', 'L'], ['L', 'M']], notes: [{ x: 58, y: 252, text: 'shorter:', size: 13, color: '#37474a' }, { x: 58, y: 268, text: 'not counted', size: 13, color: '#37474a' }, { x: 196, y: 318, text: 'longer, but', size: 13, color: '#37474a', anchor: 'end' }, { x: 196, y: 334, text: 'not below E', size: 13, color: '#37474a', anchor: 'end' }], label: 'Height of E: count the edges on the longest path down from E: E to I to J, 2 edges. E to H is shorter and does not count. G to K to L to M goes even lower than J, but it is not below E, so it does not count either.' });
 const explorerPeek = pathTree({ spec: SPEC, focus: 'B', paths: [['B', 'D'], ['B', 'E'], ['B', 'F']].map((ids) => ({ ids, color: '#e8662e' })), label: 'The explorer tree, with B and its three children highlighted' }) + '<p class="small">B has three children: D, E, and F.</p>';
 const listPeek = `<pre class="code"><code>${hi(listNode)}</code></pre>` + listNodePic();
 const leftTree = node(50); leftTree.l = node(30);
@@ -137,8 +139,9 @@ const quiz = [
       </div>
       <div class="two-col">
         <figure class="fig"><p class="fig-cap">Depth of E = 2</p><div set:html={depthPic} /><p class="small">Count the edges from the <b>root</b> down to E: A → B → E. There is only one way up, so depth is easy.</p></figure>
-        <figure class="fig"><p class="fig-cap">Height of E = 2</p><div set:html={heightPic} /><p class="small">Count the edges from E down to its <b>deepest</b> leaf: E → I → J. E → H is only 1 edge. Height always takes the <b>longest</b> path down.</p></figure>
+        <figure class="fig"><p class="fig-cap">Height of E = 2</p><div set:html={heightPic} /><p class="small">Count the edges from E down to <b>its</b> deepest leaf: E → I → J. E → H is only 1 edge. Height always takes the <b>longest</b> path down.</p></figure>
       </div>
+      <p>Look at G → K → L → M in the height picture. That path reaches lower than J, but it is <b>not below E</b>, so it has nothing to do with E's height. Only the leaves <b>under E</b> count: H and J. (We added K, L, and M under G just for these two pictures.)</p>
     </div>
   </section>
 

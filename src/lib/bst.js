@@ -151,39 +151,44 @@ const NAME = { pre: 'Pre-order (N L R)', in: 'In-order (L N R)', post: 'Post-ord
 
 export function traversalSteps(root, order) {
   const steps = [];
-  const written = [], waiting = [], finished = new Set();
-  const panel = () => `<p><b>Waiting</b> (we must come back): ${waiting.length ? waiting.slice().reverse().map((n) => n.v).join(', ') : 'nobody'}</p><p><b>Written:</b> <span class="written">${written.map((x) => `<span>${x}</span>`).join('') || '<i>(nothing yet)</i>'}</span></p>`;
+  const written = [], waiting = [], finished = new Set(), wid = [];
+  const prog = {}; // node id -> { N|L|R: 'done' | 'now' | 'empty' }
+  const word = { N: 'write it', L: 'left side', R: 'right side' };
+  const chips = (n) => ORD[order].map((t) => { const st = (prog[n.id] || {})[t] || ''; return `<span class="tk${st ? ' is-' + st : ''}">${t}<small>${word[t]}${st === 'done' ? ' ✓' : st === 'now' ? ': doing it' : st === 'empty' ? ': empty, skip' : ''}</small></span>`; }).join(' ');
+  const panel = (f) => (f ? `<p class="tk-row"><b>Tasks at ${f.v}:</b> ${chips(f)}</p>` : '<p class="tk-row"><b>Tasks:</b> all done</p>') + `<p><b>Waiting</b> (we must come back): ${waiting.length ? waiting.slice().reverse().map((n) => n.v).join(', ') : 'nobody'}</p><p><b>Written:</b> <span class="written">${written.map((x) => `<span>${x}</span>`).join('') || '<i>(nothing yet)</i>'}</span></p>`;
   const marks = (cur) => { const m = {}; finished.forEach((id) => (m[id] = 'done')); waiting.forEach((n) => (m[n.id] = 'wait')); if (cur) m[cur.id] = 'cur'; return m; };
-  const push = (cap, cur, tag) => steps.push(S(root, cap, { tag, marks: marks(cur), extra: panel() }));
+  const tags = () => Object.fromEntries(wid.map((id, i) => [id, '#' + (i + 1)]));
+  const push = (cap, cur, tag, f) => steps.push(S(root, cap, { tag, marks: marks(cur), tags: tags(), extra: panel(f) }));
+  const set = (n, t, v) => ((prog[n.id] = prog[n.id] || {})[t] = v);
 
   function walk(n, parent) {
     for (const t of ORD[order]) {
       if (t === 'N') {
-        written.push(n.v);
+        written.push(n.v); wid.push(n.id); set(n, 'N', 'done');
         const why = order === 'pre' ? `We are at ${n.v}. Write ${n.v} first (N comes before L and R).`
           : order === 'in' ? (n.l ? `Back at ${n.v}. Its left side is done, so now write ${n.v}.` : `${n.v}'s left side is empty. Write ${n.v}.`)
           : (n.l || n.r ? `Both sides of ${n.v} are done. Now write ${n.v}.` : `${n.v} has no children, so both sides are done. Write ${n.v}.`);
-        push(why, n, `Write ${n.v}`);
+        push(why, n, `Write ${n.v}`, n);
       } else {
         const ch = t === 'L' ? n.l : n.r;
         const w = t === 'L' ? 'left' : 'right';
-        if (!ch) continue;
+        if (!ch) { set(n, t, 'empty'); continue; }
         let pre = '';
         if (t === 'R' && order === 'post' && n.l) pre = `${n.v}'s left side is done, but not its right side, so do not write ${n.v} yet. `;
         if (t === 'R' && !n.l && order !== 'pre') pre = `${n.v}'s left side is empty. `;
         if (t === 'L' && order !== 'pre') pre = `We are at ${n.v}. Do not write it yet: its left side comes first. `;
-        waiting.push(n);
-        push(`${pre}Go ${w} to <b>${ch.v}</b>.`, ch, `Go ${w}`);
+        waiting.push(n); set(n, t, 'now');
+        push(`${pre}Go ${w} to <b>${ch.v}</b>. ${n.v} waits. Next, ${ch.v} does its own three tasks.`, ch, `${n.v} goes ${w}`, n);
         walk(ch, n);
-        waiting.pop();
+        waiting.pop(); set(n, t, 'done');
       }
     }
     finished.add(n.id);
-    if (parent) push(`${n.v}'s whole subtree is finished. Go back up to ${parent.v}.`, parent, 'Back up');
+    if (parent) push(`${n.v}'s whole subtree is finished. Go back up to ${parent.v} and do its next task.`, parent, `Back up to ${parent.v}`, parent);
   }
-  push(`${NAME[order]}. Start at the root, <b>${root.v}</b>.`, root, 'Start');
+  push(`${NAME[order]}. Start at the root, <b>${root.v}</b>.`, root, 'Start', root);
   walk(root, null);
-  push(`Done! Every node is finished. <b>${NAME[order].split(' (')[0]}: ${written.join(', ')}</b>`, null, 'Done');
+  push(`Done! Every node is finished. <b>${NAME[order].split(' (')[0]}: ${written.join(', ')}</b>`, null, 'Done', null);
   return { steps, out: written };
 }
 
