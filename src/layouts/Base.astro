@@ -43,6 +43,32 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <script>
     import { growOnly } from '../lib/stable.js';
     document.querySelectorAll<HTMLElement>('[data-grow]').forEach(growOnly);
+
+    // Copy button on every code block (Oct 28). Copies the code only: no line numbers, one line per line.
+    const codeText = (pre: HTMLElement) => {
+      const code = pre.querySelector<HTMLElement>('code') || pre;
+      const strip = (el: Element) => { const c = el.cloneNode(true) as HTMLElement; c.querySelectorAll('.ln, .code-bar').forEach((e) => e.remove()); return c.textContent || ''; };
+      const lines = code.querySelectorAll('.cw-l');
+      return (lines.length ? [...lines].map(strip).join('\n') : strip(code)).replace(/\s+$/, '') + '\n';
+    };
+    const copyText = async (text: string) => {
+      try { await navigator.clipboard.writeText(text); return true; } catch {
+        const t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+        document.body.appendChild(t); t.select(); let ok = false; try { ok = document.execCommand('copy'); } catch {} t.remove(); return ok;
+      }
+    };
+    document.querySelectorAll<HTMLElement>('pre.code').forEach((pre) => {
+      if (pre.classList.contains('cw-full') || pre.querySelector('.code-bar')) return;
+      const bar = document.createElement('div'); bar.className = 'code-bar';
+      const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'code-copy'; btn.textContent = 'Copy'; btn.setAttribute('aria-label', 'Copy this code');
+      bar.appendChild(btn); pre.prepend(bar);
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const ok = await copyText(codeText(pre));
+        btn.textContent = ok ? 'Copied!' : 'Select and copy'; btn.classList.toggle('is-done', ok);
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-done'); }, 1600);
+      });
+    });
   </script>
   <button type="button" class="to-top" id="to-top" aria-label="Back to the top" title="Back to the top">↑</button>
   <script is:inline>

@@ -867,3 +867,10 @@ pre.code > code { display: block; width: max-content; min-width: 100%; }
 /* Sidebar: lesson name at the top (Oct 28) */
 .toc-panel .toc-lesson { font-family: var(--font-display); font-weight: 600; font-size: var(--step-0); line-height: 1.25; color: var(--teal-ink); padding-bottom: 0.65rem; margin: 0 0 0.75rem; border-bottom: 1px solid var(--line); }
 .toc-panel .toc-code { display: block; font-family: var(--font-body); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.15rem; }
+
+/* Copy button on code blocks (Oct 28): the bar stays in view while the code scrolls sideways */
+pre.code .code-bar { position: sticky; left: 0; display: flex; justify-content: flex-end; margin: -0.35rem -0.4rem 0.3rem 0; }
+pre.code .code-copy { font: 700 0.75rem/1 var(--font-body); color: #d7e8e5; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 99px; padding: 0.4rem 0.8rem; cursor: pointer; }
+pre.code .code-copy:hover { background: rgba(255, 255, 255, 0.16); }
+pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95); border-color: var(--butter, #f8dc95); }
+.peek-card pre.code .code-bar { display: none; }

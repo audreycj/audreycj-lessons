@@ -3,11 +3,12 @@ import Base from '../../layouts/Base.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import TraverseLab from '../../components/TraverseLab.astro';
 import Quiz from '../../components/Quiz.astro';
+import StepShow from '../../components/StepShow.astro';
 import Peek from '../../components/Peek.astro';
 import { course } from '../../data/itc120.js';
-import { city, oneWay, islands } from '../../data/graphs.js';
-import { bfsSteps } from '../../lib/graph.js';
-import { treeVsGraph, bfsWaves, newsWaves, bfsInIT, canteenLine, queueSnapshots } from '../../lib/illus.js';
+import { city, oneWay, islands, smallDir } from '../../data/graphs.js';
+import { bfsSteps, svgGraph } from '../../lib/graph.js';
+import { treeVsGraph, bfsWaves, newsWaves, bfsInIT, canteenLine, queueSteps } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -32,6 +33,7 @@ const p2 = {
   edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'B'], ['D', 'E'], ['E', 'C'], ['F', 'A']].map(([a, b]) => ({ a, b })),
 };
 const wavesSvg = bfsWaves();
+const dirPeek = svgGraph(smallDir, { label: 'Directed graph from the Graphs lesson: A to B, A to D, B to C, C to A, D to C' }) + '<p class="small">A <b>directed graph</b>: every edge is an arrow and goes one way only. The arrow from A to B lets you go from A to B, but not from B back to A.</p>';
 const r1 = bfsSteps(p1, 'D');
 const r2 = bfsSteps(p2, 'A');
 const lv = (run) => {
@@ -128,7 +130,7 @@ const quiz = [
       <figure class="fig illus-fig"><Fragment set:html={treeVsGraph()} /><figcaption>A tree has one root and no cycles, so every path down ends. A graph can have a cycle: A, B, C, D, and back to A. Without a "seen" list, a traversal could go around forever. With one, it skips A the second time, so each vertex is visited once.</figcaption></figure>
       <div class="def">
         <p class="note-label">Breadth-first search (BFS)</p>
-        <p><b>Breadth-first search</b> visits the start vertex first, then all vertices 1 edge away, then all vertices 2 edges away, and so on. It explores the graph <b>level by level</b>, using a <b>queue</b>.</p>
+        <p><b>Breadth-first search (BFS)</b> is a <b>graph traversal algorithm</b> that visits every vertex reachable from a starting vertex, <b>nearest first</b>: the start, then every vertex 1 edge away, then every vertex 2 edges away, and so on. This is called going <b>level by level</b>. BFS uses a <b>queue</b> to keep track of which vertex to visit next.</p>
       </div>
       <div class="def">
         <p class="note-label">Level</p>
@@ -163,16 +165,21 @@ const quiz = [
       <p>Recall the queue from the linear data structures lessons: you <b>enqueue</b> at the rear and <b>dequeue</b> from the front, like a line at the canteen. First in, first out.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={canteenLine()} /><figcaption>A canteen line is a queue. Student 1 came first, so student 1 is served first and leaves from the front (<b>dequeue</b>). A new student joins at the rear (<b>enqueue</b>), so the new student waits for students 1 to 4.</figcaption></figure>
       <p>BFS puts every newly found vertex at the <b>rear</b> of the queue. Since all level-1 vertices are found before any level-2 vertex, they are also in line first. So the queue automatically keeps the waves in order: <span class="hl">closer vertices are always visited before farther ones</span>.</p>
-      <figure class="fig illus-fig"><Fragment set:html={queueSnapshots()} /><figcaption>The queue during BFS from A on <Peek label="the wave picture's graph" title="From Part 1" html={wavesSvg} />, with each box colored by its level. Look at "Visit B": C and E join at the rear, behind D, because D joined first. New vertices always wait behind the ones already in line, so the levels leave the queue in order: 0, then 1, then 2, then 3.</figcaption></figure>
+      <div class="def">
+        <p class="note-label">Seen list</p>
+        <p>A <b>seen list</b> is a checklist of every vertex BFS has already found. A vertex gets its ✓ the moment it joins the queue, and a vertex with a ✓ is never added again. That is what stops BFS from going around a cycle forever (Part 1).</p>
+        <p><b>Seen is not the same as visited.</b> A vertex is <b>seen</b> when it joins the queue, and <b>visited</b> later, when it leaves the front.</p>
+      </div>
+      <StepShow id="bfs-queue" cap="One queue, step by step" hint="BFS uses only one queue. Tap Next and watch it: a vertex leaves from the front, new ones join at the rear." steps={queueSteps()} />
       <div class="sub">
         <h3>The BFS procedure</h3>
         <p>Every BFS follows these steps:</p>
         <ol class="procedure">
-          <li>Mark the start vertex as <b>seen</b> and <b>enqueue</b> it.</li>
+          <li>Mark the start vertex as <b>seen</b> (give it a ✓ on the seen list) and <b>enqueue</b> it.</li>
           <li>While the queue is not empty:
             <ol type="a">
               <li><b>Dequeue</b> the vertex at the front. <b>Visit</b> it (write it in the BFS order).</li>
-              <li>Look at its neighbors, in alphabetical order. For each one that is <b>not seen</b> yet: mark it seen and <b>enqueue</b> it.</li>
+              <li>Look at its neighbors, in alphabetical order (or smallest number first, if the vertices are numbers). For each one that is <b>not seen</b> yet (no ✓): give it a ✓ and <b>enqueue</b> it. Skip the ones that already have a ✓.</li>
             </ol>
           </li>
           <li>When the queue is empty, BFS is done.</li>
@@ -182,7 +189,7 @@ const quiz = [
         <p class="note-label">Exam traps</p>
         <ul>
           <li>Mark a vertex as seen <b>when you enqueue it</b>, not when you dequeue it. Otherwise it can enter the queue twice.</li>
-          <li>When a vertex has several unseen neighbors, the order you enqueue them changes the answer. If the question does not say, more than one BFS order can be correct. <b>Alphabetical order</b> is the usual safe choice; just be consistent.</li>
+          <li>When a vertex has several unseen neighbors, the order you enqueue them changes the answer. Any order is still a correct BFS (the levels stay the same), so if the question does not say, more than one BFS order can be correct. <b>Alphabetical order</b> is the usual safe choice; for numbered vertices, use <b>smallest number first</b>, comparing them as numbers (2 before 10). Just be consistent. In code, the order is however the neighbors are stored.</li>
           <li>In a directed graph, follow the arrows only. An arrow <i>into</i> a vertex does not let you leave through it.</li>
         </ul>
       </div>
@@ -196,13 +203,21 @@ const quiz = [
       <h2>BFS, step by step</h2>
     </div>
     <div class="flow">
-      <p>Tap <b>Next step</b> and watch the queue. Before each tap, say out loud which vertex comes out of the queue next. Then try other starting vertices and the other two graphs.</p>
+      <p>In Part 2 you watched BFS from A. Now it is your turn to predict: this lab starts at <b>D</b>. Before each tap of <b>Next step</b>, say out loud which vertex leaves the queue next and which ones join. Then pick other starting vertices with the round buttons.</p>
       <TraverseLab id="bfs-lab" mode="bfs" cap="BFS lab" hint="Orange = being visited now. Light teal = seen, waiting in the queue. Dark teal = visited. The small L-numbers are levels." presets={[
-        { label: 'Main example', g: city, start: 'A' },
-        { label: 'Directed', g: oneWay, start: 'A' },
+        { label: 'Main example', g: city, start: 'D' },
+        { label: 'Directed graph', g: oneWay, start: 'A' },
         { label: 'Separate pieces', g: islands, start: 'A' },
       ]} />
-      <p>With the main example from A, the BFS order is <b>{cityRun.order.join(', ')}</b>. Notice how the order follows the levels: A (level 0), then B and D (level 1), then C and E (level 2), then F and G (level 3).</p>
+      <p>Whatever start you pick, the order follows the levels. From A (Part 2), the BFS order was <b>{cityRun.order.join(', ')}</b>: A (level 0), then B and D (level 1), then C and E (level 2), then F and G (level 3).</p>
+      <div class="sub">
+        <h3>The other two graphs</h3>
+        <p>The lab also has two other graphs. They are <b>not</b> different kinds of BFS: the steps are exactly the same. They only show what BFS does on other kinds of graphs:</p>
+        <ul>
+          <li><b>Directed graph:</b> the edges are arrows (<Peek label="from the Graphs lesson" title="From the Graphs lesson" html={dirPeek} />). BFS can only follow an arrow forward. From A, BFS never reaches F, because F's only arrow points away from F.</li>
+          <li><b>Separate pieces:</b> the graph is in three parts with no edges between them. From A, BFS stops after A, B, and C, because no edge leads to the other parts. Part 5 uses this.</li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -213,7 +228,9 @@ const quiz = [
       <h2>Levels and shortest paths</h2>
     </div>
     <div class="flow">
-      <p>BFS gives you more than an order. Because it moves in waves, the <b>level</b> of each vertex is the <b>smallest number of edges</b> needed to reach it from the start.</p>
+      <p>BFS gives you more than a visit order. While it runs, it also answers a very common question: <b>what is the fewest number of steps from the start to each vertex?</b></p>
+      <p>You saw this question in Part 1: the route with the <b>fewest hops</b> between two computers, and "people you may know" (people <b>2 friendships</b> away). Another example: the fewest links you must click to get from one web page to another. When every edge counts the same (an unweighted graph), "fewest steps" means "fewest edges".</p>
+      <p>BFS gets this answer for free because of the waves. It reaches every level-1 vertex before any level-2 vertex, and so on, so the first time BFS finds a vertex, it found it the shortest way. That is why a vertex's <b>level</b> is exactly the <b>fewest edges</b> needed to reach it from the start.</p>
       <figure class="fig">
         <p class="fig-cap">Fewest edges from A to G</p>
         <GraphFig g={city} labels={levelLabels} edgeMarks={pathMarks} nodeMarks={pathNodes} label="Main example with levels; the path A, B, E, G is highlighted" />
@@ -221,7 +238,7 @@ const quiz = [
       </figure>
       <div class="sub">
         <h3>How to recover the path</h3>
-        <p>While doing BFS, write down <b>who found each vertex</b> (its parent in the BFS). To get the path to G, start at G and follow the parents back to A:</p>
+        <p>The level tells you <b>how far</b> G is (3 edges). To also know <b>which way</b> to go, write down <b>who found each vertex</b> while doing BFS (its parent in the BFS). Then start at G and follow the parents back to A:</p>
         <table class="tbl">
           <thead><tr><th>Vertex</th>{Object.keys(cityRun.parent).sort().map((k) => <th>{k}</th>)}</tr></thead>
           <tbody><tr><td><b>Found by</b></td>{Object.keys(cityRun.parent).sort().map((k) => <td>{cityRun.parent[k]}</td>)}</tr></tbody>

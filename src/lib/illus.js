@@ -1150,28 +1150,60 @@ export function canteenLine() {
   return s.svg('A canteen line of four students numbered 1 to 4. Student 1 at the front is served first and leaves: that is dequeue. A new student joins at the rear, behind student 4: that is enqueue.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
-/** Clean: the queue after each visit during BFS of the Part 3 graph from A, boxes colored by level. */
-export function queueSnapshots() {
-  const ink = C.ink, soft = C.soft;
-  const lab = (x, y, t, c = ink, a = 'start', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
-  const box = [C.orangeWash, C.butter, C.tealWash, C.sky], col = [C.orange, '#a8650f', C.teal, '#2f6fa8'];
+/** Clean stepper pictures: ONE queue changing during BFS from A on the city graph (lab colors). For StepShow. */
+export function queueSteps() {
+  const ink = C.ink, soft = C.soft, T = C.teal, O = C.orange;
+  const lab = (x, y, t, c = ink, a = 'middle', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
+  const P = { A: [46, 58], B: [128, 28], D: [128, 88], C: [212, 24], E: [212, 74], F: [296, 34], G: [296, 90] };
+  const E = [['A', 'B'], ['A', 'D'], ['B', 'C'], ['B', 'E'], ['D', 'E'], ['C', 'F'], ['E', 'F'], ['E', 'G'], ['F', 'G']];
   const lvl = { A: 0, B: 1, D: 1, C: 2, E: 2, F: 3, G: 3 };
-  const rows = [['Start', '', 'A'], ['Visit A', 'add B, D', 'BD'], ['Visit B', 'add C, E', 'DCE'], ['Visit D', 'all seen', 'CE'],
-    ['Visit C', 'add F', 'EF'], ['Visit E', 'add G', 'FG'], ['Visit F', 'all seen', 'G'], ['Visit G', 'all seen', '']];
-  const X = 196, W = 38, top = 56, gap = 38;
-  let s = `<svg class="objbox" viewBox="0 0 340 ${top + rows.length * gap + 54}" role="img" aria-label="The queue during BFS from A on the Part 3 graph. Start: A. Visit A, add B and D: queue B, D. Visit B, add C and E: D, C, E. Visit D, all neighbors seen: C, E. Visit C, add F: E, F. Visit E, add G: F, G. Visit F: G. Visit G: the queue is empty, so BFS is done. The levels in the queue never go out of order.">`;
-  s += `<rect x="4" y="4" width="332" height="${top + rows.length * gap + 46}" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>`;
-  s += lab(18, 30, 'The queue after each visit', ink, 'start', 15, 800);
-  s += lab(X + W / 2, 50, 'front', C.orange, 'middle', 11.5, 800);
-  rows.forEach(([a, b, q], i) => {
-    const y = top + i * gap;
-    if (i) s += `<line x1="16" y1="${y - 4}" x2="324" y2="${y - 4}" stroke="#eef0ee" stroke-width="1"/>`;
-    s += lab(18, y + 22, a, ink, 'start', 13, 800) + (b ? lab(80, y + 22, b, soft, 'start', 12, 700) : '');
-    if (!q) s += lab(X, y + 22, 'empty: done', C.teal, 'start', 13, 800);
-    [...q].forEach((v, j) => { const l = lvl[v]; s += `<rect x="${X + j * W}" y="${y + 2}" width="${W}" height="28" fill="${box[l]}" stroke="${col[l]}" stroke-width="1.6"/>` + lab(X + j * W + W / 2, y + 22, v, ink, 'middle', 14, 800); });
+  // [visiting, queue after, newly added, visited so far, sentence]
+  const S = [
+    [null, 'A', 'A', '', 'Start: tick <b>A</b> on the seen list (✓) and put it in the queue. This is the <b>only</b> queue BFS uses.'],
+    ['A', 'BD', 'BD', 'A', '<b>A</b> leaves the front (we visit A). Its neighbors B and D have no ✓ yet, so tick <b>B</b> and <b>D</b> and add them at the rear.'],
+    ['B', 'DCE', 'CE', 'AB', '<b>B</b> leaves the front. Its neighbors: A already has a ✓, so skip it. C and E do not, so tick <b>C</b> and <b>E</b> and add them at the rear, <b>behind D</b>.'],
+    ['D', 'CE', '', 'ABD', '<b>D</b> leaves the front. Its neighbors A and E both have a ✓ already, so nothing joins.'],
+    ['C', 'EF', 'F', 'ABDC', '<b>C</b> leaves the front. B has a ✓; F does not, so tick <b>F</b> and add it at the rear.'],
+    ['E', 'FG', 'G', 'ABDCE', '<b>E</b> leaves the front. B, D, and F have a ✓; only G does not, so tick <b>G</b> and add it at the rear.'],
+    ['F', 'G', '', 'ABDCEF', '<b>F</b> leaves the front. C, E, and G all have a ✓, so nothing joins.'],
+    ['G', '', '', 'ABDCEFG', '<b>G</b> leaves the front. Nothing joins, and the queue is <b>empty</b>, so BFS is done. Visit order: A, B, D, C, E, F, G.'],
+  ];
+  return S.map(([cur, q, add, done, say]) => {
+    let s = `<svg class="objbox" viewBox="0 0 340 290" role="img" aria-label="${esc(say.replace(/<[^>]+>/g, ''))}">`;
+    // mini graph in lab colors
+    for (const [a, b] of E) s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="#b9c3c2" stroke-width="1.6"/>`;
+    for (const [k, [x, y]] of Object.entries(P)) {
+      const st = k === cur ? 'cur' : done.includes(k) ? 'done' : q.includes(k) ? 'q' : 'new';
+      const fill = { cur: O, done: T, q: C.tealWash, new: '#fff' }[st], stroke = { cur: O, done: T, q: T, new: '#9aa7a8' }[st];
+      s += `<circle cx="${x}" cy="${y}" r="13" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>` + lab(x, y + 5, k, st === 'cur' || st === 'done' ? '#fff' : ink, 'middle', 13, 800);
+    }
+    // the one queue
+    const X = 92, W = 46, Y = 140;
+    s += lab(X - 2, Y + 58, 'front', O, 'start', 12, 800) + lab(X + 3 * W + 70, Y + 58, 'rear', T, 'end', 12, 800);
+    s += `<rect x="${X - 6}" y="${Y - 4}" width="${3 * W + 12 + 74}" height="44" rx="8" fill="#fff" stroke="${soft}" stroke-width="1.6"/>`;
+    s += lab(X + (3 * W + 86) / 2 - 6, Y + 58, 'the queue', soft, 'middle', 11.5, 700);
+    if (!q) s += lab(X + 8, Y + 25, 'empty', soft, 'start', 13, 800);
+    [...q].forEach((v, j) => {
+      const isNew = add.includes(v);
+      s += `<rect x="${X + j * W}" y="${Y}" width="${W - 4}" height="36" rx="5" fill="${C.tealWash}" stroke="${T}" stroke-width="${isNew ? 2.4 : 1.6}"/>` + lab(X + j * W + (W - 4) / 2, Y + 24, v, ink, 'middle', 15, 800);
+      if (isNew) s += lab(X + j * W + (W - 4) / 2, Y - 10, 'new', T, 'middle', 11, 800);
+    });
+    if (add) s += `<path d="M334 ${Y + 18} H${X + 3 * W + 78}" stroke="${T}" stroke-width="2.2"/><path d="M${X + 3 * W + 78} ${Y + 18} l8 -5 v10 z" fill="${T}"/>`;
+    if (cur) {
+      s += `<rect x="10" y="${Y}" width="42" height="36" rx="5" fill="${O}" stroke="${O}" stroke-width="1.6"/>` + lab(31, Y + 24, cur, '#fff', 'middle', 15, 800);
+      s += `<path d="M${X - 10} ${Y + 18} H58" stroke="${O}" stroke-width="2.2"/><path d="M56 ${Y + 18} l9 -5 v10 z" fill="${O}"/>`;
+      s += lab(31, Y - 10, 'visit', O, 'middle', 12, 800);
+    }
+    s += lab(18, 224, 'Visited: ' + (done ? [...done].join(', ') : '(none yet)'), ink, 'start', 13, 800);
+    // the seen list: ticked the moment a vertex joins the queue
+    const seen = done + q + (cur && !done.includes(cur) ? cur : '');
+    s += lab(18, 262, 'Seen:', T, 'start', 13, 800);
+    [...'ABCDEFG'].forEach((v, i) => {
+      const x = 66 + i * 38, on = seen.includes(v), nw = add.includes(v);
+      s += `<rect x="${x}" y="242" width="34" height="30" rx="5" fill="${on ? C.tealWash : '#fff'}" stroke="${on ? T : '#c3cbca'}" stroke-width="${nw ? 2.6 : 1.4}"/>`;
+      s += lab(x + 11, 262, v, on ? ink : '#9aa7a8', 'middle', 13, 800) + (on ? lab(x + 25, 262, '✓', T, 'middle', 12, 800) : '');
+      if (nw) s += lab(x + 17, 286, 'new ✓', T, 'middle', 9.5, 800);
+    });
+    return { pic: s + '</svg>', say };
   });
-  const ly = top + rows.length * gap + 14;
-  ['L0', 'L1', 'L2', 'L3'].forEach((t, i) => { const x = 18 + i * 52; s += `<rect x="${x}" y="${ly - 11}" width="14" height="14" fill="${box[i]}" stroke="${col[i]}" stroke-width="1.4"/>` + lab(x + 20, ly + 1, t, col[i], 'start', 12, 800); });
-  s += lab(18, ly + 23, 'The levels never go out of order.', soft, 'start', 12, 700);
-  return s + '</svg>';
 }
