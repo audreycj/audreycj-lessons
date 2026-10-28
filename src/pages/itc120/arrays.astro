@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import TryIt from '../../components/TryIt.astro';
 import KindChips from '../../components/KindChips.astro';
 import ArrayLab from '../../components/ArrayLab.astro';
 import Quiz from '../../components/Quiz.astro';
@@ -364,6 +365,7 @@ Items to restock: 2</code></pre>
         <p>Checklist: Did you use a loop? Did <code>highest</code> start with <code>marks[0]</code>? Did you use a condition for scores <code>&gt;= 75</code>? You can run it in the <a href="https://www.programiz.com/java-programming/online-compiler/">Programiz online compiler</a>.</p>
         <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
           <pre class="code"><code set:html={hi(practice)} /></pre>
+          <TryIt />
           <p>Output: 78, 85, 91, 74, 88 (one per line), then <code>Highest: 91</code>, then 78, 85, 91, 88, then <code>Passing: 4</code>.</p>
         </div></details>
       </div>

@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import TryIt from '../../components/TryIt.astro';
 import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import MatrixLab from '../../components/MatrixLab.astro';
@@ -365,11 +366,13 @@ public class ListGraph {
       <div class="sub">
         <h3>Adjacency matrix: a 2D array</h3>
         <pre class="code"><code set:html={hi(code1)} /></pre>
+        <TryIt cls="MatrixGraph" />
       </div>
       <div class="sub">
         <h3>Adjacency list: a list of lists</h3>
         <p><code>ArrayList</code> is Java's built-in resizable array: you can keep calling <code>add</code> and it grows. Here, we keep one <code>ArrayList</code> per vertex. Each inner list plays the role of the linked lists in our pictures.</p>
         <pre class="code"><code set:html={hi(code2)} /></pre>
+        <TryIt cls="ListGraph" />
       </div>
       <p>Notice the difference when listing B's neighbors: the matrix loop checks all <code>n</code> cells in row 1, while the list loop only visits B's real neighbors.</p>
       <p>One more difference: the matrix loop always gives neighbors in index order (A, B, C, …), but an <code>ArrayList</code> keeps them in the order the edges were added. Here both give A C D. In the next lessons, this order matters: it decides which neighbor BFS and DFS visit first.</p>

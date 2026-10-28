@@ -2740,75 +2740,347 @@ export function wrongOrderPic() {
   return introPic(340, 428, 'The mistake of shifting from the front. Start: 10, 20, 30, 40, then an empty slot. Move 1: 30 is copied into slot 3, on top of 40, so 40 is covered up. Move 2: slot 3 now holds 30, so 30 is copied into slot 4. Then 25 goes into slot 2: the result is 10, 20, 25, 30, 30, and 40 is lost. Fix: start from the end and move 40 first.', b);
 }
 
-/* ---- Linked lists (chat 16): clean node-box pictures ---- */
-const LW = 52, LH = 34, LD = 34, LG = 22;
-const llDefs = '<defs>' + [['k', '#1b2a2e'], ['r', '#b23a33'], ['o', '#e8662e']].map(([n, c]) => `<marker id="llm-${n}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker>`).join('') + '</defs>';
-const llC = { k: '#1b2a2e', r: '#b23a33', o: '#e8662e' };
-const llBox = (x, y, v, o = {}) => {
-  const st = o.lost ? llC.r : llC.k, dash = o.lost ? ' stroke-dasharray="5 4"' : '';
-  return `<rect x="${x}" y="${y}" width="${LD}" height="${LH}" fill="${o.fill ?? '#fff'}" stroke="${st}" stroke-width="2"${dash}/>` +
-    `<rect x="${x + LD}" y="${y}" width="${LW - LD}" height="${LH}" fill="#fff" stroke="${st}" stroke-width="2"${dash}/>` +
-    sT(x + LD / 2, y + LH / 2 + 5, v, { mono: true, size: 15, w: 700, fill: o.lost ? llC.r : (o.ink ?? llC.k) }) +
-    `<circle cx="${x + LD + (LW - LD) / 2}" cy="${y + LH / 2}" r="3.5" fill="${st}"/>`;
-};
-const llDot = (x) => x + LD + (LW - LD) / 2;
+/* ---- Linked lists (chat 16, round 3): clean pictures. Every node stays in its slot across frames; only arrows change. ---- */
+const llDefs = '<defs>' + [['k', '#1b2a2e'], ['r', '#b23a33'], ['o', '#e8662e'], ['t', '#0e6b63'], ['g', '#9aa8aa']].map(([n, c]) => `<marker id="llm-${n}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker>`).join('') + '</defs>';
+const llC = { k: '#1b2a2e', r: '#b23a33', o: '#e8662e', t: '#0e6b63', g: '#9aa8aa' };
 const llPath = (d, c = 'k', o = {}) => `<path d="${d}" fill="none" stroke="${llC[c]}" stroke-width="${o.w ?? 2}"${o.dash ? ' stroke-dasharray="5 4"' : ''} marker-end="url(#llm-${c})"/>`;
-const llLink = (xa, xb, y, c = 'k', o = {}) => llPath(`M${llDot(xa)} ${y + LH / 2} H${xb - 1}`, c, o);
-const llNull = (x, y, c = 'k', o = {}) => llPath(`M${llDot(x)} ${y + LH / 2} H${llDot(x) + 22}`, c, o) + sT(llDot(x) + 27, y + LH / 2 + 4, 'null', { mono: true, size: 13, w: 600, fill: c === 'r' ? llC.r : '#4f5f62', anchor: 'start' });
-const llVar = (x, y, name, fill = '#0b544e') => sT(x + LD / 2, y, name, { mono: true, size: 13, w: 700, fill }) + `<line x1="${x + LD / 2}" y1="${y + 4}" x2="${x + LD / 2}" y2="${y + 11}" stroke="${fill}" stroke-width="1.6"/>`;
-const llRow = (x0, y, vals, o = {}) => {
-  const xs = vals.map((_, i) => x0 + i * (LW + LG));
-  let s = '';
-  vals.forEach((v, i) => {
-    const lost = o.lost && o.lost.includes(v);
-    s += llBox(xs[i], y, v, { lost, fill: o.fills?.[v] });
-    if (i < vals.length - 1) s += llLink(xs[i], xs[i + 1], y, lost ? 'r' : 'k', { dash: lost });
-    else if (!o.noNull) s += llNull(xs[i], y, lost ? 'r' : 'k', { dash: lost });
-  });
-  return { s, xs };
+const llPic = (w, h, label, body, cls = 'll-pic') => `<svg class="objbox ${cls}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">${llDefs}${body}</svg>`;
+const Q = { W: 44, D: 28, H: 30, G: 16 };
+const qx = (i, x0 = 8) => x0 + i * (Q.W + Q.G);
+const qDot = (x) => x + Q.D + (Q.W - Q.D) / 2;
+const qBox = (x, y, v, o = {}) => {
+  const st = o.lost ? llC.r : llC.k, dash = o.lost ? ' stroke-dasharray="5 4"' : '';
+  return `<rect x="${x}" y="${y}" width="${Q.D}" height="${Q.H}" fill="${o.fill ?? '#fff'}" stroke="${st}" stroke-width="2"${dash}/>` +
+    `<rect x="${x + Q.D}" y="${y}" width="${Q.W - Q.D}" height="${Q.H}" fill="#fff" stroke="${st}" stroke-width="2"${dash}/>` +
+    sT(x + Q.D / 2, y + Q.H / 2 + 5, v, { mono: true, size: 14, w: 700, fill: o.lost ? llC.r : (o.ink ?? llC.k) }) +
+    `<circle cx="${qDot(x)}" cy="${y + Q.H / 2}" r="3" fill="${st}"/>`;
 };
-const llPic = (w, h, label, body) => `<svg class="objbox trap-pic" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">${llDefs}${body}</svg>`;
+const qLink = (xa, xb, y, c = 'k', o = {}) => llPath(`M${qDot(xa)} ${y + Q.H / 2} H${xb - 1}`, c, o);
+const qNull = (x, y, c = 'k', o = {}) => llPath(`M${qDot(x)} ${y + Q.H / 2} H${qDot(x) + 18}`, c, o) + sT(qDot(x) + 22, y + Q.H / 2 + 4, 'null', { mono: true, size: 12, w: 600, fill: c === 'r' ? llC.r : '#4f5f62', anchor: 'start' });
+const qNullDown = (x, y) => llPath(`M${qDot(x)} ${y + Q.H / 2} V${y + Q.H + 13}`) + sT(qDot(x), y + Q.H + 26, 'null', { mono: true, size: 12, w: 600, fill: '#4f5f62' });
+/** Variable names above a box (first name nearest the box). */
+const qVars = (x, y, names) => names.map(([n, fill], i) => sT(x + Q.W / 2, y - 7 - i * 14, n, { mono: true, size: 12.5, w: 700, fill: fill ?? '#0b544e' })).join('') + (names.length ? `<line x1="${x + Q.W / 2}" y1="${y - 4}" x2="${x + Q.W / 2}" y2="${y - 1}" stroke="${names[0][1] ?? '#0b544e'}" stroke-width="2"/>` : '');
+const qTitle = (y, tag, code, bad) => {
+  const f = bad ? llC.r : '#0b544e', tw = tag.length * 7.4 + 14;
+  return `<rect x="8" y="${y - 13}" width="${tw}" height="19" rx="9.5" fill="${bad ? '#f6d6d0' : '#d7ece9'}"/>` + sT(8 + tw / 2, y + 1, tag, { size: 12, w: 800, fill: f }) +
+    (code ? sT(16 + tw, y + 1, code, { mono: true, size: 12.5, w: 700, anchor: 'start' }) : '');
+};
+const qSep = (y, w = 340) => `<line x1="8" y1="${y}" x2="${w - 8}" y2="${y}" stroke="#dfe6e4" stroke-width="1.5"/>`;
+const qSelf = (x, y, c = 'o') => llPath(`M${qDot(x)} ${y + Q.H / 2} C ${qDot(x) + 26} ${y + Q.H / 2}, ${qDot(x) + 20} ${y + Q.H + 28}, ${x + 18} ${y + Q.H + 28} C ${x + 4} ${y + Q.H + 28}, ${x + 6} ${y + Q.H + 14}, ${x + 10} ${y + Q.H + 3}`, c, { w: 2.6 });
+const qNote = (x, y, t, fill = '#37474a', o = {}) => sT(x, y, t, { size: 12.5, w: 800, fill, ...o });
 
-/** Trap: insert at the beginning with the two lines swapped. */
-export function llSwapPic() {
-  let b = sT(14, 20, '✓ Right order', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
-  const top = llRow(14, 58, [5, 10, 20, 30], { fills: { 5: '#fce9e0' } });
-  b += llVar(top.xs[0], 44, 'head') + top.s;
-  b += sT(14, 132, '✗ Lines swapped', { size: 14, w: 800, fill: llC.r, anchor: 'start' });
-  b += llVar(14, 156, 'head') + llBox(14, 170, 5, { fill: '#fce9e0' });
-  b += llPath(`M${llDot(14)} 187 C 96 187, 92 236, 44 236 C 22 236, 26 220, 30 207`, 'o', { w: 2.6 });
-  b += sT(14, 256, '5 refers to itself', { size: 12.5, w: 800, fill: '#b4461a', anchor: 'start' });
-  const bot = llRow(90, 170, [10, 20, 30], { lost: [10, 20, 30] });
-  b += bot.s + sT(198, 228, 'unreachable from head:', { size: 12.5, w: 800, fill: llC.r }) + sT(198, 244, 'nothing refers to node 10', { size: 12.5, w: 800, fill: llC.r });
-  b += sT(170, 284, 'printList(head) prints', { size: 13, w: 700, fill: '#37474a' });
-  b += sT(170, 304, '5 -> 5 -> 5 -> 5 -> … forever', { mono: true, size: 13, w: 700, fill: llC.r });
-  return llPic(340, 316, 'Right order: head points to 5, then 10, 20, 30, null. Lines swapped: head points to 5, and 5 points back to itself. Nodes 10, 20, and 30 are unreachable from head, because nothing refers to node 10. printList of head prints 5 arrow 5 arrow 5 forever.', b);
+/** Part 1: the definition, labeled. */
+export function llDefPic() {
+  const y = 70, xs = [14, 100, 186];
+  let b = qVars(xs[0], y, [['head']]);
+  ['A', 'B', 'C'].forEach((v, i) => { b += qBox(xs[i], y, v); b += i < 2 ? qLink(xs[i], xs[i + 1], y) : qNull(xs[i], y); });
+  b += `<path d="M${xs[1]} 58 V52 H${xs[1] + Q.W} V58" fill="none" stroke="#e8662e" stroke-width="2"/>` + qNote(xs[1] + Q.W / 2, 44, 'one node', '#b4461a');
+  b += `<line x1="${xs[0] + Q.D / 2}" y1="${y + Q.H + 3}" x2="${xs[0] + Q.D / 2}" y2="${y + Q.H + 18}" stroke="#0b544e" stroke-width="2"/>` + qNote(xs[0] + 2, y + Q.H + 32, 'data:', '#0b544e', { anchor: 'start' }) + qNote(xs[0] + 2, y + Q.H + 48, 'the value', '#37474a', { anchor: 'start', w: 700 });
+  b += `<line x1="${qDot(xs[1])}" y1="${y + Q.H + 3}" x2="${qDot(xs[1])}" y2="${y + Q.H + 18}" stroke="#0b544e" stroke-width="2"/>` + qNote(qDot(xs[1]) - 10, y + Q.H + 32, 'next:', '#0b544e', { anchor: 'start' }) + qNote(qDot(xs[1]) - 10, y + Q.H + 48, 'where to find', '#37474a', { anchor: 'start', w: 700 }) + qNote(qDot(xs[1]) - 10, y + Q.H + 63, 'the next node', '#37474a', { anchor: 'start', w: 700 });
+  b += `<line x1="${qDot(xs[2]) + 38}" y1="${y + Q.H + 3}" x2="${qDot(xs[2]) + 38}" y2="${y + Q.H + 18}" stroke="#0b544e" stroke-width="2"/>` + qNote(qDot(xs[2]) + 22, y + Q.H + 32, 'null:', '#0b544e', { anchor: 'start' }) + qNote(qDot(xs[2]) + 22, y + Q.H + 48, 'the end', '#37474a', { anchor: 'start', w: 700 });
+  b += qNote(xs[0] + Q.W / 2 + 34, 16, 'refers to the first node', '#0b544e', { anchor: 'start', w: 700 }) + `<path d="M${xs[0] + Q.W / 2 + 32} 12 Q ${xs[0] + Q.W / 2 + 6} 12, ${xs[0] + Q.W / 2 + 2} 40" fill="none" stroke="#0b544e" stroke-width="1.5"/>`;
+  return llPic(340, 172, 'A linked list. head refers to the first node, A. Each node is one box with two parts: data, the value, and next, where to find the next node. A points to B, B points to C, and C points to null, the end.', b);
 }
 
-/** Part 6: delete the node after previous by linking around it. */
-export function llBypassPic() {
-  let b = sT(14, 20, 'Before', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
-  const top = llRow(14, 58, [10, 20, 25, 30]);
-  b += llVar(top.xs[0], 44, 'head') + llVar(top.xs[1], 44, 'previous', '#b4461a') + top.s;
-  b += sT(14, 130, 'After', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' }) + sT(66, 130, 'previous.next = previous.next.next;', { mono: true, size: 12, w: 700, anchor: 'start' });
-  const xs = [14, 88, 162, 236], y = 186;
-  b += llVar(xs[0], 172, 'head') + llVar(xs[1], 172, 'previous', '#b4461a');
-  b += llBox(xs[0], y, 10) + llLink(xs[0], xs[1], y) + llBox(xs[1], y, 20) + llBox(xs[2], y, 25, { lost: true }) + llLink(xs[2], xs[3], y, 'r', { dash: true }) + llBox(xs[3], y, 30) + llNull(xs[3], y);
-  b += llPath(`M${llDot(xs[1])} ${y + LH / 2} C 150 150, 236 150, 252 ${y - 2}`, 'o', { w: 2.8 });
-  b += sT(196, 154, '20 now refers to 30', { size: 12.5, w: 800, fill: '#b4461a' });
-  b += sT(179, 240, 'unreachable from head', { size: 12.5, w: 800, fill: llC.r });
-  return llPic(340, 252, 'Before: head points to 10, then 20, 25, 30, null; previous refers to node 20. After previous.next equals previous.next.next: node 20 points straight to 30, skipping 25. Node 25 is unreachable from head. Nothing else moved.', b);
+/** Part 1: same sequence, array vs linked list in memory. */
+export function llMemPic() {
+  let b = sT(8, 18, 'Array: slots side by side', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
+  b += `<rect x="8" y="28" width="324" height="70" rx="8" fill="#eef3f2"/>`;
+  ['A', 'B', 'C', 'D'].forEach((v, i) => { const x = 70 + i * 50; b += `<rect x="${x}" y="44" width="50" height="32" fill="#fff" stroke="#1b2a2e" stroke-width="2"/>` + sT(x + 25, 66, v, { mono: true, size: 15, w: 700 }) + sT(x + 25, 92, String(i), { mono: true, size: 12, w: 700, fill: '#b4461a' }); });
+  b += qNote(290, 92, 'index', '#b4461a', { size: 12 });
+  b += sT(8, 126, 'Linked list: nodes can be anywhere', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
+  b += `<rect x="8" y="136" width="324" height="132" rx="8" fill="#eef3f2"/>`;
+  const P = { A: [20, 214], B: [110, 156], C: [196, 214], D: [252, 158] };
+  b += qVars(P.A[0], P.A[1], [['head']]);
+  for (const [v, [x, y]] of Object.entries(P)) b += qBox(x, y, v);
+  b += llPath(`M${qDot(P.A[0])} ${P.A[1] + 15} L${P.B[0] - 1} ${P.B[1] + 22}`);
+  b += llPath(`M${qDot(P.B[0])} ${P.B[1] + 15} L${P.C[0] + 10} ${P.C[1] - 1}`);
+  b += llPath(`M${qDot(P.C[0])} ${P.C[1] + 15} L${P.D[0] + 14} ${P.D[1] + Q.H + 1}`);
+  b += llPath(`M${qDot(P.D[0])} ${P.D[1] + 15} H${qDot(P.D[0]) + 26} V${P.D[1] + 66}`) + sT(qDot(P.D[0]) + 26, P.D[1] + 80, 'null', { mono: true, size: 12, w: 600, fill: '#4f5f62' });
+  b += qNote(170, 290, 'The index tells you where to go.', '#37474a', { w: 700 });
+  b += qNote(170, 308, 'In a linked list, each node points to the next one.', '#37474a', { w: 700 });
+  return llPic(340, 318, 'Top: an array in memory: A, B, C, D in slots side by side, indexes 0 to 3. Bottom: a linked list in memory: nodes A, B, C, D sit in different places, and arrows connect A to B, B to C, C to D, and D to null. head refers to A.', b);
 }
 
-/** Trap: the traversal loop without current = current.next. */
+/** Part 2: Node first = new Node(10); in three steps. */
+export function llNewPic() {
+  const box = (x, y, d, n) => `<rect x="${x}" y="${y}" width="44" height="34" fill="#fff" stroke="#1b2a2e" stroke-width="2"/><rect x="${x + 44}" y="${y}" width="46" height="34" fill="#fff" stroke="#1b2a2e" stroke-width="2"/>` +
+    sT(x + 22, y - 6, 'data', { size: 11, w: 800, fill: '#4f5f62' }) + sT(x + 67, y - 6, 'next', { size: 11, w: 800, fill: '#4f5f62' }) +
+    (d ? sT(x + 22, y + 23, d, { mono: true, size: 15, w: 700 }) : '') + (n ? sT(x + 67, y + 22, n, { mono: true, size: 12, w: 700, fill: '#4f5f62' }) : '');
+  let b = sT(170, 20, 'Node first = new Node(10);', { mono: true, size: 14, w: 700 });
+  const xs = [10, 124, 238], y = 96;
+  b += box(xs[0], y, '', '') + box(xs[1] - 4, y, '10', 'null') + box(xs[2] - 6, y, '10', 'null');
+  b += `<rect x="${xs[2] + 14}" y="38" width="52" height="26" rx="5" fill="#d7ece9" stroke="#0e6b63" stroke-width="2"/>` + sT(xs[2] + 40, 56, 'first', { mono: true, size: 13, w: 700, fill: '#0b544e' });
+  b += llPath(`M${xs[2] + 40} 65 V${y - 16}`, 'o', { w: 2.6 });
+  const cap = (x, l1, l2, l3) => sT(x, 154, l1, { size: 12.5, w: 800, fill: '#b4461a' }) + sT(x, 170, l2, { size: 12, w: 700, fill: '#37474a' }) + sT(x, 185, l3, { size: 12, w: 700, fill: '#37474a' });
+  b += cap(55, '1. new', 'makes a node', 'in memory') + cap(165, '2. constructor', 'stores 10 in data,', 'null in next') + cap(277, '3. =', 'stores a reference', 'in first');
+  return llPic(340, 196, 'Node first = new Node(10), in three steps. 1: new makes a node in memory, with data and next not set yet. 2: the constructor stores 10 in data and null in next. 3: the equals sign stores a reference to that node in the variable first, drawn as an arrow from first to the node.', b);
+}
+
+/** Part 2: b = a copies the reference; new makes a second node. */
+export function llSamePic() {
+  const vb = (x, n) => `<rect x="${x}" y="40" width="40" height="26" rx="5" fill="#d7ece9" stroke="#0e6b63" stroke-width="2"/>` + sT(x + 20, 58, n, { mono: true, size: 13, w: 700, fill: '#0b544e' });
+  const nd = (x, v) => `<rect x="${x}" y="112" width="36" height="32" fill="#fff" stroke="#1b2a2e" stroke-width="2"/><rect x="${x + 36}" y="112" width="20" height="32" fill="#fff" stroke="#1b2a2e" stroke-width="2"/>` + sT(x + 18, 133, v, { mono: true, size: 15, w: 700 }) + `<circle cx="${x + 46}" cy="128" r="3" fill="#1b2a2e"/>`;
+  let b = sT(82, 20, 'Node b = a;', { mono: true, size: 13, w: 700 }) + sT(258, 20, 'Node b = new Node(5);', { mono: true, size: 13, w: 700 });
+  b += `<line x1="170" y1="8" x2="170" y2="210" stroke="#dfe6e4" stroke-width="1.5"/>`;
+  b += vb(30, 'a') + vb(96, 'b') + nd(54, '9');
+  b += llPath('M50 67 L70 110', 'o', { w: 2.4 }) + llPath('M116 67 L96 110', 'o', { w: 2.4 });
+  b += vb(196, 'a') + vb(280, 'b') + nd(188, '5') + nd(270, '9');
+  b += llPath('M216 67 L212 110', 'o', { w: 2.4 }) + llPath('M300 67 L296 110', 'o', { w: 2.4 });
+  b += qNote(82, 166, 'one node, two names') + sT(82, 186, 'after b.data = 9;', { mono: true, size: 11.5, w: 700, fill: '#37474a' }) + qNote(82, 204, 'a.data is 9 too', '#b4461a');
+  b += qNote(258, 166, 'two separate nodes') + sT(258, 186, 'after b.data = 9;', { mono: true, size: 11.5, w: 700, fill: '#37474a' }) + qNote(258, 204, 'a.data stays 5', '#0b544e');
+  return llPic(340, 214, 'Left, Node b = a: the variables a and b both point to the same single node, so after b.data = 9, a.data is 9 too. Right, Node b = new Node(5): a and b point to two separate nodes, so after b.data = 9, a.data stays 5.', b);
+}
+
+/** Part 3: access stops early, traversal goes to null. */
+export function llWalkPic() {
+  const y = 66, xs = [10, 84, 158];
+  let b = qVars(xs[0], y, [['head']]);
+  [10, 20, 30].forEach((v, i) => { b += qBox(xs[i], y, v); b += i < 2 ? qLink(xs[i], xs[i + 1], y) : qNull(xs[i], y); });
+  const hop = (x1, x2, n) => llPath(`M${x1} ${y - 4} Q ${(x1 + x2) / 2} ${y - 34}, ${x2} ${y - 6}`, 'o', { w: 2.2 }) + `<circle cx="${(x1 + x2) / 2}" cy="${y - 24}" r="9" fill="#e8662e"/>` + sT((x1 + x2) / 2, y - 20, String(n), { size: 11.5, w: 800, fill: '#fff' });
+  b += hop(xs[0] + Q.W - 4, xs[1] + 14, 1) + hop(xs[1] + Q.W - 4, xs[2] + 14, 2) + hop(xs[2] + Q.W - 4, qDot(xs[2]) + 34, 3);
+  b += `<rect x="${xs[0]}" y="116" width="320" height="24" rx="12" fill="#fbdccc"/>` + qNote(xs[0] + 10, 133, 'Access the 3rd node: 2 hops, then stop.', '#b4461a', { anchor: 'start' });
+  b += `<rect x="${xs[0]}" y="150" width="320" height="24" rx="12" fill="#d7ece9"/>` + qNote(xs[0] + 10, 167, 'Traversal: visit every node. Hop until null.', '#0b544e', { anchor: 'start' });
+  b += qNote(170, 198, 'No jumping: every trip starts at head.', '#37474a', { w: 700 });
+  return llPic(340, 208, 'The list 10, 20, 30, null with head on 10. Numbered hops: 1 from 10 to 20, 2 from 20 to 30, 3 from 30 to null. Access to the 3rd node takes 2 hops, then stops. Traversal visits every node and hops until null. Every trip starts at head.', b);
+}
+
+/** Part 3 trap: with and without current = current.next, round by round. */
 export function llStuckPic() {
-  const x0 = 50, y = 64;
-  const row = llRow(x0, y, [10, 20, 30], { fills: { 10: '#e8662e' } });
-  let b = sT(170, 18, 'Missing: current = current.next;', { mono: true, size: 12.5, w: 700, fill: llC.r });
-  b += sT(x0 + LD / 2, 36, 'head', { mono: true, size: 13, w: 700, fill: '#0b544e' }) + llVar(x0, 51, 'current', '#b4461a');
-  b += row.s.replace(`fill="#1b2a2e" text-anchor="middle">10<`, `fill="#fff" text-anchor="middle">10<`);
-  b += sT(170, 124, 'Round 1, 2, 3, …: current is still node 10', { size: 13, w: 800, fill: '#37474a' });
-  b += `<rect x="20" y="134" width="300" height="38" rx="6" fill="#1b2a2e"/>` + sT(170, 158, '10 -> 10 -> 10 -> 10 -> …', { mono: true, size: 14, w: 700, fill: '#f8dc95' });
-  b += sT(170, 194, '20 and 30 are never visited. The loop never ends.', { size: 13, w: 800, fill: llC.r });
-  return llPic(340, 206, 'The loop is missing current equals current.next. head and current both refer to node 10, followed by 20, 30, null. In round 1, 2, 3, and so on, current is still node 10, so the output is 10 arrow 10 arrow 10 forever. 20 and 30 are never visited, and the loop never ends.', b);
+  const mini = (y, at, prints) => {
+    let s = '';
+    [10, 20, 30].forEach((v, i) => {
+      const x = 76 + i * 50, hot = at === i;
+      s += `<rect x="${x}" y="${y}" width="32" height="24" rx="3" fill="${hot ? '#e8662e' : '#fff'}" stroke="#1b2a2e" stroke-width="1.8"/>` + sT(x + 16, y + 17, String(v), { mono: true, size: 12.5, w: 700, fill: hot ? '#fff' : '#1b2a2e' });
+      s += llPath(`M${x + 33} ${y + 12} H${x + 49}`, 'k', { w: 1.6 });
+    });
+    s += sT(228, y + 16, 'null', { mono: true, size: 11.5, w: 700, fill: at === 3 ? '#e8662e' : '#4f5f62', anchor: 'start' });
+    if (at === 3) s += `<rect x="224" y="${y + 1}" width="34" height="22" rx="4" fill="none" stroke="#e8662e" stroke-width="2"/>`;
+    s += sT(300, y + 17, prints, { mono: true, size: 12.5, w: 700, fill: prints === 'stop' ? '#0b544e' : '#1b2a2e' });
+    return s;
+  };
+  const lab = (y, t) => sT(10, y + 17, t, { size: 12, w: 800, fill: '#37474a', anchor: 'start' });
+  let b = qTitle(18, 'With it', 'current = current.next;') + sT(300, 42, 'prints', { size: 11, w: 800, fill: '#4f5f62' });
+  [['Round 1', 0, '10'], ['Round 2', 1, '20'], ['Round 3', 2, '30'], ['Check', 3, 'stop']].forEach(([t, at, p], i) => { b += lab(50 + i * 32, t) + mini(50 + i * 32, at, p); });
+  b += qNote(170, 190, 'current moves one node per round, then reaches null.', '#0b544e', { w: 700 });
+  b += qSep(204);
+  b += qTitle(228, 'Without it', 'current never moves', true);
+  [['Round 1', '10'], ['Round 2', '10'], ['Round 3', '10'], ['Round 4', '10']].forEach(([t, p], i) => { b += lab(246 + i * 32, t) + mini(246 + i * 32, 0, p); });
+  b += sT(170, 392, '… forever: 10 -> 10 -> 10 -> …', { mono: true, size: 12.5, w: 700, fill: llC.r });
+  return llPic(340, 404, 'With current = current.next: in round 1 current is on 10 and prints 10, round 2 on 20 prints 20, round 3 on 30 prints 30, then current is null and the loop stops. Without that line: current stays on 10 in every round, printing 10 forever.', b);
+}
+
+/** Part 3: null as a reference value vs printed text. */
+export function llNullPic() {
+  let b = `<rect x="8" y="8" width="158" height="150" rx="10" fill="#eef3f2"/><rect x="174" y="8" width="158" height="150" rx="10" fill="#eef3f2"/>`;
+  b += sT(87, 32, 'current != null', { mono: true, size: 12.5, w: 700 });
+  b += `<rect x="47" y="50" width="80" height="30" rx="5" fill="#d7ece9" stroke="#0e6b63" stroke-width="2"/>` + sT(87, 70, 'current', { mono: true, size: 13, w: 700, fill: '#0b544e' });
+  b += `<line x1="87" y1="81" x2="87" y2="100" stroke="#1b2a2e" stroke-width="2"/><line x1="73" y1="100" x2="101" y2="100" stroke="#1b2a2e" stroke-width="2.4"/><line x1="78" y1="106" x2="96" y2="106" stroke="#1b2a2e" stroke-width="2"/><line x1="83" y1="112" x2="91" y2="112" stroke="#1b2a2e" stroke-width="1.8"/>`;
+  b += qNote(87, 134, 'a reference value:', '#0b544e') + qNote(87, 150, 'refers to no node', '#37474a', { w: 700 });
+  b += sT(253, 32, 'println("null")', { mono: true, size: 12.5, w: 700 });
+  b += `<rect x="186" y="50" width="134" height="40" rx="6" fill="#1b2a2e"/>` + sT(196, 75, '30 -> ', { mono: true, size: 12.5, w: 700, fill: '#f8dc95', anchor: 'start' }) + sT(246, 75, 'null', { mono: true, size: 12.5, w: 700, fill: '#f8dc95', anchor: 'start' }) + `<rect x="242" y="60" width="38" height="22" rx="4" fill="none" stroke="#e8662e" stroke-width="2"/>`;
+  b += qNote(253, 134, 'just text:', '#b4461a') + qNote(253, 150, 'four printed letters', '#37474a', { w: 700 });
+  return llPic(340, 166, 'Left: in current != null, null is a reference value: the variable current refers to no node, drawn as a line ending in a ground symbol. Right: in println of "null", null is just text: the output 30 arrow null shows the four printed letters.', b);
+}
+
+/* Insert at the beginning: the same three frames for the right order and the swapped lines. */
+function frontFrames(wrong) {
+  const xs = [0, 1, 2, 3].map((i) => qx(i)), Y = (fy) => fy + 60;
+  let b = '';
+  const frame = (fy, tag, code, st) => {
+    const y = Y(fy);
+    b += qTitle(fy + 14, tag, code, st.bad);
+    const lost = st.lost ? [10, 20, 30] : [];
+    b += qVars(xs[0], y, st.v5) + qVars(xs[1], y, st.v10);
+    b += qBox(xs[0], y, '5', { fill: '#fbdccc' });
+    if (st.n5 === 'null') b += qNullDown(xs[0], y);
+    if (st.n5 === '10') b += qLink(xs[0], xs[1], y, 'o', { w: 2.6 });
+    if (st.n5 === 'self') b += qSelf(xs[0], y);
+    [10, 20, 30].forEach((v, i) => { const lo = lost.includes(v); b += qBox(xs[i + 1], y, String(v), { lost: lo }); b += i < 2 ? qLink(xs[i + 1], xs[i + 2], y, lo ? 'r' : 'k', { dash: lo }) : qNull(xs[3], y, lo ? 'r' : 'k', { dash: lo }); });
+    if (st.lost) b += qNote(qx(2) + Q.W / 2, y + Q.H + 20, st.lostNote, llC.r);
+    if (st.note) b += qNote(st.noteX ?? 170, y + Q.H + (st.noteY ?? 20), st.note, st.bad ? llC.r : '#0b544e', st.noteO ?? {});
+  };
+  const H = '#0b544e', N = '#b4461a';
+  frame(0, 'Start', '', { v5: [['newNode', N]], v10: [['head', H]], n5: 'null' });
+  b += qSep(122);
+  if (!wrong) {
+    frame(128, 'Step 1', 'newNode.next = head;', { v5: [['newNode', N]], v10: [['head', H]], n5: '10', note: '5 now refers to 10. Nothing is lost.', noteY: 22 });
+    b += qSep(250);
+    frame(256, 'Step 2', 'head = newNode;', { v5: [['head', H], ['newNode', N]], v10: [], n5: '10', note: 'head → 5 → 10 → 20 → 30 → null ✓', noteY: 22 });
+    return llPic(340, 380, 'Insert 5 at the beginning, right order. Start: head refers to 10, then 20, 30, null; newNode refers to a new node 5 whose next is null. Step 1, newNode.next = head: 5 now refers to 10, nothing is lost. Step 2, head = newNode: head refers to 5, so the list is 5, 10, 20, 30, null.', b);
+  }
+  frame(128, 'Line 1 (wrong!)', 'head = newNode;', { bad: true, v5: [['head', H], ['newNode', N]], v10: [], n5: 'null', lost: true, lostNote: 'nothing refers to 10 now' });
+  b += qSep(250);
+  frame(256, 'Line 2', 'newNode.next = head;', { bad: true, v5: [['head', H], ['newNode', N]], v10: [], n5: 'self', lost: true, lostNote: 'still lost' });
+  b += qNote(10, 398, 'head is 5, so 5 refers to itself.', llC.r, { anchor: 'start' });
+  b += sT(10, 418, 'printList(head): 5 -> 5 -> 5 -> … forever', { mono: true, size: 12, w: 700, fill: llC.r, anchor: 'start' });
+  return llPic(340, 428, 'The same two lines, swapped. Start: head refers to 10, 20, 30; newNode refers to 5. Line 1, head = newNode, runs first: head moves to 5, and nothing refers to node 10 anymore, so 10, 20, and 30 are lost. Line 2, newNode.next = head: head is 5, so 5 refers to itself. printList of head prints 5 forever.', b);
+}
+export const llFrontPic = () => frontFrames(false);
+export const llSwapPic = () => frontFrames(true);
+
+/** Insert 25 after node 20: 25 waits in the slot below its final place. */
+export function llAfterPic() {
+  const xs = [0, 1, 2, 4].map((i) => qx(i)), x25 = qx(3);
+  let b = '';
+  const H = '#0b544e', N = '#b4461a';
+  const frame = (fy, tag, code, step) => {
+    const y = fy + 44, ly = y + 52;
+    b += qTitle(fy + 14, tag, code);
+    b += qVars(xs[0], y, [['head', H]]) + qVars(xs[2], y, [['current', N]]);
+    [5, 10, 20, 30].forEach((v, i) => { b += qBox(xs[i], y, String(v), { fill: v === 20 ? '#fbdccc' : undefined }); });
+    b += qLink(xs[0], xs[1], y) + qLink(xs[1], xs[2], y) + qNull(xs[3], y);
+    b += qBox(x25, ly, '25', { fill: '#fbdccc' }) + sT(x25 - 14, ly + 32, 'newNode', { mono: true, size: 12, w: 700, fill: N, anchor: 'end' });
+    if (step < 2) b += qLink(xs[2], xs[3], y);
+    else b += llPath(`M${qDot(xs[2])} ${y + 15} C ${qDot(xs[2]) + 22} ${y + 15}, ${x25 - 10} ${ly + 15}, ${x25 - 1} ${ly + 15}`, 'o', { w: 2.6 });
+    if (step === 0) b += qNull(x25, ly);
+    else b += llPath(`M${qDot(x25)} ${ly + 15} C ${qDot(x25) + 20} ${ly + 15}, ${xs[3] + 6} ${y + 50}, ${xs[3] + 14} ${y + Q.H + 1}`, step === 1 ? 'o' : 'k', { w: step === 1 ? 2.6 : 2 });
+  };
+  frame(0, 'Start', '', 0);
+  b += qSep(156);
+  frame(162, 'Step 1', 'newNode.next = current.next;', 1);
+  b += qNote(10, 308, '25 refers to 30. 20 still refers to 30 too.', '#0b544e', { anchor: 'start' });
+  b += qSep(318);
+  frame(324, 'Step 2', 'current.next = newNode;', 2);
+  b += qNote(10, 470, 'Result: 5 → 10 → 20 → 25 → 30 → null', '#0b544e', { anchor: 'start' });
+  return llPic(340, 480, 'Insert 25 after node 20, which current refers to. Start: 5, 10, 20, 30, null in a row, and a new node 25 below, between 20 and 30, with next null. Step 1, newNode.next = current.next: 25 refers to 30, and 20 still refers to 30 too. Step 2, current.next = newNode: 20 now refers to 25. Result: 5, 10, 20, 25, 30, null.', b);
+}
+
+/** Safe order rule with B, X, C. */
+export function llSafePic() {
+  const vb = (x, y, v, o = {}) => `<rect x="${x}" y="${y}" width="36" height="28" rx="3" fill="${o.fill ?? '#fff'}" stroke="${o.lost ? llC.r : llC.k}" stroke-width="2"${o.lost ? ' stroke-dasharray="5 4"' : ''}/>` + sT(x + 18, y + 19, v, { mono: true, size: 14, w: 700, fill: o.lost ? llC.r : llC.k });
+  const badge = (x, y, n, f = '#e8662e') => `<circle cx="${x}" cy="${y}" r="9" fill="${f}"/>` + sT(x, y + 4, n, { size: 11.5, w: 800, fill: '#fff' });
+  let b = `<rect x="6" y="6" width="160" height="182" rx="10" fill="#eef3f2"/><rect x="174" y="6" width="160" height="182" rx="10" fill="#fbeeee"/>`;
+  b += sT(86, 28, '✓ X → C first', { size: 13.5, w: 800, fill: '#0b544e' });
+  b += vb(20, 52, 'B') + vb(116, 52, 'C') + vb(68, 112, 'X', { fill: '#fbdccc' });
+  b += `<line x1="57" y1="66" x2="114" y2="66" stroke="#9aa8aa" stroke-width="2" stroke-dasharray="4 4"/>`;
+  b += llPath('M105 120 L130 82', 'o', { w: 2.6 }) + badge(130, 108, '1');
+  b += llPath('M40 81 L66 118', 'o', { w: 2.6 }) + badge(40, 108, '2');
+  b += qNote(86, 164, 'Then B → X.', '#0b544e', { w: 700 }) + qNote(86, 180, 'C stays reachable.', '#0b544e', { w: 700 });
+  b += sT(254, 28, '✗ B → X first', { size: 13.5, w: 800, fill: llC.r });
+  b += vb(188, 52, 'B') + vb(284, 52, 'C', { lost: true }) + vb(236, 112, 'X', { fill: '#fbdccc' });
+  b += llPath('M208 81 L234 118', 'o', { w: 2.6 }) + badge(208, 108, '1', llC.r);
+  b += qNote(302, 102, 'lost!', llC.r);
+  b += qNote(254, 164, 'Nothing points to C,', llC.r, { w: 700 }) + qNote(254, 180, 'so X cannot reach it.', llC.r, { w: 700 });
+  return llPic(340, 194, 'The safe order for inserting X between B and C. Right: step 1, X points to C; step 2, B points to X; C stays reachable. Wrong: B points to X first; nothing points to C anymore, so C is lost and X cannot reach it.', b);
+}
+
+/** Delete 25 by linking around it, in three frames. */
+export function llBypassPic() {
+  const xs = [0, 1, 2, 3, 4].map((i) => qx(i));
+  const H = '#0b544e', N = '#b4461a';
+  let b = '';
+  const top = (fy, tag, code, step) => {
+    const y = fy + 46;
+    b += qTitle(fy + 14, tag, code);
+    b += qVars(xs[0], y, [['head', H]]) + qVars(xs[2], y, [['previous', N]]);
+    [5, 10, 20].forEach((v, i) => { b += qBox(xs[i], y, String(v), { fill: v === 20 ? '#fbdccc' : undefined }); });
+    b += qLink(xs[0], xs[1], y) + qLink(xs[1], xs[2], y);
+    b += qBox(xs[4], y, '30') + qNull(xs[4], y);
+    if (step < 2) {
+      b += qBox(xs[3], y, '25') + qLink(xs[2], xs[3], y) + qLink(xs[3], xs[4], y);
+      if (step === 1) {
+        b += `<rect x="${xs[3] - 3}" y="${y - 3}" width="${Q.W + 6}" height="${Q.H + 6}" rx="4" fill="none" stroke="#2f6fa8" stroke-width="2.2"/>` + `<rect x="${xs[4] - 3}" y="${y - 3}" width="${Q.W + 6}" height="${Q.H + 6}" rx="4" fill="none" stroke="#e8662e" stroke-width="2.2"/>`;
+        b += sT(xs[3] + Q.W / 2, y + Q.H + 16, 'previous.next', { mono: true, size: 11.5, w: 700, fill: '#2f6fa8' });
+        b += sT(xs[4] + Q.W / 2 - 14, y + Q.H + 32, 'previous.next.next', { mono: true, size: 11.5, w: 700, fill: '#b4461a' });
+      }
+    } else {
+      const ly = y + 56;
+      b += qBox(xs[3], ly, '25', { lost: true }) + llPath(`M${qDot(xs[3])} ${ly + 15} C ${qDot(xs[3]) + 18} ${ly + 15}, ${xs[4] + 4} ${y + 50}, ${xs[4] + 14} ${y + Q.H + 1}`, 'r', { dash: true });
+      b += sT(xs[3] - 8, ly + 20, 'newNode', { mono: true, size: 12, w: 700, fill: '#9aa8aa', anchor: 'end' });
+      b += llPath(`M${qDot(xs[2])} ${y + 15} H${xs[4] - 1}`, 'o', { w: 2.8 });
+      b += qNote(xs[3] + Q.W / 2, ly + Q.H + 18, 'out of the list', llC.r);
+    }
+  };
+  top(0, 'Before', '', 0);
+  b += qSep(90);
+  top(96, 'Read it', 'previous.next.next', 1);
+  b += qNote(10, 226, 'Start at previous, follow two arrows: you reach 30.', '#37474a', { anchor: 'start', w: 700 });
+  b += qSep(238);
+  top(244, 'Run it', 'previous.next = previous.next.next;', 2);
+  b += qNote(10, 414, 'Result: 5 → 10 → 20 → 30 → null', '#0b544e', { anchor: 'start' });
+  return llPic(340, 424, 'Delete 25 by linking around it. Before: head refers to 5, then 10, 20, 25, 30, null; previous refers to 20. Read previous.next.next: previous.next is 25, and previous.next.next is 30. Run previous.next = previous.next.next: 20 now refers straight to 30. Node 25 drops out of the list; newNode still refers to it and its next still refers to 30. Result: 5, 10, 20, 30, null.', b);
+}
+
+/** The real cost: reaching vs changing. */
+export function llCostPic() {
+  const cell = (x, y, t, o = {}) => `<rect x="${x}" y="${y}" width="30" height="26" fill="${o.fill ?? '#fff'}" stroke="#1b2a2e" stroke-width="1.8"/>` + sT(x + 15, y + 18, t, { mono: true, size: 11.5, w: 700, fill: o.ink ?? '#1b2a2e' });
+  const tag = (y, t, f) => sT(334, y, t, { size: 12.5, w: 800, fill: f, anchor: 'end' });
+  let b = sT(8, 20, 'Get the value at index 500', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
+  b += sT(8, 58, 'Array', { size: 12.5, w: 800, fill: '#37474a', anchor: 'start' });
+  ['0', '1', '2', '…', '500'].forEach((t, i) => { b += cell(62 + i * 30, 40, t, i === 4 ? { fill: '#e8662e', ink: '#fff' } : {}); });
+  b += llPath('M77 39 Q 136 6, 194 38', 'o', { w: 2.6 }) + tag(58, '1 jump', '#0b544e');
+  b += sT(8, 110, 'Linked', { size: 12.5, w: 800, fill: '#37474a', anchor: 'start' });
+  ['0', '1', '2', '…', '500'].forEach((t, i) => { b += cell(62 + i * 38, 92, t, i === 4 ? { fill: '#e8662e', ink: '#fff' } : {}); if (i < 4) b += llPath(`M${92 + i * 38} 105 H${99 + i * 38}`, 'k', { w: 1.6 }) + llPath(`M${80 + i * 38} 90 Q ${96 + i * 38} 76, ${112 + i * 38} 90`, 'o', { w: 1.8 }); });
+  b += tag(110, '500 links', llC.r);
+  b += qSep(134);
+  b += sT(8, 158, 'Insert 25 after 20 (you are already there)', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
+  b += sT(8, 196, 'Array', { size: 12.5, w: 800, fill: '#37474a', anchor: 'start' });
+  ['10', '20', '25', '30', '40', '50'].forEach((t, i) => { b += cell(62 + i * 30, 178, t, i === 2 ? { fill: '#fbdccc' } : {}); if (i >= 3) b += llPath(`M${62 + (i - 1) * 30 + 15} 176 Q ${62 + (i - 0.5) * 30 + 15} 164, ${62 + i * 30 + 13} 176`, 'o', { w: 1.8 }); });
+  b += tag(196, 'shift 3 values', llC.r) + sT(334, 220, '(more if the array is long)', { size: 11, w: 700, fill: '#37474a', anchor: 'end' });
+  b += sT(8, 252, 'Linked', { size: 12.5, w: 800, fill: '#37474a', anchor: 'start' });
+  b += cell(62, 234, '20') + cell(150, 234, '30') + cell(106, 270, '25', { fill: '#fbdccc' });
+  b += `<line x1="93" y1="247" x2="148" y2="247" stroke="#9aa8aa" stroke-width="2" stroke-dasharray="4 4"/>`;
+  b += llPath('M80 261 L106 278', 'o', { w: 2.4 }) + llPath('M137 280 L158 261', 'o', { w: 2.4 });
+  b += tag(252, 'change 2 links', '#0b544e') + sT(334, 268, '(no matter how long)', { size: 11, w: 700, fill: '#37474a', anchor: 'end' });
+  return llPic(340, 304, 'Get the value at index 500: an array jumps straight to slot 500 in one step; a linked list follows 500 links from head. Insert 25 after 20, already there: an array shifts every later value, here 30, 40, 50, and more if the array is long; a linked list changes 2 links, no matter how long.', b);
+}
+
+/** Part 7: one picture per kind. */
+export function llKindPic(kind) {
+  const xs = [14, 112, 210], y = 40;
+  let b = '';
+  if (kind === 'singly') {
+    b += qVars(xs[0], y, [['head']]);
+    ['A', 'B', 'C'].forEach((v, i) => { b += qBox(xs[i], y, v); b += i < 2 ? qLink(xs[i], xs[i + 1], y) : qNull(xs[i], y); });
+    b += qNote(170, 100, 'next only: forward, one way', '#0b544e', { w: 700 });
+    return llPic(340, 110, 'Singly linked: head refers to A; A points to B, B to C, C to null. Each node has next only, so you can move forward only.', b, 'll-pic ll-kind');
+  }
+  if (kind === 'doubly') {
+    const X = [48, 134, 220], W = 60;
+    const box = (x, v) => `<rect x="${x}" y="${y}" width="16" height="30" fill="#fff" stroke="#1b2a2e" stroke-width="2"/><rect x="${x + 16}" y="${y}" width="28" height="30" fill="#fff" stroke="#1b2a2e" stroke-width="2"/><rect x="${x + 44}" y="${y}" width="16" height="30" fill="#fff" stroke="#1b2a2e" stroke-width="2"/>` + sT(x + 30, y + 20, v, { mono: true, size: 14, w: 700 }) + `<circle cx="${x + 8}" cy="${y + 20}" r="3" fill="#2f6fa8"/><circle cx="${x + 52}" cy="${y + 10}" r="3" fill="#1b2a2e"/>`;
+    b += qVars(X[0] + 8, y, [['head']]);
+    ['A', 'B', 'C'].forEach((v, i) => { b += box(X[i], v); });
+    b += `<marker id="llm-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fa8"/></marker>`;
+    const back = (x1, x2) => `<path d="M${x1} ${y + 20} H${x2 + 1}" fill="none" stroke="#2f6fa8" stroke-width="2" marker-end="url(#llm-b)"/>`;
+    for (let i = 0; i < 2; i++) b += llPath(`M${X[i] + 52} ${y + 10} H${X[i + 1] - 1}`) + back(X[i + 1] + 8, X[i] + W);
+    b += back(X[0] + 8, 36) + sT(32, y + 24, 'null', { mono: true, size: 11.5, w: 600, fill: '#4f5f62', anchor: 'end' });
+    b += llPath(`M${X[2] + 52} ${y + 10} H${X[2] + W + 18}`) + sT(X[2] + W + 22, y + 14, 'null', { mono: true, size: 11.5, w: 600, fill: '#4f5f62', anchor: 'start' });
+    b += sT(X[0] + 8, y + 46, 'prev', { size: 11, w: 800, fill: '#2f6fa8' }) + sT(X[0] + 52, y + 46, 'next', { size: 11, w: 800, fill: '#1b2a2e' });
+    b += qNote(170, 104, 'prev and next: both ways', '#0b544e', { w: 700 });
+    return llPic(340, 114, 'Doubly linked: each node has three parts, prev, data, next. Black next arrows go forward from A to B to C to null; blue prev arrows go backward from C to B to A to null.', b, 'll-pic ll-kind');
+  }
+  b += qVars(xs[0], y, [['head']]);
+  ['A', 'B', 'C'].forEach((v, i) => { b += qBox(xs[i], y, v); if (i < 2) b += qLink(xs[i], xs[i + 1], y); });
+  b += llPath(`M${qDot(xs[2])} ${y + 15} H${qDot(xs[2]) + 22} V${y + 56} H${xs[0] + 22} V${y + Q.H + 2}`, 'o', { w: 2.6 });
+  b += qNote(170, y + 52, 'back to the first node', '#b4461a', { w: 700 });
+  b += qNote(170, 118, 'no null: a loop needs a stop rule', '#0b544e', { w: 700 });
+  return llPic(340, 128, 'Circular: head refers to A; A points to B, B to C, and C points back to A instead of null. There is no null, so a loop needs a stop rule.', b, 'll-pic ll-kind');
+}
+
+/** Sketch: a treasure hunt around school. */
+export function llHuntPic() {
+  const s = new Sketch(340, 340, 216);
+  s.text(170, 22, 'A treasure hunt at school', { font: 'body', size: 15, weight: 800, color: C.orange });
+  const card = (x, y, t, msg, place, fill) => {
+    s.round(x, y, 118, 58, 8, { fill, sw: 1.7 });
+    s.text(x + 59, y + 21, t, { font: 'body', size: 13, weight: 800 });
+    s.text(x + 59, y + 44, msg, { font: 'hand', size: 15, color: C.soft });
+    s.text(x + 59, y + 76, place, { font: 'body', size: 12, weight: 700, color: C.teal });
+  };
+  card(12, 42, 'Clue 1', 'Next: canteen', 'at the flagpole', C.butter);
+  card(210, 42, 'Clue 2', 'Next: mango tree', 'at the canteen', C.card);
+  card(12, 160, 'Clue 3', 'Next: library', 'under the mango tree', C.card);
+  card(210, 160, 'Clue 4', 'The end!', 'at the library', C.pink);
+  const o = { stroke: C.orange, sw: 2.2, single: true, dash: '7 6' };
+  s.arrow(134, 71, 204, 71, o);
+  s.arrow(222, 128, 130, 160, o);
+  s.arrow(134, 189, 204, 189, o);
+  s.rect(292, 252, 36, 22, { fill: '#b7793f', sw: 1.6 });
+  s.path('M292 252 Q310 236 328 252 Z', { fill: '#c98a4b', sw: 1.6 });
+  s.rect(306, 256, 8, 8, { fill: C.amber, sw: 1 });
+  s.text(14, 284, 'Clue 1 is where you start: like head.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  s.text(14, 304, 'Each clue says where the next one is: like next.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  s.text(14, 324, '"The end!" means no more clues: like null.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  return s.svg('A treasure hunt at school. Clue 1 at the flagpole says: next, canteen. Clue 2 at the canteen says: next, mango tree. Clue 3 under the mango tree says: next, library. Clue 4 at the library says: the end, beside a treasure chest. Dashed arrows go from clue to clue. Clue 1 is where you start, like head; each clue says where the next one is, like next; the end means no more clues, like null.', 'll-pic').replace(/(\d+\.\d)\d+/g, '$1');
 }

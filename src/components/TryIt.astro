@@ -1,0 +1,10 @@
+---
+// "Try it in Programiz" line for a complete Java program. Programiz saves the code as Main.java,
+// so a program whose public class has another name must be renamed first: pass that name as cls.
+interface Props { cls?: string; }
+const { cls } = Astro.props;
+const url = 'https://www.programiz.com/java-programming/online-compiler/';
+---
+{cls
+  ? <p class="try-it small">▶ Try it in the <a href={url} target="_blank" rel="noopener">Programiz online compiler</a>: tap <b>Copy</b>, paste it there, change <code>public class {cls}</code> to <code>public class Main</code> (Programiz saves your code as <code>Main.java</code>, and Java needs the file name and the public class name to match), then press <b>Run</b>.</p>
+  : <p class="try-it small">▶ This program runs as is. Try it in the <a href={url} target="_blank" rel="noopener">Programiz online compiler</a>: tap <b>Copy</b>, paste it there, and press <b>Run</b>.</p>}

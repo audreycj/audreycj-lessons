@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import TryIt from '../../components/TryIt.astro';
 import KindChips from '../../components/KindChips.astro';
 import SetLab from '../../components/SetLab.astro';
 import Quiz from '../../components/Quiz.astro';
@@ -315,6 +316,7 @@ const quiz = [
       <p>You will see both parts in one line of code: <code>Set&lt;String&gt; present = new HashSet&lt;&gt;();</code> reads as "present is a <b>Set</b> of Strings, built as a <b>HashSet</b>." The left side (<code>Set</code>) says what you may do with it. The right side (<code>new HashSet&lt;&gt;()</code>) picks how it is built. To get sorted order instead, you would change only the right side, to <code>new TreeSet&lt;&gt;()</code>.</p>
       <p><code>HashSet</code> is the usual choice. Its basic methods are <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code>:</p>
       <pre class="code"><code set:html={hi(basics)} /></pre>
+      <TryIt cls="Attendance" />
 
       <div class="sub">
         <h3>Set operations in Java</h3>
@@ -328,6 +330,7 @@ const quiz = [
           </tbody>
         </table>
         <pre class="code"><code set:html={hi(opsCode)} /></pre>
+        <TryIt cls="SetOperations" />
         <p class="small muted">The code prints u, n, and sym instead of ∪, ∩, and △, because some consoles cannot show those symbols. Small whole numbers like these usually come out in increasing order from a <code>HashSet</code>, but that is not guaranteed (the names in the attendance example did not). The values are what matter, not their order.</p>
       </div>
 
@@ -364,6 +367,7 @@ const quiz = [
         </table></div>
         <p>Watch the direction: A ⊆ B is written <code>b.containsAll(a)</code>, so the <b>bigger</b> set goes first. And unlike <code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code>, <code>containsAll</code> changes nothing. It only answers true or false, so no copy is needed.</p>
         <pre class="code"><code set:html={hi(subsetsCode)} /></pre>
+        <TryIt cls="Subsets" />
         <p class="small muted"><code>equals</code> ignores order, and even the class: a <code>HashSet</code> and a <code>TreeSet</code> with the same values are equal.</p>
       </div>
     </div>

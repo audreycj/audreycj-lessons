@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import TryIt from '../../components/TryIt.astro';
 import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import TraverseLab from '../../components/TraverseLab.astro';
@@ -349,6 +350,7 @@ const quiz = [
     <div class="flow">
       <p>This program builds the main example as an adjacency matrix, then runs BFS from A. Java's <code>Queue</code> works like the queue you learned: <code>offer</code> = enqueue at the rear, <code>poll</code> = dequeue from the front. <code>LinkedList</code> is one of Java's built-in queue types.</p>
       <pre class="code"><code set:html={hi(code)} /></pre>
+      <TryIt cls="BFS" />
       <div class="plain">
         <p class="note-label">Match the code to the procedure</p>
         <p><code>seen[start] = true; queue.offer(start);</code> is step 1. The <code>while</code> loop is step 2: <code>poll</code> is "dequeue and visit", and the <code>for</code> loop checks row <code>u</code> of the matrix from A to Z, enqueuing every neighbor not yet seen.</p>

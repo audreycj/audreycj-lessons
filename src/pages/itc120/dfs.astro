@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import TryIt from '../../components/TryIt.astro';
 import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import TraverseLab from '../../components/TraverseLab.astro';
@@ -361,6 +362,7 @@ const quiz = [
     <div class="flow">
       <p>DFS is short when written with recursion. This program builds the main example and runs DFS from A.</p>
       <pre class="code"><code set:html={hi(code)} /></pre>
+      <TryIt cls="DFS" />
       <div class="plain">
         <p class="note-label">Match the code to the procedure</p>
         <p>Calling <code>dfs(v)</code> is the <b>push</b> (go deeper). When the <code>for</code> loop ends, the method returns: that is the <b>pop</b> (backtrack). The <code>visited</code> array stops us from going around a cycle forever. Compare with BFS: there is no queue here, because Java's call stack is the stack.</p>

@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import TryIt from '../../components/TryIt.astro';
 import KindChips from '../../components/KindChips.astro';
 import MapLab from '../../components/MapLab.astro';
 import Quiz from '../../components/Quiz.astro';
@@ -196,6 +197,7 @@ const quiz = [
       <p>The picture below shows the most important rule of <code>put</code>: when the key is already there, the value is replaced and the map does not grow.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={putReplace()} /><figcaption><code>put</code> on an existing key replaces the value and returns the old one.</figcaption></figure>
       <pre class="code"><code set:html={hi(basics)} /></pre>
+      <TryIt cls="Grades" />
       <p class="small"><b>Output</b> (the last two lines can come out in another order; <a href="#no-order">Part 6</a> explains why):</p>
       <pre class="code"><code>{gradesOut}</code></pre>
       <p>Here is how to read the new lines aloud:</p>
@@ -422,6 +424,7 @@ const quiz = [
         <h3>The same thing in Java</h3>
         <p>This program puts three entries and prints each key's hash code and bucket, using the course formula:</p>
         <pre class="code"><code set:html={hi(bucketCode)} /></pre>
+        <TryIt cls="HashMapExample" />
         <p class="small"><b>Output:</b></p>
         <pre class="code"><code>{bucketOut}</code></pre>
         <p>Notice "Charlie": its hash code is negative because it wrapped around, but <code>&amp; 15</code> still gives a bucket from 0 to 15.</p>
