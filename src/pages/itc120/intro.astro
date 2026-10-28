@@ -14,6 +14,16 @@ const vars = String.raw`String name = "Ana";
 int score = 92;
 double average = 85.0;
 boolean passed = true;`;
+const assign = String.raw`int x = 5;          // x starts at 5
+x = x + 2;          // x becomes 7
+int total = x * 3;  // total becomes 21`;
+const addProg = String.raw`Scanner in = new Scanner(System.in);
+System.out.print("Enter first number: ");   // step 1
+int a = in.nextInt();
+System.out.print("Enter second number: ");
+int b = in.nextInt();
+int sum = a + b;                             // step 2
+System.out.println(sum);                     // step 3`;
 const cond = String.raw`if (score >= 75) {
   passed = true;
 } else {
@@ -45,6 +55,9 @@ const quiz = [
   { q: 'What is an algorithm?', opts: ['A finite, well-defined sequence of steps for solving a problem', 'Any Java program', 'A kind of data structure', 'A computer\'s memory'], a: 0, why: 'An algorithm is the <b>steps</b>; a program is code that carries them out.' },
   { q: 'An algorithm must stop after a limited number of steps. Which trait is this?', opts: ['Definiteness', 'Finiteness', 'Effectiveness', 'Input'], a: 1, why: '<b>Finiteness</b> = it ends. Definiteness = each step is clear; effectiveness = each step can actually be done.' },
   { q: 'The program runs, but the answer is wrong. What kind of error is this?', opts: ['Syntax error', 'Runtime error', 'Logic error', 'No error'], a: 2, why: 'A <b>logic error</b>: the code follows Java\'s rules and does not crash, but the steps are wrong (for example, a wrong condition).' },
+  { q: 'After <code>int x = 5;</code> and then <code>x = x + 2;</code>, what is in <code>x</code>?', opts: ['5', '2', '7', 'An error: x cannot equal x + 2'], a: 2, why: 'The <code>=</code> sign stores, it does not compare. Java first works out the right side (5 + 2 = 7), then stores 7 in <code>x</code>.' },
+  { q: 'What does <code>17 % 5</code> give in Java?', opts: ['3', '2', '3.4', '85'], a: 1, why: '<code>%</code> gives the <b>remainder</b>: 17 ÷ 5 = 3 remainder <b>2</b>.' },
+  { q: 'Binary search guesses the middle and throws away half. When does this work?', opts: ['Only when the values are in order (sorted)', 'Always, on any list', 'Only on lists of exactly 100 values', 'Only on linked lists'], a: 0, why: '"Too low" can rule out the whole lower half only because the values are <b>in order</b>. On an unsorted list, the secret could be anywhere.' },
   { q: 'Which array index holds the <b>third</b> value?', opts: ['3', '2', '1', '0'], a: 1, why: 'Counting starts at 0: index 0 is the first value, index 1 the second, index 2 the third.' },
 ];
 ---
@@ -55,11 +68,12 @@ const quiz = [
     <h1>Introduction to Data Structures and Algorithms</h1>
     <p class="lede">How we store data, and how we tell the computer what to do with it.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>refresh the Java you need: variables, conditions, loops, methods, arrays, trace tables, and error types;</li>
-        <li>identify different types of <b>data structures</b>, linear and non-linear;</li>
-        <li>explain what an <b>algorithm</b> is, and the five traits every algorithm has.</li>
+        <li>read and trace short Java code (variables, expressions, conditions, loops, methods, arrays) with a trace table, and name the three kinds of errors;</li>
+        <li>define <b>data</b> and <b>data structure</b>, and sort the six structures of this course into <b>linear</b> and <b>non-linear</b>;</li>
+        <li>define an <b>algorithm</b>, name its five traits, and tell an algorithm apart from a program;</li>
+        <li>explain, using the guessing game, why the choice of algorithm matters.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> your Programming 1 and 2 notes (if you have them), and scratch paper.</p>
@@ -71,36 +85,55 @@ const quiz = [
       <h2>Rebuild the mental model first</h2>
     </div>
     <div class="flow">
-      <p>Before data structures, let's remember how programs store values, make decisions, repeat work, and reuse code. Here are the six things you need.</p>
+      <p>Before data structures, let's remember how programs store values, make decisions, repeat work, and reuse code. Every data structure in this course is built and used with these same pieces, so here are the seven things you need.</p>
       <div class="sub">
         <h3>1. Variables are named places for values</h3>
+        <div class="def"><p class="note-label">Variable</p><p>A named place in memory that holds one value. Its <b>type</b> says what kind of value it can hold.</p></div>
         <pre class="code"><code set:html={hi(vars)} /></pre>
-        <p>Read each line as <b>type name = value</b>. The type says what kind of value fits: <code>int</code> for whole numbers, <code>double</code> for decimals, <code>boolean</code> for true or false, <code>String</code> for text. The <code>=</code> sign means "store the value on the right in the variable on the left."</p>
+        <p>Read each line as <b>type name = value</b>. The type says what kind of value fits: <code>int</code> for whole numbers, <code>double</code> for decimals, <code>boolean</code> for true or false, <code>String</code> for text. A clear name (<code>score</code>, not <code>s</code>) tells the reader what the value means.</p>
       </div>
       <div class="sub">
-        <h3>2. Conditions let a program choose a path</h3>
+        <h3>2. Assignment stores; expressions calculate</h3>
+        <pre class="code"><code set:html={hi(assign)} /></pre>
+        <p>The <code>=</code> sign is <b>assignment</b>: "work out the right side, then store the result in the variable on the left." It does not mean "is equal to." That is why <code>x = x + 2</code> makes sense: take the old <code>x</code> (5), add 2, and store 7 back in <code>x</code>.</p>
+        <div class="def"><p class="note-label">Expression</p><p>Anything Java can work out to one value, such as <code>x + 2</code> or <code>x * 3</code>.</p></div>
+        <p>These operators build expressions:</p>
+        <table class="tbl">
+          <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>+</code> <code>-</code> <code>*</code></td><td>add, subtract, multiply</td><td><code>7 * 3</code> gives 21</td></tr>
+            <tr><td><code>/</code></td><td>divide (two <code>int</code>s drop the decimal part)</td><td><code>7 / 2</code> gives 3, but <code>7.0 / 2</code> gives 3.5</td></tr>
+            <tr><td><code>%</code></td><td>remainder after dividing</td><td><code>7 % 2</code> gives 1; <code>17 % 5</code> gives 2</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub">
+        <h3>3. Conditions let a program choose a path</h3>
         <pre class="code"><code set:html={hi(cond)} /></pre>
-        <p>If the score is 75 or higher, one path runs; otherwise, the other. Comparisons use <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</p>
+        <p>If the score is 75 or higher, one path runs; otherwise, the other. Comparisons use <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>. Each comparison gives <code>true</code> or <code>false</code>.</p>
+        <p class="small muted">Good to know: to compare two <code>String</code>s, use <code>name.equals("Ana")</code>, not <code>==</code>. With text, <code>==</code> checks whether both are the very same object in memory, so it can say <code>false</code> even when the letters match.</p>
       </div>
       <div class="sub">
-        <h3>3. Loops repeat a block of work</h3>
+        <h3>4. Loops repeat a block of work</h3>
         <pre class="code"><code set:html={hi(loop)} /></pre>
-        <p>A <code>for</code> loop has three controls: where to <b>start</b> (<code>i = 0</code>), when to <b>keep going</b> (<code>i &lt; 4</code>), and how to <b>update</b> after each round (<code>i++</code>).</p>
+        <p>A <b>loop</b> runs the same lines again and again, with a new value of <code>i</code> each round. A <code>for</code> loop has three controls: where to <b>start</b> (<code>i = 0</code>), when to <b>keep going</b> (<code>i &lt; 4</code>), and how to <b>update</b> after each round (<code>i++</code>).</p>
       </div>
       <div class="sub">
-        <h3>4. A method performs one reusable task</h3>
+        <h3>5. A method performs one reusable task</h3>
         <pre class="code"><code set:html={hi(method)} /></pre>
-        <p>A method is like a small machine: it takes <b>inputs</b> (parameters <code>a</code> and <code>b</code>) and gives back an <b>output</b> (the <code>return</code> value). In this course, operations get method names: <code>push()</code>, <code>pop()</code>, <code>insert()</code>.</p>
+        <div class="def"><p class="note-label">Method</p><p>A named block of code that does one task. Its <b>parameters</b> are the inputs it receives; its <b>return value</b> is the output it gives back.</p></div>
+        <p>Think of a method as a small machine: <code>larger(3, 8)</code> puts 3 into <code>a</code> and 8 into <code>b</code>, and the machine gives back 8. Methods matter in this course because every operation on a data structure is a method, such as <code>push()</code>, <code>pop()</code>, and <code>insert()</code>, and we can test each one on its own.</p>
       </div>
       <div class="sub">
-        <h3>5. An array is a row of numbered slots</h3>
+        <h3>6. An array is a row of numbered slots</h3>
         <div class="mini-arr" aria-label="An array with values 19, 3, 42, 7, 56 at indexes 0 to 4">
           {[19, 3, 42, 7, 56].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
         </div>
-        <p>Each value has a numbered position called an <b>index</b>. Counting starts at <b>0</b>, so <code>arr[2]</code> is the <b>third</b> slot: 42.</p>
+        <div class="def"><p class="note-label">Array and index</p><p>An <b>array</b> is a fixed number of slots, side by side, that all hold the same type of value. Each slot's numbered position is its <b>index</b>.</p></div>
+        <p>Counting starts at <b>0</b>, so <code>arr[2]</code> is the <b>third</b> slot: 42. The array is the first data structure of this course; you will meet it again in Part 2.</p>
       </div>
       <div class="sub">
-        <h3>6. Trace code one line at a time</h3>
+        <h3>7. Trace code one line at a time</h3>
         <div class="two-col">
           <pre class="code"><code set:html={hiN(trace)} /></pre>
           <table class="tbl">
@@ -134,12 +167,21 @@ const quiz = [
     <div class="flow">
       <div class="sticky">
         <p class="note-label">You are already a data structures expert</p>
-        <p>Your phone's recent apps (the last one opened is the easiest to get back to). The canteen line (first in line, first served). Folders inside folders in your file manager. Your Facebook friends, all connected to each other. Each of these is a data structure in disguise: a <b>stack</b>, a <b>queue</b>, a <b>tree</b>, and a <b>graph</b>.</p>
+        <p>Your phone's recent apps (the last one opened is the easiest to get back to). The canteen line (first in line, first served). Folders inside folders in your file manager. Your Facebook friends, linked in a web (your friends have friends, and some of them know each other). Each of these is a data structure in disguise: a <b>stack</b>, a <b>queue</b>, a <b>tree</b>, and a <b>graph</b>.</p>
       </div>
       <div class="two-col">
         <div class="def"><p class="note-label">Data</p><p>Raw facts and figures, such as numbers, names, and dates. They have no structure yet.</p></div>
         <div class="def"><p class="note-label">Data structure</p><p>A specific way of storing and arranging data in a computer's memory so it can be <b>accessed, searched, and updated</b> efficiently.</p></div>
       </div>
+      <p>Here is the same data before and after we give it a structure:</p>
+      <div class="raw-org" role="img" aria-label="Six scores in a messy pile, then the same scores in an array with indexes 0 to 5">
+        <div class="ro-side"><p class="ro-t">Data (a pile)</p>
+          <div class="ro-pile">{[92, 75, 88, 60, 95, 81].map((v) => <b>{v}</b>)}</div></div>
+        <p class="ro-arrow">→</p>
+        <div class="ro-side"><p class="ro-t">Data structure (an array)</p>
+          <div class="mini-arr sm">{[92, 75, 88, 60, 95, 81].map((v, i) => <span><b>{v}</b><i>{i}</i></span>)}</div></div>
+      </div>
+      <p class="fig-cap">Same six scores, but now each one has a known position. The structure decides how we can reach and work with the data.</p>
       <div class="remember">
         <p class="note-label">Why it matters: think of your kitchen</p>
         <p>Dump every spice into one big box, and you dig through everything just to find salt. Put them on a labeled spice rack, and you grab what you need in seconds. In programming, the "container" is the data structure. The right one makes your program faster and saves memory.</p>
@@ -147,12 +189,12 @@ const quiz = [
 
       <div class="sub">
         <h3>Two families</h3>
-        <p>Data structures (beyond simple types like <code>int</code>) come in two families:</p>
+        <p>A plain <code>int</code> or <code>boolean</code> holds just one value; Java calls these <b>primitive types</b>. Data structures hold many values, so some books call them <b>non-primitive</b>. They come in two families:</p>
         <table class="tbl">
           <thead><tr><th></th><th>Linear</th><th>Non-linear</th></tr></thead>
           <tbody>
             <tr><td><b>Arrangement</b></td><td>one after another, in a sequence</td><td>branching (hierarchy) or a network</td></tr>
-            <tr><td><b>Visiting all items</b></td><td>one single pass covers everything</td><td>may need several paths</td></tr>
+            <tr><td><b>Visiting all items</b></td><td>one natural order (first to last), so one pass visits everything</td><td>no single natural order: you must choose a route, and later lessons teach several (pre-order, BFS, DFS)</td></tr>
             <tr><td><b>Connections</b></td><td>each item links to at most one "next"</td><td>an item can connect to many others</td></tr>
             <tr><td><b>Examples</b></td><td>array, stack, queue, linked list</td><td>tree, graph</td></tr>
           </tbody>
@@ -161,26 +203,26 @@ const quiz = [
 
       <div class="sub">
         <h3>The six structures of this course</h3>
-        <p>Here are the six structures you will learn, each with a real-life picture:</p>
+        <p>Here are the six structures you will learn, each with a real-life picture. Tap a name to open its lesson:</p>
         <div class="ds-grid">
-          <div class="ds-card"><p class="ds-k">Linear</p><h4>Array</h4>
+          <div class="ds-card"><p class="ds-k">Linear</p><h4><a href={base + '/itc120/arrays/'}>Array</a></h4>
             <div class="mini-arr sm">{[19, 3, 42, 7].map((v, i) => <span><b>{v}</b><i>{i}</i></span>)}</div>
-            <p>Numbered slots, side by side. <b>Like a piso-net shop</b>: a fixed row of numbered units, one user per PC. Instant access by index; fixed size.</p></div>
-          <div class="ds-card"><p class="ds-k">Linear</p><h4>Stack</h4>
+            <p>Numbered slots, side by side. <b>Like a piso-net shop</b>: a fixed row of numbered units, one user per PC. All slots hold the same type. <b>Strength:</b> instant access by index. <b>Trade-off:</b> fixed size, and inserting in the middle means shifting everything after it.</p></div>
+          <div class="ds-card"><p class="ds-k">Linear</p><h4><a href={base + '/itc120/stacks-queues/'}>Stack</a></h4>
             <div class="mini-stack"><span>C ← top</span><span>B</span><span>A</span></div>
-            <p>Add and remove at the top only: <b>last in, first out (LIFO)</b>. <b>Like a pile of lunch trays.</b> Used in Undo and the Back button.</p></div>
-          <div class="ds-card"><p class="ds-k">Linear</p><h4>Queue</h4>
+            <p>Add (<code>push</code>) and remove (<code>pop</code>) at the top only: <b>last in, first out (LIFO)</b>. <b>Like a pile of lunch trays.</b> Used in Undo and the Back button.</p></div>
+          <div class="ds-card"><p class="ds-k">Linear</p><h4><a href={base + '/itc120/stacks-queues/'}>Queue</a></h4>
             <div class="mini-q"><span>front</span><b>1</b><b>2</b><b>3</b><span>rear</span></div>
-            <p>Join at the rear, leave from the front: <b>first in, first out (FIFO)</b>. <b>Like the canteen line.</b> Used for print jobs.</p></div>
-          <div class="ds-card"><p class="ds-k">Linear</p><h4>Linked list</h4>
+            <p>Join at the rear (<code>enqueue</code>), leave from the front (<code>dequeue</code>): <b>first in, first out (FIFO)</b>. <b>Like the canteen line.</b> Used for print jobs.</p></div>
+          <div class="ds-card"><p class="ds-k">Linear</p><h4><a href={base + '/itc120/linked-lists/'}>Linked list</a></h4>
             <div class="mini-ll"><b>A</b>→<b>B</b>→<b>C</b>→<i>null</i></div>
-            <p>A chain of nodes; each one knows only the next. <b>Like a train</b>: each car is connected to the car behind it.</p></div>
-          <div class="ds-card"><p class="ds-k">Non-linear</p><h4>Tree</h4>
+            <p>A chain of <b>nodes</b>. A node is one box that stores a value plus a link to the next node; <i>null</i> means "no next." <b>Like a train</b>: each car is connected to the car behind it. <b>Strength:</b> adding or removing only changes the links around that spot. <b>Trade-off:</b> to reach the 50th node, you follow the links through the 49 before it.</p></div>
+          <div class="ds-card"><p class="ds-k">Non-linear</p><h4><a href={base + '/itc120/trees/'}>Tree</a></h4>
             <TreeFig spec="A(B(D,E),C)" label="A small tree" />
-            <p>One root, branching into children. <b>Like folders</b> inside folders, or a family tree.</p></div>
-          <div class="ds-card"><p class="ds-k">Non-linear</p><h4>Graph</h4>
+            <p>One top node (the <b>root</b>), branching into children, then grandchildren. <b>Like folders</b> inside folders, a family tree, or a school org chart.</p></div>
+          <div class="ds-card"><p class="ds-k">Non-linear</p><h4><a href={base + '/itc120/graphs/'}>Graph</a></h4>
             <GraphFig g={small} label="A small graph" />
-            <p>Nodes connected by edges, with no single root. <b>Like your friends network</b>, or a map app's routes.</p></div>
+            <p>Nodes (called <b>vertices</b>) joined by lines (called <b>edges</b>). Any node can connect to any other, and there is no single root. <b>Like your friends network</b>, a map app's roads, or web pages linking to each other.</p></div>
         </div>
       </div>
 
@@ -203,6 +245,7 @@ const quiz = [
         <p class="note-label">Think of a recipe</p>
         <p>You gather ingredients (input), follow the steps in order, and each step is exact ("2 tablespoons of sugar", not "a little sugar"). Cooking eventually ends, and you get a finished dish (output).</p>
       </div>
+      <p>In programming, "find the largest number in this list" and "sort these student records by grade" are both problems solved by algorithms. Every app on your phone is built from algorithms working on data structures.</p>
       <div class="sub">
         <h3>Five traits every algorithm has</h3>
         <p>An algorithm must have all five of these traits. Miss one, and it is just a vague idea:</p>
@@ -213,14 +256,27 @@ const quiz = [
           <li><b>Finiteness:</b> it stops after a limited number of steps.</li>
           <li><b>Effectiveness:</b> each step is simple enough to actually be carried out.</li>
         </ol>
+        <p>To see the traits at work, here are three sets of "steps" that each break one trait:</p>
+        <table class="tbl">
+          <thead><tr><th>Steps</th><th>Breaks this trait</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>"Add a little salt."</td><td>Definiteness</td><td>How much is "a little"? Two cooks would do different things.</td></tr>
+            <tr><td>"Start at 1. Keep adding 1 until the number is 0."</td><td>Finiteness</td><td>Counting up from 1 never reaches 0, so it never stops.</td></tr>
+            <tr><td>"Write down every digit of π."</td><td>Effectiveness (and finiteness)</td><td>π has endless digits, so no one can actually finish this step.</td></tr>
+          </tbody>
+        </table>
       </div>
       <div class="sub">
         <h3>Not all algorithms are equal</h3>
+        <p>Many algorithms can solve the same problem, and some are much faster. Try it: both players below hunt for the same secret number.</p>
         <GuessGame id="guess" />
+        <p><b>Why only 7?</b> Each "too low" or "too high" throws away about half of what is left. In the worst case, the numbers still possible go 100 → 50 → 25 → 12 → 6 → 3 → 1, so by the 7th guess only one number is left. Simple search may need all 100.</p>
+        <p class="small muted">Good to know: binary search only works because the numbers 1 to 100 are <b>in order</b>. "Too low" can rule out the whole lower half only when the values are sorted. The same halving idea powers <a href={base + '/itc120/bst/'}>BST search</a> later in this course.</p>
         <p>Both algorithms solve the same problem, but one is far faster. That is the whole point of this course: <b>data structures + algorithms = programs that run fast and use memory wisely.</b></p>
       </div>
       <div class="sub">
         <h3>Algorithm vs. program, coding vs. programming</h3>
+        <p>These four words are easy to mix up. Here is what each one means:</p>
         <table class="tbl">
           <tbody>
             <tr><th>Algorithm</th><td>The <b>steps</b> for solving a problem: 1. ask for two numbers; 2. add them; 3. show the result.</td></tr>
@@ -229,6 +285,9 @@ const quiz = [
             <tr><th>Programming</th><td>The whole process: define the problem → plan → write code → test → debug → improve.</td></tr>
           </tbody>
         </table>
+        <p>Here is the algorithm from the table (ask for two numbers, add them, show the result) written as a Java program. The comments mark which step each part carries out:</p>
+        <pre class="code"><code set:html={hi(addProg)} /></pre>
+        <p class="small muted"><code>Scanner</code> reads what the user types (the file needs <code>import java.util.Scanner;</code> at the top). You do not need to memorize it for this course. The point: one algorithm, and this is just one program that carries it out. You could write the same steps in Python or C.</p>
       </div>
       <div class="sub" id="ds-or-algo">
         <h3>Data structure, algorithm, or both?</h3>
@@ -260,11 +319,11 @@ const quiz = [
       <div class="remember">
         <p class="note-label">Key takeaways</p>
         <ol>
-          <li>A data structure organizes data so it can be stored, accessed, and updated efficiently.</li>
+          <li>A data structure stores and arranges data so it can be accessed, searched, and updated efficiently.</li>
           <li>Linear: array, stack, queue, linked list. Non-linear: tree, graph.</li>
           <li>An algorithm is a finite, well-defined sequence of steps for solving a problem.</li>
           <li>Every algorithm needs input, output, definiteness, finiteness, and effectiveness.</li>
-          <li>The choice of structure and algorithm affects how fast and efficient a program is.</li>
+          <li>The choice of structure and algorithm affects how fast and efficient a program is (binary search: at most 7 guesses for 1 to 100; simple search: up to 100).</li>
         </ol>
       </div>
       <p><b>Next lesson:</b> <a href={base + '/itc120/arrays/'}>Arrays</a>.</p>
@@ -272,6 +331,7 @@ const quiz = [
         <p class="note-label">References</p>
         <ol>
           <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 1 (binary search).</li>
+          <li>D. E. Knuth, <i>The Art of Computer Programming</i>, Vol. 1, 3rd ed. Addison-Wesley, 1997, Section 1.1 (the five traits of an algorithm).</li>
           <li>Programiz, "Learn Data Structures and Algorithms" and "Data Structure and Types." <a href="https://www.programiz.com/dsa/data-structure-types">programiz.com/dsa</a></li>
           <li>ITC 120 Course Syllabus, A.Y. 2026–2027, Davao Oriental State University.</li>
         </ol>

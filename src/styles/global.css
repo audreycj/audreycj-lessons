@@ -908,3 +908,18 @@ svg.objbox.trap-pic { max-width: 22rem; margin-inline: 0; }
 
 /* maps pictures (chat 13) */
 svg.objbox.map-pic { max-width: 22rem; }
+
+/* intro: raw data vs organized (chat 14) */
+.raw-org { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 1.2rem; margin: 0.8rem 0 0.2rem; }
+.raw-org .ro-side { display: grid; justify-items: center; gap: 0.3rem; }
+.raw-org .ro-t { font-family: var(--font-display, 'Fredoka'), sans-serif; font-weight: 600; color: var(--ink-soft); margin: 0; }
+.raw-org .ro-arrow { font-size: 1.8rem; color: var(--orange); margin: 0; }
+.raw-org .ro-pile { display: grid; grid-template-columns: repeat(3, auto); gap: 0.35rem 0.6rem; padding: 0.4rem 0.6rem; }
+.raw-org .ro-pile b { font-family: var(--font-mono); font-size: 1rem; padding: 0.35rem 0.55rem; border: 2px dashed var(--ink-soft); border-radius: 8px; background: var(--card); }
+.raw-org .ro-pile b:nth-child(1) { transform: rotate(-8deg) translateY(4px); }
+.raw-org .ro-pile b:nth-child(2) { transform: rotate(6deg) translateX(6px); }
+.raw-org .ro-pile b:nth-child(3) { transform: rotate(-3deg) translateY(-5px); }
+.raw-org .ro-pile b:nth-child(4) { transform: rotate(9deg) translateX(-4px); }
+.raw-org .ro-pile b:nth-child(5) { transform: rotate(-11deg) translateY(6px); }
+.raw-org .ro-pile b:nth-child(6) { transform: rotate(4deg) translateX(3px) translateY(-3px); }
+.raw-org .mini-arr { margin: 0; }
