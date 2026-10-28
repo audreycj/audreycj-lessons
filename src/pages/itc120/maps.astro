@@ -5,7 +5,7 @@ import MapLab from '../../components/MapLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hashSteps, bucketIndex, binShort } from '../../lib/hash.js';
-import { priceList, putReplace, hashFlow, pigeonWall, chainPic, posVsKey, andBits } from '../../lib/illus.js';
+import { priceList, putReplace, hashFlow, pigeonWall, chainPic, posVsKey, andBits, strChars, hornerPic, mapTrapPic } from '../../lib/illus.js';
 import Peek from '../../components/Peek.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -46,6 +46,7 @@ public class Grades {
 }`;
 
 const gradesOut = ['95', 'null', 'true', '3', '2', '2025-0101 -> 89', '2025-0012 -> 95'].join('\n');
+const pigeonPeek = `<div class="illus">${pigeonWall()}</div>`;
 const bucketCode = String.raw`import java.util.HashMap;
 
 public class HashMapExample {
@@ -185,13 +186,13 @@ const quiz = [
         <thead><tr><th>Method</th><th>What it does</th></tr></thead>
         <tbody>
           <tr><td><code>put(key, value)</code></td><td><b>insert</b> a pair, or <b>replace</b> the value if the key exists; returns the old value (<code>null</code> if the key was new)</td></tr>
-          <tr><td><code>get(key)</code></td><td><b>look up</b> the value; returns <code>null</code> if the key is missing</td></tr>
+          <tr><td><code>get(key)</code></td><td><b>look up</b> the value; returns <code>null</code> (Java's word for "nothing") if the key is missing</td></tr>
           <tr><td><code>remove(key)</code></td><td><b>delete</b> the pair with that key; returns its value (<code>null</code> if the key was missing)</td></tr>
           <tr><td><code>containsKey(key)</code></td><td><code>true</code> if the key is in the map</td></tr>
           <tr><td><code>size()</code></td><td>number of pairs</td></tr>
         </tbody>
       </table>
-      <p>Like sets, Java has three main map types: <code>HashMap</code> (no guaranteed order, the usual choice; Part 3 explains the "hash"), <code>LinkedHashMap</code> (keeps the order keys were first added), and <code>TreeMap</code> (sorted by key, built on a red-black tree).</p>
+      <p>Like sets, Java has three main map types: <code>HashMap</code> (no guaranteed order, the usual choice; Part 3 explains the "hash"), <code>LinkedHashMap</code> (keeps the order keys were first added), and <code>TreeMap</code> (sorted by key, built on a <a href={base + '/itc120/red-black-trees/'}>red-black tree</a>).</p>
       <p>The picture below shows the most important rule of <code>put</code>: when the key is already there, the value is replaced and the map does not grow.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={putReplace()} /><figcaption><code>put</code> on an existing key replaces the value and returns the old one.</figcaption></figure>
       <pre class="code"><code set:html={hi(basics)} /></pre>
@@ -219,30 +220,33 @@ const quiz = [
       <h2>Hashing</h2>
     </div>
     <div class="flow">
-      <p>Imagine a map with 10,000 students stored in one long list. To find one ID, you might have to check all 10,000. A <code>HashMap</code> avoids that by using <b>hashing</b>.</p>
+      <p>Imagine a map with 10,000 students stored in one long list. To find one ID, you might have to check all 10,000. A <code>HashMap</code> avoids that with a trick called <b>hashing</b>. Here is the same trick in a place you know.</p>
       <div class="sticky">
         <p class="note-label">Think of the faculty pigeonholes</p>
-        <p>The faculty office has 16 pigeonholes for mail. Instead of one big pile, there is a rule that turns each name into a pigeonhole number. To find your mail, use the rule, then check <b>one</b> pigeonhole, not the whole pile.</p>
+        <p>The faculty office has 16 pigeonholes for mail, numbered 0 to 15. Instead of one big pile, the office uses a rule that turns each name into a pigeonhole number: add up the letters' places in the alphabet (A = 1, B = 2, …, Z = 26), divide by 16, and keep the remainder. A letter for Tan goes into slot 3. To find Tan's mail later, use the same rule and check <b>one</b> pigeonhole, not the whole pile.</p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={pigeonWall()} /><figcaption>The rule turns the name into a number, so you only check that one pigeonhole.</figcaption></figure>
-      <p>Here are the words used in hashing. You don't need to memorize them now: the pictures below show each one.</p>
-      <table class="tbl">
-        <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+      <figure class="fig illus-fig illus"><Fragment set:html={pigeonWall()} /><figcaption>A made-up office rule turns the name Tan into slot 3. (Java uses a different rule: Parts 4 and 5 show it.)</figcaption></figure>
+      <div class="def">
+        <p class="note-label">Hashing</p>
+        <p><b>Hashing</b> means using a fixed rule to turn a key into a number, and using that number to decide where the key is stored. Because the rule never changes, the <b>same key always gives the same number</b>, so you always know where to look.</p>
+      </div>
+      <p>Hashing comes with a few new words. The table below matches each one to the pigeonhole picture:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Term</th><th>What it means</th><th>In the picture</th></tr></thead>
         <tbody>
-          <tr><td><b>Hashing</b></td><td>using a hash function to decide where each key is stored</td></tr>
-          <tr><td><b>Hash function</b></td><td>a rule that turns a key into a number</td></tr>
-          <tr><td><b>Hash code</b></td><td>the number it produces (in Java: <code>key.hashCode()</code>)</td></tr>
-          <tr><td><b>Hash table</b></td><td>the array of buckets inside a <code>HashMap</code> (the wall of pigeonholes)</td></tr>
-          <tr><td><b>Bucket</b></td><td>one slot in the hash table (one pigeonhole)</td></tr>
-          <tr><td><b>Capacity</b></td><td>how many buckets there are (a new <code>HashMap</code> starts with <b>16</b>; when it holds more than 12, that is 3/4 of 16, it doubles to 32 and moves every key to its new bucket)</td></tr>
-          <tr><td><b>Bucket index</b></td><td>which bucket a key goes to, worked out from its hash code</td></tr>
+          <tr><td><b>Hash function</b></td><td>the fixed rule that turns a key into a number. In Java, it is the <code>hashCode()</code> method (Part 4).</td><td>the office's rule, step 1</td></tr>
+          <tr><td><b>Hash code</b></td><td>the number the hash function gives for a key</td><td>35</td></tr>
+          <tr><td><b>Hash table</b></td><td>the row of storage slots inside a <code>HashMap</code> (an array)</td><td>the whole wall</td></tr>
+          <tr><td><b>Bucket</b></td><td>one slot of the hash table. It holds the entries (key-value pairs) that belong there.</td><td>one pigeonhole</td></tr>
+          <tr><td><b>Capacity</b></td><td>how many buckets there are. A new <code>HashMap</code> starts with <b>16</b>; when it holds more than 12 entries (3/4 of 16), it doubles to 32 and moves every key to its new bucket.</td><td>16 pigeonholes</td></tr>
+          <tr><td><b>Bucket index</b></td><td>the bucket's number, from 0 to capacity − 1, worked out from the hash code</td><td>slot 3 (step 2)</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p>So <code>put</code> and <code>get</code> both do the same two steps: <b>(1) compute the key's hash code, (2) turn it into a bucket index</b>. Then they go straight to that bucket.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={hashFlow()} /><figcaption>The two steps for the key "CAT". Parts 4 and 5 show how to do each step by hand.</figcaption></figure>
       <div class="remember">
-        <p class="note-label">Why this works: same key, same bucket</p>
-        <p>The rule always gives the <b>same number for the same key</b>. When you <code>put("CAT", …)</code>, it goes to bucket 6. When you later call <code>get("CAT")</code>, Java computes bucket 6 again and looks there. It never has to look anywhere else.</p>
+        <p class="note-label">Why get finds what put stored</p>
+        <p>Remember: the same key always gives the same number. When you <code>put("CAT", …)</code>, it goes to bucket 6. When you later call <code>get("CAT")</code>, Java computes bucket 6 again and looks there. It never has to look anywhere else.</p>
         <p>The bucket keeps the <b>whole pair</b> (key and value), not just the value. That way, <code>get</code> can check that the key really is "CAT" before giving back its value.</p>
       </div>
     </div>
@@ -255,11 +259,27 @@ const quiz = [
       <h2>A String's hashCode</h2>
     </div>
     <div class="flow">
-      <p>Every character has a number code (its ASCII or Unicode value). Java builds a String's hash code from those codes using the number 31. The easiest way to do it by hand:</p>
-      <div class="remember">
-        <p class="note-label">The hashCode rule</p>
-        <p class="formula">h = 0<br />for each character, left to right: <b>h = 31 × h + code</b></p>
-        <p>The final h is the hash code. (This is the same as Java's formula s[0]·31<sup>n−1</sup> + s[1]·31<sup>n−2</sup> + … + s[n−1], just easier to compute.)</p>
+      <div class="def">
+        <p class="note-label">hashCode</p>
+        <p>In Java, every object has a method called <code>hashCode()</code>. It returns an <code>int</code>: that object's <b>hash code</b>. For a <code>String</code>, Java computes it from the string's characters with a fixed formula, so two equal strings always get the same hash code.</p>
+      </div>
+      <div class="sub">
+        <h3>Quick review: characters and strings</h3>
+        <p>A <b>character</b> (<code>char</code> in Java) is one letter, digit, symbol, or space, written in single quotes: <code>'D'</code>. A <b>string</b> (<code>String</code>) is a sequence of characters in order, written in double quotes: <code>"DOG"</code>. Each character has a position, its <b>index</b>, starting at 0.</p>
+        <p>Inside the computer, every character is stored as a number called its <b>character code</b> (from the ASCII or Unicode table). For example, <code>'D'</code> is 68.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={strChars()} /><figcaption>The string "DOG": three characters in order, each stored as a number.</figcaption></figure>
+      </div>
+      <div class="sub">
+        <h3>The hashCode rule</h3>
+        <p>The goal is to turn the whole string into <b>one number</b> that depends on every character <b>and on their order</b>. We build that number one character at a time and call it <b>h</b> (short for "hash"). Think of h as a running total: the hash code so far.</p>
+        <div class="remember">
+          <p class="note-label">The hashCode rule</p>
+          <p class="formula">h = 0<br />for each character, left to right: <b>h = 31 × h + code</b></p>
+          <p>Read it as: "Start with 0. For each character, multiply what you have so far by 31, then add the character's code." When there are no characters left, h is the hash code.</p>
+        </div>
+        <figure class="fig illus-fig illus"><Fragment set:html={hornerPic()} /><figcaption>Each row uses the h from the row above. This is the same "CAT" → 66,486 from the Part 3 picture.</figcaption></figure>
+        <p><b>Why multiply by 31?</b> If we only added the codes, "DOG" and "GOD" would get the same number, because they have the same letters. Multiplying by 31 before each add makes each character's <b>position</b> matter: "DOG" gives 67,868, but "GOD" gives 70,748. (Java's designers chose 31 because it is an odd prime that mixes the numbers well, and computers can multiply by it quickly.)</p>
+        <p class="small muted">Good to know: Java's documentation writes the same rule as one long formula, s[0]·31<sup>n−1</sup> + s[1]·31<sup>n−2</sup> + … + s[n−1], where s[0] is the code of the first character, s[1] the second, and n is the number of characters. The running total gives the same answer in smaller steps.</p>
       </div>
       <div class="sub">
         <h3>Character codes you need</h3>
@@ -286,11 +306,11 @@ const quiz = [
       </div>
       <div class="trap">
         <p class="note-label">Exam traps</p>
-        <ul>
-          <li>Uppercase and lowercase have <b>different</b> codes: "cat" and "CAT" have different hash codes.</li>
-          <li>Start with h = 0, so the first step is just the first character's code.</li>
-          <li>Long strings make huge numbers. A Java <code>int</code> can only go up to 2,147,483,647. Past that, it <b>wraps around</b> to the most negative <code>int</code> (−2,147,483,648) and keeps counting up from there, a bit like an odometer rolling over from 99999 to 00000. That is how a hash code can become negative. Keys of up to 5 letters never get that big, so short keys are safe. Longer ones can wrap, like "Charlie" in Part 7.</li>
-        </ul>
+        <ol class="trap-list">
+          <li><p><b>Uppercase and lowercase are different characters.</b> <code>'C'</code> is 67 but <code>'c'</code> is 99, so "CAT" and "cat" get different hash codes.</p><Fragment set:html={mapTrapPic(1)} /></li>
+          <li><p><b>Start with h = 0.</b> The first step is 31 × 0 + code, which is just the first character's code. Don't multiply the first code by 31.</p><Fragment set:html={mapTrapPic(2)} /></li>
+          <li><p><b>Long strings can wrap around.</b> A Java <code>int</code> can only go up to 2,147,483,647. Past that, it <b>wraps around</b> to the most negative <code>int</code> (−2,147,483,648) and keeps counting up from there, like an odometer rolling over from 99999 to 00000. That is how a hash code can become negative. Keys of up to 5 letters never get that big, so short keys are safe. Longer ones can wrap, like "Charlie" in Part 7.</p><Fragment set:html={mapTrapPic(3)} /></li>
+        </ol>
       </div>
     </div>
   </section>
@@ -302,13 +322,32 @@ const quiz = [
       <h2>From hash code to bucket</h2>
     </div>
     <div class="flow">
-      <p>A hash code like {n(worked.hash)} is far bigger than 16. We need a number from 0 to 15. In this course, we use the same formula as the Java code you will see in Part 7:</p>
+      <p>Step 1 gave us a hash code, like {n(worked.hash)} for "DOG". Step 2 turns it into a <b>bucket index</b>. Recall from Part 3: a <b>bucket</b> is one slot of the hash table (one <Peek label="pigeonhole" title="From Part 3" html={pigeonPeek} />), and the <b>capacity</b> is how many buckets there are (16). So the bucket index must be a number from <b>0 to 15</b>, but {n(worked.hash)} is far bigger. In this course, we use the same formula as the Java code you will see in Part 7:</p>
       <div class="remember">
         <p class="note-label">The bucket rule</p>
         <p class="formula">bucket index = hashCode &amp; (capacity − 1)</p>
         <p>With capacity 16: <code>hashCode &amp; 15</code>.</p>
       </div>
-      <p><code>&amp;</code> is the <b>bitwise AND</b>: it compares two numbers bit by bit and keeps a 1 only where <b>both</b> have a 1. Since 15 in binary is <b>1111</b>, <code>&amp; 15</code> simply <b>keeps the last 4 bits</b> of the hash code and turns all the others into 0.</p>
+      <p>To read this rule, you need two ideas: binary and the bitwise AND.</p>
+      <div class="def">
+        <p class="note-label">Binary and bits</p>
+        <p>Computers store numbers in <b>binary</b>: using only the digits 0 and 1. Each digit is called a <b>bit</b>. From the right, the bits are worth 1, 2, 4, 8, 16, … (each place is worth twice the one before). For example, 13 in binary is <b class="mono">1101</b> = 8 + 4 + 0 + 1.</p>
+        <details class="reveal"><summary>How to turn a number into binary</summary><div class="flow">
+          <p>Divide by 2 again and again, writing down each remainder, until you reach 0. Then read the remainders from the <b>bottom up</b>. For 13:</p>
+          <table class="tbl"><thead><tr><th>Divide</th><th>Answer</th><th>Remainder</th></tr></thead><tbody>
+            <tr><td class="mono">13 ÷ 2</td><td class="mono">6</td><td class="mono">1</td></tr>
+            <tr><td class="mono">6 ÷ 2</td><td class="mono">3</td><td class="mono">0</td></tr>
+            <tr><td class="mono">3 ÷ 2</td><td class="mono">1</td><td class="mono">1</td></tr>
+            <tr><td class="mono">1 ÷ 2</td><td class="mono">0</td><td class="mono">1</td></tr>
+          </tbody></table>
+          <p>Bottom up: <b class="mono">1101</b>. Big numbers take many rows, which is why Way 2 below is faster.</p>
+        </div></details>
+      </div>
+      <div class="def">
+        <p class="note-label">Bitwise AND (&amp;)</p>
+        <p>The <b>bitwise AND</b>, written <code>&amp;</code>, lines up two numbers in binary and compares them bit by bit. The answer has a 1 only where <b>both</b> numbers have a 1; everywhere else it has a 0.</p>
+      </div>
+      <p>Since 15 in binary is <b>1111</b>, <code>&amp; 15</code> simply <b>keeps the last 4 bits</b> of the hash code and turns all the others into 0.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={andBits()} /><figcaption>"DOG" has hash code 67,868. Lined up bit by bit with 15, only its last 4 bits survive.</figcaption></figure>
       <div class="sub">
         <h3>Worked example: "DOG" → bucket {workedIdx}</h3>
@@ -345,7 +384,11 @@ const quiz = [
       <h2>Collisions</h2>
     </div>
     <div class="flow">
-      <p>There are only so many buckets (16 to start) but endless possible keys, so sometimes two different keys get the same bucket. That is called a <b>collision</b>. It is normal and expected.</p>
+      <p>There are only so many buckets (16 to start) but endless possible keys, so sometimes two different keys get the same bucket index.</p>
+      <div class="def">
+        <p class="note-label">Collision</p>
+        <p>A <b>collision</b> happens when two <b>different</b> keys get the <b>same bucket index</b>. It is normal and expected, and the map must still keep both keys.</p>
+      </div>
       <p>Here is a famous one: <b>"Aa"</b> and <b>"BB"</b> have exactly the same hash code.</p>
       <table class="tbl">
         <thead><tr><th>Key</th><th>Work</th><th>hashCode</th><th>Bucket</th></tr></thead>
@@ -354,7 +397,7 @@ const quiz = [
           <tr><td class="mono">"BB"</td><td class="mono">31 × 66 + 66</td><td class="mono">{n(bb)}</td><td class="mono">{bucketIndex(bb)}</td></tr>
         </tbody>
       </table>
-      <p>The keys are different, so the map must keep <b>both</b>. A common way is <b>chaining</b>: each bucket holds a small linked list of entries. To <code>get</code> "BB", Java goes to bucket {bucketIndex(bb)} and walks its short chain, comparing keys until it finds "BB" (see the picture below). (You will study more ways to handle collisions in the Hashing week, Week 17.)</p>
+      <p>The keys are different, so the map must keep <b>both</b>. A common way is <b>chaining</b>: each bucket holds a small <a href={base + '/itc120/linked-lists/'}>linked list</a> (a chain) of entries, one after another. To <code>get</code> "BB", Java goes to bucket {bucketIndex(bb)} and walks its short chain, comparing keys until it finds "BB" (see the picture below). (You will study more ways to handle collisions in the Hashing week, Week 17.)</p>
       <figure class="fig illus-fig illus"><Fragment set:html={chainPic()} /><figcaption>Chaining: a bucket can hold more than one entry. <code>get</code> checks only that bucket's chain.</figcaption></figure>
       <div class="sub" id="no-order">
         <h3>Why a HashMap has no order</h3>

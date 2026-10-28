@@ -1838,37 +1838,6 @@ export function hashFlow() {
   return mapPic(340, 258, 'The key CAT goes through step 1, hashCode, using h = 31 times h plus code, and becomes 66486. Step 2, and 15, keeps the last 4 bits and gives bucket 6 out of buckets 0 to 15. put and get both go straight to bucket 6.', b);
 }
 
-/** Sketch: the faculty pigeonholes. A rule turns a name into a slot number; check one slot. */
-export function pigeonWall() {
-  const s = new Sketch(340, 318, 152);
-  s.text(170, 20, '16 pigeonholes, one rule', { font: 'body', size: 15, weight: 800 });
-  const env = (x, y, w, h, fill = '#fff', name = '') => {
-    s.rect(x, y, w, h, { fill, sw: 1.5, rough: 0.7 });
-    s.path(`M${x} ${y} L${x + w / 2} ${y + h * 0.55} L${x + w} ${y}`, { sw: 1.3, single: true, rough: 0.5 });
-    if (name) s.text(x + w / 2, y + h - 5, name, { font: 'body', size: 12, weight: 800 });
-  };
-  env(18, 38, 70, 42, '#fff', 'to: Cruz');
-  s.arrow(94, 59, 124, 59, { sw: 1.8 });
-  s.round(128, 38, 104, 42, 9, { fill: C.butter, stroke: C.amber, sw: 1.8 });
-  s.text(180, 56, 'the rule', { font: 'body', size: 13, weight: 800 });
-  s.text(180, 73, 'name → number', { font: 'body', size: 12, weight: 700, color: C.soft });
-  s.arrow(238, 59, 266, 59, { sw: 1.8 });
-  s.circle(292, 59, 40, { fill: C.orangeWash, stroke: C.orange, sw: 2 });
-  s.text(292, 65, '11', { font: 'body', size: 17, weight: 800, color: C.orange });
-  // the wall: 4 x 4, slot i at row i/4, col i%4
-  const X = 62, Y = 104, W = 54, H = 44;
-  s.rect(X - 6, Y - 6, W * 4 + 12, H * 4 + 12, { fill: '#c99b62', sw: 1.8 });
-  for (let i = 0; i < 16; i++) {
-    const x = X + (i % 4) * W, y = Y + Math.floor(i / 4) * H, hot = i === 11;
-    s.rect(x + 2, y + 2, W - 4, H - 4, { fill: hot ? C.orangeWash : '#f4ead8', stroke: hot ? C.orange : C.ink, sw: hot ? 2.2 : 1.3, rough: 0.6 });
-    s.text(x + 11, y + 16, String(i), { font: 'body', size: 11, weight: 800, color: hot ? C.orange : C.soft });
-    if ([2, 5, 14].includes(i)) env(x + 20, y + 19, 24, 17, '#eef3f2');
-    if (hot) env(x + 18, y + 18, 28, 19, '#fff');
-  }
-  s.curve(304, 80, 284, 196, -26, { stroke: C.orange, sw: 2.2, single: true });
-  s.text(170, 300, 'To find the mail: use the rule, then check one slot.', { font: 'body', size: 12.5, weight: 800, color: C.teal });
-  return s.svg('A letter addressed to Cruz goes into the rule, name to number, which gives 11. A wall of 16 pigeonholes numbered 0 to 15: slot 11 is highlighted and holds the letter; a few other slots hold other mail. To find the mail: use the rule, then check one slot.').replace(/(\d+\.\d)\d+/g, '$1');
-}
 
 /** Clean: chaining. Bucket 0 holds Aa -> BB; get("BB") compares keys along the chain. */
 export function chainPic() {
@@ -1950,4 +1919,101 @@ export function andBits() {
   b += sT(170, 206, '15 has 1s only in the last 4 places, so only they survive.', { size: 12.5, w: 700, fill: '#37474a' });
   b += sT(170, 230, '1100 = 8 + 4 = 12, so the bucket is 12.', { size: 13, w: 800, fill: '#b4461a' });
   return mapPic(340, 242, '67868 in binary is 1 0000 1001 0001 1100. Below it, 15 in binary: all zeros except 1111 at the end. AND them bit by bit: a 1 stays only where both rows have a 1, so only the last 4 bits survive: 1100. Those places are worth 8, 4, 2, 1, so 1100 = 8 + 4 = 12, bucket 12.', b);
+}
+
+/** Sketch: the faculty pigeonholes, with a made-up office rule (add letter places, then remainder ÷ 16). Tan -> 35 -> slot 3. */
+export function pigeonWall() {
+  const s = new Sketch(340, 392, 152);
+  s.text(170, 20, '16 pigeonholes, one rule', { font: 'body', size: 15, weight: 800 });
+  const env = (x, y, w, h, fill = '#fff', name = '') => {
+    s.rect(x, y, w, h, { fill, sw: 1.5, rough: 0.7 });
+    s.path(`M${x} ${y} L${x + w / 2} ${y + h * 0.55} L${x + w} ${y}`, { sw: 1.3, single: true, rough: 0.5 });
+    if (name) s.text(x + w / 2, y + h - 5, name, { font: 'body', size: 12, weight: 800 });
+  };
+  env(8, 52, 66, 40, '#fff', 'to: Tan');
+  s.arrow(78, 72, 96, 72, { sw: 1.8 });
+  s.round(100, 32, 232, 112, 10, { fill: C.butter, stroke: C.amber, sw: 1.8 });
+  s.text(216, 50, "The office's rule", { font: 'body', size: 13, weight: 800 });
+  s.text(110, 70, '1. Add up the letters\' alphabet places:', { font: 'body', size: 11.5, weight: 700, anchor: 'start', color: C.soft });
+  s.text(216, 88, 'T 20 + A 1 + N 14 = 35', { font: 'mono', size: 13, weight: 700 });
+  s.text(110, 108, '2. Divide by 16 and keep the remainder:', { font: 'body', size: 11.5, weight: 700, anchor: 'start', color: C.soft });
+  s.text(216, 128, '35 ÷ 16 = 2 remainder 3', { font: 'mono', size: 13, weight: 700, color: C.orange });
+  const X = 62, Y = 176, W = 54, H = 44;
+  s.rect(X - 6, Y - 6, W * 4 + 12, H * 4 + 12, { fill: '#c99b62', sw: 1.8 });
+  for (let i = 0; i < 16; i++) {
+    const x = X + (i % 4) * W, y = Y + Math.floor(i / 4) * H, hot = i === 3;
+    s.rect(x + 2, y + 2, W - 4, H - 4, { fill: hot ? C.orangeWash : '#f4ead8', stroke: hot ? C.orange : C.ink, sw: hot ? 2.2 : 1.3, rough: 0.6 });
+    s.text(x + 11, y + 16, String(i), { font: 'body', size: 11, weight: 800, color: hot ? C.orange : C.soft });
+    if ([6, 9, 13].includes(i)) s.rect(x + 20, y + 19, 24, 17, { fill: '#eef3f2', sw: 1.3, rough: 0.6 });
+    if (hot) env(x + 18, y + 18, 28, 19, '#fff');
+  }
+  s.arrow(262, 146, 254, Y + 14, { stroke: C.orange, sw: 2.4, single: true });
+  s.text(300, 166, 'slot 3', { font: 'body', size: 13, weight: 800, color: C.orange });
+  s.text(170, 372, 'Looking for Tan\'s mail later? Same rule, same slot 3.', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  return s.svg('A letter to Tan goes through the office rule. Step 1: add each letter\'s place in the alphabet: T 20 + A 1 + N 14 = 35. Step 2: divide by 16 and keep the remainder: 35 divided by 16 is 2 remainder 3. So the letter goes into slot 3 of a wall of 16 pigeonholes numbered 0 to 15. Looking for Tan\'s mail later: same rule, same slot 3.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: the string "DOG" as characters in order, with index and character code. */
+export function strChars() {
+  let b = sT(170, 20, 'The string "DOG"', { size: 14, w: 800 });
+  b += sT(84, 48, 'index', { size: 12, w: 700, anchor: 'end', fill: '#37474a' }) + sT(84, 84, 'char', { size: 12, w: 700, anchor: 'end', fill: '#0b544e' }) + sT(84, 124, 'code', { size: 12, w: 700, anchor: 'end', fill: '#b4461a' });
+  [['D', 68], ['O', 79], ['G', 71]].forEach(([c, k], i) => {
+    const x = 100 + i * 74;
+    b += sT(x + 30, 48, String(i), { mono: true, size: 13, w: 700, fill: '#37474a' });
+    b += mapBox(x, 58, 60, 38, '#e3f1ef', '#0e6b63', 2, 6) + sT(x + 30, 85, `'${c}'`, { mono: true, size: 18, w: 700 });
+    b += mapArrow(x + 30, 98, x + 30, 108, '#b4461a', 1.6) + sT(x + 30, 126, String(k), { mono: true, size: 15, w: 700, fill: '#b4461a' });
+  });
+  b += sT(170, 154, 'A string is characters in order.', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 174, 'Each character is stored as a number: its code.', { size: 12.5, w: 700, fill: '#37474a' });
+  return mapPic(340, 184, 'The string DOG is three characters in order: D at index 0, O at index 1, G at index 2. The computer stores each character as a number, its code: D is 68, O is 79, G is 71.', b);
+}
+
+/** Clean: h as a running total for "CAT" (start 0; each row: 31 x h + code). */
+export function hornerPic() {
+  const T = '#0b544e', O = '#b4461a';
+  let b = sT(170, 18, 'Building the hash code of "CAT"', { size: 14, w: 800 });
+  b += sT(170, 38, 'teal = h so far   ·   orange = this character\'s code', { size: 11.5, w: 700, fill: '#37474a' });
+  b += sT(196, 70, 'Start:', { size: 13, w: 800, anchor: 'end' });
+  b += mapBox(212, 50, 112, 30, '#e3f1ef', '#0e6b63', 2, 6) + sT(268, 71, 'h = 0', { mono: true, size: 14, w: 700, fill: T });
+  const rows = [['C', 67, 0, 67], ['A', 65, 67, 2142], ['T', 84, 2142, 66486]];
+  rows.forEach(([c, k, before, after], i) => {
+    const y = 104 + i * 58;
+    b += mapArrow(232, y - 22, 124, y + 3, '#0e6b63', 1.6);
+    b += `<circle cx="30" cy="${y + 15}" r="17" fill="#fce9e0" stroke="#e8662e" stroke-width="2"/>` + sT(30, y + 21, c, { mono: true, size: 16, w: 700 });
+    b += `<text x="56" y="${y + 21}" font-family="monospace" font-size="13.5" font-weight="700" fill="#1b2a2e">31 × <tspan fill="${T}">${before.toLocaleString('en-US')}</tspan> + <tspan fill="${O}">${k}</tspan></text>`;
+    b += mapBox(212, y, 112, 30, '#e3f1ef', '#0e6b63', 2, 6) + sT(268, y + 21, '= ' + after.toLocaleString('en-US'), { mono: true, size: 14, w: 700, fill: T });
+  });
+  b += sT(170, 300, 'No characters left, so the hash code is 66,486.', { size: 13, w: 800, fill: O });
+  return mapPic(340, 312, 'Building the hash code of CAT. Start: h = 0. Character C, code 67: 31 times 0 plus 67 = 67. Character A, code 65: 31 times 67 plus 65 = 2,142. Character T, code 84: 31 times 2,142 plus 84 = 66,486. Each new h is carried down into the next row. No characters left, so the hash code is 66,486.', b);
+}
+
+/** Clean mini pictures for the hashCode exam traps. */
+export function mapTrapPic(n) {
+  const card = (x, y, w, h, ok) => mapBox(x, y, w, h, ok ? '#e3f1ef' : '#fbe4e1', ok ? '#0e6b63' : '#b23a33', 2, 8);
+  let b = '', H = 0, label = '';
+  if (n === 1) {
+    H = 124; label = 'CAT has codes 67, 65, 84 and hash code 66,486. cat has codes 99, 97, 116 and hash code 98,262. Different hash codes.';
+    [[8, 'CAT', '67 65 84', '66,486'], [190, 'cat', '99 97 116', '98,262']].forEach(([x, w, c, h]) => {
+      b += card(x, 8, 142, 104, true) + sT(x + 71, 34, `"${w}"`, { mono: true, size: 17, w: 700 });
+      b += sT(x + 71, 60, 'codes ' + c, { mono: true, size: 12, w: 600, fill: '#b4461a' }) + sT(x + 71, 96, h, { mono: true, size: 16, w: 700, fill: '#0b544e' });
+      b += sT(x + 71, 78, 'hash code', { size: 11, w: 700, fill: '#37474a' });
+    });
+    b += sT(170, 68, '≠', { size: 30, w: 800, fill: '#b23a33' });
+  } else if (n === 2) {
+    H = 118; label = 'First character of DOG. Wrong: 31 times 68 = 2,108, the first code was multiplied. Right: h starts at 0, so 31 times 0 plus 68 = 68.';
+    b += card(8, 8, 156, 100, false) + sT(86, 32, '✗ Wrong', { size: 13, w: 800, fill: '#b23a33' }) + sT(86, 62, '31 × 68', { mono: true, size: 15, w: 700 }) + sT(86, 84, '= 2,108', { mono: true, size: 15, w: 700, fill: '#b23a33' });
+    b += card(176, 8, 156, 100, true) + sT(254, 32, '✓ Right', { size: 13, w: 800, fill: '#0b544e' }) + sT(254, 62, '31 × 0 + 68', { mono: true, size: 15, w: 700 }) + sT(254, 84, '= 68', { mono: true, size: 15, w: 700, fill: '#0b544e' });
+    b += sT(86, 101, 'first code multiplied', { size: 10.5, w: 700, fill: '#37474a' }) + sT(254, 101, 'h starts at 0', { size: 10.5, w: 700, fill: '#37474a' });
+  } else {
+    H = 156; label = 'An odometer at 99999 plus 1 rolls over to 00000. A Java int at 2,147,483,647, its largest value, plus 1 wraps around to minus 2,147,483,648, its most negative value.';
+    const odo = (x, y, d, col) => [...d].map((c, i) => mapBox(x + i * 22, y, 20, 28, '#1b2a2e', '#1b2a2e', 1, 3) + sT(x + i * 22 + 10, y + 20, c, { mono: true, size: 15, w: 700, fill: col })).join('');
+    b += sT(170, 18, 'Odometer', { size: 12.5, w: 800, fill: '#37474a' });
+    b += odo(18, 28, '99999', '#fff') + mapArrow(134, 42, 196, 42, '#e8662e', 2.2) + sT(165, 34, '+1', { size: 13, w: 800, fill: '#b4461a' }) + odo(210, 28, '00000', '#f8dc95');
+    b += sT(170, 86, 'Java int', { size: 12.5, w: 800, fill: '#37474a' });
+    b += mapBox(8, 96, 132, 32, '#e3f1ef', '#0e6b63', 2, 6) + sT(74, 117, '2,147,483,647', { mono: true, size: 13, w: 700 });
+    b += mapArrow(144, 112, 186, 112, '#e8662e', 2.2) + sT(165, 104, '+1', { size: 13, w: 800, fill: '#b4461a' });
+    b += mapBox(190, 96, 142, 32, '#fbe4e1', '#b23a33', 2, 6) + sT(261, 117, '−2,147,483,648', { mono: true, size: 13, w: 700, fill: '#b23a33' });
+    b += sT(74, 146, 'largest int', { size: 11, w: 700, fill: '#37474a' }) + sT(261, 146, 'most negative int', { size: 11, w: 700, fill: '#37474a' });
+  }
+  return `<svg class="objbox trap-pic" viewBox="0 0 340 ${H}" role="img" aria-label="${label}">${b}</svg>`;
 }
