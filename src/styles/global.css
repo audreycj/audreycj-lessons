@@ -888,3 +888,7 @@ pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95)
 .kind-chip.k-algo { background: #fbdccc; color: #8a3510; border-color: #e8662e; }
 .kind-chip.k-adt { background: #f8dc95; color: #5c3f05; border-color: #c98a1c; }
 .kind-chip.k-tech { background: #ffffff; color: #1b2a2e; border-color: #37474a; }
+
+/* wide tables scroll sideways on phones instead of squeezing (dfs Problem 1 trace) */
+.tbl-wrap { overflow-x: auto; max-width: 100%; }
+.tbl-wrap .nowrap { white-space: nowrap; }

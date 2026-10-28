@@ -41,7 +41,12 @@ const p2 = {
 const r1 = dfsSteps(p1, 'D'), r1b = bfsSteps(p1, 'D');
 const r2 = dfsSteps(p2, 'C');
 // stack snapshots for problem 1 (only the steps that change it), to show on paper
-const r1Trace = r1.steps.map((s) => s.ds.join(' ') || '(empty)');
+// exam-style trace rows for problem 1 (one row per push or pop, like the prelim stack items)
+const r1Rows = r1.steps.map((s, i) => {
+  const prev = i ? r1.steps[i - 1].ds : [];
+  const push = s.ds.length > prev.length;
+  return { act: (push ? 'push ' : 'pop ') + (push ? s.ds[s.ds.length - 1] : prev[prev.length - 1]), stack: s.ds.join(', ') || '(empty)', order: s.order.join(', ') };
+});
 
 const code = String.raw`public class DFS {
   static char[] names = {'A', 'B', 'C', 'D', 'E', 'F', 'G'};
@@ -167,12 +172,12 @@ const quiz = [
               <p class="mk-right"><b>✓ DFS order (push order)</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
             </div>
           </li>
-          <li><b>The neighbor order changes the answer.</b> At A, both B and D are unvisited. Taking B first (alphabetical) gives the expected answer. Taking the last neighbor first (Z to A) gives a different list. It is still a correct DFS, but it is not the answer the question expects:
+          <li><b>The neighbor order changes the answer.</b> At A, both B and D are unvisited. Taking B first (alphabetical) gives one order; taking the last neighbor first (Z to A) gives another. <b>Both are correct DFS orders</b>, because DFS itself does not say which neighbor comes first:
             <div class="mk-ans mk-solo">
-              <p class="mk-right"><b>✓ Alphabetical (use this)</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
-              <p><b>Z to A (correct DFS, but not expected)</b><span class="mono">A, D, E, G, F, C, B</span></p>
+              <p class="mk-right"><b>✓ Alphabetical</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
+              <p class="mk-right"><b>✓ Z to A (also a correct DFS)</b><span class="mono">A, D, E, G, F, C, B</span></p>
             </div>
-            Use alphabetical order unless the question says otherwise. For numbered vertices, take the smallest number first, comparing them as numbers (2 before 10).</li>
+            If the question gives a rule (like "alphabetical order"), follow it. If it gives none, any correct order is fine, but alphabetical is the safe habit: it matches most answer keys. For numbered vertices, the usual rule is smallest number first, comparing them as numbers (2 before 10).</li>
         </ol>
       </div>
       <div class="plain">
@@ -312,8 +317,13 @@ const quiz = [
           <div class="flow">
             <p><b>DFS order:</b> <span class="mono">{r1.order.join(', ')}</span></p>
             <p><b>BFS order</b> (from the BFS lesson): <span class="mono">{r1b.order.join(', ')}</span></p>
-            <p>The stack after each step (bottom → top):</p>
-            <ol class="trace mono small">{r1Trace.map((t) => <li>{t}</li>)}</ol>
+            <p>The trace, one row per push or pop. Each row shows the same stack, one step later (bottom → top, left to right):</p>
+            <div class="tbl-wrap">
+              <table class="tbl small">
+                <thead><tr><th>Step</th><th>Action</th><th>Stack (bottom → top)</th><th>DFS order so far</th></tr></thead>
+                <tbody>{r1Rows.map((r, i) => <tr><td>{i + 1}</td><td class="nowrap">{r.act}</td><td class="mono nowrap">{r.stack}</td><td class="mono nowrap">{r.order}</td></tr>)}</tbody>
+              </table>
+            </div>
             <p>DFS went D → B → A → C → E → F before backing up. F was a dead end (D and E visited), so it popped back through E, C, A, and B to D, which still had G unvisited.</p>
           </div>
         </details>
