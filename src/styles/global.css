@@ -924,3 +924,8 @@ svg.objbox.map-pic { max-width: 22rem; }
 .raw-org .ro-pile b:nth-child(6) { transform: rotate(4deg) translateX(3px) translateY(-3px); }
 .raw-org .mini-arr { margin: 0; }
 svg.objbox.intro-pic { max-width: 22rem; }
+
+/* programming refresher: numbered building-block headings (chat 14) */
+h3.blk-h { display: flex; align-items: center; gap: 0.7rem; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.3rem, 1.1rem + 1vw, 1.65rem); color: var(--teal-ink); margin-top: 0.4rem; }
+h3.blk-h .blk-n { flex: none; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--orange); color: #fff; font-size: 1.25rem; box-shadow: 0 3px 0 #b4461a; }
+h3.blk-h .blk-t { background: linear-gradient(transparent 62%, var(--butter) 62%); padding: 0 0.15em; }

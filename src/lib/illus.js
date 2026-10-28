@@ -2261,3 +2261,134 @@ export function dsAlgoPic() {
   ['add', 'remove', 'contains'].forEach((t, i) => { b += sT(212, 240 + i * 17, '• ' + t, { size: 12.5, w: 700, anchor: 'start' }); });
   return introPic(340, 326, 'Four panels. Data structure: an array holding 19, 3, 42, 7; it stores the data. Algorithm: find 42 by checking 19 (no), 3 (no), 42 (yes); steps that work on it. Both: the same array with 42 found, plus its search, insert, and delete; a lesson teaches both. ADT: a set can add, remove, and check contains; it says what it can do, not how it is stored.', b);
 }
+
+/* ---------------- Programming refresher pictures (chat 14) ---------------- */
+
+/** Sketch: four variables as labeled boxes (name tag on top, value inside, type below). */
+export function varBoxes() {
+  const s = new Sketch(340, 168, 161);
+  [['name', '"Ana"', 'String'], ['score', '92', 'int'], ['average', '85.0', 'double'], ['passed', 'true', 'boolean']].forEach(([n, v, t], i) => {
+    const x = 8 + i * 83;
+    s.round(x + 8, 14, 64, 26, 6, { fill: C.butter, sw: 1.5 });
+    s.text(x + 40, 32, n, { font: 'mono', size: 12.5, weight: 700 });
+    s.line(x + 40, 40, x + 40, 52, { sw: 1.5 });
+    s.path(`M${x} 60 L${x + 80} 60 L${x + 76} 120 L${x + 4} 120 Z`, { fill: '#e9d3b0', sw: 1.8 });
+    s.path(`M${x} 60 L${x + 12} 50 L${x + 68} 50 L${x + 80} 60`, { fill: '#d9bf95', sw: 1.5 });
+    s.text(x + 40, 96, v, { font: 'mono', size: 15, weight: 700 });
+    s.text(x + 40, 144, t, { font: 'body', size: 13, weight: 800, color: C.teal });
+  });
+  s.text(170, 164, 'name tag on top · value inside · type below', { font: 'body', size: 12, weight: 700, color: C.soft });
+  return s.svg('Four boxes, each with a name tag and a value: name holds "Ana" (type String), score holds 92 (int), average holds 85.0 (double), passed holds true (boolean). Name tag on top, value inside, type below.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: x = x + 2 in two steps (work out the right side, then store on the left). */
+export function assignPic() {
+  let b = sT(170, 22, 'x = x + 2', { mono: true, size: 17, w: 700 });
+  b += mapBox(10, 38, 150, 150, '#fff', '#c9d6d4', 1.5, 10) + mapBox(180, 38, 150, 150, '#fff', '#c9d6d4', 1.5, 10);
+  b += sT(85, 60, 'Step 1: right side', { size: 13.5, w: 800, fill: '#b4461a' });
+  [['x + 2', 92], ['5 + 2', 128], ['7', 166]].forEach(([t, y], i) => {
+    b += sT(85, y, t, { mono: true, size: 16, w: 700, fill: i === 2 ? '#b4461a' : '#1b2a2e' });
+    if (i < 2) b += mapArrow(85, y + 7, 85, y + 20, '#37474a', 1.8);
+  });
+  b += sT(255, 60, 'Step 2: store it', { size: 13.5, w: 800, fill: '#0b544e' });
+  b += mapBox(215, 84, 80, 56, '#e3f1ef', '#0e6b63', 2.4, 6) + sT(255, 78, 'x', { mono: true, size: 14, w: 700 });
+  b += sT(236, 119, '5', { mono: true, size: 17, w: 700, fill: '#37474a' }) + `<line x1="226" y1="122" x2="246" y2="104" stroke="#b23a33" stroke-width="2.4"/>`;
+  b += sT(274, 119, '7', { mono: true, size: 19, w: 700, fill: '#b4461a' });
+  b += sT(255, 168, 'old 5 is replaced', { size: 12.5, w: 700, fill: '#37474a' });
+  b += mapArrow(100, 168, 212, 126, '#e8662e', 2.2);
+  return introPic(340, 198, 'x = x + 2 in two steps. Step 1, the right side: x + 2 becomes 5 + 2 becomes 7. Step 2, store it: the box named x had 5; the 5 is crossed out and replaced by 7.', b);
+}
+
+/** Clean: if/else as a flowchart, with score 92 following the YES path. */
+export function condFlow() {
+  let b = sT(170, 20, 'score is 92', { size: 13.5, w: 800, fill: '#37474a' });
+  b += mapArrow(170, 28, 170, 44, '#1b2a2e', 2);
+  b += `<path d="M170 46 L250 86 L170 126 L90 86 Z" fill="#fff8e6" stroke="#f0a93b" stroke-width="2.4"/>`;
+  b += sT(170, 92, 'score >= 75 ?', { mono: true, size: 13.5, w: 700 });
+  b += mapArrow(250, 86, 268, 140, '#e8662e', 2.8) + sT(276, 108, 'YES', { size: 13, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += mapArrow(90, 86, 72, 140, '#9aa5a6', 2) + sT(64, 108, 'NO', { size: 13, w: 800, fill: '#6b7778', anchor: 'end' });
+  b += mapBox(196, 144, 140, 40, '#fce9e0', '#e8662e', 2.6, 8) + sT(266, 169, 'passed = true;', { mono: true, size: 13, w: 700 });
+  b += mapBox(4, 144, 140, 40, '#f3f5f5', '#9aa5a6', 1.8, 8) + sT(74, 169, 'passed = false;', { mono: true, size: 13, w: 700, fill: '#6b7778' });
+  b += sT(170, 210, 'Only one path runs. 92 >= 75 is true, so YES.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 220, 'A flowchart. score is 92. Diamond: score >= 75? The YES arrow, highlighted, leads to passed = true. The NO arrow, gray, leads to passed = false. Only one path runs; 92 >= 75 is true, so YES.', b);
+}
+
+/** Clean: the for loop round by round, then the stop. */
+export function loopPic() {
+  let b = '';
+  [0, 1, 2, 3].forEach((i) => {
+    const x = 6 + i * 84;
+    b += mapBox(x, 10, 74, 92, '#e3f1ef', '#0e6b63', 2, 8);
+    b += sT(x + 37, 30, 'Round ' + (i + 1), { size: 12.5, w: 800, fill: '#0b544e' });
+    b += sT(x + 37, 56, 'i = ' + i, { mono: true, size: 14, w: 700 });
+    b += sT(x + 37, 76, i + ' < 4 ✓', { mono: true, size: 12, w: 600, fill: '#2e7d4f' });
+    b += sT(x + 37, 94, 'prints ' + i, { size: 12, w: 800, fill: '#b4461a' });
+    if (i < 3) b += sT(x + 79, 120, 'i++', { mono: true, size: 12, w: 700, fill: '#37474a' });
+  });
+  b += mapBox(60, 136, 220, 44, '#fbe3e1', '#b23a33', 2, 8);
+  b += sT(170, 156, 'i = 4:  4 < 4 is false', { mono: true, size: 13, w: 700, fill: '#b23a33' });
+  b += sT(170, 173, 'the loop stops', { size: 12.5, w: 800, fill: '#b23a33' });
+  b += sT(170, 204, 'Same lines every round; only i changes.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 214, 'The loop round by round. Round 1: i = 0, 0 < 4 is true, prints 0. Round 2: i = 1, prints 1. Round 3: i = 2, prints 2. Round 4: i = 3, prints 3. i++ between rounds. Then i = 4: 4 < 4 is false, so the loop stops. Same lines every round; only i changes.', b);
+}
+
+/** Sketch: a method as a small machine: larger(3, 8) gives back 8. */
+export function methodMachine() {
+  const s = new Sketch(340, 222, 165);
+  s.text(170, 20, 'larger(3, 8)', { font: 'mono', size: 15, weight: 700 });
+  // inputs
+  s.round(108, 34, 64, 30, 15, { fill: C.tealWash, sw: 1.6 }); s.text(140, 54, 'a = 3', { font: 'mono', size: 13, weight: 700 });
+  s.round(200, 34, 64, 30, 15, { fill: C.tealWash, sw: 1.6 }); s.text(232, 54, 'b = 8', { font: 'mono', size: 13, weight: 700 });
+  s.arrow(140, 66, 150, 88, { sw: 1.8, stroke: C.teal }); s.arrow(232, 66, 194, 88, { sw: 1.8, stroke: C.teal });
+  // machine
+  s.round(90, 92, 160, 70, 10, { fill: C.butter, sw: 2 });
+  s.text(170, 120, 'larger', { font: 'mono', size: 16, weight: 700 });
+  s.text(170, 142, 'keeps the bigger one', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.circle(108, 104, 8, { fill: C.orange, sw: 1.2 }); s.circle(232, 104, 8, { fill: C.teal, sw: 1.2 });
+  s.rect(156, 162, 28, 14, { fill: '#d9bf95', sw: 1.6 });
+  s.arrow(170, 178, 170, 196, { sw: 2, stroke: C.orange });
+  s.round(146, 196, 48, 24, 12, { fill: C.orangeWash, sw: 1.8, stroke: C.orange }); s.text(170, 213, '8', { font: 'mono', size: 14, weight: 700 });
+  s.text(14, 50, 'Inputs', { font: 'body', size: 13, weight: 800, anchor: 'start', color: C.teal });
+  s.text(14, 66, '(parameters)', { font: 'body', size: 12, weight: 700, anchor: 'start', color: C.soft });
+  s.text(210, 206, 'Output', { font: 'body', size: 13, weight: 800, anchor: 'start', color: C.orange });
+  s.text(266, 206, '(return)', { font: 'body', size: 12, weight: 700, anchor: 'start', color: C.soft });
+  return s.svg('A method as a machine. larger(3, 8): inputs (parameters) a = 3 and b = 8 go into a machine named larger that keeps the bigger one. The output (return value) 8 comes out at the bottom.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: an array as a row of numbered school lockers; arr[2] opens locker 2. */
+export function lockerRow() {
+  const s = new Sketch(340, 214, 166);
+  s.text(170, 20, 'arr[2] opens locker 2', { font: 'body', size: 14, weight: 800, color: C.orange });
+  [19, 3, 42, 7, 56].forEach((v, i) => {
+    const x = 20 + i * 62, hot = i === 2;
+    s.rect(x, 34, 56, 130, { fill: hot ? '#fff8e6' : C.sky, sw: 1.8 });
+    s.round(x + 16, 42, 24, 20, 3, { fill: C.card, sw: 1.4 });
+    s.text(x + 28, 57, i, { font: 'body', size: 14, weight: 800 });
+    if (hot) {
+      s.path(`M${x + 56} 34 L${x + 72} 42 L${x + 72} 156 L${x + 56} 164 Z`, { fill: C.sky, sw: 1.6 });
+      s.round(x + 8, 92, 40, 30, 4, { fill: C.orangeWash, sw: 2, stroke: C.orange });
+      s.text(x + 28, 113, v, { font: 'mono', size: 15, weight: 700 });
+    } else {
+      [80, 88, 96].forEach((y) => s.line(x + 14, y, x + 42, y, { sw: 1.2, stroke: C.soft, single: true }));
+      s.text(x + 28, 140, v, { font: 'mono', size: 13, weight: 700, color: C.soft });
+    }
+  });
+  s.text(170, 186, 'Number plate = index (starts at 0).', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  s.text(170, 204, 'Locker 2 is the third locker. Inside: 42.', { font: 'body', size: 12.5, weight: 800, color: C.soft });
+  return s.svg('An array as five school lockers numbered 0 to 4, holding 19, 3, 42, 7, 56. arr[2] opens locker 2, the third locker, and inside is 42. The number plate is the index, starting at 0.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: the variable total over time while the loop runs. */
+export function traceFilm() {
+  let b = sT(170, 20, 'What happens to total', { size: 14, w: 800 });
+  const vals = [['start', '0'], ['i = 1', '1'], ['i = 2', '3'], ['i = 3', '6']];
+  vals.forEach(([lab, v], i) => {
+    const x = 10 + i * 84;
+    b += sT(x + 30, 46, lab, { mono: true, size: 12.5, w: 700, fill: '#37474a' });
+    b += mapBox(x, 54, 60, 46, i === 3 ? '#fce9e0' : '#e3f1ef', i === 3 ? '#e8662e' : '#0e6b63', 2.2, 6) + sT(x + 30, 84, v, { mono: true, size: 18, w: 700 });
+    if (i < 3) { b += mapArrow(x + 62, 77, x + 82, 77, '#1b2a2e', 2); b += sT(x + 72, 118, '+' + (i + 1), { mono: true, size: 13, w: 700, fill: '#b4461a' }); }
+  });
+  b += sT(306, 124, 'prints 6', { size: 13, w: 800, fill: '#b4461a' });
+  b += sT(170, 150, 'A trace table writes down each of these boxes as a row.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 160, 'The variable total over time: it starts at 0; when i = 1 it becomes 1 (+1); when i = 2 it becomes 3 (+2); when i = 3 it becomes 6 (+3); then the program prints 6. A trace table writes each of these as a row.', b);
+}
