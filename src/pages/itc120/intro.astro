@@ -6,7 +6,7 @@ import TreeFig from '../../components/TreeFig.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import Quiz from '../../components/Quiz.astro';
 import Peek from '../../components/Peek.astro';
-import { expertFour, dataSlips, spiceRack, familiesPic, recipeCard, traitsPic, algoVsProg, progCycle, dsAlgoPic } from '../../lib/illus.js';
+import { taxoPic, expertFour, dataSlips, spiceRack, familiesPic, recipeCard, traitsPic, algoVsProg, progCycle, dsAlgoPic } from '../../lib/illus.js';
 import { course, kindInfo, kindLessons } from '../../data/itc120.js';
 import { small } from '../../data/graphs.js';
 import { hi, hiN } from '../../lib/code.js';
@@ -92,8 +92,11 @@ const quiz = [
       <figure class="fig illus-fig illus"><Fragment set:html={spiceRack()} /><figcaption>Same spices, two containers. The labeled rack is the better "data structure" for finding salt.</figcaption></figure>
 
       <div class="sub">
-        <h3>Two families</h3>
-        <p>A plain <code>int</code> or <code>boolean</code> holds just one value; Java calls these <b>primitive types</b>. Data structures hold many values, so some books call them <b>non-primitive</b>. They come in two families:</p>
+        <h3>Primitive and non-primitive; linear and non-linear</h3>
+        <p>Books sort data structures in two steps. First, into two families: <b>primitive</b> (one value each, like an <code>int</code>) and <b>non-primitive</b> (many values). Then the non-primitive family splits into two kinds: <b>linear</b> and <b>non-linear</b>. Here is the whole family tree:</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={taxoPic()} /><figcaption>Two families first; then the non-primitive family has two kinds. This course is about the non-primitive side.</figcaption></figure>
+        <p class="small muted">Good to know: Java itself calls <code>int</code>, <code>double</code>, <code>boolean</code>, and <code>char</code> (one character, like <code>'A'</code>) <b>primitive types</b>, not data structures. Some books list them as "primitive data structures" because they are the simplest building blocks. Either way, they hold one value each.</p>
+        <p>Here is how the two kinds of non-primitive structures compare:</p>
         <table class="tbl">
           <thead><tr><th></th><th>Linear</th><th>Non-linear</th></tr></thead>
           <tbody>

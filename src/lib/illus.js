@@ -2059,12 +2059,20 @@ export function expertFour() {
   s.line(86, 288, 126, 302, { sw: 1.6 });
   s.folder(26, 304, 'ITC 120', { w: 40, h: 30, size: 12.5 });
   s.folder(106, 304, 'Photos', { w: 40, h: 30, size: 12.5 });
-  // 4. Friends = graph
-  panel(174, 206, 'Friends', '= a graph');
-  const P = { A: [212, 250], B: [292, 246], C: [254, 290], D: [206, 334], E: [298, 330] };
-  [['A', 'B'], ['A', 'C'], ['B', 'C'], ['C', 'D'], ['C', 'E'], ['B', 'E'], ['A', 'D']].forEach(([a, b]) => s.line(...P[a], ...P[b], { sw: 1.6, stroke: C.soft }));
-  Object.entries(P).forEach(([k, [x, y]]) => { s.circle(x, y, 28, { fill: C.pink, sw: 1.6 }); s.text(x, y + 5, k, { font: 'body', size: 14, weight: 800 }); });
-  return s.svg('Four everyday things. Recent apps: Chat, the app opened last, sits on top of Notes, Camera, and Music, so it is a stack. Canteen line: four people line up at the counter; the first is served first and new people join at the back, so it is a queue. Folders: Documents holds ITC 120 and Photos, so it is a tree. Friends: five friends A to E linked in a web, so it is a graph.').replace(/(\d+\.\d)\d+/g, '$1');
+  // 4. Facebook friends = graph (profile pictures, blue header like a friends list)
+  panel(174, 206, '', '= a graph');
+  s.round(174, 206, 160, 32, 10, { fill: '#1877f2', sw: 1.6 });
+  s.rect(175, 224, 158, 14, { fill: '#1877f2', sw: 0, stroke: '#1877f2' });
+  s.text(254, 228, 'Facebook friends', { font: 'body', size: 13.5, weight: 800, color: '#ffffff' });
+  const P = { Ana: [226, 262], Ben: [286, 260], Cy: [256, 300], Dan: [224, 340], Eva: [288, 338] };
+  [['Ana', 'Ben'], ['Ana', 'Cy'], ['Ben', 'Cy'], ['Cy', 'Dan'], ['Cy', 'Eva'], ['Ben', 'Eva'], ['Ana', 'Dan']].forEach(([a, b]) => s.line(...P[a], ...P[b], { sw: 1.6, stroke: '#8fb4e8' }));
+  Object.entries(P).forEach(([k, [x, y]]) => {
+    s.circle(x, y, 30, { fill: '#e7f0fd', sw: 1.8, stroke: '#1877f2' });
+    s.circle(x, y - 4, 10, { fill: '#8fa9c9', sw: 0, stroke: '#8fa9c9' });
+    s.path(`M${x - 9} ${y + 12} Q${x} ${y} ${x + 9} ${y + 12}`, { fill: '#8fa9c9', sw: 0, stroke: '#8fa9c9' });
+    s.text(x + (x < 240 ? -18 : 18), y + 5, k, { font: 'body', size: 12, weight: 800, anchor: x < 240 ? 'end' : 'start' });
+  });
+  return s.svg('Four everyday things. Recent apps: Chat, the app opened last, sits on top of Notes, Camera, and Music, so it is a stack. Canteen line: four people line up at the counter; the first is served first and new people join at the back, so it is a queue. Folders: Documents holds ITC 120 and Photos, so it is a tree. Facebook friends: five profile pictures (Ana, Ben, Cy, Dan, Eva) linked in a web of friendships, so it is a graph.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
 /** Sketch: data (loose slips) vs a data structure (a class list). */
@@ -2283,20 +2291,24 @@ export function varBoxes() {
 
 /** Clean: x = x + 2 in two steps (work out the right side, then store on the left). */
 export function assignPic() {
-  let b = sT(170, 22, 'x = x + 2', { mono: true, size: 17, w: 700 });
-  b += mapBox(10, 38, 150, 150, '#fff', '#c9d6d4', 1.5, 10) + mapBox(180, 38, 150, 150, '#fff', '#c9d6d4', 1.5, 10);
-  b += sT(85, 60, 'Step 1: right side', { size: 13.5, w: 800, fill: '#b4461a' });
-  [['x + 2', 92], ['5 + 2', 128], ['7', 166]].forEach(([t, y], i) => {
-    b += sT(85, y, t, { mono: true, size: 16, w: 700, fill: i === 2 ? '#b4461a' : '#1b2a2e' });
-    if (i < 2) b += mapArrow(85, y + 7, 85, y + 20, '#37474a', 1.8);
-  });
-  b += sT(255, 60, 'Step 2: store it', { size: 13.5, w: 800, fill: '#0b544e' });
-  b += mapBox(215, 84, 80, 56, '#e3f1ef', '#0e6b63', 2.4, 6) + sT(255, 78, 'x', { mono: true, size: 14, w: 700 });
-  b += sT(236, 119, '5', { mono: true, size: 17, w: 700, fill: '#37474a' }) + `<line x1="226" y1="122" x2="246" y2="104" stroke="#b23a33" stroke-width="2.4"/>`;
-  b += sT(274, 119, '7', { mono: true, size: 19, w: 700, fill: '#b4461a' });
-  b += sT(255, 168, 'old 5 is replaced', { size: 12.5, w: 700, fill: '#37474a' });
-  b += mapArrow(100, 168, 212, 126, '#e8662e', 2.2);
-  return introPic(340, 198, 'x = x + 2 in two steps. Step 1, the right side: x + 2 becomes 5 + 2 becomes 7. Step 2, store it: the box named x had 5; the 5 is crossed out and replaced by 7.', b);
+  let b = sT(170, 26, 'x = x + 2', { mono: true, size: 18, w: 700 });
+  b += mapBox(10, 44, 320, 108, '#fff', '#c9d6d4', 1.5, 10);
+  b += sT(30, 72, 'Step 1: work out the right side', { size: 14, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += sT(66, 124, 'x + 2', { mono: true, size: 17, w: 700 }) + mapArrow(104, 118, 138, 118, '#37474a', 2);
+  b += sT(182, 124, '5 + 2', { mono: true, size: 17, w: 700 }) + mapArrow(220, 118, 254, 118, '#37474a', 2);
+  b += sT(282, 126, '7', { mono: true, size: 22, w: 700, fill: '#b4461a' });
+  b += sT(124, 144, 'x is 5 right now', { size: 12, w: 700, fill: '#37474a' });
+  b += mapBox(10, 210, 320, 150, '#fff', '#c9d6d4', 1.5, 10);
+  b += sT(30, 238, 'Step 2: store it in x', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
+  b += mapBox(240, 280, 84, 60, '#e3f1ef', '#0e6b63', 2.4, 6) + sT(228, 316, 'x', { mono: true, size: 16, w: 700, anchor: 'end' });
+  b += sT(262, 318, '5', { mono: true, size: 18, w: 700, fill: '#37474a' }) + `<line x1="252" y1="322" x2="272" y2="302" stroke="#b23a33" stroke-width="2.4"/>`;
+  b += sT(302, 320, '7', { mono: true, size: 22, w: 700, fill: '#b4461a' });
+  b += sT(30, 282, 'Before: x holds 5.', { size: 13.5, w: 700, anchor: 'start' });
+  b += sT(30, 308, 'After: x holds 7.', { size: 13.5, w: 800, anchor: 'start', fill: '#b4461a' });
+  b += sT(30, 334, 'The old 5 is replaced.', { size: 13, w: 700, anchor: 'start', fill: '#37474a' });
+  b += mapArrow(282, 140, 282, 274, '#e8662e', 2.8);
+  b += sT(272, 188, 'store', { size: 13.5, w: 800, fill: '#b4461a', anchor: 'end' });
+  return introPic(340, 370, 'x = x + 2 in two steps. Step 1, work out the right side: x is 5 right now, so x + 2 becomes 5 + 2 becomes 7. A long arrow labeled store carries the 7 down to step 2, store it in x: the box named x had 5; the 5 is crossed out and 7 is written in. Before, x holds 5; after, x holds 7; the old 5 is replaced.', b);
 }
 
 /** Clean: if/else as a flowchart, with score 92 following the YES path. */
@@ -2391,4 +2403,23 @@ export function traceFilm() {
   b += sT(306, 124, 'prints 6', { size: 13, w: 800, fill: '#b4461a' });
   b += sT(170, 150, 'A trace table writes down each of these boxes as a row.', { size: 12.5, w: 700, fill: '#37474a' });
   return introPic(340, 160, 'The variable total over time: it starts at 0; when i = 1 it becomes 1 (+1); when i = 2 it becomes 3 (+2); when i = 3 it becomes 6 (+3); then the program prints 6. A trace table writes each of these as a row.', b);
+}
+
+/** Clean: primitive vs non-primitive; non-primitive splits into linear and non-linear. */
+export function taxoPic() {
+  const box = (x, y, w, h, fill, stroke, sw = 2.2) => mapBox(x, y, w, h, fill, stroke, sw, 8);
+  const ln = (x1, y1, x2, y2) => `<path d="M${x1} ${y1} V${(y1 + y2) / 2} H${x2} V${y2}" fill="none" stroke="#37474a" stroke-width="2"/>`;
+  let b = box(95, 8, 150, 40, '#1b2a2e', '#1b2a2e') + sT(170, 33, 'Data structures', { size: 15, w: 800, fill: '#fff' });
+  b += ln(170, 48, 62, 76) + ln(170, 48, 230, 76);
+  b += box(8, 76, 108, 52, '#f3f5f5', '#6b7778') + sT(62, 98, 'Primitive', { size: 14.5, w: 800, fill: '#37474a' }) + sT(62, 118, 'one value each', { size: 12, w: 700, fill: '#37474a' });
+  b += box(150, 76, 160, 52, '#fff3c9', '#c98a12') + sT(230, 98, 'Non-primitive', { size: 14.5, w: 800, fill: '#7a5208' }) + sT(230, 118, 'many values', { size: 12, w: 700, fill: '#7a5208' });
+  ['int', 'double', 'boolean', 'char'].forEach((t, i) => { b += sT(62, 158 + i * 22, t, { mono: true, size: 13, w: 700, fill: '#6b7778' }); });
+  b += ln(230, 128, 180, 158) + ln(230, 128, 284, 158);
+  b += box(128, 158, 104, 40, '#e3f1ef', '#0e6b63') + sT(180, 184, 'Linear', { size: 14.5, w: 800, fill: '#0b544e' });
+  b += box(240, 158, 92, 40, '#fce9e0', '#e8662e') + sT(286, 184, 'Non-linear', { size: 14, w: 800, fill: '#b4461a' });
+  ['array', 'stack', 'queue', 'linked list'].forEach((t, i) => { b += sT(180, 222 + i * 20, t, { size: 13, w: 700 }); });
+  ['tree', 'graph'].forEach((t, i) => { b += sT(286, 222 + i * 20, t, { size: 13, w: 700 }); });
+  b += `<rect x="122" y="66" width="214" height="240" rx="12" fill="none" stroke="#c98a12" stroke-width="1.6" stroke-dasharray="6 5"/>`;
+  b += sT(229, 326, 'This course: the non-primitive ones', { size: 12.5, w: 800, fill: '#7a5208' });
+  return introPic(340, 336, 'A family tree of data structures. Data structures split into primitive (one value each: int, double, boolean, char) and non-primitive (many values). Non-primitive splits again into two kinds: linear (array, stack, queue, linked list) and non-linear (tree, graph). A dashed box around the non-primitive side says: this course is about the non-primitive ones.', b);
 }
