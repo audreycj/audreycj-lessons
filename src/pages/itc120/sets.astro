@@ -181,7 +181,7 @@ const quiz = [
         <p>Every set has these two properties:</p>
         <ol>
           <li><b>Uniqueness.</b> Each value appears at most once (like the second Ana in the <Peek label="list vs. set picture" title="From above" html={`<div class=\"illus\">${setVsList()}</div>`} />). Adding a value that is already there does nothing.</li>
-          <li><b>Unordered.</b> Items have no position. There is no "first" or "third" item, and no index like <code>[2]</code>. So {1, 2, 3} and {3, 1, 2} are the <b>same set</b>.</li>
+          <li><b>Unordered.</b> Items have no position. There is no "first" or "third" item, and no index like <code>[2]</code>. So &#123;1, 2, 3&#125; and &#123;3, 1, 2&#125; are the <b>same set</b>.</li>
         </ol>
       </div>
       <div class="sticky">
@@ -207,15 +207,15 @@ const quiz = [
       <h2>Set operations</h2>
     </div>
     <div class="flow">
-      <p>Set operations take two sets and produce a new set. There are four types you need to know. In the examples, A = {1, 2, 3, 4, 5} and B = {4, 5, 6, 7}.</p>
+      <p>Set operations take two sets and produce a new set. There are four types you need to know. In the examples, A = &#123;1, 2, 3, 4, 5&#125; and B = &#123;4, 5, 6, 7&#125;.</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Operation</th><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><b>Union</b></td><td class="mono">A ∪ B</td><td>in A <b>or</b> B (or both)</td><td class="mono">{1, 2, 3, 4, 5, 6, 7}</td></tr>
-          <tr><td><b>Intersection</b></td><td class="mono">A ∩ B</td><td>in A <b>and</b> B</td><td class="mono">{4, 5}</td></tr>
-          <tr><td><b>Difference</b></td><td class="mono">A − B</td><td>in A but <b>not</b> in B</td><td class="mono">{1, 2, 3}</td></tr>
-          <tr><td><b>Difference</b></td><td class="mono">B − A</td><td>in B but <b>not</b> in A</td><td class="mono">{6, 7}</td></tr>
-          <tr><td><b>Symmetric difference</b></td><td class="mono">A △ B</td><td>in A or B, but <b>not both</b></td><td class="mono">{1, 2, 3, 6, 7}</td></tr>
+          <tr><td><b>Union</b></td><td class="mono">A ∪ B</td><td>in A <b>or</b> B (or both)</td><td class="mono">&#123;1, 2, 3, 4, 5, 6, 7&#125;</td></tr>
+          <tr><td><b>Intersection</b></td><td class="mono">A ∩ B</td><td>in A <b>and</b> B</td><td class="mono">&#123;4, 5&#125;</td></tr>
+          <tr><td><b>Difference</b></td><td class="mono">A − B</td><td>in A but <b>not</b> in B</td><td class="mono">&#123;1, 2, 3&#125;</td></tr>
+          <tr><td><b>Difference</b></td><td class="mono">B − A</td><td>in B but <b>not</b> in A</td><td class="mono">&#123;6, 7&#125;</td></tr>
+          <tr><td><b>Symmetric difference</b></td><td class="mono">A △ B</td><td>in A or B, but <b>not both</b></td><td class="mono">&#123;1, 2, 3, 6, 7&#125;</td></tr>
         </tbody>
       </table></div>
       <p>The lab below draws each operation on a <b>Venn diagram</b>: one circle per set. Values in both sets go in the overlap in the middle; values in only one set go in that circle's outer part. The shaded part is the answer.</p>
@@ -224,8 +224,8 @@ const quiz = [
         <p class="note-label">Exam traps</p>
         <ul>
           <li><b>A − B is not the same as B − A.</b> Order matters for difference.</li>
-          <li>In a union, shared values appear <b>once</b>: {1, 2} ∪ {2, 3} = {1, 2, 3}, not {1, 2, 2, 3}.</li>
-          <li>When the result has nothing in it, write the <b>empty set</b>: { } (or ∅). Try making A and B equal in the lab.</li>
+          <li>In a union, shared values appear <b>once</b>: &#123;1, 2&#125; ∪ &#123;2, 3&#125; = &#123;1, 2, 3&#125;, not &#123;1, 2, 2, 3&#125;.</li>
+          <li>When the result has nothing in it, write the <b>empty set</b>: &#123; &#125; (or ∅). Try making A and B equal in the lab.</li>
           <li>A △ B = (A ∪ B) − (A ∩ B) = (A − B) ∪ (B − A). All three give the same answer.</li>
         </ul>
       </div>
@@ -240,25 +240,25 @@ const quiz = [
           <p class="note-label">Subset</p>
           <p>A is a <b>subset</b> of B, written <b>A ⊆ B</b>, when every value in A is also in B.</p>
         </div>
-        <figure class="fig"><Fragment set:html={subsetPic()} /><figcaption>A = {Ana, Ben} sits inside B = {Ana, Ben, Carla, Dan}, so A ⊆ B. But C = {Ana, Eve} is <b>not</b> a subset of B, because Eve is not in B.</figcaption></figure>
+        <figure class="fig"><Fragment set:html={subsetPic()} /><figcaption>A = &#123;Ana, Ben&#125; sits inside B = &#123;Ana, Ben, Carla, Dan&#125;, so A ⊆ B. But C = &#123;Ana, Eve&#125; is <b>not</b> a subset of B, because Eve is not in B.</figcaption></figure>
         <p>Here are the words and symbols that go with subsets, using the sets in the picture:</p>
         <div class="scroll-x"><table class="tbl">
           <thead><tr><th>Term</th><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead>
           <tbody>
-            <tr><td><b>Subset</b></td><td class="mono">A ⊆ B</td><td>every value of A is in B</td><td>{Ana, Ben} ⊆ B</td></tr>
-            <tr><td><b>Proper subset</b></td><td class="mono">A ⊂ B</td><td>A ⊆ B, and B has at least one value that A does not</td><td>{Ana, Ben} ⊂ B (B also has Carla and Dan)</td></tr>
-            <tr><td><b>Not a subset</b></td><td class="mono">C ⊄ B</td><td>at least one value of C is not in B</td><td>{Ana, Eve} ⊄ B (Eve)</td></tr>
-            <tr><td><b>Equal sets</b></td><td class="mono">A = B</td><td>A ⊆ B and B ⊆ A: exactly the same values</td><td>{Ana, Ben} = {Ben, Ana}</td></tr>
+            <tr><td><b>Subset</b></td><td class="mono">A ⊆ B</td><td>every value of A is in B</td><td>&#123;Ana, Ben&#125; ⊆ B</td></tr>
+            <tr><td><b>Proper subset</b></td><td class="mono">A ⊂ B</td><td>A ⊆ B, and B has at least one value that A does not</td><td>&#123;Ana, Ben&#125; ⊂ B (B also has Carla and Dan)</td></tr>
+            <tr><td><b>Not a subset</b></td><td class="mono">C ⊄ B</td><td>at least one value of C is not in B</td><td>&#123;Ana, Eve&#125; ⊄ B (Eve)</td></tr>
+            <tr><td><b>Equal sets</b></td><td class="mono">A = B</td><td>A ⊆ B and B ⊆ A: exactly the same values</td><td>&#123;Ana, Ben&#125; = &#123;Ben, Ana&#125;</td></tr>
           </tbody>
         </table></div>
         <p>Two facts are easy to forget:</p>
         <ul>
-          <li>The empty set { } is a subset of <b>every</b> set. It has no value that could be missing from B.</li>
+          <li>The empty set &#123; &#125; is a subset of <b>every</b> set. It has no value that could be missing from B.</li>
           <li>Every set is a subset of <b>itself</b> (B ⊆ B), but not a <i>proper</i> subset of itself.</li>
         </ul>
         <div class="trap">
           <p class="note-label">Exam trap: one value vs. a set</p>
-          <p><b>Ana ∈ B</b> means "the value Ana is in B" (∈ = "is an element of"). <b>{Ana} ⊆ B</b> means "the set holding only Ana is a subset of B". Use ∈ for one value and ⊆ for a set. Writing "Ana ⊆ B" is wrong.</p>
+          <p><b>Ana ∈ B</b> means "the value Ana is in B" (∈ = "is an element of"). <b>&#123;Ana&#125; ⊆ B</b> means "the set holding only Ana is a subset of B". Use ∈ for one value and ⊆ for a set. Writing "Ana ⊆ B" is wrong.</p>
         </div>
         <div class="plain">
           <p class="note-label">Good to know: ⊂ in other books</p>
@@ -322,7 +322,7 @@ const quiz = [
           <summary>Show the answer</summary>
           <div class="flow">
             <p>Lines 9 and 10 still use <code>aMinusB</code>. Line 9 should be <code>bMinusA.removeAll(a);</code>, and line 10 should print <code>bMinusA</code>.</p>
-            <p>As written, it prints <code>A - B: [10, 30]</code>, then removes A's values from <code>aMinusB</code> (which empties it) and prints <code>B - A: []</code>. The correct B − A is <b>{40}</b>.</p>
+            <p>As written, it prints <code>A - B: [10, 30]</code>, then removes A's values from <code>aMinusB</code> (which empties it) and prints <code>B - A: []</code>. The correct B − A is <b>&#123;40&#125;</b>.</p>
             <p>This kind of copy-paste mistake is common. When you copy a block of code, check <b>every</b> variable name in it.</p>
           </div>
         </details>
