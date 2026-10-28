@@ -3,17 +3,12 @@ import Base from '../../layouts/Base.astro';
 import KindChips from '../../components/KindChips.astro';
 import ArrayLab from '../../components/ArrayLab.astro';
 import Quiz from '../../components/Quiz.astro';
-import Peek from '../../components/Peek.astro';
-import { familiesPic, lockerRow, insertPic, deletePic, wrongOrderPic } from '../../lib/illus.js';
+import CodeWalk from '../../components/CodeWalk.astro';
+import { pisonetPic, fourOpsPic, opsWhere, addrPic, zeroTrapPic, costPic, traversePic, wrongOrderPic, arrInsertCode, arrInsertSteps, arrDeleteCode, arrDeleteSteps } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-const defBox = (t, b) => `<div class="def"><p class="note-label">${t}</p><p>${b}</p></div>`;
-const fromRef = '<p class="small muted">From the Programming refresher</p>';
-const arrPeek = defBox('Array and index', 'An <b>array</b> is a fixed number of slots, side by side, that all hold the same type of value. Each slot\'s numbered position is its <b>index</b>, counting from 0.') + `<div class="illus">${lockerRow()}</div>` + fromRef;
-const linPeek = defBox('Linear data structure', 'A data structure whose items sit one after another, in a line. Each item has one item before it and one after it, except the first and the last. Arrays, linked lists, stacks, and queues are linear.') + `<div class="illus">${familiesPic()}</div>` + '<p class="small muted">From the Introduction</p>';
-const excPeek = defBox('Exception', 'An error that happens while the program is running (a runtime error). If nothing handles it, the program stops and Java prints the name of the exception.') + fromRef;
 const full = String.raw`if (size == arr.length) {
   System.out.println("The array is full.");
 } else {
@@ -126,10 +121,14 @@ const quiz = [
       <h2>Four things we do with data</h2>
     </div>
     <div class="flow">
-      <div class="mini-arr" aria-label="An array with values 19, 3, 42, 7, 56 at indexes 0 to 4">
-        {[19, 3, 42, 7, 56].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
+      <div class="mini-arr" aria-label="An array named arr with values 19, 3, 42, 7, 56 at indexes 0 to 4">
+        <span class="nm"><b>arr</b><i></i></span>{[19, 3, 42, 7, 56].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
       </div>
-      <p>An <b>array</b> (<Peek label="definition" title="Array and index" html={arrPeek} />) is a <b>linear</b> data structure (<Peek label="what is linear?" title="Linear" html={linPeek} />): a row of numbered slots. Each slot holds one value, and its number is its <b>index</b>, starting at 0. Above, <code>arr[2]</code> is 42. Think of a <b>piso-net shop</b>: a fixed row of numbered units, one user per PC.</p>
+      <p>This lesson is about the <b>array</b>, the first linear data structure of the course. Here are both words again:</p>
+      <div class="def"><p class="note-label">Array and index</p><p>An <b>array</b> is a fixed number of slots, side by side, that all hold the same type of value. Each slot's numbered position is its <b>index</b>, counting from 0.</p></div>
+      <div class="def"><p class="note-label">Linear data structure</p><p>A data structure whose items sit one after another, in a line. Each item has one item before it and one after it, except the first and the last. Arrays, linked lists, stacks, and queues are linear.</p></div>
+      <p>The array above is named <code>arr</code>. Slot 2 holds 42, so <code>arr[2]</code> is 42. Think of a <b>piso-net shop</b>: a fixed row of numbered units, one user per PC.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={pisonetPic()} /><figcaption>Unit numbers work like indexes, and each user is like the value in a slot. (Real shops usually number from 1; Java arrays start at 0.)</figcaption></figure>
       <p>Every data structure in this course is judged by how well it does these four operations:</p>
       <table class="tbl">
         <thead><tr><th>Operation</th><th>What it means</th></tr></thead>
@@ -140,6 +139,7 @@ const quiz = [
           <tr><td><b>Delete</b></td><td>Remove the value at a position.</td></tr>
         </tbody>
       </table>
+      <figure class="fig illus-fig illus"><Fragment set:html={fourOpsPic()} /><figcaption>The four operations on one small array.</figcaption></figure>
       <div class="sub">
         <h3>Where you see them</h3>
         <p>Different programs lean on different operations:</p>
@@ -151,6 +151,7 @@ const quiz = [
             <tr><td>An office print queue. Jobs join at the back and leave from the front.</td><td>insert and delete, at the ends</td></tr>
           </tbody>
         </table>
+        <figure class="fig illus-fig illus"><Fragment set:html={opsWhere()} /><figcaption>Each situation leans on different operations.</figcaption></figure>
         <p>That is why there is no single best structure. The right one depends on what the program does most.</p>
       </div>
     </div>
@@ -163,7 +164,7 @@ const quiz = [
     </div>
     <div class="flow">
       <div class="mini-arr" aria-label="marks: 14, 28, 35, 49, 60; index 2 highlighted">
-        {[14, 28, 35, 49, 60].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
+        <span class="nm"><b>marks</b><i></i></span>{[14, 28, 35, 49, 60].map((v, i) => <span class={i === 2 ? 'hot' : ''}><b>{v}</b><i>{i}</i></span>)}
       </div>
       <pre class="code"><code set:html={hi(access)} /></pre>
       <p>Java goes <b>straight to slot 2</b>. It does not look at slots 0 and 1 first. The slots sit side by side in memory, so Java can compute where slot 2 is right away. It takes one step whether the array holds 5 values or 5,000. This is the array's best trick.</p>
@@ -171,11 +172,12 @@ const quiz = [
         <p>Every spot in the computer's memory has a number, called its <b>address</b>. An array's slots sit side by side, and every slot is the same size (an <code>int</code> takes 4 bytes). So one calculation finds any slot:</p>
         <p><code>address of slot i = start + i × slot size</code></p>
         <p>Here, <b>start</b> is the address where slot 0 begins, <b>i</b> is the index, and <b>slot size</b> is how many bytes one value takes. If <code>marks</code> started at address 1000, slot 2 would start at 1000 + 2 × 4 = <b>1008</b>. No other slot is looked at. This is also one reason indexes start at 0: slot 0 is zero slots away from the start. (Java hides the real addresses from your program, but the idea is the same.)</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={addrPic()} /><figcaption>One calculation finds slot 2. No other slot is checked.</figcaption></figure>
       </div></details>
       <div class="trap">
         <p class="note-label">Watch the last index</p>
-        <div class="mini-arr sm" aria-label="marks has slots 0 to 4. There is no slot 5.">{[14, 28, 35, 49, 60].map((v, i) => <span><b>{v}</b><i>{i}</i></span>)}<span class="ghost"><b>✗</b><i>5?</i></span></div>
-        <p>Indexes start at 0, so the last index is <code>length - 1</code>. For <code>marks</code> (length 5), the last index is 4. There is no slot 5, so <code>marks[5]</code> stops the program with an <b>ArrayIndexOutOfBoundsException</b> (an <Peek label="exception" title="Exception" html={excPeek} />). This is why loops use <code>i &lt; marks.length</code>, not <code>i &lt;= marks.length</code>.</p>
+        <div class="mini-arr sm" aria-label="marks has slots 0 to 4. There is no slot 5."><span class="nm"><b>marks</b><i></i></span>{[14, 28, 35, 49, 60].map((v, i) => <span><b>{v}</b><i>{i}</i></span>)}<span class="ghost"><b>✗</b><i>5?</i></span></div>
+        <p>Indexes start at 0, so the last index is <code>length - 1</code>. For <code>marks</code> (length 5), the last index is 4. There is no slot 5, so <code>marks[5]</code> stops the program with an <b>ArrayIndexOutOfBoundsException</b>. An <b>exception</b> is an error that happens while the program is running; if nothing handles it, the program stops. This is why loops use <code>i &lt; marks.length</code>, not <code>i &lt;= marks.length</code>.</p>
       </div>
     </div>
   </section>
@@ -186,6 +188,8 @@ const quiz = [
       <h2>Traversal: visit every value</h2>
     </div>
     <div class="flow">
+      <div class="def"><p class="note-label">Traversal</p><p>Visiting every item in a data structure once, in order, to do something with it: print it, add it up, or compare it. In an array, a traversal goes from index 0 to the last index, one slot at a time.</p></div>
+      <figure class="fig illus-fig illus"><Fragment set:html={traversePic()} /><figcaption>A traversal of marks: five slots, five visits, then the loop stops.</figcaption></figure>
       <p>A loop does the visiting. Start at 0, keep going while <code>i</code> is less than the length, and add 1 each round:</p>
       <pre class="code"><code set:html={hi(traverse)} /></pre>
       <p>You already know this loop. <b>Traversal</b> is just its name in DSA. One pass through the array can answer a question, like "what is the highest score?"</p>
@@ -207,6 +211,7 @@ const quiz = [
       <div class="trap">
         <p class="note-label">Why not start <code>highest</code> at 0?</p>
         <p>It works for quiz scores, but not always. If every value were negative, like temperatures in a freezer, the answer would wrongly be 0. Starting with <code>marks[0]</code> always uses a real value.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={zeroTrapPic()} /><figcaption>With all-negative values, starting at 0 gives a wrong answer.</figcaption></figure>
       </div>
       <div class="sub">
         <h3>Counting with a condition</h3>
@@ -252,8 +257,8 @@ Items to restock: 2</code></pre>
           <li>Move 30 from slot 2 to slot 3.</li>
           <li>Put 25 into slot 2. Size goes from 4 to 5.</li>
         </ol>
-        <figure class="fig illus-fig illus"><Fragment set:html={insertPic()} /><figcaption>Insert: later values move right, starting from the end.</figcaption></figure>
-        <pre class="code"><code set:html={hiN(insert)} /></pre>
+        <p>Here is the same insert in Java. Step through it line by line:</p>
+        <CodeWalk id="cw-arr-ins" code={arrInsertCode} steps={arrInsertSteps()} cap="Walkthrough: insert 25 at index 2" hint="Use Next to follow the loop, or tap a line to jump to it." />
       </div>
       <div class="trap">
         <p class="note-label">Start from the end</p>
@@ -274,8 +279,8 @@ Items to restock: 2</code></pre>
           <li>Copy 30 into slot 2, then 40 into slot 3.</li>
           <li>Size drops from 5 to 4. Slot 4 still holds an old copy of 40, but we stop counting it.</li>
         </ol>
-        <figure class="fig illus-fig illus"><Fragment set:html={deletePic()} /><figcaption>Delete: later values move left, starting at the gap.</figcaption></figure>
-        <pre class="code"><code set:html={hiN(del)} /></pre>
+        <p>Here is the delete in Java, with the same array:</p>
+        <CodeWalk id="cw-arr-del" code={arrDeleteCode} steps={arrDeleteSteps()} cap="Walkthrough: delete index 1" hint="Use Next to follow the loop, or tap a line to jump to it." />
         <p>This time the loop counts <b>up</b>, starting at the gap. Each value moves into the slot that was just copied from.</p>
       </div>
       <ArrayLab id="lab-array" />
@@ -290,6 +295,8 @@ Items to restock: 2</code></pre>
     </div>
     <div class="flow">
       <p>Count the work. Inserting at the front means <b>every</b> value moves one slot:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={costPic()} /><figcaption>Access is one jump at any size. Inserting at the front moves every value.</figcaption></figure>
+      <p>Here are the counts:</p>
       <table class="tbl">
         <thead><tr><th>Task</th><th>Work</th></tr></thead>
         <tbody>

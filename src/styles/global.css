@@ -441,6 +441,8 @@ h2 { font-size: clamp(1.65rem, 4.6vw, 2rem); }
 .mini-arr span.hot b { background: var(--orange); color: #fff; }
 .mini-arr span.ghost b { margin-left: 0.5rem; border-style: dashed; border-color: var(--red-pen); border-radius: 6px; background: #fbe3e1; color: var(--red-pen); }
 .mini-arr span.ghost i { color: var(--red-pen); font-weight: 700; }
+.mini-arr span.nm b { border: none; background: none; min-width: 0; padding: 0 0.5rem 0 0; margin: 0; color: var(--teal-ink); font-weight: 700; }
+.mini-arr span.nm + span b { margin-left: 0; border-radius: 6px 0 0 6px; }
 .mini-arr.sm span b { min-width: 2.3rem; height: 2rem; font-size: 0.85rem; }
 .mini-stack { display: grid; gap: 3px; width: 7rem; padding: 4px; border: 2px solid var(--ink); border-top: 0; border-radius: 0 0 6px 6px; margin: 0.4rem 0; }
 .mini-stack span { display: block; padding: 0.25rem 0.5rem; border-radius: 4px; background: var(--teal-wash); border: 1.5px solid var(--teal); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; }

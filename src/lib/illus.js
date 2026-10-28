@@ -2461,52 +2461,253 @@ export function taxoPic() {
 
 /* ---------------- Arrays lesson pictures (chat 15) ---------------- */
 
-/** Clean helper: one array row (cells w=52) with index numbers; kinds: '', 'moved', 'new', 'off', 'gone', 'hot'. */
-function arrRow(x0, y, vals, kinds = [], idx = true) {
-  const st = { '': ['#ffffff', '#1b2a2e', '#1b2a2e'], moved: ['#f8dc95', '#1b2a2e', '#1b2a2e'], new: ['#fbdccc', '#e8662e', '#1b2a2e'], off: ['#eef2f2', '#9aa8aa', '#9aa8aa'], gone: ['#fbe3e1', '#b23a33', '#b23a33'], hot: ['#e8662e', '#b4461a', '#ffffff'] };
+/** Clean helper: one array row (cell width w) with index numbers; kinds: '', 'moved', 'new', 'off', 'gone', 'hot', 'seen'. */
+function arrRow(x0, y, vals, kinds = [], idx = true, w = 52) {
+  const st = { '': ['#ffffff', '#1b2a2e', '#1b2a2e'], moved: ['#f8dc95', '#1b2a2e', '#1b2a2e'], new: ['#fbdccc', '#e8662e', '#1b2a2e'], off: ['#eef2f2', '#9aa8aa', '#9aa8aa'], gone: ['#fbe3e1', '#b23a33', '#b23a33'], hot: ['#e8662e', '#b4461a', '#ffffff'], seen: ['#d7ece9', '#0e6b63', '#1b2a2e'] };
+  const fs = w < 44 ? 13.5 : 15;
   return vals.map((v, i) => {
-    const [f, s, t] = st[kinds[i] || ''], x = x0 + i * 52;
+    const [f, s, t] = st[kinds[i] || ''], x = x0 + i * w;
     const dash = kinds[i] === 'off' ? ' stroke-dasharray="5 4"' : '';
-    return `<rect x="${x}" y="${y}" width="52" height="40" fill="${f}" stroke="${s}" stroke-width="2"${dash}/>` + (v === '' ? '' : sT(x + 26, y + 26, v, { mono: true, size: 15, w: 700, fill: t })) + (idx ? sT(x + 26, y + 58, i, { mono: true, size: 12.5, w: 600, fill: '#37474a' }) : '');
+    return `<rect x="${x}" y="${y}" width="${w}" height="40" fill="${f}" stroke="${s}" stroke-width="2"${dash}/>` + (v === '' || v == null ? '' : sT(x + w / 2, y + 26, v, { mono: true, size: fs, w: 700, fill: t })) + (idx ? sT(x + w / 2, y + 58, i, { mono: true, size: 12.5, w: 600, fill: '#37474a' }) : '');
   }).join('');
 }
-/** Clean helper: curved move arrow over a row, from cell a to cell b (centers), with a numbered badge and a solid head. */
-function moveArc(x0, y, a, b, n, col = '#e8662e') {
-  const x1 = x0 + a * 52 + 26, x2 = x0 + b * 52 + 26, mx = (x1 + x2) / 2, top = y - 50, pk = (y - 3 + top) / 2;
+/** Clean helper: curved move arrow over a row, from cell a to cell b, with a numbered badge (n = '' for none) and a solid head. */
+function moveArc(x0, y, a, b, n, col = '#e8662e', w = 52) {
+  const x1 = x0 + a * w + w / 2, x2 = x0 + b * w + w / 2, mx = (x1 + x2) / 2, top = y - (w < 44 ? 36 : 50), pk = (y - 3 + top) / 2;
   const dir = Math.sign(x2 - x1), sx = x1 + dir * 6, ex = x2 - dir * 6, ey = y - 3;
   const ang = Math.atan2(ey - top, ex - mx), L = 10, hp = (k) => `${(ex - L * Math.cos(ang + k)).toFixed(1)} ${(ey - L * Math.sin(ang + k)).toFixed(1)}`;
   const bx = ex - 6 * Math.cos(ang), by = ey - 6 * Math.sin(ang);
-  return `<path d="M${sx} ${ey} Q${mx} ${top} ${bx.toFixed(1)} ${by.toFixed(1)}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/><path d="M${ex} ${ey} L${hp(0.42)} L${hp(-0.42)} Z" fill="${col}"/>`
-    + `<circle cx="${mx}" cy="${pk}" r="10.5" fill="${col}" stroke="#fbfaf6" stroke-width="2"/>` + sT(mx, pk + 4.5, n, { size: 12.5, w: 800, fill: '#ffffff' });
+  let out = `<path d="M${sx} ${ey} Q${mx} ${top} ${bx.toFixed(1)} ${by.toFixed(1)}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/><path d="M${ex} ${ey} L${hp(0.42)} L${hp(-0.42)} Z" fill="${col}"/>`;
+  if (n !== '') out += `<circle cx="${mx}" cy="${pk}" r="10.5" fill="${col}" stroke="#fbfaf6" stroke-width="2"/>` + sT(mx, pk + 4.5, n, { size: 12.5, w: 800, fill: '#ffffff' });
+  return out;
+}
+/** Clean helper: solid-headed straight arrow. */
+function solidArrow(x1, y1, x2, y2, col = '#37474a', sw = 2.4) {
+  const a = Math.atan2(y2 - y1, x2 - x1), L = 10, p = (k) => `${(x2 - L * Math.cos(a + k)).toFixed(1)} ${(y2 - L * Math.sin(a + k)).toFixed(1)}`;
+  const bx = (x2 - 6 * Math.cos(a)).toFixed(1), by = (y2 - 6 * Math.sin(a)).toFixed(1);
+  return `<path d="M${x1} ${y1} L${bx} ${by}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" fill="none"/><path d="M${x2} ${y2} L${p(0.42)} L${p(-0.42)} Z" fill="${col}"/>`;
+}
+/** Clean helper: the array's name to the left of a row, like "marks". */
+const arrName = (x, y, t) => sT(x, y + 26, t, { mono: true, size: 14, w: 700, anchor: 'end', fill: '#0b544e' });
+
+/** Sketch: a piso-net shop: a fixed row of numbered units, one user each (unit number = index, user = value). */
+export function pisonetPic() {
+  const s = new Sketch(340, 316, 181);
+  s.text(170, 22, 'A piso-net shop', { font: 'body', size: 15, weight: 800, color: C.orange });
+  const names = ['Ana', 'Ben', 'Cris', 'Dan', 'Eli'], shirts = [C.teal, C.orange, C.amber, '#2f6fa8', C.red];
+  s.rect(8, 148, 324, 14, { fill: '#d9bf95', sw: 1.8 });
+  names.forEach((n, i) => {
+    const x = 14 + i * 64;
+    s.round(x + 16, 38, 24, 22, 6, { fill: C.butter, sw: 1.5 });
+    s.text(x + 28, 55, String(i), { font: 'body', size: 15, weight: 800 });
+    s.round(x + 4, 66, 48, 36, 4, { fill: C.sky, sw: 1.8 });
+    s.line(x + 28, 102, x + 28, 116, { sw: 2 });
+    s.line(x + 18, 116, x + 38, 116, { sw: 2 });
+    s.rect(x + 8, 124, 40, 22, { fill: '#9aa8aa', sw: 1.5 });
+    s.circle(x + 40, 135, 7, { fill: C.amber, sw: 1 });
+    s.path(`M${x + 10} 214 Q${x + 10} 190 ${x + 28} 188 Q${x + 46} 190 ${x + 46} 214 Z`, { fill: shirts[i], sw: 1.6 });
+    s.circle(x + 28, 178, 20, { fill: '#6b4a2f', sw: 1.5 });
+    s.text(x + 28, 234, n, { font: 'body', size: 13, weight: 800 });
+  });
+  s.text(14, 264, 'Each unit has a number: that is the index.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  s.text(14, 284, 'One user per unit: one value per slot.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  s.text(14, 304, 'The row of units is fixed: the length is fixed.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  return s.svg('A piso-net shop: five computer units in a fixed row, numbered 0 to 4 on top, each with a one-peso coin slot. One user sits at each unit: Ana, Ben, Cris, Dan, Eli. Each unit number is like an index, each user is like the value in a slot, and the row of units is fixed, like an array\'s length.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
-/** Clean: insert 25 at index 2 of 10, 20, 30, 40 (before, numbered moves from the end, after). */
-export function insertPic() {
-  const x0 = 40;
-  let b = sT(170, 22, 'Insert 25 at index 2', { size: 15, w: 800 });
-  b += sT(20, 50, 'Before', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
-  b += moveArc(x0, 112, 3, 4, 1) + moveArc(x0, 112, 2, 3, 2);
-  b += arrRow(x0, 112, [10, 20, 30, 40, ''], ['', '', '', '', 'off']);
-  b += sT(20, 212, 'After', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
-  b += arrRow(x0, 224, [10, 20, 25, 30, 40], ['', '', 'new', 'moved', 'moved']);
-  b += sT(170, 316, 'Move 1: 40 goes right. Move 2: 30 goes right.', { size: 12.5, w: 700, fill: '#37474a' });
-  b += sT(170, 336, 'Then 25 goes into slot 2. Size: 4 → 5.', { size: 12.5, w: 700, fill: '#37474a' });
-  return introPic(340, 348, 'Insert 25 at index 2. Before: 10, 20, 30, 40 in slots 0 to 3, slot 4 empty. Move 1: 40 goes from slot 3 to slot 4. Move 2: 30 goes from slot 2 to slot 3. After: 10, 20, 25, 30, 40; 25 is new, 30 and 40 moved. Size goes from 4 to 5.', b);
+/** Clean: the four operations, one small drawing each. */
+export function fourOpsPic() {
+  const x0 = 128, w = 40;
+  let b = '';
+  const panel = (i, title, col, l1, l2) => {
+    const y = 6 + i * 112;
+    b += mapBox(6, y, 328, 104, '#fff', '#c9d6d4', 1.5, 10);
+    b += sT(18, y + 30, title, { size: 15.5, w: 800, anchor: 'start', fill: col });
+    b += sT(18, y + 54, l1, { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }) + sT(18, y + 72, l2, { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
+    return y;
+  };
+  let y = panel(0, 'Access', '#b4461a', 'get one value', 'by its index');
+  b += sT(x0 + 2.5 * w, y + 24, 'arr[2]', { mono: true, size: 13, w: 700, fill: '#b4461a' }) + solidArrow(x0 + 2.5 * w, y + 30, x0 + 2.5 * w, y + 46, '#e8662e');
+  b += arrRow(x0, y + 50, [19, 3, 42, 7, 56], ['', '', 'hot'], false, w);
+  y = panel(1, 'Traverse', '#0b544e', 'visit every', 'value, in order');
+  b += arrRow(x0, y + 18, [19, 3, 42, 7, 56], ['seen', 'seen', 'seen', 'seen', 'seen'], false, w);
+  b += solidArrow(x0 + 10, y + 78, x0 + 5 * w - 6, y + 78, '#0e6b63') + sT(x0 + 2.5 * w, y + 96, 'index 0, 1, 2, 3, 4', { mono: true, size: 12, w: 600, fill: '#0b544e' });
+  y = panel(2, 'Insert', '#2f6fa8', 'add a value', 'at a position');
+  b += mapBox(x0 + 2 * w + 4, y + 10, 32, 24, '#fbdccc', '#e8662e', 1.8, 6) + sT(x0 + 2.5 * w, y + 27, '25', { mono: true, size: 13, w: 700 }) + solidArrow(x0 + 2.5 * w, y + 36, x0 + 2.5 * w, y + 52, '#e8662e');
+  b += arrRow(x0, y + 56, [10, 20, 25, 30, 40], ['', '', 'new', 'moved', 'moved'], false, w);
+  b += sT(x0 + 3 * w, y + 50, '→', { size: 14, w: 800, fill: '#7a5208' }) + sT(x0 + 4 * w, y + 50, '→', { size: 14, w: 800, fill: '#7a5208' });
+  y = panel(3, 'Delete', '#b23a33', 'remove a value', 'at a position');
+  b += mapBox(x0 + w + 4, y + 10, 32, 24, '#fbe3e1', '#b23a33', 1.8, 6) + sT(x0 + 1.5 * w, y + 27, '20', { mono: true, size: 13, w: 700, fill: '#b23a33' }) + solidArrow(x0 + 1.5 * w, y + 52, x0 + 1.5 * w, y + 37, '#b23a33');
+  b += arrRow(x0, y + 56, [10, 25, 30, 40, ''], ['', 'moved', 'moved', 'moved', 'off'], false, w);
+  b += [1, 2, 3].map((k) => sT(x0 + (k + 1) * w, y + 50, '←', { size: 14, w: 800, fill: '#7a5208' })).join('');
+  return introPic(340, 458, 'The four operations. Access: get one value by its index: arr[2] points straight at 42. Traverse: visit every value in order, index 0, 1, 2, 3, 4. Insert: add a value at a position: 25 drops into slot 2 and 30 and 40 move right. Delete: remove the value at a position: 20 is lifted out of slot 1 and 25, 30, 40 move left.', b);
 }
 
-/** Clean: delete index 1 of 10, 20, 25, 30, 40 (before, numbered moves from the gap, after with the uncounted old copy). */
-export function deletePic() {
+/** Sketch: where each operation shows up: registrar list, sari-sari shelf, print queue. */
+export function opsWhere() {
+  const s = new Sketch(340, 392, 191);
+  const label = (y, t, l1, chip) => {
+    s.text(150, y + 30, t, { font: 'body', size: 14.5, weight: 800, anchor: 'start' });
+    s.text(150, y + 50, l1, { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+    s.round(148, y + 62, chip.length * 7.2 + 18, 24, 12, { fill: C.orangeWash, stroke: C.orange, sw: 1.4 });
+    s.text(157, y + 79, chip, { font: 'body', size: 12.5, weight: 800, anchor: 'start', color: '#8a3510' });
+  };
+  // 1. registrar list
+  s.rect(22, 14, 96, 106, { fill: '#ffffff', sw: 1.8 });
+  s.rect(52, 8, 36, 12, { fill: C.amber, sw: 1.4 });
+  ['001 Ana', '002 Ben', '003 Cris', '004 Dan'].forEach((t, i) => s.text(32, 42 + i * 20, t, { font: 'mono', size: 11.5, weight: 600, anchor: 'start' }));
+  s.circle(110, 60, 26, { stroke: C.orange, sw: 2.4 });
+  s.line(119, 69, 130, 82, { stroke: C.orange, sw: 3 });
+  label(12, "Registrar's student list", '5,000 students in ID order', 'access + traversal');
+  // 2. sari-sari shelf
+  const y2 = 138;
+  s.rect(16, y2 + 10, 110, 96, { fill: '#e9d3b0', sw: 1.8 });
+  s.line(16, y2 + 58, 126, y2 + 58, { sw: 1.8 });
+  [[24, 'sky'], [46, 'pink'], [68, 'butter'], [90, 'sky']].forEach(([x, c], i) => s.rect(x, y2 + 26, 16, 30, { fill: C[c], sw: 1.4 }));
+  [[26, 'butter'], [50, 'pink'], [74, 'tealWash']].forEach(([x, c]) => s.circle(x + 6, y2 + 88, 20, { fill: C[c], sw: 1.4 }));
+  s.arrow(4, y2 + 4, 22, y2 + 22, { stroke: C.teal, sw: 2.2 });
+  s.text(4, y2 - 2, 'in', { font: 'body', size: 12, weight: 800, anchor: 'start', color: C.teal });
+  s.arrow(110, y2 + 96, 132, y2 + 118, { stroke: C.red, sw: 2.2 });
+  s.text(134, y2 + 128, 'out', { font: 'body', size: 12, weight: 800, anchor: 'start', color: C.red });
+  label(y2, 'Sari-sari store inventory', 'stock comes in, items go out', 'insert + delete');
+  // 3. print queue
+  const y3 = 270;
+  s.rect(84, y3 + 30, 46, 40, { fill: '#cfd8d8', sw: 1.8 });
+  s.rect(92, y3 + 18, 30, 14, { fill: '#ffffff', sw: 1.4 });
+  [0, 1, 2].forEach((i) => { s.rect(6 + i * 23, y3 + 40, 20, 26, { fill: '#ffffff', sw: 1.4 }); s.line(10 + i * 23, y3 + 48, 22 + i * 23, y3 + 48, { sw: 1, single: true }); s.line(10 + i * 23, y3 + 55, 22 + i * 23, y3 + 55, { sw: 1, single: true }); });
+  s.arrow(70, y3 + 53, 83, y3 + 53, { stroke: C.soft, sw: 2 });
+  s.text(10, y3 + 86, 'back', { font: 'body', size: 11.5, weight: 800, anchor: 'start', color: C.soft });
+  s.text(82, y3 + 86, 'front', { font: 'body', size: 11.5, weight: 800, anchor: 'start', color: C.soft });
+  label(y3, 'Office print queue', 'join at back, leave at front', 'insert + delete (ends)');
+  return s.svg("Where the operations show up. A registrar's list of students in ID order (001 Ana, 002 Ben, 003 Cris, 004 Dan) with a magnifying glass: mostly access and traversal. A sari-sari store shelf with stock coming in and items going out: mostly insert and delete. An office print queue, papers lined up from the back to the front of the printer: insert and delete, at the ends.").replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: how Java finds slot 2: address = start + i × slot size. */
+export function addrPic() {
+  const x0 = 62, w = 54;
+  let b = sT(6, 24, 'index', { size: 12, w: 800, anchor: 'start', fill: '#37474a' });
+  b += [0, 1, 2, 3, 4].map((i) => sT(x0 + i * w + w / 2, 24, i, { mono: true, size: 13, w: 700, fill: '#37474a' })).join('');
+  b += arrName(56, 34, 'marks') + arrRow(x0, 34, [14, 28, 35, 49, 60], ['', '', 'hot'], false, w);
+  b += sT(6, 100, 'address', { size: 12, w: 800, anchor: 'start', fill: '#37474a' });
+  b += [0, 1, 2, 3, 4].map((i) => sT(x0 + i * w + w / 2, 100, 1000 + 4 * i, { mono: true, size: 12.5, w: 700, fill: i === 2 ? '#b4461a' : '#0b544e' })).join('');
+  b += `<path d="M${x0 + w / 2} 110 Q${x0 + w * 1.5} 142 ${x0 + w * 2.5 - 4} 114" fill="none" stroke="#e8662e" stroke-width="2.4"/>` + solidArrow(x0 + w * 2.5 - 10, 120, x0 + w * 2.5 - 2, 110, '#e8662e');
+  b += mapBox(14, 148, 312, 30, '#fff8e6', '#c98a12', 1.8, 15) + sT(170, 168, 'start + 2 × 4 = 1000 + 8 = 1008', { mono: true, size: 12.5, w: 700, fill: '#7a5208' });
+  b += sT(170, 202, 'Each int takes 4 bytes, so addresses go up by 4.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 214, 'The array marks holds 14, 28, 35, 49, 60 at indexes 0 to 4. Under each slot is its memory address: 1000, 1004, 1008, 1012, 1016. Slot 2 is found with one calculation: start + 2 × 4 = 1000 + 8 = 1008. Each int slot takes 4 bytes, so the addresses go up by 4.', b);
+}
+
+/** Clean: why highest must not start at 0: freezer temperatures are all negative. */
+export function zeroTrapPic() {
+  const x0 = 106, w = 54;
+  let b = sT(170, 22, 'Freezer temperatures (°C)', { size: 14.5, w: 800 });
+  b += arrName(100, 34, 'temps') + arrRow(x0, 34, [-5, -2, -8], [], true, w);
+  b += mapBox(6, 110, 328, 76, '#fdf1f0', '#b23a33', 1.8, 10);
+  b += sT(18, 134, 'highest = 0', { mono: true, size: 13.5, w: 700, anchor: 'start', fill: '#b23a33' });
+  b += sT(18, 154, 'No temperature is > 0,', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }) + sT(18, 172, 'so it never changes.', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
+  b += mapBox(224, 118, 96, 40, '#fbe3e1', '#b23a33', 2, 8) + sT(272, 144, '0 ✗', { mono: true, size: 15, w: 700, fill: '#b23a33' });
+  b += sT(272, 176, 'not in the list!', { size: 11.5, w: 800, fill: '#b23a33' });
+  b += mapBox(6, 196, 328, 76, '#eef7f5', '#0e6b63', 1.8, 10);
+  b += sT(18, 220, 'highest = temps[0]', { mono: true, size: 13.5, w: 700, anchor: 'start', fill: '#0b544e' });
+  b += sT(18, 240, 'Starts at -5. Then -2 > -5,', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }) + sT(18, 258, 'so highest becomes -2.', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
+  b += mapBox(224, 212, 96, 44, '#d7ece9', '#0e6b63', 2, 8) + sT(272, 240, '-2 ✓', { mono: true, size: 15, w: 700, fill: '#0b544e' });
+  return introPic(340, 280, 'Freezer temperatures in degrees Celsius: temps holds -5, -2, -8. Starting with highest = 0: no temperature is greater than 0, so highest never changes and the answer is 0, which is not even in the list. Starting with highest = temps[0]: it starts at -5, then -2 is greater than -5, so highest becomes -2, the right answer.', b);
+}
+
+/** Clean: access is one jump; insert at the front moves every value. */
+export function costPic() {
   const x0 = 40;
-  let b = sT(170, 22, 'Delete index 1', { size: 15, w: 800 });
-  b += sT(20, 50, 'Before', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
-  b += moveArc(x0, 112, 2, 1, 1) + moveArc(x0, 112, 3, 2, 2) + moveArc(x0, 112, 4, 3, 3);
-  b += arrRow(x0, 112, [10, 20, 25, 30, 40], ['', 'gone']);
-  b += sT(20, 212, 'After', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
-  b += arrRow(x0, 224, [10, 25, 30, 40, 40], ['', 'moved', 'moved', 'moved', 'off']);
-  b += sT(274, 300, 'old copy,', { size: 12, w: 700, fill: '#6b7a7c' }) + sT(274, 315, 'not counted', { size: 12, w: 700, fill: '#6b7a7c' });
-  b += sT(20, 350, '25, 30, 40 each move one slot left,', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
-  b += sT(20, 370, 'starting at the gap. Size: 5 → 4.', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
-  return introPic(340, 382, 'Delete index 1. Before: 10, 20, 25, 30, 40; the 20 in slot 1 is the one to delete. Move 1: 25 goes from slot 2 to slot 1, on top of 20. Move 2: 30 goes from slot 3 to slot 2. Move 3: 40 goes from slot 4 to slot 3. After: 10, 25, 30, 40, and slot 4 still holds an old copy of 40 that is not counted. Size goes from 5 to 4.', b);
+  let b = mapBox(6, 6, 328, 150, '#eef7f5', '#0e6b63', 1.8, 10);
+  b += sT(18, 32, 'Access arr[3]: one jump', { size: 15, w: 800, anchor: 'start', fill: '#0b544e' });
+  b += `<path d="M${x0 - 14} 62 Q${x0 + 90} 34 ${x0 + 3.5 * 52 - 4} 78" fill="none" stroke="#0e6b63" stroke-width="2.4"/>` + solidArrow(x0 + 3.5 * 52 - 8, 72, x0 + 3.5 * 52, 82, '#0e6b63');
+  b += arrRow(x0, 86, [10, 20, 30, 40, ''], ['', '', '', 'seen', 'off'], false);
+  b += sT(170, 146, '500 values? Still one jump.', { size: 12.5, w: 800, fill: '#0b544e' });
+  b += mapBox(6, 166, 328, 172, '#fdf4ee', '#e8662e', 1.8, 10);
+  b += sT(18, 192, 'Insert at the front: all move', { size: 15, w: 800, anchor: 'start', fill: '#b4461a' });
+  b += moveArc(x0, 262, 3, 4, 1) + moveArc(x0, 262, 2, 3, 2) + moveArc(x0, 262, 1, 2, 3) + moveArc(x0, 262, 0, 1, 4);
+  b += arrRow(x0, 262, [10, 20, 30, 40, ''], ['', '', '', '', 'off'], false);
+  b += sT(170, 322, '4 values: 4 moves. 500 values: 500 moves.', { size: 12.5, w: 800, fill: '#b4461a' });
+  return introPic(340, 344, 'Top: access arr[3] is one jump straight to slot 3, and with 500 values it is still one jump. Bottom: inserting 5 at the front of 10, 20, 30, 40 moves every value one slot right, starting from the end: 4 values need 4 moves, and 500 values need 500 moves.', b);
+}
+
+/** Clean: traversal visits every slot once, in order, then stops. */
+export function traversePic() {
+  const x0 = 62, w = 54;
+  let b = [0, 1, 2, 3, 4].map((i) => `<circle cx="${x0 + i * w + w / 2}" cy="22" r="11" fill="#0e6b63"/>` + sT(x0 + i * w + w / 2, 27, i + 1, { size: 12.5, w: 800, fill: '#fff' })).join('');
+  b += sT(6, 27, 'visit', { size: 12, w: 800, anchor: 'start', fill: '#0b544e' });
+  b += arrName(56, 40, 'marks') + arrRow(x0, 40, [78, 85, 91, 74, 88], ['seen', 'seen', 'seen', 'seen', 'seen'], true, w);
+  b += solidArrow(x0 + 8, 116, x0 + 5 * w - 4, 116, '#0e6b63');
+  b += sT(x0 + 2.5 * w, 140, 'i = 0 → 1 → 2 → 3 → 4', { mono: true, size: 13, w: 700, fill: '#0b544e' });
+  b += sT(170, 166, 'Then i = 5 is not < 5 (the length), so the loop stops.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 178, 'Traversing marks (78, 85, 91, 74, 88): each slot is visited once, in order, visits 1 to 5 at indexes 0 to 4, as i goes 0, 1, 2, 3, 4. Then i = 5 is not less than 5, the length, so the loop stops.', b);
+}
+
+/* Walkthrough pictures: 8 slots (capacity 8), narrow cells. */
+const WX = 18, WW = 38;
+function walkPic(vals, size, kinds = {}, o = {}) {
+  const k = vals.map((v, i) => kinds[i] || (i >= size ? 'off' : ''));
+  let b = '';
+  if (o.chip) b += mapBox(WX + o.chip[0] * WW + 3, 8, WW - 6, 26, '#fbdccc', '#e8662e', 1.8, 6) + sT(WX + o.chip[0] * WW + WW / 2, 26, o.chip[1], { mono: true, size: 13, w: 700 });
+  if (o.arc) b += moveArc(WX, 92, o.arc[0], o.arc[1], '', '#e8662e', WW);
+  b += arrRow(WX, 92, vals, k, true, WW);
+  if (o.i != null) b += `<path d="M${WX + o.i * WW + WW / 2} 158 l-7 10 h14 Z" fill="#e8662e"/>` + sT(WX + o.i * WW + WW / 2, 186, 'i', { mono: true, size: 14, w: 700, fill: '#b4461a' });
+  b += sT(330, 186, `size = ${size}`, { mono: true, size: 12.5, w: 700, anchor: 'end', fill: '#0b544e' });
+  return introPic(340, 196, o.alt || 'Array with capacity 8.', b);
+}
+
+export const arrInsertCode = String.raw`int[] arr = new int[8];      // capacity 8, fixed
+int size = 4;                // 10, 20, 30, 40 are stored
+// insert value v at index k
+for (int i = size; i > k; i--) {
+  arr[i] = arr[i - 1];       // move one slot right
+}
+arr[k] = v;
+size++;`;
+
+/** CodeWalk steps: insert v = 25 at k = 2 into 10, 20, 30, 40 (capacity 8). */
+export function arrInsertSteps() {
+  const c = (s) => `<code>${s}</code>`, E = [null, null, null, null, null, null, null, null];
+  const A = (...v) => [...v, ...E].slice(0, 8);
+  const s = [];
+  s.push({ lines: [1], pic: walkPic(E, 0, {}, { alt: 'Eight empty slots, indexes 0 to 7.' }), vars: [['arr.length', '= 8']], say: `Java makes an array with <b>8 slots</b>. Its length (capacity) is fixed: it will always be 8.` });
+  s.push({ lines: [2], pic: walkPic(A(10, 20, 30, 40), 4, {}, { alt: '10, 20, 30, 40 in slots 0 to 3. Slots 4 to 7 are not counted.' }), vars: [['size', '= 4']], say: `Slots 0 to 3 hold 10, 20, 30, 40, so ${c('size')} is 4. Slots 4 to 7 are not counted (dashed).` });
+  s.push({ lines: [3], pic: walkPic(A(10, 20, 30, 40), 4, { 2: 'hot' }, { chip: [2, 25], alt: 'We want 25 at index 2.' }), vars: [['k', '= 2'], ['v', '= 25']], say: `We want to insert ${c('v')} = 25 at index ${c('k')} = 2. Slot 2 is taken by 30, so 30 and 40 must move right first.` });
+  const loop = [[4, [10, 20, 30, 40, 40], 'Yes'], [3, [10, 20, 30, 30, 40], 'Yes']];
+  let cur = A(10, 20, 30, 40);
+  const done = {};
+  for (const [i, after] of loop) {
+    s.push({ lines: [4], pic: walkPic(cur, 4, { ...done }, { i, chip: [2, 25], alt: `i is ${i}.` }), vars: [['i', `= ${i}`], ['k', '= 2']], say: `${i === 4 ? `The loop starts at ${c('i = size')}, which is 4: the <b>end</b>.` : `${c('i--')} makes ${c('i')} = 3.`} Is ${c(`${i} > 2`)}? <b>Yes</b>, so the loop body runs.` });
+    done[i] = 'moved';
+    cur = A(...after);
+    s.push({ lines: [5], pic: walkPic(cur, 4, { ...done }, { i, arc: [i - 1, i], chip: [2, 25], alt: `${cur[i]} copied from slot ${i - 1} to slot ${i}.` }), vars: [['i', `= ${i}`]], say: `${c(`arr[${i}] = arr[${i - 1}];`)} copies ${cur[i]} from slot ${i - 1} into slot ${i}.${i === 3 ? ' Slot 2 still shows 30 too: that old copy gets covered next.' : ' Slot 4 was free, so nothing is lost.'}` });
+  }
+  s.push({ lines: [4], pic: walkPic(cur, 4, { 3: 'moved', 4: 'moved' }, { i: 2, chip: [2, 25], alt: 'i is 2, the loop stops.' }), vars: [['i', '= 2'], ['k', '= 2']], say: `${c('i--')} makes ${c('i')} = 2. Is ${c('2 > 2')}? <b>No</b>, so the loop stops. Slot 2 is ready for the new value.` });
+  cur = A(10, 20, 25, 30, 40);
+  s.push({ lines: [7], pic: walkPic(cur, 4, { 2: 'new', 3: 'moved', 4: 'moved' }, { alt: '25 is in slot 2.' }), vars: [['k', '= 2'], ['v', '= 25']], say: `${c('arr[k] = v;')} puts 25 into slot 2, on top of the old copy of 30.` });
+  s.push({ lines: [8], pic: walkPic(cur, 5, { 2: 'new', 3: 'moved', 4: 'moved' }, { alt: '10, 20, 25, 30, 40, size 5.' }), vars: [['size', '= 5']], say: `${c('size++;')} One more value is counted: ${c('size')} is 5. Result: 10, 20, 25, 30, 40. <b>2 values moved.</b>` });
+  return s;
+}
+
+export const arrDeleteCode = String.raw`// delete the value at index k
+for (int i = k; i < size - 1; i++) {
+  arr[i] = arr[i + 1];       // move one slot left
+}
+size--;`;
+
+/** CodeWalk steps: delete index k = 1 from 10, 20, 25, 30, 40 (size 5, capacity 8). */
+export function arrDeleteSteps() {
+  const c = (s) => `<code>${s}</code>`, A = (...v) => [...v, null, null, null, null, null, null, null, null].slice(0, 8);
+  const s = [];
+  let cur = A(10, 20, 25, 30, 40);
+  s.push({ lines: [1], pic: walkPic(cur, 5, { 1: 'gone' }, { alt: '10, 20, 25, 30, 40; 20 at index 1 is to be deleted.' }), vars: [['k', '= 1'], ['size', '= 5']], say: `We delete the value at index ${c('k')} = 1: the <b>20</b>. Every value after it must move one slot left to close the gap.` });
+  const done = {};
+  for (const i of [1, 2, 3]) {
+    s.push({ lines: [2], pic: walkPic(cur, 5, { ...done, ...(i === 1 ? { 1: 'gone' } : {}) }, { i, alt: `i is ${i}.` }), vars: [['i', `= ${i}`], ['size - 1', '= 4']], say: `${i === 1 ? `The loop starts at ${c('i = k')}, which is 1: the <b>gap</b>.` : `${c('i++')} makes ${c('i')} = ${i}.`} Is ${c(`${i} < 4`)}? <b>Yes</b>, so the loop body runs.` });
+    cur = cur.slice(); cur[i] = cur[i + 1]; done[i] = 'moved';
+    s.push({ lines: [3], pic: walkPic(cur, 5, { ...done }, { i, arc: [i + 1, i], alt: `${cur[i]} copied from slot ${i + 1} to slot ${i}.` }), vars: [['i', `= ${i}`]], say: `${c(`arr[${i}] = arr[${i + 1}];`)} copies ${cur[i]} from slot ${i + 1} into slot ${i}${i === 1 ? ', on top of the 20. The 20 is gone' : ''}.` });
+  }
+  s.push({ lines: [2], pic: walkPic(cur, 5, { ...done }, { i: 4, alt: 'i is 4, the loop stops.' }), vars: [['i', '= 4'], ['size - 1', '= 4']], say: `${c('i++')} makes ${c('i')} = 4. Is ${c('4 < 4')}? <b>No</b>, so the loop stops. (Slot 4 has nothing after it to copy.)` });
+  s.push({ lines: [5], pic: walkPic(cur, 4, { ...done }, { alt: '10, 25, 30, 40, size 4; slot 4 holds an old 40, not counted.' }), vars: [['size', '= 4']], say: `${c('size--;')} ${c('size')} is 4. Slot 4 still holds an old copy of 40, but it is beyond ${c('size')}, so it is not counted (dashed). Result: 10, 25, 30, 40. <b>3 values moved.</b>` });
+  return s;
 }
 
 /** Clean: the mistake: shifting right from the FRONT covers 40 before it moves. */
