@@ -245,7 +245,7 @@ const quiz = [
       <p>So <code>put</code> and <code>get</code> both do the same two steps: <b>(1) compute the key's hash code, (2) turn it into a bucket index</b>. Then they go straight to that bucket.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={hashFlow()} /><figcaption>The two steps for the key "CAT". Parts 4 and 5 show how to do each step by hand.</figcaption></figure>
       <div class="remember">
-        <p class="note-label">Why get finds what put stored</p>
+        <p class="note-label">Why <code>get</code> finds what <code>put</code> stored</p>
         <p>Remember: the same key always gives the same number. When you <code>put("CAT", …)</code>, it goes to bucket 6. When you later call <code>get("CAT")</code>, Java computes bucket 6 again and looks there. It never has to look anywhere else.</p>
         <p>The bucket keeps the <b>whole pair</b> (key and value), not just the value. That way, <code>get</code> can check that the key really is "CAT" before giving back its value.</p>
       </div>

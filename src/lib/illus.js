@@ -1841,25 +1841,29 @@ export function hashFlow() {
 
 /** Clean: chaining. Bucket 0 holds Aa -> BB; get("BB") compares keys along the chain. */
 export function chainPic() {
+  const arrowF = (x1, y, x2, col = '#37474a') => `<line x1="${x1}" y1="${y}" x2="${x2 - 8}" y2="${y}" stroke="${col}" stroke-width="2" stroke-linecap="round"/><path d="M${x2} ${y} L${x2 - 9} ${y - 5} L${x2 - 9} ${y + 5} Z" fill="${col}"/>`;
+  const ent = (x, y, k, v, hot) => mapBox(x, y, 104, 26, hot ? '#fce9e0' : '#e3f1ef', hot ? '#e8662e' : '#0e6b63', 1.8, 4)
+    + `<line x1="${x + 42}" y1="${y}" x2="${x + 42}" y2="${y + 26}" stroke="${hot ? '#e8662e' : '#0e6b63'}" stroke-width="1.4"/>`
+    + sT(x + 21, y + 18, k, { mono: true, size: 12, w: 700 }) + sT(x + 73, y + 18, v, { mono: true, size: 12, w: 600, fill: '#37474a' });
   let b = sT(170, 20, 'get("BB"): go to bucket 0, walk its chain', { size: 13, w: 800 });
   const rows = [[0, [['Aa', 'first'], ['BB', 'second']]], [1, []], [2, []], ['…'], [6, [['CAT', 'Puspin']]], ['…'], [12, [['DOG', 'Aspin']]], ['…'], [15, []]];
-  const ent = (x, y, k, v, hot) => mapBox(x, y, 104, 24, hot ? '#fce9e0' : '#e3f1ef', hot ? '#e8662e' : '#0e6b63', 1.8, 4)
-    + `<line x1="${x + 42}" y1="${y}" x2="${x + 42}" y2="${y + 24}" stroke="${hot ? '#e8662e' : '#0e6b63'}" stroke-width="1.4"/>`
-    + sT(x + 21, y + 17, k, { mono: true, size: 12, w: 700 }) + sT(x + 73, y + 17, v, { mono: true, size: 12, w: 600, fill: '#37474a' });
-  b += sT(118, 48, '✗ not BB', { size: 12, w: 800, fill: '#b23a33' }) + sT(250, 48, '✓ found', { size: 12, w: 800, fill: '#b4461a' });
+  const BX = 18, BW = 40, E1 = 90, E2 = 222, Y0 = 58, RH = 30;
+  b += sT(E1 + 52, 50, '✗ not BB', { size: 12, w: 800, fill: '#b23a33' }) + sT(E2 + 52, 50, '✓ found', { size: 12, w: 800, fill: '#b4461a' });
+  b += sT(BX + BW / 2, 50, 'bucket', { size: 11, w: 800, fill: '#37474a' });
   rows.forEach((r, i) => {
-    const y = 56 + i * 28;
-    if (r[0] === '…') { b += sT(36, y + 16, '⋮', { size: 14, w: 800, fill: '#37474a' }); return; }
+    const y = Y0 + i * RH;
+    if (r[0] === '…') { b += `<rect x="${BX}" y="${y}" width="${BW}" height="${RH}" fill="#fff" stroke="#c9d6d4" stroke-width="1.4" stroke-dasharray="4 3"/>` + sT(BX + BW / 2, y + 20, '⋮', { size: 14, w: 800, fill: '#8a9a9c' }); return; }
     const [n, chain] = r, hot = n === 0;
-    b += mapBox(20, y, 32, 24, hot ? '#e8662e' : '#fff', hot ? '#b4461a' : '#1b2a2e', 1.6, 4) + sT(36, y + 17, String(n), { size: 12, w: 800, fill: hot ? '#fff' : '#1b2a2e' });
-    if (!chain.length) b += sT(66, y + 17, '· empty', { size: 12, w: 700, fill: '#8a9a9c', anchor: 'start' });
+    b += `<rect x="${BX}" y="${y}" width="${BW}" height="${RH}" fill="${hot ? '#e8662e' : '#fff'}" stroke="#1b2a2e" stroke-width="1.6"/>` + sT(BX + BW / 2, y + 20, String(n), { size: 13, w: 800, fill: hot ? '#fff' : '#1b2a2e' });
+    const cy = y + RH / 2;
+    if (!chain.length) b += sT(BX + BW + 14, cy + 4, 'empty', { size: 12, w: 700, fill: '#8a9a9c', anchor: 'start' });
     chain.forEach(([k, v], j) => {
-      const x = 66 + j * 132;
-      b += mapArrow(x - 12, y + 12, x - 2, y + 12, '#37474a', 1.6) + ent(x, y, k, v, hot && j === 1);
+      const x = j === 0 ? E1 : E2;
+      b += arrowF(j === 0 ? BX + BW + 4 : E1 + 106, cy, x - 3) + ent(x, cy - 13, k, v, hot && j === 1);
     });
   });
-  b += sT(170, 318, 'Aa and BB share bucket 0 (a collision). Both are kept.', { size: 12.5, w: 800, fill: '#0b544e' });
-  return mapPic(340, 330, 'Buckets of a HashMap with chaining. Bucket 0 holds a chain: Aa to first, then BB to second. Bucket 6 holds CAT to Puspin, bucket 12 holds DOG to Aspin, others are empty. get BB goes to bucket 0, checks Aa: not BB, then BB: found. Aa and BB share bucket 0, a collision, and both are kept.', b);
+  b += sT(170, Y0 + rows.length * RH + 26, 'Aa and BB share bucket 0 (a collision). Both are kept.', { size: 12.5, w: 800, fill: '#0b544e' });
+  return mapPic(340, Y0 + rows.length * RH + 38, 'Buckets of a HashMap with chaining. Bucket 0 holds a chain: Aa to first, then BB to second. Bucket 6 holds CAT to Puspin, bucket 12 holds DOG to Aspin, others are empty. get BB goes to bucket 0, checks Aa: not BB, then BB: found. Aa and BB share bucket 0, a collision, and both are kept.', b);
 }
 
 /** Clean: finding a grade in a list (by position, check one by one) vs a map (by key, one jump). */
