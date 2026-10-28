@@ -2188,38 +2188,51 @@ export function recipeCard() {
   return s.svg('A recipe as an algorithm. Input: 3 cups rice, 4 garlic cloves, 2 tablespoons oil, 1 teaspoon salt. Recipe card for sinangag (garlic fried rice): 1. Mince the garlic. 2. Fry it in the oil until golden. 3. Add the rice and stir for 5 minutes. 4. Add the salt, stir, done. Exact steps, in order, and it ends. Output: a plate of sinangag.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
-/** Sketch: the five traits, tagged on one recipe-style card for "find the highest score" (same look as recipeCard). */
+/** Sketch: an algorithm as a machine; each of its parts shows one of the five traits (find the highest score). */
 export function traitsPic() {
-  const s = new Sketch(340, 470, 171);
-  const tag = (x, y, n, name, col, note) => {
-    s.circle(x, y - 5, 22, { fill: col, stroke: col, sw: 1.4 });
-    s.text(x, y, String(n), { font: 'body', size: 13, weight: 800, color: '#ffffff' });
-    s.raw(`<text x="${x + 17}" y="${y}" font-family='Nunito, system-ui, sans-serif' font-size="13" font-weight="700" fill="#37474a"><tspan font-weight="800" fill="${col}">${name}:</tspan> ${note}</text>`);
+  const s = new Sketch(340, 400, 173);
+  const tag = (x, y, n, name, col, note, size = 13.5) => {
+    s.circle(x, y - 5, 20, { fill: col, stroke: col, sw: 1.3 });
+    s.text(x, y, String(n), { font: 'body', size: 12.5, weight: 800, color: '#ffffff' });
+    s.text(x + 15, y, name, { font: 'body', size, weight: 800, anchor: 'start', color: col });
+    if (note) s.text(x + 15, y + 18, note, { font: 'body', size: 12, weight: 700, anchor: 'start', color: C.soft });
   };
-  tag(24, 26, 1, 'Input', '#0e6b63', 'the scores go in');
-  [92, 75, 88].forEach((v, i) => {
-    s.round(98 + i * 50, 40, 44, 28, 8, { fill: C.tealWash, stroke: C.teal, sw: 1.6 });
-    s.text(120 + i * 50, 59, String(v), { font: 'mono', size: 14.5, weight: 700 });
-  });
-  s.arrow(170, 74, 170, 98, { stroke: C.soft, sw: 2 });
-  s.rect(18, 104, 304, 254, { fill: '#fffdf5', sw: 1.8 });
-  s.text(170, 130, 'Find the highest score', { font: 'body', size: 14.5, weight: 800, color: C.orange });
-  s.line(32, 141, 308, 141, { stroke: C.soft, sw: 1.2, single: true, rough: 0.4 });
-  const step = (y, t) => s.text(32, y, t, { font: 'body', size: 13, weight: 700, anchor: 'start' });
-  step(166, 'Keep the first score as the highest.');
-  step(192, 'Look at the next score.');
-  s.rect(26, 200, 288, 24, { fill: C.butter, stroke: 'none', sw: 0, rough: 0.6 });
-  step(217, 'Is it > the highest? If yes, keep it.');
-  tag(48, 244, 3, 'Definiteness', '#b4461a', 'an exact question');
-  tag(48, 268, 5, 'Effectiveness', '#2e7d4f', 'one simple comparison');
-  step(296, 'Repeat until no scores are left.');
-  tag(48, 320, 4, 'Finiteness', '#b23a33', 'it always stops');
-  step(346, 'Show the highest.');
-  s.arrow(170, 364, 170, 388, { stroke: C.soft, sw: 2 });
-  s.round(144, 394, 52, 30, 8, { fill: C.orangeWash, stroke: C.orange, sw: 1.8 });
-  s.text(170, 415, '92', { font: 'mono', size: 15.5, weight: 700 });
-  tag(24, 456, 2, 'Output', '#2f6fa8', 'the highest score, 92, comes out');
-  return s.svg('The five traits on one algorithm card: find the highest score. 1 Input: the scores 92, 75, 88 go in. The card says: keep the first score as the highest; look at the next score; is it greater than the highest? If yes, keep it (3 Definiteness: an exact question; 5 Effectiveness: one simple comparison); repeat until no scores are left (4 Finiteness: it always stops); show the highest. 2 Output: the highest score, 92, comes out.').replace(/(\d+\.\d)\d+/g, '$1');
+  // 1 Input: scores drop into a funnel
+  tag(18, 30, 1, 'Input', '#0e6b63', 'scores go in');
+  [92, 75, 88].forEach((v, i) => { s.round(112 + i * 40, 14, 34, 26, 7, { fill: C.tealWash, stroke: C.teal, sw: 1.5 }); s.text(129 + i * 40, 32, String(v), { font: 'mono', size: 13.5, weight: 700 }); });
+  s.path('M118 52 L222 52 L188 80 L152 80 Z', { fill: '#cfd8d8', sw: 1.8 });
+  s.rect(152, 80, 36, 24, { fill: '#cfd8d8', sw: 1.6 });
+  s.arrow(170, 44, 170, 70, { stroke: C.soft, sw: 1.8, head: 7 });
+  // 4 Finiteness: a stop light on top
+  tag(254, 30, 4, 'Finiteness', '#b23a33', 'it stops', 13);
+  s.rect(278, 66, 10, 38, { fill: C.ink, sw: 1.2 });
+  s.round(266, 54, 34, 26, 8, { fill: C.ink, sw: 1.5 });
+  s.circle(283, 67, 18, { fill: C.red, stroke: C.red, sw: 1 });
+  s.text(283, 71, 'STOP', { font: 'body', size: 7.5, weight: 800, color: '#ffffff' });
+  // the machine
+  s.round(16, 104, 308, 214, 14, { fill: '#fbefd0', sw: 2.2 });
+  s.rect(16, 104, 308, 30, { fill: C.teal, stroke: C.teal, sw: 1.5 });
+  s.text(170, 124, 'Algorithm: find the highest score', { font: 'body', size: 13.5, weight: 800, color: '#ffffff' });
+  // 3 Definiteness: the instruction card
+  s.rect(30, 144, 166, 104, { fill: '#ffffff', sw: 1.6 });
+  ['• highest = first score', '• next score > highest?', 'yes: keep it', '• no scores left? stop'].forEach((t, i) => s.text(i === 2 ? 52 : 38, 166 + i * 22, t, { font: 'body', size: 12, weight: 700, anchor: 'start' }));
+  // 5 Effectiveness: simple gears
+  const gear = (cx, cy, r, col) => {
+    for (let k = 0; k < 8; k++) { const a = (k * Math.PI) / 4; s.line(cx + r * Math.cos(a), cy + r * Math.sin(a), cx + (r + 6) * Math.cos(a), cy + (r + 6) * Math.sin(a), { stroke: C.ink, sw: 4, single: true, rough: 0.3 }); }
+    s.circle(cx, cy, r * 2, { fill: col, sw: 1.8 });
+    s.circle(cx, cy, r * 0.6, { fill: '#ffffff', sw: 1.4 });
+  };
+  gear(240, 172, 18, C.amber); gear(285, 198, 13, C.orangeWash); gear(246, 226, 14, C.tealWash);
+  s.line(26, 258, 314, 258, { stroke: C.soft, sw: 1.2, single: true, rough: 0.4 });
+  tag(38, 282, 3, 'Definiteness', '#b4461a', 'exact, clear steps', 13);
+  tag(200, 282, 5, 'Effectiveness', '#2e7d4f', 'simple steps', 12.5);
+  // 2 Output: the tray
+  s.rect(146, 318, 48, 14, { fill: '#9aa8aa', sw: 1.5 });
+  s.round(146, 340, 48, 28, 7, { fill: C.orangeWash, stroke: C.orange, sw: 1.8 });
+  s.text(170, 360, '92', { font: 'mono', size: 15, weight: 700 });
+  s.path('M120 372 L220 372 L208 388 L132 388 Z', { fill: '#cfd8d8', sw: 1.6 });
+  tag(18, 356, 2, 'Output', '#2f6fa8', '92 comes out');
+  return s.svg('An algorithm drawn as a machine, find the highest score. 1 Input: the scores 92, 75, 88 drop into a funnel. 3 Definiteness: inside is an instruction card with exact steps: highest = first score; is the next score greater than highest? if yes, keep it; no scores left? stop. 5 Effectiveness: simple gears, small simple steps. 4 Finiteness: a red STOP light on top: it stops. 2 Output: 92 comes out onto a tray.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
 /** Clean: the same three steps, in words (algorithm) and in Java (program). */
@@ -2273,11 +2286,11 @@ export function dsAlgoPic() {
   let y = 6;
   card(y, 100, 'ds', ['stores the data']);
   b += arr(186, y + 30) + [0, 1, 2, 3].map((i) => sT(203 + i * 34, y + 80, i, { mono: true, size: 12, w: 600, fill: '#37474a' })).join('');
-  y += 108;
+  y += 122;
   card(y, 112, 'algo', ['steps that work on a', 'data structure, such as', 'finding the largest']);
   b += [0, 1, 2, 3].map((i) => sT(203 + i * 34, y + 38, '✓', { size: 15, w: 800, fill: '#2e7d4f' })).join('');
   b += arr(186, y + 46, 2) + sT(254, y + 96, 'largest: 42', { size: 13, w: 800, fill: '#b4461a' });
-  y += 120;
+  y += 134;
   card(y, 158, null, [], true);
   b += sT(18, y + 28, 'Both: one lesson, two labels', { size: 15.5, w: 800, anchor: 'start', fill: '#2f6fa8' });
   const c1 = chip(18, y + 40, 'ds', 13), c2 = chip(18 + c1.w + 8, y + 40, 'algo', 13);
@@ -2286,11 +2299,11 @@ export function dsAlgoPic() {
   b += sT(172, y + 107, '+', { size: 20, w: 800, fill: '#2f6fa8' });
   ['access', 'traverse', 'insert', 'delete'].forEach((t, k) => { const cx = 190 + (k % 2) * 72, cy = y + 72 + Math.floor(k / 2) * 30; b += mapBox(cx, cy, 66, 24, '#fbdccc', '#e8662e', 1.5, 12) + sT(cx + 33, cy + 17, t, { size: 12, w: 800, fill: '#8a3510' }); });
   b += sT(258, y + 142, 'the steps that use it', { size: 12.5, w: 700, fill: '#37474a' });
-  y += 166;
+  y += 180;
   card(y, 120, 'adt', ['says WHAT it can do,', 'not HOW it is stored']);
   b += mapBox(204, y + 48, 120, 62, '#fff8e6', '#c98a1c', 1.8, 6);
   b += sT(264, y + 68, 'A set can:', { size: 13, w: 800, fill: '#5c3f05' }) + sT(264, y + 86, 'add · remove', { size: 12.5, w: 700 }) + sT(264, y + 103, 'contains', { size: 12.5, w: 700 });
-  y += 128;
+  y += 142;
   card(y, 112, 'tech', ['a way to build many', 'algorithms, such as', 'recursion']);
   b += mapBox(196, y + 44, 96, 30, '#fff', '#37474a', 2, 6) + sT(244, y + 64, 'count(n)', { mono: true, size: 13, w: 700 });
   b += `<path d="M292 ${y + 59} H314 V${y + 26} H244 V${y + 35}" fill="none" stroke="#e8662e" stroke-width="2.2" stroke-linejoin="round"/>` + mapArrow(244, y + 30, 244, y + 42, '#e8662e', 2.2);
