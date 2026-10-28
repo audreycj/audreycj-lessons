@@ -2779,10 +2779,10 @@ export function llSwapPic() {
   b += llPath(`M${llDot(14)} 187 C 96 187, 92 236, 44 236 C 22 236, 26 220, 30 207`, 'o', { w: 2.6 });
   b += sT(14, 256, '5 refers to itself', { size: 12.5, w: 800, fill: '#b4461a', anchor: 'start' });
   const bot = llRow(90, 170, [10, 20, 30], { lost: [10, 20, 30] });
-  b += bot.s + sT(198, 228, 'unreachable: nothing', { size: 12.5, w: 800, fill: llC.r }) + sT(198, 244, 'refers to node 10', { size: 12.5, w: 800, fill: llC.r });
+  b += bot.s + sT(198, 228, 'unreachable from head:', { size: 12.5, w: 800, fill: llC.r }) + sT(198, 244, 'nothing refers to node 10', { size: 12.5, w: 800, fill: llC.r });
   b += sT(170, 284, 'printList(head) prints', { size: 13, w: 700, fill: '#37474a' });
   b += sT(170, 304, '5 -> 5 -> 5 -> 5 -> … forever', { mono: true, size: 13, w: 700, fill: llC.r });
-  return llPic(340, 316, 'Right order: head points to 5, then 10, 20, 30, null. Lines swapped: head points to 5, and 5 points back to itself. Nodes 10, 20, and 30 are unreachable, because nothing refers to node 10. printList of head prints 5 arrow 5 arrow 5 forever.', b);
+  return llPic(340, 316, 'Right order: head points to 5, then 10, 20, 30, null. Lines swapped: head points to 5, and 5 points back to itself. Nodes 10, 20, and 30 are unreachable from head, because nothing refers to node 10. printList of head prints 5 arrow 5 arrow 5 forever.', b);
 }
 
 /** Part 6: delete the node after previous by linking around it. */
@@ -2796,7 +2796,7 @@ export function llBypassPic() {
   b += llBox(xs[0], y, 10) + llLink(xs[0], xs[1], y) + llBox(xs[1], y, 20) + llBox(xs[2], y, 25, { lost: true }) + llLink(xs[2], xs[3], y, 'r', { dash: true }) + llBox(xs[3], y, 30) + llNull(xs[3], y);
   b += llPath(`M${llDot(xs[1])} ${y + LH / 2} C 150 150, 236 150, 252 ${y - 2}`, 'o', { w: 2.8 });
   b += sT(196, 154, '20 now refers to 30', { size: 12.5, w: 800, fill: '#b4461a' });
-  b += sT(179, 240, 'unreachable', { size: 12.5, w: 800, fill: llC.r });
+  b += sT(179, 240, 'unreachable from head', { size: 12.5, w: 800, fill: llC.r });
   return llPic(340, 252, 'Before: head points to 10, then 20, 25, 30, null; previous refers to node 20. After previous.next equals previous.next.next: node 20 points straight to 30, skipping 25. Node 25 is unreachable from head. Nothing else moved.', b);
 }
 

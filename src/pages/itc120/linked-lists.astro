@@ -107,6 +107,20 @@ Node third = first.next;`;
 const q4 = String.raw`Node n = new Node(15);
 n.next = head.next;
 head.next = n;`;
+const n1 = String.raw`Node current = head.next;
+current = current.next;
+System.out.println(current.data);
+System.out.println(current.next.data);
+System.out.println(head.next.data);`;
+const n2 = String.raw`Node a = new Node(3);
+a.next = head;
+head = a;
+Node b = new Node(10);
+b.next = head.next.next;
+head.next.next = b;`;
+const n3 = String.raw`head = head.next;
+Node prev = head.next;
+prev.next = prev.next.next;`;
 const bug = String.raw`current.next = newNode;
 newNode.next = current.next;`;
 
@@ -148,7 +162,7 @@ const quiz = [
       <p>The array's one real weakness: to insert 25 at index 2 of 10, 20, 30, 40, both 30 and 40 had to move. The more values after the gap, the more work. So what if the values did not have to sit side by side at all?</p>
       <div class="def">
         <p class="note-label">Linked list</p>
-        <p>A <b>linked list</b> is a <b>linear data structure</b> (a way to organize data where the items form one line, each item followed by at most one next item) made of a chain of <b>nodes</b>. A <b>node</b> is one small box of data in the chain. Each node stores two things: the value (<code>data</code>), and where to find the next node (<code>next</code>). A variable called <code>head</code> refers to the first node. The last node's <code>next</code> is <code>null</code>: the end.</p>
+        <p>A <b>linked list</b> is a <b>linear data structure</b> (a way to organize data where the items form one line, each item followed by at most one next item) made of a chain of <b>nodes</b>. A <b>node</b> is one small box of data in the chain. Each node stores two things: the value (<code>data</code>), and where to find the next node (<code>next</code>). A variable called <code>head</code> refers to the first node. The last node's <code>next</code> is <code>null</code>: the end. An <b>empty</b> list has <code>head</code> equal to <code>null</code>.</p>
       </div>
       <div class="mini-ll" aria-label="head, then A to B to C to null"><span class="small muted" style="font-weight:800">head →</span><b>A</b>→<b>B</b>→<b>C</b>→<i>null</i></div>
       <div class="plain">
@@ -223,6 +237,7 @@ const quiz = [
       <p>Here is <code>printList</code>:</p>
       <pre class="code"><code set:html={hiN(print)} /></pre>
       <p>When <code>main</code> calls <code>printList(head)</code>, <code>start</code> gets a copy of head's reference. Then <code>current</code> copies it again. All three refer to node 10, but they are separate variables. <code>current = current.next;</code> moves only <code>current</code>. It does not move any node, and it does not change <code>head</code>.</p>
+      <p>Two words in the first line: <code>static</code> lets <code>main</code> call <code>printList</code> directly, without making an object first, and <code>void</code> means it sends no value back (it only prints). Also, each method has its own variables: the <code>current</code> inside <code>printList</code> is separate from the <code>current</code> that <code>main</code> declares later in the whole program, even though the names match.</p>
       <div class="scroll-x">
         <table class="tbl">
           <thead><tr><th>current</th><th>This step prints</th><th>Then</th></tr></thead>
@@ -307,7 +322,7 @@ const quiz = [
         <pre class="code"><code set:html={hi(bypass)} /></pre>
         <p>Read it piece by piece: <code>previous.next</code> is node 25. <code>previous.next.next</code> is node 25's next, which is node 30. Storing that in <code>previous.next</code> makes 20 point to 30. Node 25 is no longer reachable from <code>head</code>, so it is no longer in the list. Nothing else moves.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={llBypassPic()} /><figcaption>One link changes. Node 25 is skipped.</figcaption></figure>
-        <p class="small muted">What happens to node 25? Nothing refers to it anymore, so Java's <b>garbage collector</b> (the part of Java that cleans up unused objects) frees its memory later. You do not delete it yourself.</p>
+        <p class="small muted">Is node 25 gone? It is out of the <b>list</b>, but the node itself still exists: in our program, the variable <code>newNode</code> still refers to it, and its <code>next</code> still refers to 30. Once nothing at all refers to a node, Java's <b>garbage collector</b> (the part of Java that cleans up unused objects) frees its memory later. You do not delete it yourself.</p>
         <p class="small muted">This line needs <code>previous != null</code> and <code>previous.next != null</code>. Otherwise it uses a null reference and throws a NullPointerException.</p>
       </div>
       <div class="sub">
@@ -387,7 +402,7 @@ const quiz = [
       <h2>Practice on paper</h2>
     </div>
     <div class="flow">
-      <p>Draw boxes and arrows for every problem. That is what you will do on the exam.</p>
+      <p>Draw boxes and arrows for every problem. That is what you will do on the exam. The first two sets are the same as the "Check your understanding" items in the module (Sections 3 and 4), so you may have done them already. The third set is new.</p>
       <div class="paper flow">
         <p class="note-label">Nodes and references</p>
         <ol>
@@ -419,6 +434,21 @@ const quiz = [
             <li>head → 10 → 20 → 40 → null. Node <b>30</b> is no longer reachable from head.</li>
             <li>After <code>current.next = newNode;</code>, nothing refers to 30: it is lost. Then <code>newNode.next = current.next;</code> copies a reference to 25 itself, so 25 points to 25. The list reads 10 → 20 → 25 → 25 → …, and a traversal prints 25 forever.</li>
             <li>(a) Doubly linked. (b) Circular singly linked. (c) Circular doubly linked: it repeats (circular) and goes back (prev).</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">New problems</p>
+        <ol>
+          <li>The list is head → 4 → 9 → 16 → 25 → null. Write the three values printed, one per line. After the code, which node does <code>head</code> refer to?<pre class="code"><code set:html={hi(n1)} /></pre></li>
+          <li>The list is head → 7 → 14 → null. Draw the list after these lines. Which line runs "connect the new node first"?<pre class="code"><code set:html={hi(n2)} /></pre></li>
+          <li>The list is head → 2 → 4 → 6 → 8 → null. Draw the list after these lines. Which nodes are no longer reachable from head?<pre class="code"><code set:html={hi(n3)} /></pre></li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li><b>16</b>, <b>25</b>, <b>9</b>. <code>current</code> starts at 9 (<code>head.next</code>), then moves to 16. <code>current.next.data</code> is 25, and <code>head.next.data</code> is still 9. <code>head</code> still refers to node <b>4</b>: only <code>current</code> moved.</li>
+            <li>head → 3 → 7 → <b>10</b> → 14 → null. Lines 2-3 insert 3 at the beginning (new node first, then <code>head</code>). Line 5, <code>b.next = head.next.next;</code>, connects the new node first: <code>head.next</code> is 7, so <code>head.next.next</code> is 14. Then line 6 makes 7 refer to 10.</li>
+            <li>head → 4 → 6 → null. The first line drops node 2. <code>prev</code> refers to 6, and <code>prev.next.next</code> is 8's next, which is <code>null</code>, so 6 now ends the list. Nodes <b>2</b> and <b>8</b> are no longer reachable from head. (This works because <code>prev.next</code> is not null.)</li>
           </ol>
         </div></details>
       </div>
