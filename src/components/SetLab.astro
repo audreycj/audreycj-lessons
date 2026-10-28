@@ -7,8 +7,8 @@ const { id, a, b } = Astro.props;
   <p class="fig-cap">Set operations lab</p>
   <p class="fig-hint">Pick an operation to shade its part of the picture. You can also change A and B (whole numbers, separated by commas).</p>
   <div class="sl-inputs">
-    <label>A = <input type="text" class="sl-a" inputmode="numeric" autocomplete="off" /></label>
-    <label>B = <input type="text" class="sl-b" inputmode="numeric" autocomplete="off" /></label>
+    <label>A = <input type="text" class="sl-a" inputmode="text" autocomplete="off" /></label>
+    <label>B = <input type="text" class="sl-b" inputmode="text" autocomplete="off" /></label>
     <p class="sl-err small" aria-live="polite"></p>
   </div>
   <div class="btn-row sl-ops" role="group" aria-label="Operation">

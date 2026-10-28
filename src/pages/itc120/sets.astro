@@ -4,6 +4,7 @@ import KindChips from '../../components/KindChips.astro';
 import SetLab from '../../components/SetLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
+import { hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -61,25 +62,25 @@ public class SetOperations {
 
     Set<Integer> union = new HashSet<>(a);   // copy of A
     union.addAll(b);                         // add all of B
-    System.out.println("A u B = " + union);  // 1 2 3 4 5 6 7
+    System.out.println("A u B = " + union);  // [1, 2, 3, 4, 5, 6, 7]
 
     Set<Integer> inter = new HashSet<>(a);
     inter.retainAll(b);                      // keep only what B has
-    System.out.println("A n B = " + inter);  // 4 5
+    System.out.println("A n B = " + inter);  // [4, 5]
 
     Set<Integer> aMinusB = new HashSet<>(a);
     aMinusB.removeAll(b);                    // take out B's values
-    System.out.println("A - B = " + aMinusB); // 1 2 3
+    System.out.println("A - B = " + aMinusB); // [1, 2, 3]
 
     Set<Integer> bMinusA = new HashSet<>(b);
     bMinusA.removeAll(a);
-    System.out.println("B - A = " + bMinusA); // 6 7
+    System.out.println("B - A = " + bMinusA); // [6, 7]
 
     Set<Integer> sym = new HashSet<>(union); // A u B ...
     sym.removeAll(inter);                    // ... minus A n B
-    System.out.println("A sym B = " + sym);  // 1 2 3 6 7
+    System.out.println("A sym B = " + sym);  // [1, 2, 3, 6, 7]
 
-    System.out.println("A is still " + a);   // 1 2 3 4 5
+    System.out.println("A is still " + a);   // [1, 2, 3, 4, 5]
   }
 }`;
 
@@ -100,9 +101,9 @@ const quiz = [
   { q: 'A = {1, 2, 3}, B = {3, 4}. What is A ∩ B?', opts: ['{ 1, 2, 3, 4 }', '{ 3 }', '{ 1, 2 }', '{ 1, 2, 4 }'], a: 1, why: 'Intersection keeps only what is in <b>both</b>: 3.' },
   { q: 'A = {1, 2, 3}, B = {3, 4}. What is A △ B (symmetric difference)?', opts: ['{ 3 }', '{ 1, 2 }', '{ 1, 2, 4 }', '{ 1, 2, 3, 4 }'], a: 2, why: 'Everything in A or B, except what they share: remove 3 from {1, 2, 3, 4}.' },
   { q: 'If A and B are equal sets, what is A − B?', opts: ['A', 'B', 'The empty set { }', 'A ∪ B'], a: 2, why: 'Every value in A is also in B, so removing B\'s values from A leaves nothing.' },
-  { q: 'Which Java method keeps <b>only</b> the elements that are also in another set?', opts: ['addAll', 'retainAll', 'removeAll', 'containsAll'], a: 1, why: '<code>retainAll</code> = "keep only these" = intersection. <code>addAll</code> = union, <code>removeAll</code> = difference.' },
+  { q: 'Which Java method keeps <b>only</b> the elements that are also in another set?', opts: ['addAll', 'retainAll', 'removeAll', 'containsAll'], a: 1, why: '<code>retainAll</code> = "keep only these" = intersection. <code>addAll</code> = union, <code>removeAll</code> = difference. <code>containsAll</code> changes nothing: it only checks whether every value of the other set is already in this one.' },
   { q: 'Why do we write <code>new HashSet&lt;&gt;(a)</code> before calling <code>union.addAll(b)</code>?', opts: ['Java requires every set to be copied', 'addAll changes the set it is called on, so we copy A first to keep A unchanged', 'It sorts the set', 'It removes duplicates from B'], a: 1, why: '<code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code> all <b>change</b> the set they are called on. Copy first, or you destroy A and get wrong answers in later operations.' },
-  { q: 'Which Java set keeps its elements in <b>sorted</b> order?', opts: ['HashSet', 'LinkedHashSet', 'TreeSet', 'None of them'], a: 2, why: '<code>TreeSet</code> stores its elements in a red-black tree, so they come out sorted. <code>HashSet</code> has no guaranteed order; <code>LinkedHashSet</code> keeps the order you added them.' },
+  { q: 'Which Java set keeps its elements in <b>sorted</b> order?', opts: ['HashSet', 'LinkedHashSet', 'TreeSet', 'None of them'], a: 2, why: '<code>TreeSet</code> keeps its elements in a red-black tree (through a <code>TreeMap</code> inside), so they come out sorted. <code>HashSet</code> has no guaranteed order; <code>LinkedHashSet</code> keeps the order you added them.' },
 ];
 ---
 <Base title="Sets in Java · ITC 120" description="Sets in plain English: unique, unordered collections; union, intersection, difference, and symmetric difference with Java's Set interface." course={{ code: course.code, href: base + course.href }} toc>
@@ -113,12 +114,13 @@ const quiz = [
     <KindChips />
     <p class="lede">A collection with one simple promise: no duplicates.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>explain what a set is: <b>unique</b> and <b>unordered</b>;</li>
-        <li>compute <b>union, intersection, difference</b>, and <b>symmetric difference</b> by hand;</li>
-        <li>use Java's <code>Set</code> (add, contains, remove, size);</li>
-        <li>do set operations in Java with <code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code>, and avoid the most common bug.</li>
+        <li>explain what a set is (an ADT with <b>unique</b>, <b>unordered</b> values) and tell when a problem needs a set instead of a list;</li>
+        <li>write A ∪ B, A ∩ B, A − B, B − A, and A △ B for two given sets, and draw them on a Venn diagram;</li>
+        <li>predict what <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code> return on a Java <code>HashSet</code>;</li>
+        <li>write each set operation in Java with <code>addAll</code>, <code>retainAll</code>, or <code>removeAll</code> on a <b>copy</b>, and find the bug when a copy is missing or the wrong set is used;</li>
+        <li>choose between <code>HashSet</code>, <code>LinkedHashSet</code>, and <code>TreeSet</code> by the order you need.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> scratch paper. You may also remember sets from math class; the ideas are the same.</p>
@@ -135,7 +137,7 @@ const quiz = [
         <p class="note-label">Set</p>
         <p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p>
       </div>
-      <p>An <b>abstract data type</b> describes <i>what</i> a structure does (its operations), not <i>how</i> it is built inside. You already met one: a stack is "push, pop, peek", whether it is built with an array or a linked list. A set is "add, remove, contains".</p>
+      <p>An <b>abstract data type</b> describes <i>what</i> a structure does (its operations), not <i>how</i> it is built inside. You already met one: a <a href={base + '/itc120/stacks-queues/'}>stack</a> is "push, pop, peek", whether it is built with an array or a linked list. A set is "add, remove, contains".</p>
       <div class="sub">
         <h3>The two properties</h3>
         <p>Every set has these two properties:</p>
@@ -177,6 +179,7 @@ const quiz = [
           <tr><td><b>Symmetric difference</b></td><td class="mono">A △ B</td><td>in A or B, but <b>not both</b></td><td class="mono">{1, 2, 3, 6, 7}</td></tr>
         </tbody>
       </table></div>
+      <p>The lab below draws each operation on a <b>Venn diagram</b>: one circle per set. Values in both sets go in the overlap in the middle; values in only one set go in that circle's outer part. The shaded part is the answer.</p>
       <SetLab id="setlab" a={[1, 2, 3, 4, 5]} b={[4, 5, 6, 7]} />
       <div class="trap">
         <p class="note-label">Exam traps</p>
@@ -186,6 +189,10 @@ const quiz = [
           <li>When the result has nothing in it, write the <b>empty set</b>: { } (or ∅). Try making A and B equal in the lab.</li>
           <li>A △ B = (A ∪ B) − (A ∩ B) = (A − B) ∪ (B − A). All three give the same answer.</li>
         </ul>
+      </div>
+      <div class="plain">
+        <p class="note-label">Good to know: other symbols in other books</p>
+        <p>Some books write the difference A − B as <b>A \ B</b>, and the symmetric difference A △ B as <b>A ⊕ B</b> (Rosen, reference 3) or <b>A Δ B</b>. They mean the same operations.</p>
       </div>
     </div>
   </section>
@@ -197,15 +204,16 @@ const quiz = [
       <h2>Sets in Java</h2>
     </div>
     <div class="flow">
-      <p>Java has a <code>Set</code> interface (the ADT: what a set can do) and several classes that implement it (how it is built). Here are the three main types:</p>
+      <p>Java has a <code>Set</code> interface (the ADT: what a set can do) and several classes that implement it (how it is built). Here are the three main classes:</p>
       <table class="tbl">
         <thead><tr><th>Class</th><th>Built with</th><th>Order when you loop through it</th></tr></thead>
         <tbody>
-          <tr><td><code>HashSet</code></td><td>a hash table (next lesson)</td><td>no guaranteed order</td></tr>
+          <tr><td><code>HashSet</code></td><td>a hash table, through a <code>HashMap</code> inside (next lesson)</td><td>no guaranteed order</td></tr>
           <tr><td><code>LinkedHashSet</code></td><td>a hash table + a linked list</td><td>the order you added them</td></tr>
-          <tr><td><code>TreeSet</code></td><td>a red-black tree</td><td>sorted</td></tr>
+          <tr><td><code>TreeSet</code></td><td>a red-black tree, through a <code>TreeMap</code> inside</td><td>sorted</td></tr>
         </tbody>
       </table>
+      <p>Wait: Part 1 said a set has no order. The set <b>ADT</b> promises no order, so you can never ask for "item [2]". <code>LinkedHashSet</code> and <code>TreeSet</code> add an order as an extra, only for looping through the values. They still have no index, and they still keep each value once.</p>
       <p><code>HashSet</code> is the usual choice. Its basic methods are <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code>:</p>
       <pre class="code"><code set:html={hi(basics)} /></pre>
 
@@ -221,7 +229,7 @@ const quiz = [
           </tbody>
         </table>
         <pre class="code"><code set:html={hi(opsCode)} /></pre>
-        <p class="small muted">A <code>HashSet</code> may print its values in a different order than shown in the comments. The values are what matter.</p>
+        <p class="small muted">The code prints u, n, and sym instead of ∪, ∩, and △, because some consoles cannot show those symbols. Small whole numbers like these usually come out in increasing order from a <code>HashSet</code>, but that is not guaranteed (the names in the attendance example did not). The values are what matter, not their order.</p>
       </div>
 
       <div class="trap">
@@ -229,14 +237,14 @@ const quiz = [
         <p>Because <code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code> change the set itself, always start from a <b>copy</b>: <code>new HashSet&lt;&gt;(a)</code>. If you write <code>a.addAll(b)</code> directly, A is now the union, and every later operation that uses A gives the wrong answer.</p>
       </div>
 
-      <div class="paper flow">
+      <div class="paper flow bugs">
         <p class="note-label">Spot the bug</p>
-        <p>This code should print A − B and B − A. One line is wrong. Which one, and what does the code print?</p>
-        <pre class="code"><code set:html={hi(buggy)} /></pre>
+        <p>This code should print A − B and B − A. The B − A part was copied from the A − B part, and two lines were not fully updated. Which lines, and what does the code print?</p>
+        <pre class="code"><code set:html={hiN(buggy, [9, 10]).replaceAll('class="hl-line"', 'class="bug-line"')} /></pre>
         <details class="reveal">
           <summary>Show the answer</summary>
           <div class="flow">
-            <p>Line 9 uses the wrong variable: <code>aMinusB.removeAll(a);</code> should be <code>bMinusA.removeAll(a);</code>, and line 10 should print <code>bMinusA</code>.</p>
+            <p>Lines 9 and 10 still use <code>aMinusB</code>. Line 9 should be <code>bMinusA.removeAll(a);</code>, and line 10 should print <code>bMinusA</code>.</p>
             <p>As written, it prints <code>A - B: [10, 30]</code>, then removes A's values from <code>aMinusB</code> (which empties it) and prints <code>B - A: []</code>. The correct B − A is <b>{40}</b>.</p>
             <p>This kind of copy-paste mistake is common. When you copy a block of code, check <b>every</b> variable name in it.</p>
           </div>
@@ -290,7 +298,7 @@ const quiz = [
         <p class="note-label">Key takeaways</p>
         <ol>
           <li>A set stores unique values with no order. Duplicates are ignored.</li>
-          <li>Union = or. Intersection = and. Difference = in one but not the other. Symmetric difference = in one but not both.</li>
+          <li>Union = or. Intersection = and. A − B = in A but not in B (so A − B and B − A differ). Symmetric difference = in one but not both.</li>
           <li>In Java: <code>addAll</code> (union), <code>retainAll</code> (intersection), <code>removeAll</code> (difference).</li>
           <li>Those methods change the set itself, so copy first with <code>new HashSet&lt;&gt;(a)</code>.</li>
           <li>HashSet: no order. LinkedHashSet: insertion order. TreeSet: sorted.</li>
