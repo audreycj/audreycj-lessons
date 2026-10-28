@@ -142,7 +142,7 @@ const config = JSON.stringify({ values, capacity });
           steps.push(snap(`Copy ${cells[i]} from slot ${i + 1} into slot ${i}${i === k ? `, on top of ${gone}` : ''}.`, `arr[${i}] = arr[${i + 1}];   // i = ${i}`, { [i]: 'moved', [i + 1]: 'cur' }, { [i]: '←' }, moves));
         }
         size--;
-        steps.push(snap(`Subtract 1 from size. Slot ${size} still holds an old copy (${cells[size]}), but it is beyond size, so we stop counting it. <b>${moves} value${moves === 1 ? '' : 's'} had to move</b>.`, `size--;`, {}, size < CAP ? { [size]: 'old copy' } : {}, moves));
+        steps.push(snap(`Subtract 1 from size. Slot ${size} still holds ${moves ? `an old copy (${cells[size]})` : `${gone}`}, but it is beyond size, so we stop counting it. <b>${moves} value${moves === 1 ? '' : 's'} had to move</b>.`, `size--;`, {}, size < CAP ? { [size]: 'old copy' } : {}, moves));
       }
       at = 0; reserve(capEl, steps.map((s) => s.cap)); paint();
     }

@@ -2188,27 +2188,38 @@ export function recipeCard() {
   return s.svg('A recipe as an algorithm. Input: 3 cups rice, 4 garlic cloves, 2 tablespoons oil, 1 teaspoon salt. Recipe card for sinangag (garlic fried rice): 1. Mince the garlic. 2. Fry it in the oil until golden. 3. Add the rice and stir for 5 minutes. 4. Add the salt, stir, done. Exact steps, in order, and it ends. Output: a plate of sinangag.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
-/** Clean: the five traits, shown on the sinangag recipe. */
+/** Sketch: the five traits, tagged on one recipe-style card for "find the highest score" (same look as recipeCard). */
 export function traitsPic() {
-  const cell = (x, y, v, hot = false) => mapBox(x, y, 32, 26, hot ? '#fce9e0' : '#e3f1ef', hot ? '#e8662e' : '#0e6b63', 2, 3) + sT(x + 16, y + 18, v, { mono: true, size: 13.5, w: 700 });
-  const machine = (x, y) => mapBox(x, y, 84, 28, '#fff8e6', '#c98a12', 2, 14) + sT(x + 42, y + 19, 'find max', { size: 13, w: 800, fill: '#7a5208' });
-  const rows = [
-    ['Input', '#0e6b63', ['The list of scores', 'goes in.'], (y) => cell(206, y + 12, 92) + cell(240, y + 12, 75) + cell(274, y + 12, 88) + mapArrow(256, y + 42, 256, y + 60, '#37474a', 2.2) + machine(214, y + 62)],
-    ['Output', '#2f6fa8', ['The highest score', 'comes out.'], (y) => machine(214, y + 12) + mapArrow(256, y + 44, 256, y + 62, '#37474a', 2.2) + cell(240, y + 64, 92, true)],
-    ['Definiteness', '#e8662e', ['"Is 88 > 92?" is exact.', '"Is it big?" is not.'], (y) => mapBox(200, y + 14, 126, 28, '#e3f1ef', '#0e6b63', 1.8, 14) + sT(263, y + 33, '✓ is 88 > 92?', { size: 13, w: 800, fill: '#0b544e' }) + mapBox(200, y + 54, 126, 28, '#fbe3e1', '#b23a33', 1.8, 14) + sT(263, y + 73, '✗ is it big?', { size: 13, w: 800, fill: '#b23a33' })],
-    ['Finiteness', '#b23a33', ['After the last score,', 'it stops.'], (y) => [92, 75, 88].map((v, i) => sT(218 + i * 34, y + 30, '✓', { size: 15, w: 800, fill: '#2e7d4f' }) + cell(202 + i * 34, y + 38, v)).join('') + `<line x1="310" y1="${y + 18}" x2="310" y2="${y + 68}" stroke="#1b2a2e" stroke-width="2.4"/><rect x="311" y="${y + 18}" width="20" height="14" fill="#fff" stroke="#1b2a2e" stroke-width="1.5"/><rect x="311" y="${y + 18}" width="5" height="7" fill="#1b2a2e"/><rect x="321" y="${y + 18}" width="5" height="7" fill="#1b2a2e"/><rect x="316" y="${y + 25}" width="5" height="7" fill="#1b2a2e"/><rect x="326" y="${y + 25}" width="5" height="7" fill="#1b2a2e"/>` + sT(312, y + 84, 'stop', { size: 12.5, w: 800, fill: '#b23a33' })],
-    ['Effectiveness', '#2e7d4f', ['Each step is simple:', 'one comparison at a time.'], (y) => [0, 1, 2, 3, 4].map((i) => `<line x1="${218 + i * 14}" y1="${y + 16}" x2="${218 + i * 14}" y2="${y + 26}" stroke="#37474a" stroke-width="2.2"/><line x1="${218 + i * 14}" y1="${y + 72}" x2="${218 + i * 14}" y2="${y + 82}" stroke="#37474a" stroke-width="2.2"/>`).join('') + mapBox(204, y + 26, 84, 46, '#1b2a2e', '#1b2a2e', 2, 6) + sT(246, y + 54, '75 > 92', { mono: true, size: 13, w: 700, fill: '#f8dc95' }) + sT(304, y + 54, 'no', { size: 13, w: 800, fill: '#2e7d4f', anchor: 'start' })],
-  ];
-  let b = sT(170, 22, 'The five traits in a computing example', { size: 14.5, w: 800 }) + sT(170, 42, 'Find the highest score in 92, 75, 88', { size: 12.5, w: 700, fill: '#37474a' });
-  rows.forEach(([n, col, lines, draw], i) => {
-    const y = 56 + i * 104;
-    b += mapBox(6, y, 328, 96, '#fff', '#c9d6d4', 1.5, 8);
-    b += `<circle cx="28" cy="${y + 28}" r="13" fill="${col}"/>` + sT(28, y + 33, i + 1, { size: 14, w: 800, fill: '#fff' });
-    b += sT(48, y + 33, n, { size: 15, w: 800, anchor: 'start', fill: col });
-    b += sT(18, y + 62, lines[0], { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }) + sT(18, y + 80, lines[1], { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
-    b += draw(y);
+  const s = new Sketch(340, 470, 171);
+  const tag = (x, y, n, name, col, note) => {
+    s.circle(x, y - 5, 22, { fill: col, stroke: col, sw: 1.4 });
+    s.text(x, y, String(n), { font: 'body', size: 13, weight: 800, color: '#ffffff' });
+    s.raw(`<text x="${x + 17}" y="${y}" font-family='Nunito, system-ui, sans-serif' font-size="13" font-weight="700" fill="#37474a"><tspan font-weight="800" fill="${col}">${name}:</tspan> ${note}</text>`);
+  };
+  tag(24, 26, 1, 'Input', '#0e6b63', 'the scores go in');
+  [92, 75, 88].forEach((v, i) => {
+    s.round(98 + i * 50, 40, 44, 28, 8, { fill: C.tealWash, stroke: C.teal, sw: 1.6 });
+    s.text(120 + i * 50, 59, String(v), { font: 'mono', size: 14.5, weight: 700 });
   });
-  return introPic(340, 580, 'The five traits in a computing example: find the highest score in 92, 75, 88. 1 Input: the list of scores goes into a find max step. 2 Output: the highest score, 92, comes out. 3 Definiteness: is 88 greater than 92 is an exact question (checked); is it big is not (crossed out). 4 Finiteness: each score gets a check mark, and after the last one there is a stop flag. 5 Effectiveness: each step is simple, one comparison at a time, like a computer chip checking 75 greater than 92: no.', b);
+  s.arrow(170, 74, 170, 98, { stroke: C.soft, sw: 2 });
+  s.rect(18, 104, 304, 254, { fill: '#fffdf5', sw: 1.8 });
+  s.text(170, 130, 'Find the highest score', { font: 'body', size: 14.5, weight: 800, color: C.orange });
+  s.line(32, 141, 308, 141, { stroke: C.soft, sw: 1.2, single: true, rough: 0.4 });
+  const step = (y, t) => s.text(32, y, t, { font: 'body', size: 13, weight: 700, anchor: 'start' });
+  step(166, 'Keep the first score as the highest.');
+  step(192, 'Look at the next score.');
+  s.rect(26, 200, 288, 24, { fill: C.butter, stroke: 'none', sw: 0, rough: 0.6 });
+  step(217, 'Is it > the highest? If yes, keep it.');
+  tag(48, 244, 3, 'Definiteness', '#b4461a', 'an exact question');
+  tag(48, 268, 5, 'Effectiveness', '#2e7d4f', 'one simple comparison');
+  step(296, 'Repeat until no scores are left.');
+  tag(48, 320, 4, 'Finiteness', '#b23a33', 'it always stops');
+  step(346, 'Show the highest.');
+  s.arrow(170, 364, 170, 388, { stroke: C.soft, sw: 2 });
+  s.round(144, 394, 52, 30, 8, { fill: C.orangeWash, stroke: C.orange, sw: 1.8 });
+  s.text(170, 415, '92', { font: 'mono', size: 15.5, weight: 700 });
+  tag(24, 456, 2, 'Output', '#2f6fa8', 'the highest score, 92, comes out');
+  return s.svg('The five traits on one algorithm card: find the highest score. 1 Input: the scores 92, 75, 88 go in. The card says: keep the first score as the highest; look at the next score; is it greater than the highest? If yes, keep it (3 Definiteness: an exact question; 5 Effectiveness: one simple comparison); repeat until no scores are left (4 Finiteness: it always stops); show the highest. 2 Output: the highest score, 92, comes out.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
 /** Clean: the same three steps, in words (algorithm) and in Java (program). */
@@ -2248,31 +2259,44 @@ export function progCycle() {
   return introPic(340, 272, 'A loop of six steps: Define, Plan, Code, Test, Debug, Improve, then back to Define. Programming is the whole loop; coding (highlighted) is one step of it.', b);
 }
 
-/** Clean: data structure, algorithm, both, and ADT, side by side. */
+/** Clean: the four lesson labels (same colors as the chips under each lesson title), plus how a lesson gets two. */
 export function dsAlgoPic() {
   let b = '';
-  const arr = (x, y, w = 34, hot = -1) => [19, 3, 42, 7].map((v, i) => mapBox(x + i * w, y, w, 32, i === hot ? '#fce9e0' : '#e3f1ef', i === hot ? '#e8662e' : '#0e6b63', 2, 3) + sT(x + i * w + w / 2, y + 21, v, { mono: true, size: 13.5, w: 700 })).join('');
-  const row = (i, title, col, cap) => {
-    const y = 6 + i * 104;
-    b += mapBox(6, y, 328, 94, '#fff', '#c9d6d4', 1.5, 10);
-    b += sT(20, y + 32, title, { size: 15.5, w: 800, anchor: 'start', fill: col });
-    cap.forEach((t, k) => { b += sT(20, y + 56 + k * 18, t, { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }); });
-    return y;
+  const chips = { ds: ['Data structure', '#d7ece9', '#0e6b63', '#0b4f49'], algo: ['Algorithm', '#fbdccc', '#e8662e', '#8a3510'], adt: ['Abstract data type (ADT)', '#f8dc95', '#c98a1c', '#5c3f05'], tech: ['Technique', '#ffffff', '#37474a', '#1b2a2e'] };
+  const chip = (x, y, k, size = 14) => { const [t, bg, bd, fg] = chips[k], w = Math.round(t.length * size * 0.56 + 22); return { w, svg: mapBox(x, y, w, 26, bg, bd, 1.8, 13) + sT(x + w / 2, y + 18, t, { size, w: 800, fill: fg }) }; };
+  const arr = (x, y, hot = -1) => [19, 3, 42, 7].map((v, i) => mapBox(x + i * 34, y, 34, 32, i === hot ? '#fce9e0' : '#e3f1ef', i === hot ? '#e8662e' : '#0e6b63', 2, 3) + sT(x + i * 34 + 17, y + 21, v, { mono: true, size: 13.5, w: 700 })).join('');
+  const card = (y, h, k, cap, dashed = false) => {
+    b += dashed ? `<rect x="6" y="${y}" width="328" height="${h}" rx="10" fill="#f6f9fc" stroke="#2f6fa8" stroke-width="1.8" stroke-dasharray="7 5"/>` : mapBox(6, y, 328, h, '#fff', '#c9d6d4', 1.5, 10);
+    if (k) b += chip(18, y + 14, k).svg;
+    cap.forEach((t, i) => { b += sT(20, y + 64 + i * 18, t, { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }); });
   };
-  let y = row(0, 'Data structure', '#0b544e', ['stores the data']);
-  b += arr(178, y + 22) + [0, 1, 2, 3].map((i) => sT(195 + i * 34, y + 74, i, { mono: true, size: 12, w: 600, fill: '#37474a' })).join('');
-  y = row(1, 'Algorithm', '#b4461a', ['steps that work on it:', 'find 42']);
-  b += arr(178, y + 34, 34, 2);
-  b += sT(195, y + 24, '✗', { size: 15, w: 800, fill: '#b23a33' }) + sT(229, y + 24, '✗', { size: 15, w: 800, fill: '#b23a33' }) + sT(263, y + 24, '✓', { size: 15, w: 800, fill: '#2e7d4f' });
-  b += sT(246, y + 86, 'check 19, then 3, then 42', { size: 12, w: 700, fill: '#37474a' });
-  y = row(2, 'Both', '#2f6fa8', ['a lesson teaches the', 'structure + its steps']);
-  b += arr(178, y + 12);
-  ['search', 'insert', 'delete'].forEach((t, k) => { b += mapBox(168 + k * 56, y + 56, 52, 24, '#eaf1f8', '#2f6fa8', 1.6, 12) + sT(194 + k * 56, y + 72, t, { size: 12, w: 800, fill: '#2f6fa8' }); });
-  y = row(3, 'ADT', '#7a4fa8', ['says WHAT it can do,', 'not HOW it is stored']);
-  b += mapBox(186, y + 12, 136, 70, '#f4eefa', '#7a4fa8', 1.8, 6);
-  b += sT(254, y + 32, 'A set can:', { size: 13, w: 800, fill: '#5a3a80' });
-  b += sT(254, y + 52, 'add · remove', { size: 12.5, w: 700 }) + sT(254, y + 70, 'contains', { size: 12.5, w: 700 });
-  return introPic(340, 422, 'Four rows. Data structure: an array holding 19, 3, 42, 7 at indexes 0 to 3; it stores the data. Algorithm: steps that work on it, find 42: check 19 (no), then 3 (no), then 42 (yes). Both: a lesson teaches the structure plus its steps: the array with search, insert, and delete. ADT: a set can add, remove, and check contains; it says what it can do, not how it is stored.', b);
+  let y = 6;
+  card(y, 100, 'ds', ['stores the data']);
+  b += arr(186, y + 30) + [0, 1, 2, 3].map((i) => sT(203 + i * 34, y + 80, i, { mono: true, size: 12, w: 600, fill: '#37474a' })).join('');
+  y += 108;
+  card(y, 112, 'algo', ['steps that work on a', 'data structure, such as', 'finding the largest']);
+  b += [0, 1, 2, 3].map((i) => sT(203 + i * 34, y + 38, '✓', { size: 15, w: 800, fill: '#2e7d4f' })).join('');
+  b += arr(186, y + 46, 2) + sT(254, y + 96, 'largest: 42', { size: 13, w: 800, fill: '#b4461a' });
+  y += 120;
+  card(y, 158, null, [], true);
+  b += sT(18, y + 28, 'Both: one lesson, two labels', { size: 15.5, w: 800, anchor: 'start', fill: '#2f6fa8' });
+  const c1 = chip(18, y + 40, 'ds', 13), c2 = chip(18 + c1.w + 8, y + 40, 'algo', 13);
+  b += c1.svg + c2.svg + sT(26 + c1.w + c2.w + 10, y + 58, 'e.g. Arrays', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
+  b += arr(18, y + 84) + sT(86, y + 142, 'the structure', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(172, y + 107, '+', { size: 20, w: 800, fill: '#2f6fa8' });
+  ['access', 'traverse', 'insert', 'delete'].forEach((t, k) => { const cx = 190 + (k % 2) * 72, cy = y + 72 + Math.floor(k / 2) * 30; b += mapBox(cx, cy, 66, 24, '#fbdccc', '#e8662e', 1.5, 12) + sT(cx + 33, cy + 17, t, { size: 12, w: 800, fill: '#8a3510' }); });
+  b += sT(258, y + 142, 'the steps that use it', { size: 12.5, w: 700, fill: '#37474a' });
+  y += 166;
+  card(y, 120, 'adt', ['says WHAT it can do,', 'not HOW it is stored']);
+  b += mapBox(204, y + 48, 120, 62, '#fff8e6', '#c98a1c', 1.8, 6);
+  b += sT(264, y + 68, 'A set can:', { size: 13, w: 800, fill: '#5c3f05' }) + sT(264, y + 86, 'add · remove', { size: 12.5, w: 700 }) + sT(264, y + 103, 'contains', { size: 12.5, w: 700 });
+  y += 128;
+  card(y, 112, 'tech', ['a way to build many', 'algorithms, such as', 'recursion']);
+  b += mapBox(196, y + 44, 96, 30, '#fff', '#37474a', 2, 6) + sT(244, y + 64, 'count(n)', { mono: true, size: 13, w: 700 });
+  b += `<path d="M292 ${y + 59} H314 V${y + 26} H244 V${y + 35}" fill="none" stroke="#e8662e" stroke-width="2.2" stroke-linejoin="round"/>` + mapArrow(244, y + 30, 244, y + 42, '#e8662e', 2.2);
+  b += sT(244, y + 96, 'calls itself', { size: 12.5, w: 800, fill: '#b4461a' });
+  y += 112;
+  return introPic(340, y + 6, 'The four labels under each lesson title, in the same colors. Data structure: an array holding 19, 3, 42, 7 at indexes 0 to 3; it stores the data. Algorithm: steps that work on a data structure, such as finding the largest: check every value; largest: 42. Both: one lesson can get two labels, Data structure and Algorithm, for example Arrays: the array plus the steps that use it (access, traverse, insert, delete). Abstract data type (ADT): says what it can do, not how it is stored; a set can add, remove, and check contains. Technique: a way to build many algorithms, such as recursion: a method count(n) that calls itself.', b);
 }
 
 /* ---------------- Programming refresher pictures (chat 14) ---------------- */
@@ -2433,4 +2457,71 @@ export function taxoPic() {
   b += `<rect x="122" y="66" width="214" height="240" rx="12" fill="none" stroke="#c98a12" stroke-width="1.6" stroke-dasharray="6 5"/>`;
   b += sT(229, 326, 'This course: the', { size: 12.5, w: 800, fill: '#7a5208' }) + sT(229, 343, 'non-primitive ones', { size: 12.5, w: 800, fill: '#7a5208' });
   return introPic(340, 394, 'A family tree of data structures. Data structures split into primitive (one value each) and non-primitive (many values). Java has eight primitive types: whole numbers byte, short, int, long; decimals float, double; true or false boolean; one character char. Non-primitive splits again into two kinds: linear (array, stack, queue, linked list) and non-linear (tree, graph). A dashed box around the non-primitive side says: this course is about the non-primitive ones.', b);
+}
+
+/* ---------------- Arrays lesson pictures (chat 15) ---------------- */
+
+/** Clean helper: one array row (cells w=52) with index numbers; kinds: '', 'moved', 'new', 'off', 'gone', 'hot'. */
+function arrRow(x0, y, vals, kinds = [], idx = true) {
+  const st = { '': ['#ffffff', '#1b2a2e', '#1b2a2e'], moved: ['#f8dc95', '#1b2a2e', '#1b2a2e'], new: ['#fbdccc', '#e8662e', '#1b2a2e'], off: ['#eef2f2', '#9aa8aa', '#9aa8aa'], gone: ['#fbe3e1', '#b23a33', '#b23a33'], hot: ['#e8662e', '#b4461a', '#ffffff'] };
+  return vals.map((v, i) => {
+    const [f, s, t] = st[kinds[i] || ''], x = x0 + i * 52;
+    const dash = kinds[i] === 'off' ? ' stroke-dasharray="5 4"' : '';
+    return `<rect x="${x}" y="${y}" width="52" height="40" fill="${f}" stroke="${s}" stroke-width="2"${dash}/>` + (v === '' ? '' : sT(x + 26, y + 26, v, { mono: true, size: 15, w: 700, fill: t })) + (idx ? sT(x + 26, y + 58, i, { mono: true, size: 12.5, w: 600, fill: '#37474a' }) : '');
+  }).join('');
+}
+/** Clean helper: curved move arrow over a row, from cell a to cell b (centers), with a numbered badge and a solid head. */
+function moveArc(x0, y, a, b, n, col = '#e8662e') {
+  const x1 = x0 + a * 52 + 26, x2 = x0 + b * 52 + 26, mx = (x1 + x2) / 2, top = y - 50, pk = (y - 3 + top) / 2;
+  const dir = Math.sign(x2 - x1), sx = x1 + dir * 6, ex = x2 - dir * 6, ey = y - 3;
+  const ang = Math.atan2(ey - top, ex - mx), L = 10, hp = (k) => `${(ex - L * Math.cos(ang + k)).toFixed(1)} ${(ey - L * Math.sin(ang + k)).toFixed(1)}`;
+  const bx = ex - 6 * Math.cos(ang), by = ey - 6 * Math.sin(ang);
+  return `<path d="M${sx} ${ey} Q${mx} ${top} ${bx.toFixed(1)} ${by.toFixed(1)}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/><path d="M${ex} ${ey} L${hp(0.42)} L${hp(-0.42)} Z" fill="${col}"/>`
+    + `<circle cx="${mx}" cy="${pk}" r="10.5" fill="${col}" stroke="#fbfaf6" stroke-width="2"/>` + sT(mx, pk + 4.5, n, { size: 12.5, w: 800, fill: '#ffffff' });
+}
+
+/** Clean: insert 25 at index 2 of 10, 20, 30, 40 (before, numbered moves from the end, after). */
+export function insertPic() {
+  const x0 = 40;
+  let b = sT(170, 22, 'Insert 25 at index 2', { size: 15, w: 800 });
+  b += sT(20, 50, 'Before', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
+  b += moveArc(x0, 112, 3, 4, 1) + moveArc(x0, 112, 2, 3, 2);
+  b += arrRow(x0, 112, [10, 20, 30, 40, ''], ['', '', '', '', 'off']);
+  b += sT(20, 212, 'After', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
+  b += arrRow(x0, 224, [10, 20, 25, 30, 40], ['', '', 'new', 'moved', 'moved']);
+  b += sT(170, 316, 'Move 1: 40 goes right. Move 2: 30 goes right.', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 336, 'Then 25 goes into slot 2. Size: 4 → 5.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 348, 'Insert 25 at index 2. Before: 10, 20, 30, 40 in slots 0 to 3, slot 4 empty. Move 1: 40 goes from slot 3 to slot 4. Move 2: 30 goes from slot 2 to slot 3. After: 10, 20, 25, 30, 40; 25 is new, 30 and 40 moved. Size goes from 4 to 5.', b);
+}
+
+/** Clean: delete index 1 of 10, 20, 25, 30, 40 (before, numbered moves from the gap, after with the uncounted old copy). */
+export function deletePic() {
+  const x0 = 40;
+  let b = sT(170, 22, 'Delete index 1', { size: 15, w: 800 });
+  b += sT(20, 50, 'Before', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
+  b += moveArc(x0, 112, 2, 1, 1) + moveArc(x0, 112, 3, 2, 2) + moveArc(x0, 112, 4, 3, 3);
+  b += arrRow(x0, 112, [10, 20, 25, 30, 40], ['', 'gone']);
+  b += sT(20, 212, 'After', { size: 13.5, w: 800, anchor: 'start', fill: '#0b544e' });
+  b += arrRow(x0, 224, [10, 25, 30, 40, 40], ['', 'moved', 'moved', 'moved', 'off']);
+  b += sT(274, 300, 'old copy,', { size: 12, w: 700, fill: '#6b7a7c' }) + sT(274, 315, 'not counted', { size: 12, w: 700, fill: '#6b7a7c' });
+  b += sT(20, 350, '25, 30, 40 each move one slot left,', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
+  b += sT(20, 370, 'starting at the gap. Size: 5 → 4.', { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
+  return introPic(340, 382, 'Delete index 1. Before: 10, 20, 25, 30, 40; the 20 in slot 1 is the one to delete. Move 1: 25 goes from slot 2 to slot 1, on top of 20. Move 2: 30 goes from slot 3 to slot 2. Move 3: 40 goes from slot 4 to slot 3. After: 10, 25, 30, 40, and slot 4 still holds an old copy of 40 that is not counted. Size goes from 5 to 4.', b);
+}
+
+/** Clean: the mistake: shifting right from the FRONT covers 40 before it moves. */
+export function wrongOrderPic() {
+  const x0 = 40;
+  let b = sT(170, 22, 'Wrong: moving 30 first', { size: 15, w: 800, fill: '#b23a33' });
+  b += sT(20, 50, 'Start', { size: 13.5, w: 800, anchor: 'start', fill: '#37474a' });
+  b += moveArc(x0, 112, 2, 3, 1, '#b23a33');
+  b += arrRow(x0, 112, [10, 20, 30, 40, ''], ['', '', '', '', 'off'], false);
+  b += sT(20, 186, 'After move 1', { size: 13.5, w: 800, anchor: 'start', fill: '#37474a' });
+  b += moveArc(x0, 248, 3, 4, 2, '#b23a33');
+  b += arrRow(x0, 248, [10, 20, 30, 30, ''], ['', '', '', 'gone', 'off'], false);
+  b += sT(196, 306, '40 was covered up!', { size: 12.5, w: 800, fill: '#b23a33' });
+  b += sT(20, 340, 'After move 2, then 25', { size: 13.5, w: 800, anchor: 'start', fill: '#37474a' });
+  b += arrRow(x0, 352, [10, 20, 25, 30, 30], ['', '', 'new', '', 'gone'], false);
+  b += sT(170, 416, '40 is lost. Fix: start from the end (move 40 first).', { size: 12.5, w: 800, fill: '#0b544e' });
+  return introPic(340, 428, 'The mistake of shifting from the front. Start: 10, 20, 30, 40, then an empty slot. Move 1: 30 is copied into slot 3, on top of 40, so 40 is covered up. Move 2: slot 3 now holds 30, so 30 is copied into slot 4. Then 25 goes into slot 2: the result is 10, 20, 25, 30, 30, and 40 is lost. Fix: start from the end and move 40 first.', b);
 }
