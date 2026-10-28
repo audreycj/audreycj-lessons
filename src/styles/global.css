@@ -929,3 +929,6 @@ svg.objbox.intro-pic { max-width: 22rem; }
 h3.blk-h { display: flex; align-items: center; gap: 0.7rem; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.3rem, 1.1rem + 1vw, 1.65rem); color: var(--teal-ink); margin-top: 0.4rem; }
 h3.blk-h .blk-n { flex: none; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--orange); color: #fff; font-size: 1.25rem; box-shadow: 0 3px 0 #b4461a; }
 h3.blk-h .blk-t { background: linear-gradient(transparent 62%, var(--butter) 62%); padding: 0 0.15em; }
+
+/* sub-h3 (chat 14): section headings inside lessons stand out from body text (site-wide) */
+.sub > h3:not(.blk-h) { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.5rem); color: var(--teal-ink); padding: 0.1rem 0 0.1rem 0.75rem; border-left: 5px solid var(--orange); border-radius: 2px; margin-top: 0.4rem; }

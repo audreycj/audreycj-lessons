@@ -95,7 +95,7 @@ const quiz = [
         <h3>Primitive and non-primitive; linear and non-linear</h3>
         <p>Books sort data structures in two steps. First, into two families: <b>primitive</b> (one value each, like an <code>int</code>) and <b>non-primitive</b> (many values). Then the non-primitive family splits into two kinds: <b>linear</b> and <b>non-linear</b>. Here is the whole family tree:</p>
         <figure class="fig illus-fig illus"><Fragment set:html={taxoPic()} /><figcaption>Two families first; then the non-primitive family has two kinds. This course is about the non-primitive side.</figcaption></figure>
-        <p class="small muted">Good to know: Java itself calls <code>int</code>, <code>double</code>, <code>boolean</code>, and <code>char</code> (one character, like <code>'A'</code>) <b>primitive types</b>, not data structures. Some books list them as "primitive data structures" because they are the simplest building blocks. Either way, they hold one value each.</p>
+        <p class="small muted">Good to know: Java has exactly eight primitive types (all shown above; <code>char</code> holds one character, like <code>'A'</code>), and Java itself calls them <b>primitive types</b>, not data structures. Some books list them as "primitive data structures" because they are the simplest building blocks. Either way, they hold one value each.</p>
         <p>Here is how the two kinds of non-primitive structures compare:</p>
         <table class="tbl">
           <thead><tr><th></th><th>Linear</th><th>Non-linear</th></tr></thead>
@@ -165,15 +165,15 @@ const quiz = [
           <li><b>Finiteness:</b> it stops after a limited number of steps.</li>
           <li><b>Effectiveness:</b> each step is simple enough to actually be carried out.</li>
         </ol>
-        <p>Here are the five traits in the sinangag recipe:</p>
-        <figure class="fig illus-fig illus"><Fragment set:html={traitsPic()} /><figcaption>Each trait, pointed out in the recipe.</figcaption></figure>
+        <p>Here are the five traits in a computing example. The algorithm: look at each score in the list, keep the highest one seen so far, and show it at the end.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={traitsPic()} /><figcaption>Each trait, shown in the find-the-highest-score algorithm.</figcaption></figure>
         <p>To see the traits at work, here are three sets of "steps" that each break one trait:</p>
         <table class="tbl">
           <thead><tr><th>Steps</th><th>Breaks this trait</th><th>Why</th></tr></thead>
           <tbody>
-            <tr><td>"Add a little salt."</td><td>Definiteness</td><td>How much is "a little"? Two cooks would do different things.</td></tr>
-            <tr><td>"Start at 1. Keep adding 1 until the number is 0."</td><td>Finiteness</td><td>Counting up from 1 never reaches 0, so it never stops.</td></tr>
-            <tr><td>"Write down every digit of π."</td><td>Effectiveness (and finiteness)</td><td>π has endless digits, so no one can actually finish this step.</td></tr>
+            <tr><td>"If the score is high, print Passed."</td><td>Definiteness</td><td>How high is "high"? A computer needs an exact rule, like <code>score &gt;= 75</code>.</td></tr>
+            <tr><td>"Print every even number: 2, 4, 6, …"</td><td>Finiteness</td><td>There is no last even number, so it never stops.</td></tr>
+            <tr><td>"The class list is empty, but find the average anyway: total ÷ 0 students."</td><td>Effectiveness</td><td>Dividing by zero has no answer, so the computer cannot carry out this step (with whole numbers, Java stops with an error).</td></tr>
           </tbody>
         </table>
       </div>
@@ -199,9 +199,11 @@ const quiz = [
         <figure class="fig illus-fig illus"><Fragment set:html={progCycle()} /><figcaption>Programming is the whole loop. Coding is one step of it.</figcaption></figure>
         <p>Here is the algorithm from the table (ask for two numbers, add them, show the result) next to its Java program:</p>
         <figure class="fig illus-fig illus"><Fragment set:html={algoVsProg()} /><figcaption>The numbers on the right show which step each line carries out.</figcaption></figure>
-        <p>And here is the full program, ready to copy:</p>
-        <pre class="code"><code set:html={hi(addProg)} /></pre>
-        <p class="small muted"><code>Scanner</code> reads what the user types (the file needs <code>import java.util.Scanner;</code> at the top). You do not need to memorize it for this course. The point: one algorithm, and this is just one program that carries it out. You could write the same steps in Python or C.</p>
+        <p>One algorithm can become many programs. Written in Python or C, the code would look different (a different program), but the three steps would be the same (the same algorithm).</p>
+        <details class="reveal"><summary>Optional: see it as a complete Java program</summary><div class="flow">
+          <p class="small muted">For the curious only; you do not need to memorize this. <code>Scanner</code> reads what the user types, and the file needs <code>import java.util.Scanner;</code> at the top.</p>
+          <pre class="code"><code set:html={hi(addProg)} /></pre>
+        </div></details>
       </div>
       <div class="sub" id="ds-or-algo">
         <h3>Data structure, algorithm, or both?</h3>

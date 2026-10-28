@@ -2190,22 +2190,25 @@ export function recipeCard() {
 
 /** Clean: the five traits, shown on the sinangag recipe. */
 export function traitsPic() {
+  const cell = (x, y, v, hot = false) => mapBox(x, y, 32, 26, hot ? '#fce9e0' : '#e3f1ef', hot ? '#e8662e' : '#0e6b63', 2, 3) + sT(x + 16, y + 18, v, { mono: true, size: 13.5, w: 700 });
+  const machine = (x, y) => mapBox(x, y, 84, 28, '#fff8e6', '#c98a12', 2, 14) + sT(x + 42, y + 19, 'find max', { size: 13, w: 800, fill: '#7a5208' });
   const rows = [
-    ['Input', 'Rice, garlic, oil, and salt go in.', '#0e6b63'],
-    ['Output', 'A plate of sinangag comes out.', '#2f6fa8'],
-    ['Definiteness', '"2 tbsp oil", not "some oil".', '#e8662e'],
-    ['Finiteness', 'Step 4 says "Done!" It ends.', '#b23a33'],
-    ['Effectiveness', 'Every step is something a cook can do.', '#2e7d4f'],
+    ['Input', '#0e6b63', ['The list of scores', 'goes in.'], (y) => cell(206, y + 12, 92) + cell(240, y + 12, 75) + cell(274, y + 12, 88) + mapArrow(256, y + 42, 256, y + 60, '#37474a', 2.2) + machine(214, y + 62)],
+    ['Output', '#2f6fa8', ['The highest score', 'comes out.'], (y) => machine(214, y + 12) + mapArrow(256, y + 44, 256, y + 62, '#37474a', 2.2) + cell(240, y + 64, 92, true)],
+    ['Definiteness', '#e8662e', ['"Is 88 > 92?" is exact.', '"Is it big?" is not.'], (y) => mapBox(200, y + 14, 126, 28, '#e3f1ef', '#0e6b63', 1.8, 14) + sT(263, y + 33, '✓ is 88 > 92?', { size: 13, w: 800, fill: '#0b544e' }) + mapBox(200, y + 54, 126, 28, '#fbe3e1', '#b23a33', 1.8, 14) + sT(263, y + 73, '✗ is it big?', { size: 13, w: 800, fill: '#b23a33' })],
+    ['Finiteness', '#b23a33', ['After the last score,', 'it stops.'], (y) => [92, 75, 88].map((v, i) => sT(218 + i * 34, y + 30, '✓', { size: 15, w: 800, fill: '#2e7d4f' }) + cell(202 + i * 34, y + 38, v)).join('') + `<line x1="310" y1="${y + 18}" x2="310" y2="${y + 68}" stroke="#1b2a2e" stroke-width="2.4"/><rect x="311" y="${y + 18}" width="20" height="14" fill="#fff" stroke="#1b2a2e" stroke-width="1.5"/><rect x="311" y="${y + 18}" width="5" height="7" fill="#1b2a2e"/><rect x="321" y="${y + 18}" width="5" height="7" fill="#1b2a2e"/><rect x="316" y="${y + 25}" width="5" height="7" fill="#1b2a2e"/><rect x="326" y="${y + 25}" width="5" height="7" fill="#1b2a2e"/>` + sT(312, y + 84, 'stop', { size: 12.5, w: 800, fill: '#b23a33' })],
+    ['Effectiveness', '#2e7d4f', ['Each step is simple:', 'one comparison at a time.'], (y) => [0, 1, 2, 3, 4].map((i) => `<line x1="${218 + i * 14}" y1="${y + 16}" x2="${218 + i * 14}" y2="${y + 26}" stroke="#37474a" stroke-width="2.2"/><line x1="${218 + i * 14}" y1="${y + 72}" x2="${218 + i * 14}" y2="${y + 82}" stroke="#37474a" stroke-width="2.2"/>`).join('') + mapBox(204, y + 26, 84, 46, '#1b2a2e', '#1b2a2e', 2, 6) + sT(246, y + 54, '75 > 92', { mono: true, size: 13, w: 700, fill: '#f8dc95' }) + sT(304, y + 54, 'no', { size: 13, w: 800, fill: '#2e7d4f', anchor: 'start' })],
   ];
-  let b = sT(170, 22, 'The five traits, in the sinangag recipe', { size: 14.5, w: 800 });
-  rows.forEach(([n, ex, col], i) => {
-    const y = 40 + i * 58;
-    b += mapBox(8, y, 324, 50, '#fff', '#c9d6d4', 1.5, 8);
-    b += `<circle cx="34" cy="${y + 25}" r="15" fill="${col}"/>` + sT(34, y + 30, i + 1, { size: 15, w: 800, fill: '#fff' });
-    b += sT(60, y + 21, n, { size: 14.5, w: 800, anchor: 'start', fill: col });
-    b += sT(60, y + 41, ex, { size: 13, w: 700, anchor: 'start', fill: '#37474a' });
+  let b = sT(170, 22, 'The five traits in a computing example', { size: 14.5, w: 800 }) + sT(170, 42, 'Find the highest score in 92, 75, 88', { size: 12.5, w: 700, fill: '#37474a' });
+  rows.forEach(([n, col, lines, draw], i) => {
+    const y = 56 + i * 104;
+    b += mapBox(6, y, 328, 96, '#fff', '#c9d6d4', 1.5, 8);
+    b += `<circle cx="28" cy="${y + 28}" r="13" fill="${col}"/>` + sT(28, y + 33, i + 1, { size: 14, w: 800, fill: '#fff' });
+    b += sT(48, y + 33, n, { size: 15, w: 800, anchor: 'start', fill: col });
+    b += sT(18, y + 62, lines[0], { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }) + sT(18, y + 80, lines[1], { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' });
+    b += draw(y);
   });
-  return introPic(340, 334, 'The five traits in the sinangag recipe. 1 Input: rice, garlic, oil, and salt go in. 2 Output: a plate of sinangag comes out. 3 Definiteness: 2 tablespoons of oil, not some oil. 4 Finiteness: step 4 says done, so it ends. 5 Effectiveness: every step is something a cook can do.', b);
+  return introPic(340, 580, 'The five traits in a computing example: find the highest score in 92, 75, 88. 1 Input: the list of scores goes into a find max step. 2 Output: the highest score, 92, comes out. 3 Definiteness: is 88 greater than 92 is an exact question (checked); is it big is not (crossed out). 4 Finiteness: each score gets a check mark, and after the last one there is a stop flag. 5 Effectiveness: each step is simple, one comparison at a time, like a computer chip checking 75 greater than 92: no.', b);
 }
 
 /** Clean: the same three steps, in words (algorithm) and in Java (program). */
@@ -2222,8 +2225,7 @@ export function algoVsProg() {
     b += sT(36, y, t, { mono: true, size: 12.5, w: 600, anchor: 'start', fill: '#ffffff' });
     b += `<circle cx="298" cy="${y - 4}" r="9" fill="#e8662e"/>` + sT(298, y + 1, k, { size: 12, w: 800, fill: '#fff' });
   });
-  b += sT(170, 318, 'Python or C code would be other programs for it.', { size: 12.5, w: 700, fill: '#37474a' });
-  return introPic(340, 328, 'Top: the algorithm, the steps in words: 1. Ask for two numbers. 2. Add them. 3. Show the result. An arrow labeled written in Java leads to the program: int a = in.nextInt(); int b = in.nextInt(); (step 1), int sum = a + b; (step 2), System.out.println(sum); (step 3). One algorithm; Python or C code would be other programs for it.', b);
+  return introPic(340, 302, 'Top: the algorithm, the steps in words: 1. Ask for two numbers. 2. Add them. 3. Show the result. An arrow labeled written in Java leads to the program: int a = in.nextInt(); int b = in.nextInt(); (step 1), int sum = a + b; (step 2), System.out.println(sum); (step 3).', b);
 }
 
 /** Clean: programming is the whole loop; coding is one step of it. */
@@ -2249,25 +2251,28 @@ export function progCycle() {
 /** Clean: data structure, algorithm, both, and ADT, side by side. */
 export function dsAlgoPic() {
   let b = '';
-  const panel = (x, y, title, col, cap) => {
-    b += mapBox(x, y, 160, 156, '#fff', '#c9d6d4', 1.5, 10);
-    b += sT(x + 80, y + 24, title, { size: 14.5, w: 800, fill: col });
-    b += sT(x + 80, y + 144, cap, { size: 12.5, w: 800, fill: '#37474a' });
+  const arr = (x, y, w = 34, hot = -1) => [19, 3, 42, 7].map((v, i) => mapBox(x + i * w, y, w, 32, i === hot ? '#fce9e0' : '#e3f1ef', i === hot ? '#e8662e' : '#0e6b63', 2, 3) + sT(x + i * w + w / 2, y + 21, v, { mono: true, size: 13.5, w: 700 })).join('');
+  const row = (i, title, col, cap) => {
+    const y = 6 + i * 104;
+    b += mapBox(6, y, 328, 94, '#fff', '#c9d6d4', 1.5, 10);
+    b += sT(20, y + 32, title, { size: 15.5, w: 800, anchor: 'start', fill: col });
+    cap.forEach((t, k) => { b += sT(20, y + 56 + k * 18, t, { size: 12.5, w: 700, anchor: 'start', fill: '#37474a' }); });
+    return y;
   };
-  const arr = (x, y, hot = -1) => [19, 3, 42, 7].map((v, i) => mapBox(x + i * 30, y, 30, 30, i === hot ? '#fce9e0' : '#e3f1ef', i === hot ? '#e8662e' : '#0e6b63', 2, 3) + sT(x + i * 30 + 15, y + 20, v, { mono: true, size: 13, w: 700 }) + sT(x + i * 30 + 15, y + 46, i, { mono: true, size: 12, w: 600, fill: '#37474a' })).join('');
-  panel(6, 6, 'Data structure', '#0b544e', 'stores the data');
-  b += arr(26, 56);
-  b += sT(86, 124, 'an array', { size: 12.5, w: 700, fill: '#37474a' });
-  panel(174, 6, 'Algorithm', '#b4461a', 'steps that work on it');
-  ['Find 42:', 'check 19: no', 'check 3: no', 'check 42: yes!'].forEach((t, i) => { b += sT(196, 54 + i * 21, t, { size: 13, w: i === 0 ? 800 : 700, anchor: 'start', fill: i === 3 ? '#0b544e' : '#1b2a2e' }); });
-  panel(6, 172, 'Both', '#2f6fa8', 'a lesson teaches both');
-  b += arr(26, 200, 2);
-  b += sT(86, 274, 'the array + its', { size: 12.5, w: 700, fill: '#37474a' }) + sT(86, 292, 'search, insert, delete', { size: 12.5, w: 700, fill: '#37474a' });
-  panel(174, 172, 'ADT', '#7a4fa8', 'what, not how');
-  b += mapBox(196, 200, 116, 82, '#f4eefa', '#7a4fa8', 1.8, 6);
-  b += sT(254, 220, 'A set can:', { size: 13, w: 800, fill: '#5a3a80' });
-  ['add', 'remove', 'contains'].forEach((t, i) => { b += sT(212, 240 + i * 17, '• ' + t, { size: 12.5, w: 700, anchor: 'start' }); });
-  return introPic(340, 326, 'Four panels. Data structure: an array holding 19, 3, 42, 7; it stores the data. Algorithm: find 42 by checking 19 (no), 3 (no), 42 (yes); steps that work on it. Both: the same array with 42 found, plus its search, insert, and delete; a lesson teaches both. ADT: a set can add, remove, and check contains; it says what it can do, not how it is stored.', b);
+  let y = row(0, 'Data structure', '#0b544e', ['stores the data']);
+  b += arr(178, y + 22) + [0, 1, 2, 3].map((i) => sT(195 + i * 34, y + 74, i, { mono: true, size: 12, w: 600, fill: '#37474a' })).join('');
+  y = row(1, 'Algorithm', '#b4461a', ['steps that work on it:', 'find 42']);
+  b += arr(178, y + 34, 34, 2);
+  b += sT(195, y + 24, '✗', { size: 15, w: 800, fill: '#b23a33' }) + sT(229, y + 24, '✗', { size: 15, w: 800, fill: '#b23a33' }) + sT(263, y + 24, '✓', { size: 15, w: 800, fill: '#2e7d4f' });
+  b += sT(246, y + 86, 'check 19, then 3, then 42', { size: 12, w: 700, fill: '#37474a' });
+  y = row(2, 'Both', '#2f6fa8', ['a lesson teaches the', 'structure + its steps']);
+  b += arr(178, y + 12);
+  ['search', 'insert', 'delete'].forEach((t, k) => { b += mapBox(168 + k * 56, y + 56, 52, 24, '#eaf1f8', '#2f6fa8', 1.6, 12) + sT(194 + k * 56, y + 72, t, { size: 12, w: 800, fill: '#2f6fa8' }); });
+  y = row(3, 'ADT', '#7a4fa8', ['says WHAT it can do,', 'not HOW it is stored']);
+  b += mapBox(186, y + 12, 136, 70, '#f4eefa', '#7a4fa8', 1.8, 6);
+  b += sT(254, y + 32, 'A set can:', { size: 13, w: 800, fill: '#5a3a80' });
+  b += sT(254, y + 52, 'add · remove', { size: 12.5, w: 700 }) + sT(254, y + 70, 'contains', { size: 12.5, w: 700 });
+  return introPic(340, 422, 'Four rows. Data structure: an array holding 19, 3, 42, 7 at indexes 0 to 3; it stores the data. Algorithm: steps that work on it, find 42: check 19 (no), then 3 (no), then 42 (yes). Both: a lesson teaches the structure plus its steps: the array with search, insert, and delete. ADT: a set can add, remove, and check contains; it says what it can do, not how it is stored.', b);
 }
 
 /* ---------------- Programming refresher pictures (chat 14) ---------------- */
@@ -2413,13 +2418,19 @@ export function taxoPic() {
   b += ln(170, 48, 62, 76) + ln(170, 48, 230, 76);
   b += box(8, 76, 108, 52, '#f3f5f5', '#6b7778') + sT(62, 98, 'Primitive', { size: 14.5, w: 800, fill: '#37474a' }) + sT(62, 118, 'one value each', { size: 12, w: 700, fill: '#37474a' });
   b += box(150, 76, 160, 52, '#fff3c9', '#c98a12') + sT(230, 98, 'Non-primitive', { size: 14.5, w: 800, fill: '#7a5208' }) + sT(230, 118, 'many values', { size: 12, w: 700, fill: '#7a5208' });
-  ['int', 'double', 'boolean', 'char'].forEach((t, i) => { b += sT(62, 158 + i * 22, t, { mono: true, size: 13, w: 700, fill: '#6b7778' }); });
+  b += mapBox(8, 140, 108, 246, '#fbfbfb', '#c9d0d1', 1.2, 8);
+  let y = 160;
+  [['whole numbers', ['byte', 'short', 'int', 'long']], ['decimals', ['float', 'double']], ['true or false', ['boolean']], ['one character', ['char']]].forEach(([g, items]) => {
+    b += sT(62, y, g, { size: 12, w: 800, fill: '#6b7778' }); y += 18;
+    items.forEach((t) => { b += sT(62, y, t, { mono: true, size: 13, w: 700 }); y += 17; });
+    y += 8;
+  });
   b += ln(230, 128, 180, 158) + ln(230, 128, 284, 158);
   b += box(128, 158, 104, 40, '#e3f1ef', '#0e6b63') + sT(180, 184, 'Linear', { size: 14.5, w: 800, fill: '#0b544e' });
   b += box(240, 158, 92, 40, '#fce9e0', '#e8662e') + sT(286, 184, 'Non-linear', { size: 14, w: 800, fill: '#b4461a' });
   ['array', 'stack', 'queue', 'linked list'].forEach((t, i) => { b += sT(180, 222 + i * 20, t, { size: 13, w: 700 }); });
   ['tree', 'graph'].forEach((t, i) => { b += sT(286, 222 + i * 20, t, { size: 13, w: 700 }); });
   b += `<rect x="122" y="66" width="214" height="240" rx="12" fill="none" stroke="#c98a12" stroke-width="1.6" stroke-dasharray="6 5"/>`;
-  b += sT(229, 326, 'This course: the non-primitive ones', { size: 12.5, w: 800, fill: '#7a5208' });
-  return introPic(340, 336, 'A family tree of data structures. Data structures split into primitive (one value each: int, double, boolean, char) and non-primitive (many values). Non-primitive splits again into two kinds: linear (array, stack, queue, linked list) and non-linear (tree, graph). A dashed box around the non-primitive side says: this course is about the non-primitive ones.', b);
+  b += sT(229, 326, 'This course: the', { size: 12.5, w: 800, fill: '#7a5208' }) + sT(229, 343, 'non-primitive ones', { size: 12.5, w: 800, fill: '#7a5208' });
+  return introPic(340, 394, 'A family tree of data structures. Data structures split into primitive (one value each) and non-primitive (many values). Java has eight primitive types: whole numbers byte, short, int, long; decimals float, double; true or false boolean; one character char. Non-primitive splits again into two kinds: linear (array, stack, queue, linked list) and non-linear (tree, graph). A dashed box around the non-primitive side says: this course is about the non-primitive ones.', b);
 }

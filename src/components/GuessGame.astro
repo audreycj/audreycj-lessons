@@ -22,6 +22,8 @@ const { id } = Astro.props;
       <p class="gg-name">Binary search</p>
       <p class="gg-how small">Guess the middle. "Too low" or "too high" rules out half. Repeat.</p>
       <p class="gg-big"><span class="gg-b"></span> <span class="small">guesses</span></p>
+      <p class="gg-legend small"><span class="lg lg-cut"></span> ruled out by this guess <span class="lg lg-keep"></span> still possible <span class="lg lg-old"></span> ruled out earlier</p>
+      <svg class="gg-defs" width="0" height="0" aria-hidden="true"><defs><pattern id={id + '-hatch'} width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#e8662e" stroke-width="3" /></pattern></defs></svg>
       <ol class="gg-steps" data-grow></ol>
     </div>
   </div>
@@ -40,8 +42,18 @@ const { id } = Astro.props;
   .guess .gg-big { font-family: var(--font-display); font-weight: 600; font-size: 2.2rem; line-height: 1.1; margin-top: 0.4rem; color: var(--teal-ink); }
   .guess .gg-big .small { font-family: var(--font-body); font-size: 0.85rem; color: var(--ink-soft); }
   .guess .gg-list { color: var(--ink-soft); word-break: break-word; margin-top: 0.3rem; }
-  .guess .gg-steps { list-style: none; padding: 0; display: grid; gap: 0.35rem; margin-top: 0.4rem; }
-  .guess .gg-steps li { margin: 0; display: grid; gap: 0.15rem; font-size: 0.82rem; }
+  .guess .gg-steps { list-style: none; padding: 0; display: grid; gap: 0.9rem; margin-top: 0.6rem; }
+  .guess .gg-steps li { margin: 0; padding-top: 0.75rem; border-top: 1.5px dashed var(--line); }
+  .guess .gg-steps li:first-child { border-top: 0; padding-top: 0; }
+  .guess .gg-rh { font-size: 0.95rem; font-weight: 700; }
+  .guess .gg-left { font-size: 0.9rem; font-weight: 700; color: var(--teal-ink); }
+  .guess .gg-steps svg { display: block; width: 100%; max-width: 26rem; height: auto; margin: 0.35rem 0; }
+  .guess .gg-defs { position: absolute; }
+  .guess .gg-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.5rem; color: var(--ink-soft); margin-top: 0.5rem; }
+  .guess .lg { display: inline-block; width: 1.6rem; height: 0.85rem; border-radius: 3px; vertical-align: middle; }
+  .guess .lg-cut { background: repeating-linear-gradient(45deg, #e8662e 0 2.5px, #e3f1ef 2.5px 6px); border: 1.5px solid #0e6b63; }
+  .guess .lg-keep { background: #e3f1ef; border: 2px solid #0e6b63; }
+  .guess .lg-old { background: #e7eaea; border: 1.2px solid #9aa5a6; }
   .guess .bar { position: relative; height: 0.7rem; background: #e3e7e8; border-radius: 99px; overflow: hidden; }
   .guess .bar .keep { position: absolute; top: 0; bottom: 0; background: var(--teal-wash); border: 1.5px solid var(--teal); border-radius: 99px; }
   .guess .bar .g { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--orange); }
@@ -59,13 +71,26 @@ const { id } = Astro.props;
       sEl.textContent = String(n);
       sl.textContent = n <= 12 ? Array.from({ length: n }, (_, i) => i + 1).join(', ') : `1, 2, 3, 4, 5, … , ${n - 1}, ${n}`;
       let lo = 1, hi = 100, html = '', c = 0;
+      const X = (v: number) => 10 + (v - 1) * 3.2, hatch = fig.id + '-hatch';
+      const T = (x: number, y: number, t: string | number, o = '') => `<text x="${x}" y="${y}" font-family="Nunito, system-ui, sans-serif" font-size="12" font-weight="800" fill="#37474a" text-anchor="middle"${o}>${t}</text>`;
       while (lo <= hi) {
         const mid = Math.floor((lo + hi) / 2); c++;
-        const res = mid === n ? 'correct!' : mid < n ? 'too low' : 'too high';
-        const left = (lo - 1), width = hi - lo + 1;
-        html += `<li><span>Guess ${c}: <b>${mid}</b> → ${res}${mid !== n ? ` (still possible: ${mid < n ? mid + 1 : lo}–${mid < n ? hi : mid - 1})` : ''}</span><span class="bar"><span class="keep" style="left:${left}%;width:${width}%"></span><span class="g" style="left:${mid - 1}%"></span></span></li>`;
-        if (mid === n) break;
-        if (mid < n) lo = mid + 1; else hi = mid - 1;
+        const ok = mid === n, low = mid < n;
+        const res = ok ? 'correct!' : low ? 'too low' : 'too high';
+        const cut = ok ? null : low ? [lo, mid] : [mid, hi];
+        const nlo = low ? mid + 1 : lo, nhi = low ? hi : mid - 1;
+        const mx = X(mid) + 1.6;
+        let svg = `<svg viewBox="0 0 340 60" role="img" aria-label="Guess ${c}: ${mid}, ${res}. Before it, ${lo} to ${hi} were possible.">`;
+        svg += `<rect x="10" y="18" width="320" height="20" rx="3" fill="#e7eaea" stroke="#9aa5a6" stroke-width="1.2"/>`;
+        svg += `<rect x="${X(lo)}" y="18" width="${X(hi) + 3.2 - X(lo)}" height="20" rx="3" fill="#e3f1ef" stroke="#0e6b63" stroke-width="2.2"/>`;
+        if (cut) svg += `<rect x="${X(cut[0]) + 1}" y="19.5" width="${Math.max(X(cut[1]) + 3.2 - X(cut[0]) - 2, 1)}" height="17" fill="url(#${hatch})"/>`;
+        svg += `<line x1="${mx}" y1="13" x2="${mx}" y2="43" stroke="${ok ? '#0e6b63' : '#b4461a'}" stroke-width="3"/>`;
+        svg += T(Math.min(Math.max(mx, 18), 322), 10, mid, ` fill="${ok ? '#0b544e' : '#b4461a'}"`).replace('fill="#37474a" ', '');
+        svg += T(10, 56, 1, ' text-anchor="start"').replace('text-anchor="middle"', '') + T(330, 56, 100).replace('text-anchor="middle"', 'text-anchor="end"');
+        svg += '</svg>';
+        html += `<li><p class="gg-rh">Guess ${c}: <b>${mid}</b> → ${res}</p>${svg}<p class="gg-left">${ok ? 'Found it!' : `Still possible: ${nlo}–${nhi}`}</p></li>`;
+        if (ok) break;
+        if (low) lo = mid + 1; else hi = mid - 1;
       }
       bEl.textContent = String(c); steps.innerHTML = html;
     }
