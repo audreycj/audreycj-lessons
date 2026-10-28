@@ -104,7 +104,7 @@ const { id } = Astro.props;
       st = chain([10, 20, 30]); st.vars.current = 'n20';
       push('Insert <b>25</b> after the node holding 20. <code>current</code> already refers to node 20, so no search is needed.', '', { cur: ['n20'] });
       st.nodes.n25 = { v: 25, next: null }; st.vars.newNode = 'n25';
-      push('Create the new node 25.', 'newNode = new Node(25);', { nw: ['n25'], hot: ['newNode'] });
+      push('Create the new node 25.', 'Node newNode = new Node(25);', { nw: ['n25'], hot: ['newNode'] });
       if (name === 'after') {
         st.nodes.n25.next = st.nodes.n20.next;
         push('<b>Step 1:</b> 25 refers to the node that will follow it (30). current.next is the reference stored in node 20.', 'newNode.next = current.next;', { nw: ['n25'], chg: ['n25'] });

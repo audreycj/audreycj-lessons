@@ -2739,3 +2739,76 @@ export function wrongOrderPic() {
   b += sT(170, 416, '40 is lost. Fix: start from the end (move 40 first).', { size: 12.5, w: 800, fill: '#0b544e' });
   return introPic(340, 428, 'The mistake of shifting from the front. Start: 10, 20, 30, 40, then an empty slot. Move 1: 30 is copied into slot 3, on top of 40, so 40 is covered up. Move 2: slot 3 now holds 30, so 30 is copied into slot 4. Then 25 goes into slot 2: the result is 10, 20, 25, 30, 30, and 40 is lost. Fix: start from the end and move 40 first.', b);
 }
+
+/* ---- Linked lists (chat 16): clean node-box pictures ---- */
+const LW = 52, LH = 34, LD = 34, LG = 22;
+const llDefs = '<defs>' + [['k', '#1b2a2e'], ['r', '#b23a33'], ['o', '#e8662e']].map(([n, c]) => `<marker id="llm-${n}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${c}"/></marker>`).join('') + '</defs>';
+const llC = { k: '#1b2a2e', r: '#b23a33', o: '#e8662e' };
+const llBox = (x, y, v, o = {}) => {
+  const st = o.lost ? llC.r : llC.k, dash = o.lost ? ' stroke-dasharray="5 4"' : '';
+  return `<rect x="${x}" y="${y}" width="${LD}" height="${LH}" fill="${o.fill ?? '#fff'}" stroke="${st}" stroke-width="2"${dash}/>` +
+    `<rect x="${x + LD}" y="${y}" width="${LW - LD}" height="${LH}" fill="#fff" stroke="${st}" stroke-width="2"${dash}/>` +
+    sT(x + LD / 2, y + LH / 2 + 5, v, { mono: true, size: 15, w: 700, fill: o.lost ? llC.r : (o.ink ?? llC.k) }) +
+    `<circle cx="${x + LD + (LW - LD) / 2}" cy="${y + LH / 2}" r="3.5" fill="${st}"/>`;
+};
+const llDot = (x) => x + LD + (LW - LD) / 2;
+const llPath = (d, c = 'k', o = {}) => `<path d="${d}" fill="none" stroke="${llC[c]}" stroke-width="${o.w ?? 2}"${o.dash ? ' stroke-dasharray="5 4"' : ''} marker-end="url(#llm-${c})"/>`;
+const llLink = (xa, xb, y, c = 'k', o = {}) => llPath(`M${llDot(xa)} ${y + LH / 2} H${xb - 1}`, c, o);
+const llNull = (x, y, c = 'k', o = {}) => llPath(`M${llDot(x)} ${y + LH / 2} H${llDot(x) + 22}`, c, o) + sT(llDot(x) + 27, y + LH / 2 + 4, 'null', { mono: true, size: 13, w: 600, fill: c === 'r' ? llC.r : '#4f5f62', anchor: 'start' });
+const llVar = (x, y, name, fill = '#0b544e') => sT(x + LD / 2, y, name, { mono: true, size: 13, w: 700, fill }) + `<line x1="${x + LD / 2}" y1="${y + 4}" x2="${x + LD / 2}" y2="${y + 11}" stroke="${fill}" stroke-width="1.6"/>`;
+const llRow = (x0, y, vals, o = {}) => {
+  const xs = vals.map((_, i) => x0 + i * (LW + LG));
+  let s = '';
+  vals.forEach((v, i) => {
+    const lost = o.lost && o.lost.includes(v);
+    s += llBox(xs[i], y, v, { lost, fill: o.fills?.[v] });
+    if (i < vals.length - 1) s += llLink(xs[i], xs[i + 1], y, lost ? 'r' : 'k', { dash: lost });
+    else if (!o.noNull) s += llNull(xs[i], y, lost ? 'r' : 'k', { dash: lost });
+  });
+  return { s, xs };
+};
+const llPic = (w, h, label, body) => `<svg class="objbox trap-pic" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">${llDefs}${body}</svg>`;
+
+/** Trap: insert at the beginning with the two lines swapped. */
+export function llSwapPic() {
+  let b = sT(14, 20, '✓ Right order', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
+  const top = llRow(14, 58, [5, 10, 20, 30], { fills: { 5: '#fce9e0' } });
+  b += llVar(top.xs[0], 44, 'head') + top.s;
+  b += sT(14, 132, '✗ Lines swapped', { size: 14, w: 800, fill: llC.r, anchor: 'start' });
+  b += llVar(14, 156, 'head') + llBox(14, 170, 5, { fill: '#fce9e0' });
+  b += llPath(`M${llDot(14)} 187 C 96 187, 92 236, 44 236 C 22 236, 26 220, 30 207`, 'o', { w: 2.6 });
+  b += sT(14, 256, '5 refers to itself', { size: 12.5, w: 800, fill: '#b4461a', anchor: 'start' });
+  const bot = llRow(90, 170, [10, 20, 30], { lost: [10, 20, 30] });
+  b += bot.s + sT(198, 228, 'unreachable: nothing', { size: 12.5, w: 800, fill: llC.r }) + sT(198, 244, 'refers to node 10', { size: 12.5, w: 800, fill: llC.r });
+  b += sT(170, 284, 'printList(head) prints', { size: 13, w: 700, fill: '#37474a' });
+  b += sT(170, 304, '5 -> 5 -> 5 -> 5 -> … forever', { mono: true, size: 13, w: 700, fill: llC.r });
+  return llPic(340, 316, 'Right order: head points to 5, then 10, 20, 30, null. Lines swapped: head points to 5, and 5 points back to itself. Nodes 10, 20, and 30 are unreachable, because nothing refers to node 10. printList of head prints 5 arrow 5 arrow 5 forever.', b);
+}
+
+/** Part 6: delete the node after previous by linking around it. */
+export function llBypassPic() {
+  let b = sT(14, 20, 'Before', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
+  const top = llRow(14, 58, [10, 20, 25, 30]);
+  b += llVar(top.xs[0], 44, 'head') + llVar(top.xs[1], 44, 'previous', '#b4461a') + top.s;
+  b += sT(14, 130, 'After', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' }) + sT(66, 130, 'previous.next = previous.next.next;', { mono: true, size: 12, w: 700, anchor: 'start' });
+  const xs = [14, 88, 162, 236], y = 186;
+  b += llVar(xs[0], 172, 'head') + llVar(xs[1], 172, 'previous', '#b4461a');
+  b += llBox(xs[0], y, 10) + llLink(xs[0], xs[1], y) + llBox(xs[1], y, 20) + llBox(xs[2], y, 25, { lost: true }) + llLink(xs[2], xs[3], y, 'r', { dash: true }) + llBox(xs[3], y, 30) + llNull(xs[3], y);
+  b += llPath(`M${llDot(xs[1])} ${y + LH / 2} C 150 150, 236 150, 252 ${y - 2}`, 'o', { w: 2.8 });
+  b += sT(196, 154, '20 now refers to 30', { size: 12.5, w: 800, fill: '#b4461a' });
+  b += sT(179, 240, 'unreachable', { size: 12.5, w: 800, fill: llC.r });
+  return llPic(340, 252, 'Before: head points to 10, then 20, 25, 30, null; previous refers to node 20. After previous.next equals previous.next.next: node 20 points straight to 30, skipping 25. Node 25 is unreachable from head. Nothing else moved.', b);
+}
+
+/** Trap: the traversal loop without current = current.next. */
+export function llStuckPic() {
+  const x0 = 50, y = 64;
+  const row = llRow(x0, y, [10, 20, 30], { fills: { 10: '#e8662e' } });
+  let b = sT(170, 18, 'Missing: current = current.next;', { mono: true, size: 12.5, w: 700, fill: llC.r });
+  b += sT(x0 + LD / 2, 36, 'head', { mono: true, size: 13, w: 700, fill: '#0b544e' }) + llVar(x0, 51, 'current', '#b4461a');
+  b += row.s.replace(`fill="#1b2a2e" text-anchor="middle">10<`, `fill="#fff" text-anchor="middle">10<`);
+  b += sT(170, 124, 'Round 1, 2, 3, …: current is still node 10', { size: 13, w: 800, fill: '#37474a' });
+  b += `<rect x="20" y="134" width="300" height="38" rx="6" fill="#1b2a2e"/>` + sT(170, 158, '10 -> 10 -> 10 -> 10 -> …', { mono: true, size: 14, w: 700, fill: '#f8dc95' });
+  b += sT(170, 194, '20 and 30 are never visited. The loop never ends.', { size: 13, w: 800, fill: llC.r });
+  return llPic(340, 206, 'The loop is missing current equals current.next. head and current both refer to node 10, followed by 20, 30, null. In round 1, 2, 3, and so on, current is still node 10, so the output is 10 arrow 10 arrow 10 forever. 20 and 30 are never visited, and the loop never ends.', b);
+}
