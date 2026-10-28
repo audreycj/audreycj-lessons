@@ -5,6 +5,7 @@ import MapLab from '../../components/MapLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hashSteps, bucketIndex, binShort } from '../../lib/hash.js';
+import { priceList, putReplace, hashFlow, pigeonWall, chainPic } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -80,13 +81,13 @@ const bucketOut = ['Alice', 'Bob', 'Charlie'].map((k, i) => { const h = hashStep
   .concat([`Removed Bob from bucket ${bucketIndex(hashSteps('Bob').hash)}`, 'Dana not found']).join('\n');
 
 const trace = [
-  ['map.put("A1", "Ana")', '(nothing printed)', 'new entry'],
-  ['map.put("B2", "Ben")', '(nothing printed)', 'new entry'],
-  ['map.put("C3", "Ana")', '(nothing printed)', 'new entry; "Ana" twice is fine (values can repeat)'],
-  ['map.put("A1", "Andy")', '(nothing printed)', 'A1 exists, so "Ana" is replaced by "Andy"'],
-  ['map.get("A1")', 'Andy', ''],
+  ['map.put("A1", "Ana")', 'null', 'new key, so there is no old value'],
+  ['map.put("B2", "Ben")', 'null', 'new key'],
+  ['map.put("C3", "Ana")', 'null', 'new key; "Ana" twice is fine (values can repeat)'],
+  ['map.put("A1", "Andy")', '"Ana"', 'A1 exists: "Ana" is replaced by "Andy", and put returns the old value'],
+  ['map.get("A1")', '"Andy"', ''],
   ['map.get("D4")', 'null', 'no such key'],
-  ['map.remove("B2")', '(nothing printed)', 'B2 deleted'],
+  ['map.remove("B2")', '"Ben"', 'B2 deleted; remove returns the value it took out'],
   ['map.size()', '2', 'A1 and C3 are left'],
 ];
 
@@ -109,13 +110,13 @@ const quiz = [
     <KindChips />
     <p class="lede">Store things under a name (a key), and find them again in one jump.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>explain what a map is: <b>key-value pairs</b> with unique keys;</li>
-        <li>use <code>put</code>, <code>get</code>, <code>remove</code>, and <code>containsKey</code> on a Java <code>HashMap</code>;</li>
-        <li>explain how <b>hashing</b> makes lookups fast;</li>
-        <li>compute a String's <b>hashCode</b> and its <b>bucket index</b> by hand;</li>
-        <li>recognize a <b>collision</b>.</li>
+        <li>explain what a map is (<b>key-value pairs</b>, unique keys) and give an everyday example;</li>
+        <li>predict what <code>put</code>, <code>get</code>, <code>remove</code>, <code>containsKey</code>, and <code>size</code> return on a Java <code>HashMap</code>, including <code>put</code> on a key that is already there;</li>
+        <li>explain how <b>hashing</b> lets <code>get</code> check one bucket instead of every entry;</li>
+        <li>compute a short String's <b>hashCode</b> and its <b>bucket index</b> (capacity 16) by hand;</li>
+        <li>spot a <b>collision</b> and explain how chaining keeps both keys.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/sets/'}>Sets lesson</a>, a calculator, and scratch paper.</p>
@@ -130,7 +131,7 @@ const quiz = [
     <div class="flow">
       <div class="def">
         <p class="note-label">Map</p>
-        <p>A <b>map</b> is an abstract data type that stores <b>key-value pairs</b>. Each <b>key</b> is unique and is used to find its <b>value</b>. Maps are also called dictionaries or associative arrays.</p>
+        <p>A <b>map</b> is an <a href={base + '/itc120/sets/#adt'}>abstract data type</a> (an idea of what you can do, not how it is stored) that stores <b>key-value pairs</b>. Each <b>key</b> is unique and is used to find its <b>value</b>. Maps are also called dictionaries or associative arrays.</p>
       </div>
       <p>Maps are everywhere. Here are some examples of keys and the values they lead to:</p>
       <table class="tbl">
@@ -153,6 +154,7 @@ const quiz = [
         <p class="note-label">Think of the sari-sari store</p>
         <p>The store owner does not search every shelf for the price of a sachet of coffee. She has a price list: item name (key) → price (value). If the price goes up, she does not add a second line; she <b>crosses out the old price</b> and writes the new one. One item, one price.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={priceList()} /><figcaption>The store's price list works like a map: look up the item (key) to get its price (value).</figcaption></figure>
       <p>A set from the last lesson is like a map with only keys: it answers "is it there?", while a map answers "is it there, and what is its value?"</p>
     </div>
   </section>
@@ -164,18 +166,20 @@ const quiz = [
       <h2>Maps in Java</h2>
     </div>
     <div class="flow">
-      <p>Java's <code>Map</code> interface has these main operations:</p>
+      <p>Java's <code>Map</code> interface (the list of methods every map class must have) has these main operations:</p>
       <table class="tbl">
         <thead><tr><th>Method</th><th>What it does</th></tr></thead>
         <tbody>
-          <tr><td><code>put(key, value)</code></td><td><b>insert</b> a pair, or <b>replace</b> the value if the key exists</td></tr>
+          <tr><td><code>put(key, value)</code></td><td><b>insert</b> a pair, or <b>replace</b> the value if the key exists; returns the old value (<code>null</code> if the key was new)</td></tr>
           <tr><td><code>get(key)</code></td><td><b>look up</b> the value; returns <code>null</code> if the key is missing</td></tr>
-          <tr><td><code>remove(key)</code></td><td><b>delete</b> the pair with that key</td></tr>
+          <tr><td><code>remove(key)</code></td><td><b>delete</b> the pair with that key; returns its value (<code>null</code> if the key was missing)</td></tr>
           <tr><td><code>containsKey(key)</code></td><td><code>true</code> if the key is in the map</td></tr>
           <tr><td><code>size()</code></td><td>number of pairs</td></tr>
         </tbody>
       </table>
-      <p>Like sets, Java has three main map types: <code>HashMap</code> (no guaranteed order, the usual choice), <code>LinkedHashMap</code> (keeps the order you added them), and <code>TreeMap</code> (sorted by key, built on a red-black tree).</p>
+      <p>Like sets, Java has three main map types: <code>HashMap</code> (no guaranteed order, the usual choice; Part 3 explains the "hash"), <code>LinkedHashMap</code> (keeps the order keys were first added), and <code>TreeMap</code> (sorted by key, built on a red-black tree).</p>
+      <p>The picture below shows the most important rule of <code>put</code>: when the key is already there, the value is replaced and the map does not grow.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={putReplace()} /><figcaption><code>put</code> on an existing key replaces the value and returns the old one.</figcaption></figure>
       <pre class="code"><code set:html={hi(basics)} /></pre>
       <p class="small muted"><code>Map&lt;String, Integer&gt;</code> means: keys are <code>String</code>s, values are <code>Integer</code>s.</p>
     </div>
@@ -193,18 +197,22 @@ const quiz = [
         <p class="note-label">Think of the faculty pigeonholes</p>
         <p>The faculty office has 16 pigeonholes for mail. Instead of one big pile, there is a rule that turns each name into a pigeonhole number. To find your mail, use the rule, then check <b>one</b> pigeonhole, not the whole pile.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={pigeonWall()} /><figcaption>The rule turns the name into a number, so you only check that one pigeonhole.</figcaption></figure>
       <p>Here are the words used in hashing:</p>
       <table class="tbl">
         <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
         <tbody>
+          <tr><td><b>Hashing</b></td><td>using a hash function to decide where each key is stored</td></tr>
           <tr><td><b>Hash function</b></td><td>a rule that turns a key into a number</td></tr>
           <tr><td><b>Hash code</b></td><td>the number it produces (in Java: <code>key.hashCode()</code>)</td></tr>
-          <tr><td><b>Bucket</b></td><td>one slot in the table (a pigeonhole)</td></tr>
-          <tr><td><b>Capacity</b></td><td>how many buckets there are (a new <code>HashMap</code> starts with <b>16</b>)</td></tr>
+          <tr><td><b>Hash table</b></td><td>the array of buckets inside a <code>HashMap</code> (the wall of pigeonholes)</td></tr>
+          <tr><td><b>Bucket</b></td><td>one slot in the hash table (one pigeonhole)</td></tr>
+          <tr><td><b>Capacity</b></td><td>how many buckets there are (a new <code>HashMap</code> starts with <b>16</b>; when it holds more than 12, that is 3/4 of 16, it doubles to 32 and moves every key to its new bucket)</td></tr>
           <tr><td><b>Bucket index</b></td><td>which bucket a key goes to, worked out from its hash code</td></tr>
         </tbody>
       </table>
       <p>So <code>put</code> and <code>get</code> both do the same two steps: <b>(1) compute the key's hash code, (2) turn it into a bucket index</b>. Then they go straight to that bucket.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={hashFlow()} /><figcaption>The two steps for the key "CAT". Parts 4 and 5 show how to do each step by hand.</figcaption></figure>
     </div>
   </section>
 
@@ -249,7 +257,7 @@ const quiz = [
         <ul>
           <li>Uppercase and lowercase have <b>different</b> codes: "cat" and "CAT" have different hash codes.</li>
           <li>Start with h = 0, so the first step is just the first character's code.</li>
-          <li>Long strings make huge numbers. A Java <code>int</code> can only go up to 2,147,483,647, so the value wraps around and can become negative. Exam keys are usually short (3–4 letters), so this does not happen there.</li>
+          <li>Long strings make huge numbers. A Java <code>int</code> can only go up to 2,147,483,647, so the value wraps around and can become negative. Keys of up to 5 letters never get that big, so short keys are safe. Longer ones can wrap, like "Charlie" in Part 7.</li>
         </ul>
       </div>
     </div>
@@ -303,7 +311,7 @@ const quiz = [
       <h2>Collisions</h2>
     </div>
     <div class="flow">
-      <p>There are only 16 buckets but endless possible keys, so sometimes two different keys get the same bucket. That is called a <b>collision</b>. It is normal and expected.</p>
+      <p>There are only so many buckets (16 to start) but endless possible keys, so sometimes two different keys get the same bucket. That is called a <b>collision</b>. It is normal and expected.</p>
       <p>Here is a famous one: <b>"Aa"</b> and <b>"BB"</b> have exactly the same hash code.</p>
       <table class="tbl">
         <thead><tr><th>Key</th><th>Work</th><th>hashCode</th><th>Bucket</th></tr></thead>
@@ -312,7 +320,9 @@ const quiz = [
           <tr><td class="mono">"BB"</td><td class="mono">31 × 66 + 66</td><td class="mono">{n(bb)}</td><td class="mono">{bucketIndex(bb)}</td></tr>
         </tbody>
       </table>
-      <p>The keys are different, so the map must keep <b>both</b>. A common way is <b>chaining</b>: each bucket holds a small linked list of entries. To <code>get</code> "BB", Java goes to bucket {bucketIndex(bb)} and walks its short chain, comparing keys until it finds "BB". (You will study more ways to handle collisions in the Hashing lesson later in the semester.)</p>
+      <p>The keys are different, so the map must keep <b>both</b>. A common way is <b>chaining</b>: each bucket holds a small linked list of entries. To <code>get</code> "BB", Java goes to bucket {bucketIndex(bb)} and walks its short chain, comparing keys until it finds "BB" (see the picture below). (You will study more ways to handle collisions in the Hashing week, Week 17.)</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={chainPic()} /><figcaption>Chaining: a bucket can hold more than one entry. <code>get</code> checks only that bucket's chain.</figcaption></figure>
+      <p class="small muted">Good to know: Java's <code>HashMap</code> uses chaining. If one chain gets very long (8 or more entries, in a big enough table), Java turns that chain into a small red-black tree, so even a crowded bucket stays quick to search.</p>
     </div>
   </section>
 
@@ -333,6 +343,10 @@ const quiz = [
         <p class="small"><b>Output:</b></p>
         <pre class="code"><code>{bucketOut}</code></pre>
         <p>Notice "Charlie": its hash code is negative because it wrapped around, but <code>&amp; 15</code> still gives a bucket from 0 to 15.</p>
+        <div class="remember">
+          <p class="note-label">Good to know: a negative hash code by hand</p>
+          <p>For a negative hash code, Java's remainder is negative too: −1,891,246,254 % 16 = −14. <b>Add 16</b> to get the bucket: −14 + 16 = <b>2</b>, the same as <code>&amp; 15</code>. (If the remainder is 0, the bucket is 0.)</p>
+        </div>
       </div>
     </div>
   </section>
@@ -363,13 +377,13 @@ const quiz = [
       ))}
       <div class="paper flow">
         <p class="note-label">Problem 3: trace the map</p>
-        <p>The map starts empty. What does each line do, and what is printed?</p>
+        <p>The map starts empty, and its keys and values are <code>String</code>s. What does each line do, and what does it return? (Remember: <code>put</code> and <code>remove</code> return a value too.)</p>
         <pre class="code"><code>{trace.map((t) => t[0]).join('\n')}</code></pre>
         <details class="reveal">
           <summary>Show the answer</summary>
           <div>
             <table class="tbl">
-              <thead><tr><th>Call</th><th>Returns / prints</th><th>Why</th></tr></thead>
+              <thead><tr><th>Call</th><th>Returns</th><th>Why</th></tr></thead>
               <tbody>{trace.map((t) => <tr><td class="mono small">{t[0]}</td><td class="mono">{t[1]}</td><td class="small">{t[2]}</td></tr>)}</tbody>
             </table>
           </div>
@@ -391,7 +405,7 @@ const quiz = [
         <p class="note-label">Key takeaways</p>
         <ol>
           <li>A map stores key-value pairs. Keys are unique; values can repeat.</li>
-          <li><code>put</code> inserts or replaces, <code>get</code> looks up (or returns null), <code>remove</code> deletes.</li>
+          <li><code>put</code> inserts or replaces (and returns the old value, or null), <code>get</code> looks up (or returns null), <code>remove</code> deletes.</li>
           <li>A HashMap hashes the key to pick a bucket, so it can jump straight to it.</li>
           <li>String hashCode: start at 0, then h = 31 × h + code for each character.</li>
           <li>Bucket index (course formula) = hashCode &amp; (capacity − 1) = the last 4 bits when capacity is 16.</li>

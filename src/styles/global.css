@@ -905,3 +905,6 @@ pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95)
 .trap-list { display: grid; gap: 1.1rem; }
 .trap-list > li > * + * { margin-top: 0.5rem; }
 svg.objbox.trap-pic { max-width: 22rem; margin-inline: 0; }
+
+/* maps pictures (chat 13) */
+svg.objbox.map-pic { max-width: 22rem; }

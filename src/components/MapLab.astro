@@ -95,7 +95,7 @@ const { id } = Astro.props;
           <div><span class="dim">hash&nbsp;=</span> ${esc(rest)}<b>${last4}</b></div>
           <div><span class="dim">&amp;&nbsp;15 =</span> <span class="dim">0000 0000 0000 0000 0000 0000 0000 </span><b>1111</b></div>
           <div><span class="dim">result</span> = <b>${last4}</b> = <b>${idx}</b></div>
-          ${hash >= 0 ? `<div class="dim">shortcut: ${show(hash)} ÷ 16 has remainder ${hash % 16}</div>` : '<div class="dim">(negative hashCode: the &amp; still works; the ÷ 16 shortcut does not)</div>'}
+          ${hash >= 0 ? `<div class="dim">shortcut: ${show(hash)} ÷ 16 has remainder ${hash % 16}</div>` : `<div class="dim">negative hashCode: Java's % 16 gives ${show(hash % 16)}, so add 16: bucket ${hash % 16 === 0 ? 0 : (hash % 16) + 16}</div>`}
         </div>`;
       return { hash, idx };
     }

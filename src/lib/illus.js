@@ -1754,3 +1754,141 @@ export function classPic() {
   s += sT(160, 144, 'One blueprint, many objects', { size: 12, w: 800, fill: '#0b544e' });
   return s + '</svg>';
 }
+
+/* ---------------- maps (chat 13) ---------------- */
+const mapPic = (w, h, label, body) => `<svg class="objbox map-pic" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">${body}</svg>`;
+const mapBox = (x, y, w, h, fill, stroke, sw = 2, rx = 6) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+const mapArrow = (x1, y1, x2, y2, col = '#1b2a2e', sw = 2.2) => {
+  const a = Math.atan2(y2 - y1, x2 - x1), L = 9, p = (k) => `${(x2 - L * Math.cos(a + k)).toFixed(1)} ${(y2 - L * Math.sin(a + k)).toFixed(1)}`;
+  return `<path d="M${x1} ${y1} L${x2} ${y2} M${p(0.5)} L${x2} ${y2} L${p(-0.5)}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>`;
+};
+
+/** Sketch: the sari-sari price list is a map (item = key, price = value). */
+export function priceList() {
+  const s = new Sketch(340, 324, 141);
+  s.text(170, 20, 'The price list is a map', { font: 'body', size: 15, weight: 800 });
+  s.rect(26, 34, 288, 214, { fill: '#fffdf5', sw: 1.8 });
+  s.line(196, 40, 196, 242, { stroke: C.soft, sw: 1.2, single: true, rough: 0.4 });
+  s.text(110, 60, 'Item (key)', { font: 'body', size: 14, weight: 800, color: C.teal });
+  s.text(255, 60, 'Price (value)', { font: 'body', size: 14, weight: 800, color: C.orange });
+  s.line(34, 72, 306, 72, { stroke: C.ink, sw: 1.4, single: true, rough: 0.4 });
+  const rows = [['coffee sachet', null], ['pancit canton', '₱18'], ['egg', '₱9'], ['banana', '₱9']];
+  rows.forEach(([k, v], i) => {
+    const y = 104 + i * 38;
+    s.line(34, y + 14, 306, y + 14, { stroke: '#c9d6d4', sw: 1, single: true, rough: 0.3 });
+    s.text(44, y, k, { font: 'body', size: 15, weight: 700, anchor: 'start' });
+    if (v) s.text(255, y, v, { font: 'body', size: 15, weight: 800 });
+  });
+  // coffee: old price crossed out, new price in red pen
+  s.text(232, 104, '₱10', { font: 'body', size: 15, weight: 700, color: C.soft });
+  s.line(216, 99, 249, 97, { stroke: C.red, sw: 1.4, single: true });
+  s.text(280, 104, '₱12', { font: 'body', size: 15, weight: 800, color: C.red });
+  // repeated value bracket
+  s.path('M290 166 Q302 166 302 176 L302 204 Q302 214 290 214', { stroke: C.orange, sw: 1.8, single: true });
+  s.text(170, 270, 'Each item is written once.', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  s.text(170, 289, 'A new price replaces the old one.', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  s.text(170, 312, 'Egg and banana are both ₱9: values can repeat.', { font: 'body', size: 12.5, weight: 800, color: C.orange });
+  return s.svg('A sari-sari store price list with two columns, item (the key) and price (the value): coffee sachet, old price 10 pesos crossed out and 12 pesos written in red; pancit canton 18 pesos; egg 9 pesos; banana 9 pesos. Each item is written once and a new price replaces the old one. Egg and banana share the same price: values can repeat.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: put on a key that is already there replaces its value. */
+export function putReplace() {
+  let b = sT(170, 22, 'map.put("A1", "Andy")', { mono: true, size: 14, w: 700 });
+  const table = (x, title, rows, hot) => {
+    let t = sT(x + 70, 50, title, { size: 14, w: 800, fill: '#0b544e' });
+    t += mapBox(x, 60, 140, 84, '#fff', '#1b2a2e');
+    t += `<rect x="${x + 1}" y="61" width="138" height="26" rx="5" fill="#e3f1ef"/>`;
+    t += `<line x1="${x + 60}" y1="60" x2="${x + 60}" y2="144" stroke="#1b2a2e" stroke-width="1.5"/>`;
+    t += `<line x1="${x}" y1="87" x2="${x + 140}" y2="87" stroke="#1b2a2e" stroke-width="1.5"/><line x1="${x}" y1="115" x2="${x + 140}" y2="115" stroke="#c9d6d4" stroke-width="1.5"/>`;
+    t += sT(x + 30, 79, 'key', { size: 12, w: 800, fill: '#0b544e' }) + sT(x + 100, 79, 'value', { size: 12, w: 800, fill: '#b4461a' });
+    rows.forEach(([k, v], i) => {
+      const y = 106 + i * 28;
+      if (i === hot) t += `<rect x="${x + 62}" y="${y - 17}" width="76" height="24" rx="4" fill="#fce9e0" stroke="#e8662e" stroke-width="1.8"/>`;
+      t += sT(x + 30, y, k, { mono: true, size: 13, w: 700 }) + sT(x + 100, y, v, { mono: true, size: 13, w: 700, fill: i === hot ? '#b4461a' : '#1b2a2e' });
+    });
+    return t;
+  };
+  b += table(8, 'Before', [['A1', 'Ana'], ['B2', 'Ben']], -1);
+  b += table(192, 'After', [['A1', 'Andy'], ['B2', 'Ben']], 0);
+  b += mapArrow(154, 102, 186, 102, '#e8662e', 2.6);
+  b += sT(78, 166, '2 entries', { size: 13, w: 700, fill: '#37474a' }) + sT(262, 166, 'still 2 entries', { size: 13, w: 700, fill: '#37474a' });
+  b += sT(262, 188, 'put returns "Ana"', { size: 13, w: 800, fill: '#b4461a' });
+  b += sT(170, 214, 'Same key: the value is replaced. No second A1.', { size: 13, w: 800 });
+  return mapPic(340, 226, 'Before: a map with A1 to Ana and B2 to Ben, 2 entries. After map.put of A1, Andy: A1 now points to Andy, B2 to Ben, still 2 entries. put returns Ana, the old value. Same key: the value is replaced, with no second A1.', b);
+}
+
+/** Clean: the two steps, key -> hashCode -> bucket index (CAT -> 66486 -> 6). */
+export function hashFlow() {
+  let b = mapBox(120, 8, 100, 36, '#e3f1ef', '#0e6b63', 2.2) + sT(170, 32, '"CAT"', { mono: true, size: 16, w: 700 });
+  b += mapArrow(170, 46, 170, 92);
+  b += sT(184, 64, 'Step 1: hashCode()', { size: 13, w: 800, anchor: 'start', fill: '#0b544e' });
+  b += sT(184, 82, 'h = 31 × h + code', { mono: true, size: 12, w: 600, anchor: 'start', fill: '#37474a' });
+  b += mapBox(115, 96, 110, 36, '#fdf1cf', '#1b2a2e', 2) + sT(170, 120, '66486', { mono: true, size: 16, w: 700 });
+  const bx = (i) => 18 + i * 19;
+  b += mapArrow(160, 134, bx(6) + 9.5, 176, '#e8662e', 2.4);
+  b += sT(184, 152, 'Step 2: & 15', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
+  b += sT(184, 170, '(keep the last 4 bits)', { size: 12, w: 700, anchor: 'start', fill: '#37474a' });
+  for (let i = 0; i < 16; i++) {
+    const hot = i === 6;
+    b += `<rect x="${bx(i)}" y="180" width="17" height="26" rx="3" fill="${hot ? '#e8662e' : '#fff'}" stroke="${hot ? '#b4461a' : '#1b2a2e'}" stroke-width="${hot ? 2 : 1.4}"/>`;
+    b += sT(bx(i) + 8.5, 198, String(i), { size: 10, w: 800, fill: hot ? '#fff' : '#37474a' });
+  }
+  b += sT(170, 226, 'buckets 0 to 15', { size: 12, w: 700, fill: '#37474a' });
+  b += sT(170, 248, 'put and get both go straight to bucket 6.', { size: 13, w: 800 });
+  return mapPic(340, 258, 'The key CAT goes through step 1, hashCode, using h = 31 times h plus code, and becomes 66486. Step 2, and 15, keeps the last 4 bits and gives bucket 6 out of buckets 0 to 15. put and get both go straight to bucket 6.', b);
+}
+
+/** Sketch: the faculty pigeonholes. A rule turns a name into a slot number; check one slot. */
+export function pigeonWall() {
+  const s = new Sketch(340, 318, 152);
+  s.text(170, 20, '16 pigeonholes, one rule', { font: 'body', size: 15, weight: 800 });
+  const env = (x, y, w, h, fill = '#fff', name = '') => {
+    s.rect(x, y, w, h, { fill, sw: 1.5, rough: 0.7 });
+    s.path(`M${x} ${y} L${x + w / 2} ${y + h * 0.55} L${x + w} ${y}`, { sw: 1.3, single: true, rough: 0.5 });
+    if (name) s.text(x + w / 2, y + h - 5, name, { font: 'body', size: 12, weight: 800 });
+  };
+  env(18, 38, 70, 42, '#fff', 'to: Cruz');
+  s.arrow(94, 59, 124, 59, { sw: 1.8 });
+  s.round(128, 38, 104, 42, 9, { fill: C.butter, stroke: C.amber, sw: 1.8 });
+  s.text(180, 56, 'the rule', { font: 'body', size: 13, weight: 800 });
+  s.text(180, 73, 'name → number', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.arrow(238, 59, 266, 59, { sw: 1.8 });
+  s.circle(292, 59, 40, { fill: C.orangeWash, stroke: C.orange, sw: 2 });
+  s.text(292, 65, '11', { font: 'body', size: 17, weight: 800, color: C.orange });
+  // the wall: 4 x 4, slot i at row i/4, col i%4
+  const X = 62, Y = 104, W = 54, H = 44;
+  s.rect(X - 6, Y - 6, W * 4 + 12, H * 4 + 12, { fill: '#c99b62', sw: 1.8 });
+  for (let i = 0; i < 16; i++) {
+    const x = X + (i % 4) * W, y = Y + Math.floor(i / 4) * H, hot = i === 11;
+    s.rect(x + 2, y + 2, W - 4, H - 4, { fill: hot ? C.orangeWash : '#f4ead8', stroke: hot ? C.orange : C.ink, sw: hot ? 2.2 : 1.3, rough: 0.6 });
+    s.text(x + 11, y + 16, String(i), { font: 'body', size: 11, weight: 800, color: hot ? C.orange : C.soft });
+    if ([2, 5, 14].includes(i)) env(x + 20, y + 19, 24, 17, '#eef3f2');
+    if (hot) env(x + 18, y + 18, 28, 19, '#fff');
+  }
+  s.curve(304, 80, 284, 196, -26, { stroke: C.orange, sw: 2.2, single: true });
+  s.text(170, 300, 'To find the mail: use the rule, then check one slot.', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  return s.svg('A letter addressed to Cruz goes into the rule, name to number, which gives 11. A wall of 16 pigeonholes numbered 0 to 15: slot 11 is highlighted and holds the letter; a few other slots hold other mail. To find the mail: use the rule, then check one slot.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: chaining. Bucket 0 holds Aa -> BB; get("BB") compares keys along the chain. */
+export function chainPic() {
+  let b = sT(170, 20, 'get("BB"): go to bucket 0, walk its chain', { size: 13, w: 800 });
+  const rows = [[0, [['Aa', 'first'], ['BB', 'second']]], [1, []], [2, []], ['…'], [6, [['CAT', 'Puspin']]], ['…'], [12, [['DOG', 'Aspin']]], ['…'], [15, []]];
+  const ent = (x, y, k, v, hot) => mapBox(x, y, 104, 24, hot ? '#fce9e0' : '#e3f1ef', hot ? '#e8662e' : '#0e6b63', 1.8, 4)
+    + `<line x1="${x + 42}" y1="${y}" x2="${x + 42}" y2="${y + 24}" stroke="${hot ? '#e8662e' : '#0e6b63'}" stroke-width="1.4"/>`
+    + sT(x + 21, y + 17, k, { mono: true, size: 12, w: 700 }) + sT(x + 73, y + 17, v, { mono: true, size: 12, w: 600, fill: '#37474a' });
+  b += sT(118, 48, '✗ not BB', { size: 12, w: 800, fill: '#b23a33' }) + sT(250, 48, '✓ found', { size: 12, w: 800, fill: '#b4461a' });
+  rows.forEach((r, i) => {
+    const y = 56 + i * 28;
+    if (r[0] === '…') { b += sT(36, y + 16, '⋮', { size: 14, w: 800, fill: '#37474a' }); return; }
+    const [n, chain] = r, hot = n === 0;
+    b += mapBox(20, y, 32, 24, hot ? '#e8662e' : '#fff', hot ? '#b4461a' : '#1b2a2e', 1.6, 4) + sT(36, y + 17, String(n), { size: 12, w: 800, fill: hot ? '#fff' : '#1b2a2e' });
+    if (!chain.length) b += sT(66, y + 17, '· empty', { size: 12, w: 700, fill: '#8a9a9c', anchor: 'start' });
+    chain.forEach(([k, v], j) => {
+      const x = 66 + j * 132;
+      b += mapArrow(x - 12, y + 12, x - 2, y + 12, '#37474a', 1.6) + ent(x, y, k, v, hot && j === 1);
+    });
+  });
+  b += sT(170, 318, 'Aa and BB share bucket 0 (a collision). Both are kept.', { size: 12.5, w: 800, fill: '#0b544e' });
+  return mapPic(340, 330, 'Buckets of a HashMap with chaining. Bucket 0 holds a chain: Aa to first, then BB to second. Bucket 6 holds CAT to Puspin, bucket 12 holds DOG to Aspin, others are empty. get BB goes to bucket 0, checks Aa: not BB, then BB: found. Aa and BB share bucket 0, a collision, and both are kept.', b);
+}
