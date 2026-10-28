@@ -16,7 +16,6 @@ const config = JSON.stringify({ values, capacity });
     <button type="button" class="btn" data-op="traverse">Traverse: find highest</button>
     <button type="button" class="btn" data-op="insert">Insert</button>
     <button type="button" class="btn" data-op="delete">Delete</button>
-    <button type="button" class="btn" data-op="reset">Reset array</button>
   </div>
   <p class="al-err small" aria-live="polite"></p>
   <div class="al-stage">
@@ -26,6 +25,7 @@ const config = JSON.stringify({ values, capacity });
   <p class="al-cap" aria-live="polite"></p>
   <pre class="code al-code"><code></code></pre>
   <div class="btn-row al-nav">
+    <button type="button" class="btn" data-op="reset">↺ Reset array</button>
     <button type="button" class="btn" data-go="back">← Back</button>
     <button type="button" class="btn primary" data-go="next">Next step →</button>
   </div>
