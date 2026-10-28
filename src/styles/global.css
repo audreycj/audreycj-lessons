@@ -900,3 +900,8 @@ pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95)
 /* Code right after a table (or any block) inside a subsection/flow: pre.code's margin: 0 was winning over the spacing rule */
 .sub > * + pre.code { margin-top: 1rem; }
 .flow > * + pre.code { margin-top: 1.15rem; }
+
+/* Sets exam traps: one mini picture per trap */
+.trap-list { display: grid; gap: 1.1rem; }
+.trap-list > li > * + * { margin-top: 0.5rem; }
+svg.objbox.trap-pic { max-width: 22rem; margin-inline: 0; }

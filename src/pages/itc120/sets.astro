@@ -6,7 +6,7 @@ import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hiN } from '../../lib/code.js';
 import Peek from '../../components/Peek.astro';
-import { setVsList, adtStore, attendanceSet, subsetPic, interfacePic, classPic } from '../../lib/illus.js';
+import { setVsList, setOrder, setTrapPic, adtStore, attendanceSet, subsetPic, interfacePic, classPic } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -171,18 +171,39 @@ const quiz = [
     <div class="flow">
       <div class="def">
         <p class="note-label">Set</p>
-        <p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p>
+        <p>A <b>set</b> is an abstract data type (ADT, explained below) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={setVsList()} /><figcaption>The same four names go into a list and into a set. The list keeps the second Ana and gives every item a position. The set keeps each name once, and shuffling it gives the same set.</figcaption></figure>
-      <p>An <b>abstract data type</b> describes <i>what</i> a structure does (its operations), not <i>how</i> it is built inside. You already met one: a <a href={base + '/itc120/stacks-queues/'}>stack</a> is "push, pop, peek", whether it is built with an array or a linked list. A set is "add, remove, contains".</p>
-      <figure class="fig illus-fig illus"><Fragment set:html={adtStore()} /><figcaption>A sari-sari store works like an ADT. At the window, you can only ask (contains?) or ask for changes (add, remove). How the stock is arranged inside is hidden, and two stores can do it differently. Both still answer "Do you have Coke?" correctly.</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={setVsList()} /><figcaption>The same four names go into a list and into a set. The list keeps the second Ana. The set keeps each name once.</figcaption></figure>
+      <div class="sub" id="adt">
+        <h3>What is an abstract data type (ADT)?</h3>
+        <p>Every data structure can be described by answering two questions:</p>
+        <ol>
+          <li><b>What can I do with it?</b> Its operations, and what each one gives back. For a set: add a value, remove a value, ask "Is this value in it?", and count the values.</li>
+          <li><b>How is it stored inside the computer?</b> For a set, it could be an array, a tree, or a hash table. Any of these can work.</li>
+        </ol>
+        <p>An <b>abstract data type (ADT)</b> answers only the first question. "Abstract" means "the idea only, without the details". So the ADT says <i>what</i> you can do, not <i>how</i> it is done. The second question is answered by the code that builds it, called the <b>implementation</b>.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={adtStore()} /><figcaption>A sari-sari store works like an ADT. At the window, you can only ask (contains?) or ask for changes (add, remove). How the stock is arranged inside is hidden, and two stores can do it differently. Both still answer "Do you have Coke?" correctly.</figcaption></figure>
+        <p>This table matches the store to a set:</p>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>In the store</th><th>In a set</th></tr></thead>
+          <tbody>
+            <tr><td>You ask: "Do you have Coke?"</td><td><code>contains("Coke")</code>: the answer is yes or no (true or false)</td></tr>
+            <tr><td>New stock arrives</td><td><code>add("Coke")</code></td></tr>
+            <tr><td>The last one is sold</td><td><code>remove("Coke")</code></td></tr>
+            <tr><td>How the shelves or bins are arranged (you can't see it)</td><td>how the set is built inside: the implementation</td></tr>
+          </tbody>
+        </table></div>
+        <p><b>Why split it this way?</b> You can use a set without knowing how it is built, just as you can buy at any sari-sari store without seeing its shelves. And the way it is built can be changed later (to make it faster) without changing the code that uses it.</p>
+        <p>You already met an ADT: a <a href={base + '/itc120/stacks-queues/'}>stack</a> is "push, pop, peek", whether it is built with an array or a linked list. A set is "add, remove, contains".</p>
+      </div>
       <div class="sub">
         <h3>The two properties</h3>
         <p>Every set has these two properties:</p>
         <ol>
           <li><b>Uniqueness.</b> Each value appears at most once (like the second Ana in the <Peek label="list vs. set picture" title="From above" html={`<div class=\"illus\">${setVsList()}</div>`} />). Adding a value that is already there does nothing.</li>
-          <li><b>Unordered.</b> Items have no position. There is no "first" or "third" item, and no index like <code>[2]</code>. So &#123;1, 2, 3&#125; and &#123;3, 1, 2&#125; are the <b>same set</b>.</li>
+          <li><b>Unordered.</b> Items have no position (no place in line). In a list or an array, every item has an <b>index</b>: <code>[0]</code> is the first item, <code>[1]</code> is the second, and so on. A set has no index, so it has no "first" item. You can only ask "Is this value in the set?" That is why &#123;1, 2, 3&#125; and &#123;3, 1, 2&#125; are the <b>same set</b>.</li>
         </ol>
+        <figure class="fig illus-fig illus"><Fragment set:html={setOrder()} /><figcaption>Rows 1 and 2: changing the order makes a different list, but the same set. Row 3: a list can give you item [0] (its first item). A set cannot, because its values have no places, so you ask whether a value is in it instead.</figcaption></figure>
       </div>
       <div class="sticky">
         <p class="note-label">Think of the attendance list</p>
@@ -197,6 +218,38 @@ const quiz = [
         </ul>
       </div>
       <figure class="fig illus-fig illus"><Fragment set:html={attendanceSet()} /><figcaption>Top: Ana tapped her ID twice, but the attendance lists her once. Bottom: the same idea in IT. Repeat visits count once, a tag appears once per post, and the overlap of two class lists shows who is in both.</figcaption></figure>
+      <div class="sub" id="subsets">
+        <h3>Review: subsets</h3>
+        <p>You may remember subsets from math class. Here is a quick review, because Java can check them too (Part 3).</p>
+        <div class="def">
+          <p class="note-label">Subset</p>
+          <p>A is a <b>subset</b> of B, written <b>A ⊆ B</b>, when every value in A is also in B.</p>
+        </div>
+        <figure class="fig"><Fragment set:html={subsetPic()} /><figcaption>A = &#123;Ana, Ben&#125; sits inside B = &#123;Ana, Ben, Carla, Dan&#125;, so A ⊆ B. But C = &#123;Ana, Eve&#125; is <b>not</b> a subset of B, because Eve is not in B.</figcaption></figure>
+        <p>Here are the words and symbols that go with subsets, using the sets in the picture:</p>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>Term</th><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><b>Subset</b></td><td class="mono">A ⊆ B</td><td>every value of A is in B</td><td>&#123;Ana, Ben&#125; ⊆ B</td></tr>
+            <tr><td><b>Proper subset</b></td><td class="mono">A ⊂ B</td><td>A ⊆ B, and B has at least one value that A does not</td><td>&#123;Ana, Ben&#125; ⊂ B (B also has Carla and Dan)</td></tr>
+            <tr><td><b>Not a subset</b></td><td class="mono">C ⊄ B</td><td>at least one value of C is not in B</td><td>&#123;Ana, Eve&#125; ⊄ B (Eve)</td></tr>
+            <tr><td><b>Equal sets</b></td><td class="mono">A = B</td><td>A ⊆ B and B ⊆ A: exactly the same values</td><td>&#123;Ana, Ben&#125; = &#123;Ben, Ana&#125;</td></tr>
+          </tbody>
+        </table></div>
+        <p>Two facts are easy to forget:</p>
+        <ul>
+          <li>The empty set &#123; &#125; (the set with nothing in it) is a subset of <b>every</b> set. It has no value that could be missing from B.</li>
+          <li>Every set is a subset of <b>itself</b> (B ⊆ B), but not a <i>proper</i> subset of itself.</li>
+        </ul>
+        <div class="trap">
+          <p class="note-label">Exam trap: one value vs. a set</p>
+          <p><b>Ana ∈ B</b> means "the value Ana is in B" (∈ = "is an element of"). <b>&#123;Ana&#125; ⊆ B</b> means "the set holding only Ana is a subset of B". Use ∈ for one value and ⊆ for a set. Writing "Ana ⊆ B" is wrong.</p>
+        </div>
+        <div class="plain">
+          <p class="note-label">Good to know: ⊂ in other books</p>
+          <p>Some books write ⊂ for <i>any</i> subset (what we write ⊆). If a question uses ⊂, check how that book or teacher defines it. Rosen (reference 3) uses ⊆ and ⊂ the same way as this lesson.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -222,49 +275,18 @@ const quiz = [
       <SetLab id="setlab" a={[1, 2, 3, 4, 5]} b={[4, 5, 6, 7]} />
       <div class="trap">
         <p class="note-label">Exam traps</p>
-        <ul>
-          <li><b>A − B is not the same as B − A.</b> Order matters for difference.</li>
-          <li>In a union, shared values appear <b>once</b>: &#123;1, 2&#125; ∪ &#123;2, 3&#125; = &#123;1, 2, 3&#125;, not &#123;1, 2, 2, 3&#125;.</li>
-          <li>When the result has nothing in it, write the <b>empty set</b>: &#123; &#125; (or ∅). Try making A and B equal in the lab.</li>
-          <li>A △ B = (A ∪ B) − (A ∩ B) = (A − B) ∪ (B − A). All three give the same answer.</li>
-        </ul>
+        <ol class="trap-list">
+          <li><p><b>A − B is not the same as B − A.</b> Order matters for difference: A − B is the part of A outside B, and B − A is the part of B outside A.</p><Fragment set:html={setTrapPic(1)} /></li>
+          <li><p>In a union, shared values appear <b>once</b>: &#123;1, 2&#125; ∪ &#123;2, 3&#125; = &#123;1, 2, 3&#125;, not &#123;1, 2, 2, 3&#125;.</p><Fragment set:html={setTrapPic(2)} /></li>
+          <li><p>When the result has nothing in it, write the <b>empty set</b>: &#123; &#125; (or ∅). Here A and B have the same values, so their circles sit on top of each other and A − B leaves nothing. Try making A and B equal in the lab.</p><Fragment set:html={setTrapPic(3)} /></li>
+          <li><p>A △ B = (A ∪ B) − (A ∩ B) = (A − B) ∪ (B − A). All three give the same answer: the two outer parts, without the middle.</p><Fragment set:html={setTrapPic(4)} /></li>
+        </ol>
       </div>
       <div class="plain">
         <p class="note-label">Good to know: other symbols in other books</p>
         <p>Some books write the difference A − B as <b>A \ B</b>, and the symmetric difference A △ B as <b>A ⊕ B</b> (Rosen, reference 3) or <b>A Δ B</b>. They mean the same operations.</p>
       </div>
-      <div class="sub" id="subsets">
-        <h3>Review: subsets</h3>
-        <p>You may remember subsets from math class. Here is a quick review, because Java can check them too (Part 3).</p>
-        <div class="def">
-          <p class="note-label">Subset</p>
-          <p>A is a <b>subset</b> of B, written <b>A ⊆ B</b>, when every value in A is also in B.</p>
-        </div>
-        <figure class="fig"><Fragment set:html={subsetPic()} /><figcaption>A = &#123;Ana, Ben&#125; sits inside B = &#123;Ana, Ben, Carla, Dan&#125;, so A ⊆ B. But C = &#123;Ana, Eve&#125; is <b>not</b> a subset of B, because Eve is not in B.</figcaption></figure>
-        <p>Here are the words and symbols that go with subsets, using the sets in the picture:</p>
-        <div class="scroll-x"><table class="tbl">
-          <thead><tr><th>Term</th><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td><b>Subset</b></td><td class="mono">A ⊆ B</td><td>every value of A is in B</td><td>&#123;Ana, Ben&#125; ⊆ B</td></tr>
-            <tr><td><b>Proper subset</b></td><td class="mono">A ⊂ B</td><td>A ⊆ B, and B has at least one value that A does not</td><td>&#123;Ana, Ben&#125; ⊂ B (B also has Carla and Dan)</td></tr>
-            <tr><td><b>Not a subset</b></td><td class="mono">C ⊄ B</td><td>at least one value of C is not in B</td><td>&#123;Ana, Eve&#125; ⊄ B (Eve)</td></tr>
-            <tr><td><b>Equal sets</b></td><td class="mono">A = B</td><td>A ⊆ B and B ⊆ A: exactly the same values</td><td>&#123;Ana, Ben&#125; = &#123;Ben, Ana&#125;</td></tr>
-          </tbody>
-        </table></div>
-        <p>Two facts are easy to forget:</p>
-        <ul>
-          <li>The empty set &#123; &#125; is a subset of <b>every</b> set. It has no value that could be missing from B.</li>
-          <li>Every set is a subset of <b>itself</b> (B ⊆ B), but not a <i>proper</i> subset of itself.</li>
-        </ul>
-        <div class="trap">
-          <p class="note-label">Exam trap: one value vs. a set</p>
-          <p><b>Ana ∈ B</b> means "the value Ana is in B" (∈ = "is an element of"). <b>&#123;Ana&#125; ⊆ B</b> means "the set holding only Ana is a subset of B". Use ∈ for one value and ⊆ for a set. Writing "Ana ⊆ B" is wrong.</p>
-        </div>
-        <div class="plain">
-          <p class="note-label">Good to know: ⊂ in other books</p>
-          <p>Some books write ⊂ for <i>any</i> subset (what we write ⊆). If a question uses ⊂, check how that book or teacher defines it. Rosen (reference 3) uses ⊆ and ⊂ the same way as this lesson.</p>
-        </div>
-      </div>
+
     </div>
   </section>
 

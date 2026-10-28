@@ -1500,26 +1500,23 @@ const setChip = (s, x, y, w, label, fill, stroke, size = 13) => {
 };
 const setDot = (cx, cy, r, fill) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>`;
 
-/** Sketch: the same four adds go into a list (keeps the 2nd Ana, has indexes) and a set (ignores it; shuffled = same set). */
+/** Sketch: the same four adds go into a list (keeps the 2nd Ana) and into a set (ignores it). */
 export function setVsList() {
-  const s = new Sketch(340, 376, 121);
+  const s = new Sketch(340, 272, 121);
   s.text(170, 18, 'We add: Ana, Ben, Ana, Carla', { font: 'body', size: 14, weight: 800 });
   [['Ana', 66, 44], ['Ben', 118, 44], ['Ana', 170, 44], ['Carla', 222, 56]].forEach(([n, x, w], i) =>
     setChip(s, x, 28, w, n, i === 2 ? C.orangeWash : C.butter, i === 2 ? C.orange : C.ink));
   s.arrow(120, 58, 88, 82, { sw: 1.8, head: 7 });
   s.arrow(220, 58, 252, 82, { sw: 1.8, head: 7 });
-  // list
-  s.text(85, 98, 'A list', { font: 'body', size: 15, weight: 800 });
+  s.text(85, 98, 'In a list', { font: 'body', size: 15, weight: 800 });
   s.text(85, 113, '(like an array)', { font: 'body', size: 11, weight: 700, color: C.soft });
   ['Ana', 'Ben', 'Ana', 'Carla'].forEach((n, i) => {
     const y = 122 + i * 30;
-    s.text(34, y + 18, `[${i}]`, { font: 'mono', size: 12, weight: 600, color: C.soft });
     s.rect(50, y, 90, 26, { fill: i === 2 ? C.orangeWash : C.card, stroke: i === 2 ? C.orange : C.ink, sw: 1.6 });
     s.text(95, y + 18, n, { font: 'body', size: 14, weight: 800 });
   });
   s.text(85, 260, 'Ana is in it twice', { font: 'body', size: 12, weight: 800, color: C.orange });
-  // set
-  s.text(255, 98, 'A set', { font: 'body', size: 15, weight: 800 });
+  s.text(255, 98, 'In a set', { font: 'body', size: 15, weight: 800 });
   s.text(255, 113, '(no duplicates)', { font: 'body', size: 11, weight: 700, color: C.soft });
   s.ellipse(255, 170, 140, 96, { fill: C.tealWash, stroke: C.teal, sw: 2 });
   s.text(226, 154, 'Ana', { font: 'body', size: 15, weight: 800 });
@@ -1530,16 +1527,77 @@ export function setVsList() {
   s.line(228, 232, 192, 250, { stroke: C.red, sw: 2.2, single: true });
   s.text(240, 239, 'already in,', { font: 'body', size: 12, weight: 800, color: C.red, anchor: 'start' });
   s.text(240, 253, 'so ignored', { font: 'body', size: 12, weight: 800, color: C.red, anchor: 'start' });
-  // order does not matter
-  s.line(16, 276, 324, 276, { stroke: C.soft, sw: 1.2, single: true, dash: '5 5' });
-  s.text(170, 298, 'No order: these are the same set', { font: 'body', size: 14, weight: 800 });
-  s.ellipse(82, 328, 132, 40, { fill: C.tealWash, stroke: C.teal, sw: 1.8 });
-  s.text(82, 333, 'Ana, Ben, Carla', { font: 'body', size: 13, weight: 800 });
-  s.text(170, 337, '=', { font: 'body', size: 26, weight: 800, color: C.teal });
-  s.ellipse(258, 328, 132, 40, { fill: C.tealWash, stroke: C.teal, sw: 1.8 });
-  s.text(258, 333, 'Carla, Ana, Ben', { font: 'body', size: 13, weight: 800 });
-  s.text(170, 368, 'No position, no index like [0]', { font: 'body', size: 12, weight: 700, color: C.soft });
-  return s.svg('The same four adds, Ana, Ben, Ana, Carla, go into a list and into a set. The list keeps all four in positions [0] to [3], with Ana twice. The set holds Ana, Ben, and Carla once each; the second Ana is crossed out: already in, so ignored. Below: the set Ana, Ben, Carla equals the set Carla, Ana, Ben, because a set has no position and no index.').replace(/(\d+\.\d)\d+/g, '$1');
+  return s.svg('We add Ana, Ben, Ana, Carla. In a list, all four are kept, so Ana is in it twice. In a set, Ana, Ben, and Carla are kept once each; the second Ana is crossed out: already in, so ignored.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: order matters in a list but not in a set; a list has item [0], a set has no positions (you ask "Is Ana in it?"). */
+export function setOrder() {
+  const s = new Sketch(340, 360, 151);
+  const boxes = (x, y, names, fill = C.card) => names.forEach((n, i) => {
+    s.rect(x + i * 46, y, 46, 26, { fill, sw: 1.5 });
+    s.text(x + i * 46 + 23, y + 18, n, { font: 'body', size: 13, weight: 800 });
+  });
+  const blob = (cx, cy, t) => { s.ellipse(cx, cy, 140, 40, { fill: C.tealWash, stroke: C.teal, sw: 1.8 }); s.text(cx, cy + 5, t, { font: 'body', size: 13, weight: 800 }); };
+  s.text(16, 20, '1. In a list, order matters', { font: 'body', size: 14, weight: 800, anchor: 'start' });
+  boxes(14, 32, ['Ana', 'Ben', 'Carla']);
+  s.text(170, 52, '≠', { font: 'body', size: 26, weight: 800, color: C.red });
+  boxes(188, 32, ['Carla', 'Ana', 'Ben']);
+  s.text(170, 82, 'two different lists', { font: 'body', size: 12, weight: 800, color: C.red });
+  s.text(16, 116, '2. In a set, order does not matter', { font: 'body', size: 14, weight: 800, anchor: 'start' });
+  blob(84, 146, 'Ana, Ben, Carla');
+  s.text(170, 155, '=', { font: 'body', size: 26, weight: 800, color: C.teal });
+  blob(256, 146, 'Carla, Ana, Ben');
+  s.text(170, 184, 'the same set: same names, and that is all that counts', { font: 'body', size: 12, weight: 800, color: C.teal });
+  s.line(16, 200, 324, 200, { stroke: C.soft, sw: 1.2, single: true, dash: '5 5' });
+  s.text(16, 222, '3. Asking for "item [0]" (the first item)', { font: 'body', size: 14, weight: 800, anchor: 'start' });
+  boxes(14, 236, ['Ana', 'Ben', 'Carla']);
+  ['[0]', '[1]', '[2]'].forEach((t, i) => s.text(37 + i * 46, 278, t, { font: 'mono', size: 12, weight: 600, color: C.soft }));
+  s.text(83, 304, 'item [0] is Ana ✓', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  s.text(83, 320, 'Every item has a place.', { font: 'body', size: 12, weight: 700, color: C.soft });
+  blob(256, 250, 'Ana, Ben, Carla');
+  s.text(256, 286, 'item [0]? ✗ no places', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  s.text(256, 312, 'Instead, you ask:', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.text(256, 330, '"Is Ana in it?" Yes ✓', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  return s.svg('Three rows. 1: In a list, Ana, Ben, Carla and Carla, Ana, Ben are two different lists. 2: In a set, Ana, Ben, Carla equals Carla, Ana, Ben: the same set. 3: In a list, every item has a place, so item [0] is Ana. A set has no places, so you cannot ask for item [0]; instead you ask: Is Ana in it? Yes.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/* Clean mini Venn pictures for the Part 2 exam traps (one per trap). */
+let trapN = 0;
+function trapVenn(cx, cy, r, d, shade, vals) {
+  const id = 'tv' + trapN++, a = cx - d / 2, b = cx + d / 2, F = '#e8662e';
+  let s = `<defs><clipPath id="${id}cb"><circle cx="${b}" cy="${cy}" r="${r}"/></clipPath>`
+    + `<mask id="${id}nb"><rect x="0" y="0" width="340" height="400" fill="#fff"/><circle cx="${b}" cy="${cy}" r="${r}" fill="#000"/></mask>`
+    + `<mask id="${id}na"><rect x="0" y="0" width="340" height="400" fill="#fff"/><circle cx="${a}" cy="${cy}" r="${r}" fill="#000"/></mask></defs>`;
+  if (shade[0]) s += `<circle cx="${a}" cy="${cy}" r="${r}" fill="${F}" fill-opacity="0.32" mask="url(#${id}nb)"/>`;
+  if (shade[1]) s += `<circle cx="${a}" cy="${cy}" r="${r}" fill="${F}" fill-opacity="0.32" clip-path="url(#${id}cb)"/>`;
+  if (shade[2]) s += `<circle cx="${b}" cy="${cy}" r="${r}" fill="${F}" fill-opacity="0.32" mask="url(#${id}na)"/>`;
+  s += `<circle cx="${a}" cy="${cy}" r="${r}" fill="none" stroke="#1b2a2e" stroke-width="2"/><circle cx="${b}" cy="${cy}" r="${r}" fill="none" stroke="#1b2a2e" stroke-width="2"/>`;
+  s += sT(a - r + 6, cy - r + 4, 'A', { size: 13, w: 800, fill: '#37474a' }) + sT(b + r - 6, cy - r + 4, 'B', { size: 13, w: 800, fill: '#37474a' });
+  const xs = [(a - r + (b - r)) / 2, cx, (b + r + (a + r)) / 2];
+  vals.forEach((v, i) => { if (v) s += sT(xs[i], cy + 5, v, { mono: true, size: 12, w: 700 }); });
+  return s;
+}
+const trapSvg = (h, label, body) => `<svg class="objbox trap-pic" viewBox="0 0 340 ${h}" role="img" aria-label="${label}">${body}</svg>`;
+const V = ['1 2 3', '4 5', '6 7'];
+
+export function setTrapPic(n) {
+  if (n === 1) return trapSvg(130, 'Two Venn diagrams of A = 1 to 5 and B = 4 to 7. Left: only the part of A outside B is shaded: A minus B = 1, 2, 3. Right: only the part of B outside A is shaded: B minus A = 6, 7. They are not equal.',
+    trapVenn(82, 58, 44, 52, [1, 0, 0], V) + sT(170, 66, '≠', { size: 28, fill: '#b23a33' }) + trapVenn(258, 58, 44, 52, [0, 0, 1], V)
+    + sT(82, 122, 'A − B = {1, 2, 3}', { size: 13 }) + sT(258, 122, 'B − A = {6, 7}', { size: 13 }));
+  if (n === 2) return trapSvg(130, 'Venn diagram of 1, 2 union 2, 3, all shaded: 1 only in A, 2 in the middle, 3 only in B. The answer 1, 2, 3 is correct; 1, 2, 2, 3 is crossed out, because 2 is written only once.',
+    trapVenn(92, 58, 44, 52, [1, 1, 1], ['1', '2', '3']) + sT(92, 122, '{1, 2} ∪ {2, 3}', { size: 13 })
+    + `<rect x="196" y="22" width="128" height="30" rx="7" fill="#e3f1ef" stroke="#0e6b63" stroke-width="2"/>` + sT(260, 43, '✓ {1, 2, 3}', { mono: true, size: 13, w: 700, fill: '#0b544e' })
+    + `<rect x="196" y="64" width="128" height="30" rx="7" fill="#f8dcd8" stroke="#b23a33" stroke-width="2" stroke-dasharray="5 4"/>` + sT(260, 85, '✗ {1, 2, 2, 3}', { mono: true, size: 13, w: 700, fill: '#b23a33' })
+    + `<line x1="214" y1="79" x2="306" y2="79" stroke="#b23a33" stroke-width="1.8"/>` + sT(260, 116, '2 is written only once', { size: 11.5, w: 700, fill: '#37474a' }));
+  if (n === 3) return trapSvg(130, 'A = 1, 2 and B = 1, 2 drawn as one circle (same values), nothing shaded. A minus B leaves nothing, so the answer is the empty set, written as empty braces or the symbol for the empty set.',
+    `<circle cx="82" cy="58" r="44" fill="#fbfaf6" stroke="#1b2a2e" stroke-width="2"/>` + sT(38, 18, 'A, B', { size: 13, w: 800, fill: '#37474a' })
+    + sT(82, 63, '1  2', { mono: true, size: 13, w: 700 }) + sT(82, 122, 'A = {1, 2}, B = {1, 2}', { size: 13 })
+    + `<line x1="140" y1="58" x2="186" y2="58" stroke="#1b2a2e" stroke-width="2"/><path d="M178 52 L187 58 L178 64" fill="none" stroke="#1b2a2e" stroke-width="2"/>`
+    + sT(262, 46, 'A − B: nothing left', { size: 13 }) + sT(262, 74, '= { }  or  ∅', { mono: true, size: 15, w: 700, fill: '#b4461a' }) + sT(262, 100, 'the empty set', { size: 12, w: 700, fill: '#37474a' }));
+  return trapSvg(130, 'Venn diagram of A = 1 to 5 and B = 4 to 7 with both outer parts shaded and the middle (4, 5) not shaded: A symmetric difference B = 1, 2, 3, 6, 7, which equals A union B minus A intersect B, and A minus B union B minus A.',
+    trapVenn(82, 58, 44, 52, [1, 0, 1], V) + sT(82, 122, 'A △ B = {1, 2, 3, 6, 7}', { size: 13 })
+    + sT(200, 40, '= (A ∪ B) − (A ∩ B)', { size: 13, anchor: 'start' }) + sT(200, 62, 'all, minus the middle', { size: 11.5, w: 700, fill: '#37474a', anchor: 'start' })
+    + sT(200, 90, '= (A − B) ∪ (B − A)', { size: 13, anchor: 'start' }) + sT(200, 112, 'the two outer parts', { size: 11.5, w: 700, fill: '#37474a', anchor: 'start' }));
 }
 
 /** Sketch: a sari-sari store. Outside you can only ask (the ADT); inside, each store arranges its stock its own way. */
