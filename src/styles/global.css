@@ -896,3 +896,7 @@ pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95)
 /* more room around a figure inside a note box, and before the paragraph after it (dfs push-all note) */
 .plain > .fig { margin-block: 1rem 0.4rem; }
 .plain > p.after-fig { margin-top: 1.4rem; }
+
+/* Code right after a table (or any block) inside a subsection/flow: pre.code's margin: 0 was winning over the spacing rule */
+.sub > * + pre.code { margin-top: 1rem; }
+.flow > * + pre.code { margin-top: 1.15rem; }

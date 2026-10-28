@@ -1492,3 +1492,207 @@ export function bfsOrders() {
   s += dfsLab(170, 530, 'A rule like “alphabetical” just picks one correct order.', C.soft, 'middle', 12, 700);
   return s + '</svg>';
 }
+
+/* ---------------- Sets lesson (chat 12) ---------------- */
+const setChip = (s, x, y, w, label, fill, stroke, size = 13) => {
+  s.round(x, y, w, 22, 8, { fill, stroke, sw: 1.6 });
+  s.text(x + w / 2, y + 16, label, { font: 'body', size, weight: 800 });
+};
+const setDot = (cx, cy, r, fill) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>`;
+
+/** Sketch: the same four adds go into a list (keeps the 2nd Ana, has indexes) and a set (ignores it; shuffled = same set). */
+export function setVsList() {
+  const s = new Sketch(340, 376, 121);
+  s.text(170, 18, 'We add: Ana, Ben, Ana, Carla', { font: 'body', size: 14, weight: 800 });
+  [['Ana', 66, 44], ['Ben', 118, 44], ['Ana', 170, 44], ['Carla', 222, 56]].forEach(([n, x, w], i) =>
+    setChip(s, x, 28, w, n, i === 2 ? C.orangeWash : C.butter, i === 2 ? C.orange : C.ink));
+  s.arrow(120, 58, 88, 82, { sw: 1.8, head: 7 });
+  s.arrow(220, 58, 252, 82, { sw: 1.8, head: 7 });
+  // list
+  s.text(85, 98, 'A list', { font: 'body', size: 15, weight: 800 });
+  s.text(85, 113, '(like an array)', { font: 'body', size: 11, weight: 700, color: C.soft });
+  ['Ana', 'Ben', 'Ana', 'Carla'].forEach((n, i) => {
+    const y = 122 + i * 30;
+    s.text(34, y + 18, `[${i}]`, { font: 'mono', size: 12, weight: 600, color: C.soft });
+    s.rect(50, y, 90, 26, { fill: i === 2 ? C.orangeWash : C.card, stroke: i === 2 ? C.orange : C.ink, sw: 1.6 });
+    s.text(95, y + 18, n, { font: 'body', size: 14, weight: 800 });
+  });
+  s.text(85, 260, 'Ana is in it twice', { font: 'body', size: 12, weight: 800, color: C.orange });
+  // set
+  s.text(255, 98, 'A set', { font: 'body', size: 15, weight: 800 });
+  s.text(255, 113, '(no duplicates)', { font: 'body', size: 11, weight: 700, color: C.soft });
+  s.ellipse(255, 170, 140, 96, { fill: C.tealWash, stroke: C.teal, sw: 2 });
+  s.text(226, 154, 'Ana', { font: 'body', size: 15, weight: 800 });
+  s.text(284, 168, 'Ben', { font: 'body', size: 15, weight: 800 });
+  s.text(244, 198, 'Carla', { font: 'body', size: 15, weight: 800 });
+  setChip(s, 188, 230, 44, 'Ana', C.orangeWash, C.orange);
+  s.line(192, 232, 228, 250, { stroke: C.red, sw: 2.2, single: true });
+  s.line(228, 232, 192, 250, { stroke: C.red, sw: 2.2, single: true });
+  s.text(240, 239, 'already in,', { font: 'body', size: 12, weight: 800, color: C.red, anchor: 'start' });
+  s.text(240, 253, 'so ignored', { font: 'body', size: 12, weight: 800, color: C.red, anchor: 'start' });
+  // order does not matter
+  s.line(16, 276, 324, 276, { stroke: C.soft, sw: 1.2, single: true, dash: '5 5' });
+  s.text(170, 298, 'No order: these are the same set', { font: 'body', size: 14, weight: 800 });
+  s.ellipse(82, 328, 132, 40, { fill: C.tealWash, stroke: C.teal, sw: 1.8 });
+  s.text(82, 333, 'Ana, Ben, Carla', { font: 'body', size: 13, weight: 800 });
+  s.text(170, 337, '=', { font: 'body', size: 26, weight: 800, color: C.teal });
+  s.ellipse(258, 328, 132, 40, { fill: C.tealWash, stroke: C.teal, sw: 1.8 });
+  s.text(258, 333, 'Carla, Ana, Ben', { font: 'body', size: 13, weight: 800 });
+  s.text(170, 368, 'No position, no index like [0]', { font: 'body', size: 12, weight: 700, color: C.soft });
+  return s.svg('The same four adds, Ana, Ben, Ana, Carla, go into a list and into a set. The list keeps all four in positions [0] to [3], with Ana twice. The set holds Ana, Ben, and Carla once each; the second Ana is crossed out: already in, so ignored. Below: the set Ana, Ben, Carla equals the set Carla, Ana, Ben, because a set has no position and no index.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: a sari-sari store. Outside you can only ask (the ADT); inside, each store arranges its stock its own way. */
+export function adtStore() {
+  const s = new Sketch(340, 362, 133);
+  s.text(170, 18, 'What you can ask vs. how it is built', { font: 'body', size: 14, weight: 800 });
+  // store front
+  s.rect(160, 56, 160, 106, { fill: '#f1e2c2', sw: 1.8 });
+  s.rect(162, 32, 156, 24, { fill: C.butter, sw: 1.8 });
+  s.text(240, 49, 'Sari-sari store', { font: 'body', size: 13, weight: 800 });
+  s.rect(180, 68, 120, 68, { fill: C.sky, sw: 1.6 });
+  s.circle(240, 100, 28, { fill: '#e3b38c', sw: 1.4 });
+  s.raw(setDot(235, 98, 1.6, C.ink) + setDot(245, 98, 1.6, C.ink));
+  for (let x = 195; x <= 285; x += 15) s.line(x, 68, x, 136, { stroke: C.soft, sw: 1, single: true, rough: 0.3 });
+  [91, 114].forEach((y) => s.line(180, y, 300, y, { stroke: C.soft, sw: 1, single: true, rough: 0.3 }));
+  s.rect(176, 136, 128, 8, { fill: '#c99b62', sw: 1.4 });
+  // customer
+  s.path('M48 172 Q50 142 70 140 Q90 142 92 172 Z', { fill: C.tealWash, stroke: C.teal, sw: 1.8 });
+  s.circle(70, 122, 30, { fill: '#e3b38c', sw: 1.4 });
+  s.raw(setDot(64, 121, 1.6, C.ink) + setDot(76, 121, 1.6, C.ink));
+  s.path('M58 80 L70 104 L76 80 Z', { fill: C.tealWash, stroke: C.teal, sw: 1.6 });
+  s.round(14, 38, 128, 44, 10, { fill: C.tealWash, stroke: C.teal, sw: 1.6 });
+  s.text(78, 56, 'Do you have', { font: 'body', size: 13, weight: 800 });
+  s.text(78, 73, 'Coke?', { font: 'body', size: 13, weight: 800 });
+  s.path('M232 172 L240 146 L250 172 Z', { fill: C.butter, stroke: C.amber, sw: 1.6 });
+  s.round(192, 170, 112, 28, 9, { fill: C.butter, stroke: C.amber, sw: 1.6 });
+  s.text(248, 189, 'Yes, we have!', { font: 'body', size: 13, weight: 800 });
+  // the questions = the ADT
+  s.text(170, 222, 'Outside: you can only ask or ask for changes', { font: 'body', size: 12.5, weight: 800, color: C.orange });
+  [['contains?', 26, 90], ['add', 125, 90], ['remove', 224, 90]].forEach(([t, x, w]) => {
+    s.round(x, 230, w, 24, 8, { fill: C.orangeWash, stroke: C.orange, sw: 1.6 });
+    s.text(x + w / 2, 247, t, { font: 'mono', size: 13, weight: 600 });
+  });
+  s.line(16, 268, 324, 268, { stroke: C.soft, sw: 1.2, single: true, dash: '5 5' });
+  s.text(170, 288, 'Inside (hidden): each store does it its own way', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  // store 1: sorted shelves
+  s.rect(26, 298, 128, 40, { fill: '#f1e2c2', sw: 1.6 });
+  s.line(26, 318, 154, 318, { sw: 1.4, single: true });
+  const cols = ['#d9534f', C.amber, C.teal, C.orange, '#4f86b8', C.butter];
+  for (let i = 0; i < 6; i++) { s.rect(32 + i * 20, 302, 14, 14, { fill: cols[i], sw: 1, rough: 0.6 }); s.rect(32 + i * 20, 321, 14, 15, { fill: cols[5 - i], sw: 1, rough: 0.6 }); }
+  s.text(90, 354, 'Store 1: shelves, A to Z', { font: 'body', size: 12, weight: 800 });
+  // store 2: bins
+  [['A–F', 190], ['G–M', 234], ['N–Z', 278]].forEach(([t, x], i) => {
+    s.rect(x, 304, 38, 34, { fill: C.sky, sw: 1.6 });
+    s.text(x + 19, 300, t, { font: 'body', size: 11, weight: 800, color: C.soft });
+    s.rect(x + 7, 318, 10, 14, { fill: cols[i], sw: 1, rough: 0.6 });
+    s.rect(x + 21, 322, 10, 10, { fill: cols[i + 3], sw: 1, rough: 0.6 });
+  });
+  s.text(253, 354, 'Store 2: bins by letter', { font: 'body', size: 12, weight: 800 });
+  return s.svg('A customer asks a sari-sari store: Do you have Coke? The owner answers: Yes, we have! Outside, a customer can only ask: contains, add, remove. Inside, hidden from the customer, each store arranges its stock its own way: store 1 uses shelves sorted A to Z, store 2 uses bins by first letter.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: ID taps at the door (Ana twice) become an attendance list with each name once; three uses of sets in IT. */
+export function attendanceSet() {
+  const s = new Sketch(340, 330, 141);
+  s.text(112, 18, 'ID taps at the door', { font: 'body', size: 14, weight: 800 });
+  s.rect(10, 30, 44, 96, { fill: '#c99b62', sw: 1.8 });
+  s.raw(setDot(46, 80, 2.4, C.ink));
+  s.rect(60, 62, 16, 26, { fill: C.soft, stroke: C.ink, sw: 1.4 });
+  s.raw(setDot(68, 70, 2.6, '#5cc98a'));
+  [['7:58  Ana', 0], ['8:01  Ben', 0], ['8:02  Ana', 1], ['8:05  Carla', 0]].forEach(([t, dup], i) => {
+    const y = 30 + i * 26;
+    s.round(86, y, 112, 22, 7, { fill: dup ? C.orangeWash : C.card, stroke: dup ? C.orange : C.ink, sw: 1.5 });
+    s.text(94, y + 16, t, { font: 'mono', size: 12, weight: 600, anchor: 'start' });
+  });
+  s.text(142, 152, 'Ana tapped twice', { font: 'body', size: 12, weight: 800, color: C.orange });
+  s.arrow(204, 80, 236, 80, { sw: 1.8, head: 7 });
+  s.rect(242, 26, 88, 112, { fill: C.card, sw: 1.8 });
+  s.rect(270, 20, 32, 12, { fill: C.soft, sw: 1.4 });
+  s.text(286, 52, 'Attendance', { font: 'body', size: 13, weight: 800 });
+  ['Ana', 'Ben', 'Carla'].forEach((n, i) => {
+    s.text(256, 76 + i * 22, '✓', { font: 'body', size: 14, weight: 800, color: C.teal, anchor: 'start' });
+    s.text(272, 76 + i * 22, n, { font: 'body', size: 14, weight: 800, anchor: 'start' });
+  });
+  s.text(286, 156, 'each name once', { font: 'body', size: 12, weight: 800, color: C.teal });
+  s.line(16, 172, 324, 172, { stroke: C.soft, sw: 1.2, single: true, dash: '5 5' });
+  s.text(170, 192, 'Sets in IT', { font: 'body', size: 14, weight: 800 });
+  [14, 120, 226].forEach((x) => s.round(x, 200, 100, 122, 10, { fill: C.card, sw: 1.4 }));
+  // card 1: unique visitors
+  s.text(64, 218, 'Website visits', { font: 'body', size: 12, weight: 800 });
+  s.rect(24, 226, 80, 44, { fill: C.paper, sw: 1.4 });
+  s.line(24, 234, 104, 234, { sw: 1.2, single: true });
+  ['A', 'B', 'A', 'A'].forEach((l, i) => {
+    const x = 38 + i * 17;
+    s.raw(`<circle cx="${x}" cy="253" r="7" fill="${l === 'A' ? C.orangeWash : C.sky}" stroke="${C.ink}" stroke-width="1.2"/>`);
+    s.text(x, 257, l, { font: 'body', size: 10, weight: 800 });
+  });
+  s.text(64, 292, '4 visits, but', { font: 'body', size: 12, weight: 700 });
+  s.text(64, 308, '2 unique people', { font: 'body', size: 12, weight: 800, color: C.teal });
+  // card 2: tags
+  s.text(170, 218, 'Tags on a post', { font: 'body', size: 12, weight: 800 });
+  s.rect(130, 226, 80, 40, { fill: C.sky, sw: 1.4 });
+  s.path('M134 262 L156 240 L172 256 L184 246 L206 262 Z', { fill: C.tealWash, stroke: C.teal, sw: 1.2, rough: 0.6 });
+  s.round(130, 274, 36, 18, 6, { fill: C.butter, sw: 1.2 });
+  s.text(148, 287, '#dsa', { font: 'body', size: 11, weight: 800 });
+  s.round(170, 274, 42, 18, 6, { fill: C.butter, sw: 1.2 });
+  s.text(191, 287, '#mati', { font: 'body', size: 11, weight: 800 });
+  s.text(170, 308, 'each tag once', { font: 'body', size: 12, weight: 800, color: C.teal });
+  // card 3: in both classes
+  s.text(276, 218, 'Two class lists', { font: 'body', size: 12, weight: 800 });
+  s.circle(262, 250, 46, { fill: C.tealWash, stroke: C.teal, sw: 1.5 });
+  s.circle(290, 250, 46, { fill: C.sky, stroke: '#4f86b8', sw: 1.5 });
+  s.ellipse(276, 250, 16, 38, { fill: C.orangeWash, stroke: C.orange, sw: 1.2, rough: 0.5 });
+  s.text(276, 292, 'Who is in both?', { font: 'body', size: 12, weight: 700 });
+  s.text(276, 308, 'A ∩ B', { font: 'body', size: 12, weight: 800, color: C.teal });
+  return s.svg('Left: students tap their IDs at the door: 7:58 Ana, 8:01 Ben, 8:02 Ana again, 8:05 Carla. Right: the attendance list shows Ana, Ben, and Carla, each name once. Below, three uses of sets in IT: website visits (4 visits, 2 unique visitors), tags on a post (each tag once), and two class lists (who is in both: A intersect B).').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/* Clean pictures for the sets lesson (data structures, not real life). */
+const sT = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-family="${o.mono ? '&quot;IBM Plex Mono&quot;, monospace' : 'Nunito, system-ui, sans-serif'}" font-size="${o.size ?? 14}" font-weight="${o.w ?? 800}" fill="${o.fill ?? '#1b2a2e'}" text-anchor="${o.anchor ?? 'middle'}"${o.it ? ' font-style="italic"' : ''}>${t}</text>`;
+
+/** A ⊆ B: circle A inside circle B. */
+export function subsetPic() {
+  let s = `<svg class="objbox" viewBox="0 0 340 210" role="img" aria-label="Circle B holds Ana, Ben, Carla, and Dan. A smaller circle A inside it holds Ana and Ben. Every value of A is also in B, so A is a subset of B.">`;
+  s += `<ellipse cx="128" cy="110" rx="112" ry="88" fill="#e3f1ef" stroke="#0e6b63" stroke-width="2.5"/>`;
+  s += `<circle cx="92" cy="114" r="44" fill="#fce9e0" stroke="#e8662e" stroke-width="2.5"/>`;
+  s += sT(30, 36, 'B', { size: 20, fill: '#0b544e' }) + sT(92, 86, 'A', { size: 18, fill: '#b4461a' });
+  s += sT(92, 112, 'Ana') + sT(92, 134, 'Ben') + sT(186, 96, 'Carla') + sT(186, 136, 'Dan');
+  s += sT(296, 84, 'A ⊆ B', { size: 22, fill: '#b4461a' });
+  s += sT(296, 112, 'Every value', { size: 13, w: 700 }) + sT(296, 130, 'of A is', { size: 13, w: 700 }) + sT(296, 148, 'also in B.', { size: 13, w: 700 });
+  return s + '</svg>';
+}
+
+/** Peek picture: the Set interface and the three classes that implement it. */
+export function interfacePic() {
+  let s = `<svg class="objbox" viewBox="0 0 320 196" role="img" aria-label="A card labeled Set, interface, lists add, contains, remove, and size, with no code inside. Three boxes below, HashSet, LinkedHashSet, and TreeSet, each point up to it with the word implements.">`;
+  s += `<rect x="60" y="6" width="200" height="82" rx="8" fill="#fdf1cf" stroke="#1b2a2e" stroke-width="2"/>`;
+  s += sT(160, 28, 'Set  (interface)', { mono: true, size: 14, w: 700 });
+  s += sT(160, 50, 'add  contains', { mono: true, size: 13, w: 600, fill: '#37474a' }) + sT(160, 68, 'remove  size', { mono: true, size: 13, w: 600, fill: '#37474a' });
+  s += sT(160, 84, 'no code inside', { size: 11, w: 700, fill: '#b4461a', it: true });
+  [[8, 92, 'HashSet'], [110, 108, 'LinkedHashSet'], [228, 84, 'TreeSet']].forEach(([x, w, t]) => {
+    const cx = x + w / 2;
+    s += `<line x1="${cx}" y1="146" x2="${(cx + 160) / 2}" y2="96" stroke="#0e6b63" stroke-width="2"/>`;
+    s += `<path d="M${(cx + 160) / 2} 90 l-6 10 h12 Z" transform="rotate(${(Math.atan2(96 - 146, (cx + 160) / 2 - cx) * 180) / Math.PI + 90} ${(cx + 160) / 2} 96)" fill="#fff" stroke="#0e6b63" stroke-width="1.8"/>`;
+    s += `<rect x="${x}" y="146" width="${w}" height="40" rx="8" fill="#e3f1ef" stroke="#0e6b63" stroke-width="2"/>`;
+    s += sT(cx, 171, t, { mono: true, size: 13, w: 700 });
+  });
+  s += sT(118, 134, 'implements', { size: 12, w: 800, fill: '#0b544e' });
+  return s + '</svg>';
+}
+
+/** Peek picture: a class is a blueprint; `new` makes objects from it. */
+export function classPic() {
+  let s = `<svg class="objbox" viewBox="0 0 320 150" role="img" aria-label="A blueprint labeled class HashSet, with its data and the code for its methods. Two arrows labeled new HashSet make two objects: present, holding Ana and Carla, and tags, holding dsa and mati.">`;
+  s += `<rect x="6" y="18" width="124" height="96" rx="8" fill="#dbe8f5" stroke="#2f6fa8" stroke-width="2"/>`;
+  s += sT(68, 40, 'class HashSet', { mono: true, size: 13, w: 700, fill: '#1f4f7a' });
+  s += sT(68, 64, 'its data', { size: 12, w: 700, fill: '#37474a' }) + sT(68, 82, 'code for add,', { size: 12, w: 700, fill: '#37474a' }) + sT(68, 98, 'contains, ...', { size: 12, w: 700, fill: '#37474a' });
+  [[14, 'present', '{Ana, Carla}'], [84, 'tags', '{#dsa, #mati}']].forEach(([y, n, v]) => {
+    const a = Math.atan2(y + 24 - 66, 58), hd = (k) => `${(190 - 9 * Math.cos(a + k)).toFixed(1)} ${(y + 24 - 9 * Math.sin(a + k)).toFixed(1)}`;
+    s += `<path d="M132 66 L190 ${y + 24} M${hd(0.5)} L190 ${y + 24} L${hd(-0.5)}" fill="none" stroke="#e8662e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s += `<rect x="194" y="${y}" width="120" height="48" rx="8" fill="#fce9e0" stroke="#e8662e" stroke-width="2"/>`;
+    s += sT(254, y + 20, n, { mono: true, size: 13, w: 700 }) + sT(254, y + 39, v, { mono: true, size: 12, w: 600, fill: '#37474a' });
+  });
+  s += sT(160, 144, 'One blueprint, many objects', { size: 12, w: 800, fill: '#0b544e' });
+  return s + '</svg>';
+}

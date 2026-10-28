@@ -5,6 +5,8 @@ import SetLab from '../../components/SetLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hiN } from '../../lib/code.js';
+import Peek from '../../components/Peek.astro';
+import { setVsList, adtStore, attendanceSet, subsetPic, interfacePic, classPic } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -84,6 +86,38 @@ public class SetOperations {
   }
 }`;
 
+const subsetsCode = String.raw`import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class Subsets {
+  public static void main(String[] args) {
+    Set<String> b = new HashSet<>(Arrays.asList("Ana", "Ben", "Carla", "Dan"));
+    Set<String> a = new HashSet<>(Arrays.asList("Ana", "Ben"));
+    Set<String> c = new HashSet<>(Arrays.asList("Ana", "Eve"));
+    Set<String> empty = new HashSet<>();
+
+    System.out.println(b.containsAll(a));     // true:  A is a subset of B
+    System.out.println(b.containsAll(c));     // false: Eve is not in B
+    System.out.println(b.containsAll(empty)); // true:  { } is a subset of every set
+    System.out.println(a.containsAll(a));     // true:  every set is a subset of itself
+
+    boolean proper = b.containsAll(a) && !a.equals(b);
+    System.out.println(proper);               // true:  A is a proper subset of B
+
+    Set<String> d = new TreeSet<>(Arrays.asList("Dan", "Carla", "Ben", "Ana"));
+    System.out.println(b.equals(d));          // true:  same values (order and class don't matter)
+
+    System.out.println(b.contains("Ana"));    // true:  one value, so contains
+    System.out.println(a.size() + " " + b.size()); // 2 4: containsAll changed nothing
+  }
+}`;
+const subsetPeek = `<div class="illus">${subsetPic()}</div>`;
+const storePeek = `<div class="illus">${adtStore()}</div>`;
+const interfacePeek = `<p>An <b>interface</b> is a list of methods with <b>no code inside</b>. It is like a job description: any class that implements it promises to have those methods, and writes their code.</p><div class="illus">${interfacePic()}</div>`;
+const classPeek = `<p>A <b>class</b> is a blueprint for making objects. It holds the data and the code for its methods. <code>new HashSet&lt;&gt;()</code> makes one object (one real set) from the HashSet blueprint, and you can make as many as you need.</p><div class="illus">${classPic()}</div>`;
+
 const buggy = String.raw`Set<Integer> a = new HashSet<>(Arrays.asList(10, 20, 30));
 Set<Integer> b = new HashSet<>(Arrays.asList(20, 40));
 
@@ -101,9 +135,11 @@ const quiz = [
   { q: 'A = {1, 2, 3}, B = {3, 4}. What is A ∩ B?', opts: ['{ 1, 2, 3, 4 }', '{ 3 }', '{ 1, 2 }', '{ 1, 2, 4 }'], a: 1, why: 'Intersection keeps only what is in <b>both</b>: 3.' },
   { q: 'A = {1, 2, 3}, B = {3, 4}. What is A △ B (symmetric difference)?', opts: ['{ 3 }', '{ 1, 2 }', '{ 1, 2, 4 }', '{ 1, 2, 3, 4 }'], a: 2, why: 'Everything in A or B, except what they share: remove 3 from {1, 2, 3, 4}.' },
   { q: 'If A and B are equal sets, what is A − B?', opts: ['A', 'B', 'The empty set { }', 'A ∪ B'], a: 2, why: 'Every value in A is also in B, so removing B\'s values from A leaves nothing.' },
-  { q: 'Which Java method keeps <b>only</b> the elements that are also in another set?', opts: ['addAll', 'retainAll', 'removeAll', 'containsAll'], a: 1, why: '<code>retainAll</code> = "keep only these" = intersection. <code>addAll</code> = union, <code>removeAll</code> = difference. <code>containsAll</code> changes nothing: it only checks whether every value of the other set is already in this one.' },
+  { q: 'Which Java method keeps <b>only</b> the elements that are also in another set?', opts: ['addAll', 'retainAll', 'removeAll', 'containsAll'], a: 1, why: '<code>retainAll</code> = "keep only these" = intersection. <code>addAll</code> = union, <code>removeAll</code> = difference. <code>containsAll</code> changes nothing: it only checks whether every value of the other set is already in this one (a subset test).' },
   { q: 'Why do we write <code>new HashSet&lt;&gt;(a)</code> before calling <code>union.addAll(b)</code>?', opts: ['Java requires every set to be copied', 'addAll changes the set it is called on, so we copy A first to keep A unchanged', 'It sorts the set', 'It removes duplicates from B'], a: 1, why: '<code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code> all <b>change</b> the set they are called on. Copy first, or you destroy A and get wrong answers in later operations.' },
   { q: 'Which Java set keeps its elements in <b>sorted</b> order?', opts: ['HashSet', 'LinkedHashSet', 'TreeSet', 'None of them'], a: 2, why: '<code>TreeSet</code> keeps its elements in a red-black tree (through a <code>TreeMap</code> inside), so they come out sorted. <code>HashSet</code> has no guaranteed order; <code>LinkedHashSet</code> keeps the order you added them.' },
+  { q: 'A = {1, 2} and B = {1, 2, 3}. Which is true?', opts: ['B ⊆ A', 'A ⊂ B (A is a proper subset of B)', 'A = B', 'The empty set { } is not a subset of A'], a: 1, why: 'Every value of A (1 and 2) is in B, and B also has 3, which A does not. So A ⊆ B and A ≠ B: a <b>proper</b> subset. B ⊆ A is false (3 is missing from A), and { } is a subset of every set.' },
+  { q: 'Which Java line checks whether A ⊆ B?', opts: ['a.containsAll(b)', 'b.containsAll(a)', 'a.retainAll(b)', 'a.equals(b)'], a: 1, why: 'A ⊆ B means "B contains all of A", so you ask B: <code>b.containsAll(a)</code>. <code>a.containsAll(b)</code> checks the other direction (B ⊆ A), <code>retainAll</code> changes <code>a</code>, and <code>equals</code> checks A = B.' },
 ];
 ---
 <Base title="Sets in Java · ITC 120" description="Sets in plain English: unique, unordered collections; union, intersection, difference, and symmetric difference with Java's Set interface." course={{ code: course.code, href: base + course.href }} toc>
@@ -117,9 +153,9 @@ const quiz = [
       <p class="note-label">By the end, you can:</p>
       <ol>
         <li>explain what a set is (an ADT with <b>unique</b>, <b>unordered</b> values) and tell when a problem needs a set instead of a list;</li>
-        <li>write A ∪ B, A ∩ B, A − B, B − A, and A △ B for two given sets, and draw them on a Venn diagram;</li>
+        <li>write A ∪ B, A ∩ B, A − B, B − A, and A △ B for two given sets, draw them on a Venn diagram, and tell whether one set is a <b>subset</b> of another;</li>
         <li>predict what <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code> return on a Java <code>HashSet</code>;</li>
-        <li>write each set operation in Java with <code>addAll</code>, <code>retainAll</code>, or <code>removeAll</code> on a <b>copy</b>, and find the bug when a copy is missing or the wrong set is used;</li>
+        <li>write each set operation in Java with <code>addAll</code>, <code>retainAll</code>, or <code>removeAll</code> on a <b>copy</b>, check a subset with <code>containsAll</code>, and find the bug when a copy is missing or the wrong set is used;</li>
         <li>choose between <code>HashSet</code>, <code>LinkedHashSet</code>, and <code>TreeSet</code> by the order you need.</li>
       </ol>
     </div>
@@ -137,12 +173,14 @@ const quiz = [
         <p class="note-label">Set</p>
         <p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={setVsList()} /><figcaption>The same four names go into a list and into a set. The list keeps the second Ana and gives every item a position. The set keeps each name once, and shuffling it gives the same set.</figcaption></figure>
       <p>An <b>abstract data type</b> describes <i>what</i> a structure does (its operations), not <i>how</i> it is built inside. You already met one: a <a href={base + '/itc120/stacks-queues/'}>stack</a> is "push, pop, peek", whether it is built with an array or a linked list. A set is "add, remove, contains".</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={adtStore()} /><figcaption>A sari-sari store works like an ADT. At the window, you can only ask (contains?) or ask for changes (add, remove). How the stock is arranged inside is hidden, and two stores can do it differently. Both still answer "Do you have Coke?" correctly.</figcaption></figure>
       <div class="sub">
         <h3>The two properties</h3>
         <p>Every set has these two properties:</p>
         <ol>
-          <li><b>Uniqueness.</b> Each value appears at most once. Adding a value that is already there does nothing.</li>
+          <li><b>Uniqueness.</b> Each value appears at most once (like the second Ana in the <Peek label="list vs. set picture" title="From above" html={`<div class=\"illus\">${setVsList()}</div>`} />). Adding a value that is already there does nothing.</li>
           <li><b>Unordered.</b> Items have no position. There is no "first" or "third" item, and no index like <code>[2]</code>. So {1, 2, 3} and {3, 1, 2} are the <b>same set</b>.</li>
         </ol>
       </div>
@@ -158,6 +196,7 @@ const quiz = [
           <li>Comparing two class lists: who is enrolled in both subjects? (intersection)</li>
         </ul>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={attendanceSet()} /><figcaption>Top: Ana tapped her ID twice, but the attendance lists her once. Bottom: the same idea in IT. Repeat visits count once, a tag appears once per post, and the overlap of two class lists shows who is in both.</figcaption></figure>
     </div>
   </section>
 
@@ -194,6 +233,38 @@ const quiz = [
         <p class="note-label">Good to know: other symbols in other books</p>
         <p>Some books write the difference A − B as <b>A \ B</b>, and the symmetric difference A △ B as <b>A ⊕ B</b> (Rosen, reference 3) or <b>A Δ B</b>. They mean the same operations.</p>
       </div>
+      <div class="sub" id="subsets">
+        <h3>Review: subsets</h3>
+        <p>You may remember subsets from math class. Here is a quick review, because Java can check them too (Part 3).</p>
+        <div class="def">
+          <p class="note-label">Subset</p>
+          <p>A is a <b>subset</b> of B, written <b>A ⊆ B</b>, when every value in A is also in B.</p>
+        </div>
+        <figure class="fig"><Fragment set:html={subsetPic()} /><figcaption>A = {Ana, Ben} sits inside B = {Ana, Ben, Carla, Dan}, so A ⊆ B. But C = {Ana, Eve} is <b>not</b> a subset of B, because Eve is not in B.</figcaption></figure>
+        <p>Here are the words and symbols that go with subsets, using the sets in the picture:</p>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>Term</th><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><b>Subset</b></td><td class="mono">A ⊆ B</td><td>every value of A is in B</td><td>{Ana, Ben} ⊆ B</td></tr>
+            <tr><td><b>Proper subset</b></td><td class="mono">A ⊂ B</td><td>A ⊆ B, and B has at least one value that A does not</td><td>{Ana, Ben} ⊂ B (B also has Carla and Dan)</td></tr>
+            <tr><td><b>Not a subset</b></td><td class="mono">C ⊄ B</td><td>at least one value of C is not in B</td><td>{Ana, Eve} ⊄ B (Eve)</td></tr>
+            <tr><td><b>Equal sets</b></td><td class="mono">A = B</td><td>A ⊆ B and B ⊆ A: exactly the same values</td><td>{Ana, Ben} = {Ben, Ana}</td></tr>
+          </tbody>
+        </table></div>
+        <p>Two facts are easy to forget:</p>
+        <ul>
+          <li>The empty set { } is a subset of <b>every</b> set. It has no value that could be missing from B.</li>
+          <li>Every set is a subset of <b>itself</b> (B ⊆ B), but not a <i>proper</i> subset of itself.</li>
+        </ul>
+        <div class="trap">
+          <p class="note-label">Exam trap: one value vs. a set</p>
+          <p><b>Ana ∈ B</b> means "the value Ana is in B" (∈ = "is an element of"). <b>{Ana} ⊆ B</b> means "the set holding only Ana is a subset of B". Use ∈ for one value and ⊆ for a set. Writing "Ana ⊆ B" is wrong.</p>
+        </div>
+        <div class="plain">
+          <p class="note-label">Good to know: ⊂ in other books</p>
+          <p>Some books write ⊂ for <i>any</i> subset (what we write ⊆). If a question uses ⊂, check how that book or teacher defines it. Rosen (reference 3) uses ⊆ and ⊂ the same way as this lesson.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -204,7 +275,12 @@ const quiz = [
       <h2>Sets in Java</h2>
     </div>
     <div class="flow">
-      <p>Java has a <code>Set</code> interface (the ADT: what a set can do) and several classes that implement it (how it is built). Here are the three main classes:</p>
+      <p>Remember the <Peek label="sari-sari store" title="From Part 1" html={storePeek} />: what you can ask is one thing, and how the stock is arranged inside is another. Java splits a set into the same two parts:</p>
+      <ul>
+        <li><b>What a set can do:</b> <code>Set</code> is an <Peek label="interface" title="Interface" html={interfacePeek} />. It lists the methods every set must have (<code>add</code>, <code>contains</code>, <code>remove</code>, <code>size</code>, and more), but has no code inside. This is the ADT.</li>
+        <li><b>How it is built:</b> <code>HashSet</code>, <code>LinkedHashSet</code>, and <code>TreeSet</code> are <Peek label="classes" title="Class" html={classPeek} />. Each one writes the real code for those methods in its own way. We say each class <b>implements</b> <code>Set</code>.</li>
+      </ul>
+      <p>Here are the three main classes:</p>
       <table class="tbl">
         <thead><tr><th>Class</th><th>Built with</th><th>Order when you loop through it</th></tr></thead>
         <tbody>
@@ -214,6 +290,7 @@ const quiz = [
         </tbody>
       </table>
       <p>Wait: Part 1 said a set has no order. The set <b>ADT</b> promises no order, so you can never ask for "item [2]". <code>LinkedHashSet</code> and <code>TreeSet</code> add an order as an extra, only for looping through the values. They still have no index, and they still keep each value once.</p>
+      <p>You will see both parts in one line of code: <code>Set&lt;String&gt; present = new HashSet&lt;&gt;();</code> reads as "present is a <b>Set</b> of Strings, built as a <b>HashSet</b>." The left side (<code>Set</code>) says what you may do with it. The right side (<code>new HashSet&lt;&gt;()</code>) picks how it is built. To get sorted order instead, you would change only the right side, to <code>new TreeSet&lt;&gt;()</code>.</p>
       <p><code>HashSet</code> is the usual choice. Its basic methods are <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code>:</p>
       <pre class="code"><code set:html={hi(basics)} /></pre>
 
@@ -249,6 +326,23 @@ const quiz = [
             <p>This kind of copy-paste mistake is common. When you copy a block of code, check <b>every</b> variable name in it.</p>
           </div>
         </details>
+      </div>
+
+      <div class="sub" id="subsets-java">
+        <h3>Subsets in Java</h3>
+        <p>Java has no method named "subset". You check <Peek label="A ⊆ B" title="From Part 2" html={subsetPeek} /> with <code>containsAll</code>. This table shows each subset question in Java:</p>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>By hand</th><th>In Java</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">A ⊆ B</td><td><code>b.containsAll(a)</code></td><td>"Does b contain all of a?"</td></tr>
+            <tr><td class="mono">A ⊂ B</td><td><code>b.containsAll(a) &amp;&amp; !a.equals(b)</code></td><td>"all of a, and not the same set"</td></tr>
+            <tr><td class="mono">A = B</td><td><code>a.equals(b)</code></td><td>"exactly the same values?"</td></tr>
+            <tr><td class="mono">x ∈ B</td><td><code>b.contains(x)</code></td><td>"is this one value in b?"</td></tr>
+          </tbody>
+        </table></div>
+        <p>Watch the direction: A ⊆ B is written <code>b.containsAll(a)</code>, so the <b>bigger</b> set goes first. And unlike <code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code>, <code>containsAll</code> changes nothing. It only answers true or false, so no copy is needed.</p>
+        <pre class="code"><code set:html={hi(subsetsCode)} /></pre>
+        <p class="small muted"><code>equals</code> ignores order, and even the class: a <code>HashSet</code> and a <code>TreeSet</code> with the same values are equal.</p>
       </div>
     </div>
   </section>
@@ -302,6 +396,7 @@ const quiz = [
           <li>In Java: <code>addAll</code> (union), <code>retainAll</code> (intersection), <code>removeAll</code> (difference).</li>
           <li>Those methods change the set itself, so copy first with <code>new HashSet&lt;&gt;(a)</code>.</li>
           <li>HashSet: no order. LinkedHashSet: insertion order. TreeSet: sorted.</li>
+          <li>A ⊆ B when every value of A is in B. In Java: <code>b.containsAll(a)</code> (bigger set first).</li>
         </ol>
       </div>
       <p><b>Next lesson:</b> <a href={base + '/itc120/maps/'}>Maps and hashing</a>, where you will see how a HashSet and HashMap find things so fast.</p>
