@@ -1210,6 +1210,13 @@ export function queueSteps() {
 
 
 
+
+
+
+
+
+
+
 /* ---- DFS pictures (dfs lesson). Clean style for the graph, sketch for the folder example. ---- */
 const dfsLab = (x, y, t, c = C.ink, a = 'middle', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
 const dfsCityPos = { A: [50, 50], B: [170, 40], C: [290, 55], D: [45, 185], E: [165, 150], F: [290, 175], G: [190, 228] };
@@ -1352,27 +1359,70 @@ export function dfsTwoWays() {
 
 /** Sketch: where DFS is used: a maze (dead end, back up) and tasks waiting in a circle. */
 export function dfsInIT() {
-  const s = new Sketch(340, 556, 61);
+  const s = new Sketch(340, 584, 61);
   const O = { stroke: C.orange, sw: 2.6, head: 8, single: true, rough: 0.5 };
   const B = { stroke: C.teal, sw: 2.2, head: 8, single: true, rough: 0.4, dash: '6 5' };
-  // Panel 1: maze
-  s.round(4, 6, 332, 268, 12, { fill: C.card, sw: 1.5, stroke: C.soft, rough: 0.6 });
-  s.text(18, 32, 'Solving a maze', { font: 'body', size: 15, weight: 800, anchor: 'start' });
-  const hall = { stroke: '#eadfc2', sw: 26, single: true, rough: 0.3 };
-  s.line(40, 90, 290, 90, hall).line(130, 90, 130, 200, hall).line(130, 200, 250, 200, hall).line(290, 90, 290, 150, hall);
-  s.text(40, 66, 'Start', { font: 'body', size: 13, weight: 800, color: C.teal });
-  s.text(292, 178, 'Exit', { font: 'body', size: 13, weight: 800, color: C.teal });
-  s.circle(40, 90, 14, { fill: C.teal, sw: 1.2, stroke: C.teal });
-  s.arrow(52, 84, 120, 84, O).arrow(124, 98, 124, 192, O).arrow(132, 194, 236, 194, O);
-  s.line(244, 186, 256, 198, { stroke: C.red, sw: 2.4, single: true }).line(256, 186, 244, 198, { stroke: C.red, sw: 2.4, single: true });
-  s.text(250, 228, 'dead end!', { font: 'body', size: 12.5, weight: 800, color: C.red });
-  s.arrow(236, 210, 142, 210, B).arrow(142, 206, 142, 104, B);
-  s.text(186, 230, 'back up', { font: 'body', size: 12, weight: 800, color: C.teal });
-  s.arrow(150, 82, 282, 82, O).arrow(298, 98, 298, 146, O);
-  s.text(170, 246, 'Try one way to its end. At a dead end,', { font: 'body', size: 12, weight: 700, color: C.soft });
-  s.text(170, 261, 'back up and try the next way.', { font: 'body', size: 12, weight: 700, color: C.soft });
+  // Panel 1: maze game with a cat (pink + purple + yellow). Wide hallways; one fork: up = dead end, down = goal.
+  // Lanes: try-1 paws (purple) on one side, the dashed back-up on the other side, try-2 paws (pink) in the middle.
+  const PU = '#8a5cc7', PK = '#e0559a', YE = '#f5c93d';
+  s.round(4, 6, 332, 294, 12, { fill: C.card, sw: 1.5, stroke: C.soft, rough: 0.6 });
+  s.text(18, 30, 'Solving a maze', { font: 'body', size: 15, weight: 800, anchor: 'start' });
+  const FX = 132, FY = 150, TOP = 88, BOT = 212;
+  const halls = [`M62 ${FY} L${FX} ${FY}`, `M${FX} ${FY} L${FX} ${TOP} L250 ${TOP}`, `M${FX} ${FY} L${FX} ${BOT} L300 ${BOT}`];
+  s.raw(halls.map((d) => `<path d="${d}" fill="none" stroke="${PU}" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>`).join('')
+    + halls.map((d) => `<path d="${d}" fill="none" stroke="#fff3c4" stroke-width="33" stroke-linecap="round" stroke-linejoin="round"/>`).join(''));
+  // walk along a polyline, every `gap` units, offset sideways by `lane`; calls f(x, y, angle)
+  const along = (pts, gap, lane, from, to, f) => {
+    // even spacing on each straight part, and one paw exactly on every corner (turned halfway round the bend)
+    // shift the whole path into its lane first (corners mitred), so spacing is measured along the lane the paws walk in
+    const dir = (p, q) => { const L = Math.hypot(q[0] - p[0], q[1] - p[1]); return [(q[0] - p[0]) / L, (q[1] - p[1]) / L]; };
+    pts = pts.map((p, i) => { const u = i ? dir(pts[i - 1], p) : null, v = i < pts.length - 1 ? dir(p, pts[i + 1]) : null;
+      const nx = (u ? -u[1] : 0) + (v ? -v[1] : 0), ny = (u ? u[0] : 0) + (v ? v[0] : 0); return [p[0] + nx * lane, p[1] + ny * lane]; });
+    lane = 0;
+    const segs = [];
+    for (let i = 0; i + 1 < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], L = Math.hypot(x2 - x1, y2 - y1); segs.push({ x1, y1, ux: (x2 - x1) / L, uy: (y2 - y1) / L, L }); }
+    segs.forEach((g, i) => {
+      const a = i === 0 ? from : 0, b = i === segs.length - 1 ? g.L - to : g.L, n = Math.max(1, Math.round((b - a) / gap));
+      for (let k = i === 0 ? 0 : 1; k <= n; k++) {
+        const d = a + (b - a) * k / n, x = g.x1 + g.ux * d, y = g.y1 + g.uy * d;
+        if (k === n && i < segs.length - 1) { const h = segs[i + 1];
+          f(x - (g.uy + h.uy) * lane, y + (g.ux + h.ux) * lane, Math.atan2(g.uy + h.uy, g.ux + h.ux) * 180 / Math.PI);
+        } else f(x - g.uy * lane, y + g.ux * lane, Math.atan2(g.uy, g.ux) * 180 / Math.PI);
+      }
+    });
+  };
+  const paw = (col) => (x, y, a) => s.raw(`<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a + 90})" fill="${col}"><ellipse cx="0" cy="1.6" rx="3.6" ry="3"/><circle cx="-3.6" cy="-2.5" r="1.5"/><circle cx="0" cy="-3.9" r="1.5"/><circle cx="3.6" cy="-2.5" r="1.5"/></g>`);
+  const try1 = [[62, FY], [FX, FY], [FX, TOP], [250, TOP]], try2 = [[FX, FY], [FX, BOT], [300, BOT]];
+  along(try1, 17, -6, 14, 14, paw(PU));
+  along(try2, 17, 0, 20, 30, paw(PK));
+  // back up: dashed purple in the other lane, from the dead end back to the fork
+  const back = [[250 - 12, TOP + 8], [FX + 8, TOP + 8], [FX + 8, FY - 14]];
+  s.raw(`<path d="M${back.map((p) => p.join(' ')).join(' L')}" fill="none" stroke="${PU}" stroke-width="2.4" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round"/>`
+    + `<path d="M${FX + 3} ${FY - 21} L${FX + 8} ${FY - 13} L${FX + 13} ${FY - 21}" fill="none" stroke="${PU}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`);
+  // dead end and goal
+  s.raw(`<path d="M${250 + 2} ${TOP - 7} l12 12 M${250 + 14} ${TOP - 7} l-12 12" stroke="${C.red}" stroke-width="3" stroke-linecap="round"/>`);
+  s.raw(`<path d="M296 ${BOT + 12} L296 ${BOT - 12}" stroke="${C.ink}" stroke-width="2.2" stroke-linecap="round"/><path d="M296 ${BOT - 12} L310 ${BOT - 7} L296 ${BOT - 2} Z" fill="${PK}"/>`);
+  s.text(299, BOT - 26, 'Goal!', { font: 'body', size: 12.5, weight: 800, color: PK });
+  s.text(FX + 30, FY + 4, '← fork', { font: 'body', size: 12, weight: 800, color: C.soft });
+  // numbered steps, each beside the start of its part
+  const badge = (x, y, n, col) => { s.raw(`<circle cx="${x}" cy="${y}" r="10" fill="${col}"/>`); s.text(x, y + 4.5, String(n), { font: 'body', size: 12.5, weight: 800, color: C.card }); };
+  badge(FX - 34, TOP + 22, 1, PU); badge(282, TOP, 2, C.red); badge(196, TOP + 32, 3, PU); badge(FX - 34, BOT - 22, 4, PK);
+  // the cat at the start: same drawing as the cat on Audrey's personal site (orange face, thick outline, stripes, big eyes), scaled down
+  const kx = 32, ky = 151, outline = 'M38 98 C33 70 40 40 54 22 C68 28 83 40 93 50 C111 46 129 46 147 50 C157 40 172 28 186 22 C200 40 207 70 202 98 C214 114 212 150 180 162 C150 172 90 172 60 162 C28 150 26 114 38 98 Z';
+  s.raw(`<g transform="translate(${kx} ${ky}) scale(0.23) translate(-120 -100)"><clipPath id="mazecat"><path d="${outline}"/></clipPath>`
+    + `<path d="${outline}" fill="#ffb072"/><g clip-path="url(#mazecat)"><path d="M108 52 L111 72 M120 50 L120 72 M132 52 L129 72" stroke="#d9773a" stroke-width="6" stroke-linecap="round"/></g>`
+    + `<path d="${outline}" fill="none" stroke="#6e2a2a" stroke-width="7" stroke-linejoin="round"/>`
+    + `<path d="M42 110 L12 104 M42 124 L12 128 M198 110 L228 104 M198 124 L228 128" stroke="#6e2a2a" stroke-width="5" stroke-linecap="round"/>`
+    + `<ellipse cx="70" cy="128" rx="13" ry="7" fill="#f7a1a8" opacity=".9"/><ellipse cx="170" cy="128" rx="13" ry="7" fill="#f7a1a8" opacity=".9"/>`
+    + `<ellipse cx="91" cy="109" rx="8.5" ry="10.5" fill="#4a1d1d"/><ellipse cx="155" cy="109" rx="8.5" ry="10.5" fill="#4a1d1d"/>`
+    + `<circle cx="94" cy="105" r="2.6" fill="#fff"/><circle cx="158" cy="105" r="2.6" fill="#fff"/>`
+    + `<path d="M110 122 q5 8 10 1 q5 7 10 -1" fill="none" stroke="#4a1d1d" stroke-width="4.5" stroke-linecap="round"/></g>`);
+  s.text(kx, 120, 'Start', { font: 'body', size: 12.5, weight: 800, color: PU });
+  const key = (x, y, n, col, t) => { badge(x, y - 4, n, col); s.text(x + 14, y, t, { font: 'body', size: 12.5, weight: 700, anchor: 'start' }); };
+  key(22, 262, 1, PU, 'Try one way (up).'); key(184, 262, 2, C.red, 'Dead end!');
+  key(22, 286, 3, PU, 'Back up to the fork.'); key(184, 286, 4, PK, 'Try the next way.');
   // Panel 2: tasks waiting in a circle
-  const y0 = 286;
+  const y0 = 314;
   s.round(4, y0, 332, 264, 12, { fill: C.card, sw: 1.5, stroke: C.soft, rough: 0.6 });
   s.text(18, y0 + 26, 'Finding a cycle in a project plan', { font: 'body', size: 15, weight: 800, anchor: 'start' });
   const card = (cx, cy, name, job) => { s.round(cx - 46, cy - 24, 92, 48, 8, { fill: C.butter, sw: 1.6, rough: 0.6 }); s.text(cx, cy - 4, name, { font: 'body', size: 13.5, weight: 800 }); s.text(cx, cy + 14, job, { font: 'body', size: 12, weight: 700, color: C.soft }); };
@@ -1412,5 +1462,33 @@ export function bfsVsDfs() {
     (k) => [lvFill[lv[k]], lvStroke[lv[k]]], 'Order: A B D C E F G (level by level)');
   s += panel(346, 'DFS: deep first', 'uses a stack', 'ABCFEDG', [['A', 'B'], ['B', 'C'], ['C', 'F'], ['F', 'E'], ['E', 'D'], ['E', 'G']], C.teal,
     () => [C.tealWash, C.teal], 'Order: A B C F E D G (one path, then back up)');
+  return s + '</svg>';
+}
+
+/** Clean: one graph, two correct BFS orders and a wrong one; boxes colored by level so the wrong one breaks the pattern. */
+export function bfsOrders() {
+  const fill = [C.orangeWash, C.butter, C.tealWash], stroke = [C.orange, '#a8650f', C.teal];
+  const lv = { A: 0, B: 1, C: 1, D: 2, E: 2 };
+  const P = { A: [62, 132], B: [170, 92], C: [170, 172], D: [278, 92], E: [278, 172] };
+  let s = `<svg class="objbox" viewBox="0 0 340 556" role="img" aria-label="BFS from A on a small graph: A connects to B and C, B connects to D, C connects to E. Level 0 is A, level 1 is B and C, level 2 is D and E. Correct: A, B, C, D, E, the alphabetical order. Also correct: A, C, B, E, D, taking C first, so C's neighbor E also comes first. Wrong: A, B, D, C, E, because D is 2 edges away but comes before C, which is 1 edge away.">`;
+  s += dfsLab(170, 24, 'BFS from A: which orders are correct?', C.ink, 'middle', 15, 800);
+  const xs = [8, 116, 224, 332], names = ['Level 0', 'Level 1', 'Level 2'];
+  for (let i = 0; i < 3; i++) { s += `<rect x="${xs[i]}" y="40" width="${xs[i + 1] - xs[i]}" height="170" fill="${fill[i]}" opacity="0.55"/>` + dfsLab((xs[i] + xs[i + 1]) / 2, 60, names[i], stroke[i], 'middle', 13, 800); }
+  s += `<rect x="8" y="40" width="324" height="170" rx="10" fill="none" stroke="#d9dedb" stroke-width="1.5"/>`;
+  for (const [a, b] of [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'E']]) s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${C.soft}" stroke-width="1.8"/>`;
+  for (const [k, [x, y]] of Object.entries(P)) s += dfsNode(x, y, k, fill[lv[k]], stroke[lv[k]]);
+  const row = (y, ok, order, l1, l2) => {
+    let o = `<rect x="8" y="${y}" width="324" height="88" rx="10" fill="${ok ? C.card : '#fbeceb'}" stroke="${ok ? C.teal : C.red}" stroke-width="1.6"/>`;
+    o += dfsLab(30, y + 36, ok ? '✓' : '✗', ok ? C.teal : C.red, 'middle', 22, 800);
+    order.split('').forEach((v, i) => { const x = 56 + i * 40;
+      o += `<rect x="${x}" y="${y + 14}" width="34" height="32" rx="5" fill="${fill[lv[v]]}" stroke="${stroke[lv[v]]}" stroke-width="1.8"/>` + dfsLab(x + 17, y + 36, v, C.ink, 'middle', 15, 800); });
+    if (!ok) o += `<path d="M${56 + 2 * 40 - 4} ${y + 10} L${56 + 2 * 40 + 38} ${y + 10} L${56 + 2 * 40 + 38} ${y + 50} L${56 + 2 * 40 - 4} ${y + 50} Z" fill="none" stroke="${C.red}" stroke-width="2.2" stroke-dasharray="5 3"/>`;
+    o += dfsLab(56, y + 66, l1, ok ? C.ink : C.red, 'start', 12.5, 800) + dfsLab(56, y + 81, l2, C.soft, 'start', 12, 700);
+    return o;
+  };
+  s += row(224, true, 'ABCDE', 'Correct: alphabetical (B before C)', 'the order most answer keys expect');
+  s += row(320, true, 'ACBED', 'Also correct: C first, so C’s E comes first too', 'still nearest first, level by level');
+  s += row(416, false, 'ABDCE', 'Wrong: D (level 2) came before C (level 1)', 'that is going deep, not wide');
+  s += dfsLab(170, 530, 'A rule like “alphabetical” just picks one correct order.', C.soft, 'middle', 12, 700);
   return s + '</svg>';
 }

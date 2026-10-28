@@ -177,14 +177,19 @@ const quiz = [
               <p class="mk-right"><b>✓ Alphabetical</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
               <p class="mk-right"><b>✓ Z to A (also a correct DFS)</b><span class="mono">A, D, E, G, F, C, B</span></p>
             </div>
-            If the question gives a rule (like "alphabetical order"), follow it. If it gives none, any correct order is fine, but alphabetical is the safe habit: it matches most answer keys. For numbered vertices, the usual rule is smallest number first, comparing them as numbers (2 before 10).</li>
+            Many books, courses, and exams still add a rule, usually alphabetical order, <b>so everyone gets the same answer</b> and answers are easy to check. If the question gives a rule, follow it. If it gives none, any correct order is fine, but alphabetical is the safe habit: it matches most answer keys. For numbered vertices, the usual rule is smallest number first, comparing them as numbers (2 before 10).</li>
         </ol>
       </div>
       <div class="plain">
         <p class="note-label">Good to know: the "push-all" way in some books</p>
         <p>Some books and websites use a different stack routine: pop a vertex; if it is not visited yet, visit it and push <b>all</b> its unvisited neighbors. Its stack is a <b>to-do list</b>, not the path you are on:</p>
         <figure class="fig illus-fig"><Fragment set:html={dfsTwoWays()} /><figcaption>Right after DFS from A visits D. Our stack is the path from A to D. The push-all stack holds D and E, which are already visited (they get skipped when popped), and G twice.</figcaption></figure>
-        <p>Does it give the same order? That depends on how it pushes the neighbors. Pushed <b>Z to A</b>, the A-side neighbor lands on top and comes off first, so the order matches ours. Pushed <b>A to Z</b>, the last neighbor comes off first, so the order changes. Some versions also mark a vertex as visited when it is <b>pushed</b>; that shortcut can give an order that is not a real DFS. In this course, use the procedure above.</p>
+        <p class="after-fig">Does the push-all way visit the vertices in the same order as ours? It depends on <b>which neighbor it pushes last</b>, because a stack gives back the last thing pushed first. Look at the start, A, whose unvisited neighbors are B and D:</p>
+        <ul>
+          <li><b>Push D, then B</b> (Z to A): B is on top, so B is visited next, just like ours. The whole order comes out the same: <span class="mono">A, B, C, F, E, D, G</span>.</li>
+          <li><b>Push B, then D</b> (A to Z): D is on top, so D is visited next. The order changes: <span class="mono">A, D, E, G, F, C, B</span>.</li>
+        </ul>
+        <p>One warning: some versions tick a vertex as visited when it is <b>pushed</b>, instead of when it is popped. That shortcut can give an order that is not a real DFS. In this course, use the procedure above.</p>
       </div>
     </div>
   </section>
@@ -257,7 +262,7 @@ const quiz = [
         <p class="note-label">Where you see DFS in IT</p>
         <p>Searching all folders on a drive, solving mazes and puzzles, and checking for <b>cycles</b>. For example, a project tool can check if tasks wait on each other in a circle (task A waits for B, B waits for C, C waits for A), which would mean nothing can ever start.</p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={dfsInIT()} /><figcaption>A maze is a graph: each corner or crossing is a vertex, and each hallway is an edge. DFS follows one hallway to its end, backs up at a dead end, and tries the next. In a project plan, if DFS reaches a task that is still on its stack, it has gone around a circle: those tasks wait for each other forever. (Searching folders works like <Peek label="the folder picture in Part 1" title="From Part 1" html={folderSvg} />.)</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={dfsInIT()} /><figcaption>A maze is a graph: each fork or corner is a vertex, and each hallway is an edge. Like DFS, the cat follows one way to its end (1). At a dead end (2), it backs up to the last fork (3) and tries the next way (4). In a project plan, if DFS reaches a task that is still on its stack, it has gone around a circle: those tasks wait for each other forever. (Searching folders works like <Peek label="the folder picture in Part 1" title="From Part 1" html={folderSvg} />.)</figcaption></figure>
     </div>
   </section>
 

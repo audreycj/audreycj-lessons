@@ -9,7 +9,7 @@ import Peek from '../../components/Peek.astro';
 import { course } from '../../data/itc120.js';
 import { city, oneWay, islands, smallDir } from '../../data/graphs.js';
 import { bfsSteps, svgGraph } from '../../lib/graph.js';
-import { treeVsGraph, bfsWaves, newsWaves, bfsInIT, canteenLine, queueSteps } from '../../lib/illus.js';
+import { treeVsGraph, bfsWaves, newsWaves, bfsInIT, canteenLine, queueSteps, bfsOrders } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -194,6 +194,11 @@ const quiz = [
           <li>When a vertex has several unseen neighbors, the order you enqueue them changes the answer. Any order is still a correct BFS (the levels stay the same), so if the question does not say, more than one BFS order can be correct. <b>Alphabetical order</b> is the usual safe choice; for numbered vertices, use <b>smallest number first</b>, comparing them as numbers (2 before 10). Just be consistent. In code, the order is however the neighbors are stored.</li>
           <li>In a directed graph, follow the arrows only. An arrow <i>into</i> a vertex does not let you leave through it.</li>
         </ul>
+      </div>
+      <div class="plain">
+        <p class="note-label">Good to know: why "alphabetical order"?</p>
+        <p>BFS itself does not say which neighbor comes first, so one graph can have several correct BFS orders. Many books, courses, and exams add a rule, usually alphabetical order (or smallest number first), for one reason: <b>so everyone gets the same answer</b>. Then answers are easy to check and compare. An order is only wrong if it breaks the BFS steps or the rule the question gives. In a program, there is no alphabet: the code takes the neighbors in the order they are stored.</p>
+        <figure class="fig illus-fig"><Fragment set:html={bfsOrders()} /><figcaption>Each box is colored by its level. Both correct orders go level by level: all of level 1 before any of level 2. They differ only in which neighbor goes first, and C first also puts C's neighbor E first. The wrong order jumps to D (level 2) while C (level 1) is still waiting.</figcaption></figure>
       </div>
     </div>
   </section>

@@ -892,3 +892,7 @@ pre.code .code-copy.is-done { color: #17282b; background: var(--butter, #f8dc95)
 /* wide tables scroll sideways on phones instead of squeezing (dfs Problem 1 trace) */
 .tbl-wrap { overflow-x: auto; max-width: 100%; }
 .tbl-wrap .nowrap { white-space: nowrap; }
+
+/* more room around a figure inside a note box, and before the paragraph after it (dfs push-all note) */
+.plain > .fig { margin-block: 1rem 0.4rem; }
+.plain > p.after-fig { margin-top: 1.4rem; }
