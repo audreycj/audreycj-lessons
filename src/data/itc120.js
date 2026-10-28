@@ -13,7 +13,8 @@ export const terms = [
     note: 'Start here if you are new to the course, or need a refresher before the midterm topics.',
     units: [
       { name: 'Introduction to Data Structures and Algorithms', icon: 'book', lessons: [
-        { title: 'Introduction to DSA', href: '/itc120/intro/', status: 'live', blurb: 'A Java refresher, linear vs. non-linear structures, and what makes an algorithm. Race simple search against binary search.' },
+        { title: 'Programming refresher', href: '/itc120/programming-refresher/', status: 'live', blurb: 'A quick Java review: variables, expressions, conditions, loops, methods, arrays, trace tables, and the three kinds of errors.' },
+        { title: 'Introduction to DSA', href: '/itc120/intro/', status: 'live', blurb: 'Data vs. data structures, linear vs. non-linear structures, and what makes an algorithm. Race simple search against binary search.' },
       ] },
       { name: 'Linear data structures', icon: 'list', lessons: [
         { title: 'Arrays: the four operations', href: '/itc120/arrays/', status: 'live', kind: ['ds', 'algo'], blurb: 'Access, traversal, insertion, and deletion. Watch values shift, step by step.' },

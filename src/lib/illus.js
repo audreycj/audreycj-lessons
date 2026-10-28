@@ -2021,3 +2021,243 @@ export function mapTrapPic(n) {
   }
   return `<svg class="objbox trap-pic" viewBox="0 0 340 ${H}" role="img" aria-label="${label}">${b}</svg>`;
 }
+
+/* ---------------- Intro to DSA pictures (chat 14) ---------------- */
+const introPic = (w, h, label, body) => `<svg class="objbox intro-pic" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">${body}</svg>`;
+
+/** Sketch: four everyday things that are data structures in disguise (stack, queue, tree, graph). */
+export function expertFour() {
+  const s = new Sketch(340, 404, 151);
+  const panel = (x, y, title, tag) => {
+    s.round(x, y, 160, 190, 10, { fill: '#fffdf5', sw: 1.6 });
+    s.text(x + 80, y + 24, title, { font: 'body', size: 14, weight: 800 });
+    s.text(x + 80, y + 178, tag, { font: 'body', size: 15, weight: 800, color: C.teal });
+  };
+  // 1. Recent apps = stack
+  panel(6, 6, 'Recent apps', '= a stack');
+  s.text(86, 50, 'last opened, on top', { font: 'body', size: 12, weight: 800, color: C.orange });
+  [['Chat', C.orangeWash, C.orange], ['Notes', C.sky, C.ink], ['Camera', C.sky, C.ink], ['Music', C.sky, C.ink]].forEach(([n, f, k], i) => {
+    s.round(30, 60 + i * 26, 112, 23, 5, { fill: f, sw: i === 0 ? 2.2 : 1.6, stroke: k });
+    s.text(86, 76 + i * 26, n, { font: 'body', size: 13, weight: 800 });
+  });
+  // 2. Canteen line = queue
+  panel(174, 6, 'Canteen line', '= a queue');
+  s.rect(196, 38, 116, 20, { fill: C.butter, sw: 1.6 });
+  s.text(254, 53, 'COUNTER', { font: 'body', size: 12, weight: 800 });
+  [0, 1, 2, 3].forEach((i) => {
+    const cy = 76 + i * 23;
+    s.circle(214, cy, 15, { fill: i === 0 ? C.orangeWash : C.pink, sw: 1.6 });
+    s.path(`M204 ${cy + 13} Q214 ${cy + 4} 224 ${cy + 13}`, { sw: 1.6 });
+  });
+  s.text(232, 81, 'served first', { font: 'body', size: 12, weight: 800, anchor: 'start', color: C.orange });
+  s.text(232, 150, 'joins at the', { font: 'body', size: 12, weight: 700, anchor: 'start', color: C.soft });
+  s.text(232, 164, 'back', { font: 'body', size: 12, weight: 700, anchor: 'start', color: C.soft });
+  // 3. Folders = tree
+  panel(6, 206, 'Folders', '= a tree');
+  s.folder(66, 238, 'Documents', { w: 40, h: 30, size: 12.5 });
+  s.line(86, 288, 46, 302, { sw: 1.6 });
+  s.line(86, 288, 126, 302, { sw: 1.6 });
+  s.folder(26, 304, 'ITC 120', { w: 40, h: 30, size: 12.5 });
+  s.folder(106, 304, 'Photos', { w: 40, h: 30, size: 12.5 });
+  // 4. Friends = graph
+  panel(174, 206, 'Friends', '= a graph');
+  const P = { A: [212, 250], B: [292, 246], C: [254, 290], D: [206, 334], E: [298, 330] };
+  [['A', 'B'], ['A', 'C'], ['B', 'C'], ['C', 'D'], ['C', 'E'], ['B', 'E'], ['A', 'D']].forEach(([a, b]) => s.line(...P[a], ...P[b], { sw: 1.6, stroke: C.soft }));
+  Object.entries(P).forEach(([k, [x, y]]) => { s.circle(x, y, 28, { fill: C.pink, sw: 1.6 }); s.text(x, y + 5, k, { font: 'body', size: 14, weight: 800 }); });
+  return s.svg('Four everyday things. Recent apps: Chat, the app opened last, sits on top of Notes, Camera, and Music, so it is a stack. Canteen line: four people line up at the counter; the first is served first and new people join at the back, so it is a queue. Folders: Documents holds ITC 120 and Photos, so it is a tree. Friends: five friends A to E linked in a web, so it is a graph.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: data (loose slips) vs a data structure (a class list). */
+export function dataSlips() {
+  const s = new Sketch(340, 258, 152);
+  s.text(80, 22, 'Data', { font: 'body', size: 15, weight: 800 });
+  s.text(258, 22, 'Data structure', { font: 'body', size: 15, weight: 800, color: C.teal });
+  const slip = (cx, cy, ang, t) => {
+    const w = 52, h = 28, a = (ang * Math.PI) / 180, c = Math.cos(a), si = Math.sin(a);
+    const pts = [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]].map(([x, y]) => `${(cx + x * c - y * si).toFixed(1)} ${(cy + x * si + y * c).toFixed(1)}`);
+    s.path(`M${pts.join(' L')} Z`, { fill: '#fffdf5', sw: 1.5 });
+    s.text(cx, cy + 5, t, { font: 'body', size: 13.5, weight: 800, rotate: ang });
+  };
+  slip(44, 64, -12, 'Ana'); slip(112, 58, 9, '85'); slip(76, 104, 4, 'Cruz');
+  slip(36, 146, 10, '92'); slip(108, 136, -8, 'Ben'); slip(84, 178, -5, '88');
+  s.arrow(150, 120, 182, 120, { stroke: C.orange, sw: 2.4 });
+  s.rect(190, 40, 140, 152, { fill: '#fffdf5', sw: 1.8 });
+  s.text(260, 62, 'Class list', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.line(196, 72, 324, 72, { sw: 1.3, single: true, rough: 0.4 });
+  s.text(222, 92, 'Name', { font: 'body', size: 12.5, weight: 800, color: C.soft });
+  s.text(296, 92, 'Score', { font: 'body', size: 12.5, weight: 800, color: C.soft });
+  s.line(266, 76, 266, 186, { stroke: C.soft, sw: 1.1, single: true, rough: 0.4 });
+  [['Ana', '92'], ['Ben', '85'], ['Cruz', '88']].forEach(([n, v], i) => {
+    const y = 122 + i * 26;
+    s.text(222, y, n, { font: 'body', size: 14, weight: 700 });
+    s.text(296, y, v, { font: 'body', size: 14, weight: 800 });
+  });
+  s.text(80, 222, 'Loose facts, no order.', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  s.text(80, 240, "Which score is Ana's?", { font: 'body', size: 12.5, weight: 800, color: C.red });
+  s.text(260, 222, 'Arranged in rows:', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  s.text(260, 240, "Ana's score is beside her.", { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  return s.svg("Left, data: six loose slips of paper (Ana, 85, Cruz, 92, Ben, 88) in no order, so you cannot tell which score is Ana's. Right, a data structure: the same facts arranged in a class list with Name and Score columns: Ana 92, Ben 85, Cruz 88, so Ana's score is beside her name.").replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: spices dumped in one box vs a labeled spice rack. */
+export function spiceRack() {
+  const s = new Sketch(340, 262, 153);
+  s.text(84, 22, 'Bad fit: one big box', { font: 'body', size: 13, weight: 800, color: C.red });
+  s.text(259, 22, 'Good fit: a labeled rack', { font: 'body', size: 13, weight: 800, color: C.teal });
+  // box with a jumble of jars
+  s.path('M14 90 L154 90 L146 196 L22 196 Z', { fill: '#e9d3b0', sw: 1.8 });
+  const jar = (x, y, f, tilt = 0) => {
+    const d = `M${x} ${y} l${22 + tilt} ${-tilt / 2} l${-tilt / 3} 34 l-22 ${tilt / 2} Z`;
+    s.path(d, { fill: f, sw: 1.5 });
+  };
+  jar(30, 64, C.orangeWash, 6); jar(58, 56, C.sky, -4); jar(86, 60, C.butter, 8); jar(112, 54, C.pink, -6);
+  jar(44, 84, C.tealWash, -8); jar(74, 82, C.pink, 5); jar(100, 86, C.sky, -3);
+  s.path('M14 90 L154 90 L146 196 L22 196 Z', { fill: '#e9d3b0', sw: 1.8 });
+  s.text(84, 150, 'salt?', { font: 'body', size: 18, weight: 800, color: C.red });
+  s.text(84, 226, '✗ Dig through everything', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  s.text(84, 244, 'just to find salt', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  // rack
+  s.rect(182, 44, 154, 160, { fill: '#fffdf5', sw: 1.8 });
+  [118, 196].forEach((y) => s.line(182, y, 336, y, { sw: 2.4 }));
+  const labels = [['Chili', 'Laurel', 'Pepper'], ['Salt', 'Sugar', 'Garlic']];
+  labels.forEach((row, r) => row.forEach((n, i) => {
+    const x = 186 + i * 50, y = r === 0 ? 70 : 148, hot = n === 'Salt';
+    s.round(x, y, 46, 48, 5, { fill: hot ? C.orangeWash : C.tealWash, sw: hot ? 2.4 : 1.5, stroke: hot ? C.orange : C.ink });
+    s.text(x + 23, y + 30, n, { font: 'body', size: 12, weight: 800 });
+  }));
+  s.text(260, 226, '✓ Grab the salt', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  s.text(260, 244, 'in seconds', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  return s.svg('Bad fit: spice jars dumped in one big box; you dig through everything just to find salt. Good fit: a labeled spice rack with two shelves (Chili, Laurel, Pepper; Salt, Sugar, Garlic); you grab the salt in seconds.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: linear (one row, first to last) vs non-linear (a tree and a graph). */
+export function familiesPic() {
+  let b = sT(170, 22, 'Linear: one after another', { size: 15, w: 800, fill: '#0b544e' });
+  [19, 3, 42, 7, 56].forEach((v, i) => {
+    const x = 16 + i * 64;
+    b += mapBox(x, 40, 46, 38, '#e3f1ef', '#0e6b63', 2.2) + sT(x + 23, 65, v, { mono: true, size: 15, w: 700 });
+    if (i < 4) b += mapArrow(x + 48, 59, x + 62, 59, '#1b2a2e', 2);
+  });
+  b += sT(39, 98, 'first', { size: 13, w: 800, fill: '#37474a' }) + sT(295, 98, 'last', { size: 13, w: 800, fill: '#37474a' });
+  b += sT(170, 122, 'One natural order: start at the first, end at the last.', { size: 12.5, w: 700, fill: '#37474a' });
+  b += `<line x1="10" y1="140" x2="330" y2="140" stroke="#c9d6d4" stroke-width="1.5" stroke-dasharray="6 5"/>`;
+  b += sT(170, 166, 'Non-linear: branches or a network', { size: 15, w: 800, fill: '#b4461a' });
+  const node = (x, y, t) => `<circle cx="${x}" cy="${y}" r="15" fill="#fce9e0" stroke="#e8662e" stroke-width="2.2"/>` + sT(x, y + 5, t, { size: 14, w: 800 });
+  const ln = (a, b2) => `<line x1="${a[0]}" y1="${a[1]}" x2="${b2[0]}" y2="${b2[1]}" stroke="#1b2a2e" stroke-width="2"/>`;
+  const T = { A: [84, 196], B: [44, 250], C: [124, 250], D: [20, 300], E: [68, 300] };
+  b += ln(T.A, T.B) + ln(T.A, T.C) + ln(T.B, T.D) + ln(T.B, T.E);
+  b += Object.entries(T).map(([k, [x, y]]) => node(x, y, k)).join('');
+  const G = { P: [208, 200], Q: [296, 196], R: [252, 246], S: [204, 296], U: [304, 290] };
+  b += ln(G.P, G.Q) + ln(G.P, G.R) + ln(G.Q, G.R) + ln(G.R, G.S) + ln(G.R, G.U) + ln(G.Q, G.U) + ln(G.P, G.S);
+  b += Object.entries(G).map(([k, [x, y]]) => node(x, y, k)).join('');
+  b += sT(84, 340, 'tree: branches', { size: 13, w: 800, fill: '#37474a' }) + sT(256, 340, 'graph: a network', { size: 13, w: 800, fill: '#37474a' });
+  b += sT(170, 366, 'No single order: you choose a route to visit all.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 378, 'Linear: five boxes 19, 3, 42, 7, 56 in a row joined by arrows, from first to last; one natural order. Non-linear: a tree (A has children B and C; B has children D and E) and a graph (P, Q, R, S, U joined in a web with loops). There is no single order, so you choose a route to visit them all.', b);
+}
+
+/** Sketch: an algorithm is like a recipe (sinangag): input, exact steps in order, it ends, output. */
+export function recipeCard() {
+  const s = new Sketch(340, 404, 155);
+  s.text(170, 20, 'Input', { font: 'body', size: 14, weight: 800, color: C.teal });
+  [['3 cups rice', 100, 34], ['4 garlic cloves', 230, 34], ['2 tbsp oil', 100, 64], ['1 tsp salt', 230, 64]].forEach(([t, x, y]) => {
+    s.round(x - 54, y - 4, 108, 26, 13, { fill: C.tealWash, sw: 1.5 });
+    s.text(x, y + 14, t, { font: 'body', size: 12.5, weight: 800 });
+  });
+  s.arrow(170, 96, 170, 118, { stroke: C.soft, sw: 2 });
+  s.rect(26, 124, 288, 172, { fill: '#fffdf5', sw: 1.8 });
+  s.text(170, 150, 'Sinangag (garlic fried rice)', { font: 'body', size: 14.5, weight: 800, color: C.orange });
+  s.line(40, 160, 300, 160, { stroke: C.soft, sw: 1.2, single: true, rough: 0.4 });
+  ['1. Mince the garlic.', '2. Fry it in the oil until golden.', '3. Add the rice. Stir for 5 minutes.', '4. Add the salt. Stir. Done!'].forEach((t, i) => {
+    s.text(42, 184 + i * 26, t, { font: 'body', size: 13, weight: 700, anchor: 'start' });
+  });
+  s.text(170, 286, 'Exact steps, in order, and it ends.', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  s.arrow(170, 302, 170, 324, { stroke: C.soft, sw: 2 });
+  s.path('M120 344 Q170 396 220 344 Z', { fill: C.card, sw: 1.8 });
+  s.ellipse(170, 344, 100, 16, { fill: C.butter, sw: 1.6 });
+  [[150, 340], [166, 346], [184, 341], [196, 347], [158, 348]].forEach(([x, y]) => s.circle(x, y, 4, { fill: C.amber, sw: 1 }));
+  s.text(236, 358, 'Output:', { font: 'body', size: 13.5, weight: 800, anchor: 'start', color: C.teal });
+  s.text(236, 376, 'sinangag!', { font: 'body', size: 13.5, weight: 800, anchor: 'start' });
+  return s.svg('A recipe as an algorithm. Input: 3 cups rice, 4 garlic cloves, 2 tablespoons oil, 1 teaspoon salt. Recipe card for sinangag (garlic fried rice): 1. Mince the garlic. 2. Fry it in the oil until golden. 3. Add the rice and stir for 5 minutes. 4. Add the salt, stir, done. Exact steps, in order, and it ends. Output: a plate of sinangag.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: the five traits, shown on the sinangag recipe. */
+export function traitsPic() {
+  const rows = [
+    ['Input', 'Rice, garlic, oil, and salt go in.', '#0e6b63'],
+    ['Output', 'A plate of sinangag comes out.', '#2f6fa8'],
+    ['Definiteness', '"2 tbsp oil", not "some oil".', '#e8662e'],
+    ['Finiteness', 'Step 4 says "Done!" It ends.', '#b23a33'],
+    ['Effectiveness', 'Every step is something a cook can do.', '#2e7d4f'],
+  ];
+  let b = sT(170, 22, 'The five traits, in the sinangag recipe', { size: 14.5, w: 800 });
+  rows.forEach(([n, ex, col], i) => {
+    const y = 40 + i * 58;
+    b += mapBox(8, y, 324, 50, '#fff', '#c9d6d4', 1.5, 8);
+    b += `<circle cx="34" cy="${y + 25}" r="15" fill="${col}"/>` + sT(34, y + 30, i + 1, { size: 15, w: 800, fill: '#fff' });
+    b += sT(60, y + 21, n, { size: 14.5, w: 800, anchor: 'start', fill: col });
+    b += sT(60, y + 41, ex, { size: 13, w: 700, anchor: 'start', fill: '#37474a' });
+  });
+  return introPic(340, 334, 'The five traits in the sinangag recipe. 1 Input: rice, garlic, oil, and salt go in. 2 Output: a plate of sinangag comes out. 3 Definiteness: 2 tablespoons of oil, not some oil. 4 Finiteness: step 4 says done, so it ends. 5 Effectiveness: every step is something a cook can do.', b);
+}
+
+/** Clean: the same three steps, in words (algorithm) and in Java (program). */
+export function algoVsProg() {
+  let b = mapBox(20, 10, 300, 112, '#e3f1ef', '#0e6b63', 2.2, 8);
+  b += sT(170, 34, 'Algorithm: the steps, in words', { size: 14.5, w: 800, fill: '#0b544e' });
+  ['1. Ask for two numbers.', '2. Add them.', '3. Show the result.'].forEach((t, i) => { b += sT(40, 60 + i * 22, t, { size: 13.5, w: 700, anchor: 'start' }); });
+  b += mapArrow(170, 126, 170, 160, '#e8662e', 2.6);
+  b += sT(182, 148, 'written in Java', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
+  b += mapBox(20, 166, 300, 128, '#1b2a2e', '#1b2a2e', 2, 8);
+  b += sT(170, 188, 'Program: code a computer can run', { size: 13.5, w: 800, fill: '#f8dc95' });
+  [['int a = in.nextInt();', '1'], ['int b = in.nextInt();', '1'], ['int sum = a + b;', '2'], ['System.out.println(sum);', '3']].forEach(([t, k], i) => {
+    const y = 214 + i * 22;
+    b += sT(36, y, t, { mono: true, size: 12.5, w: 600, anchor: 'start', fill: '#ffffff' });
+    b += `<circle cx="298" cy="${y - 4}" r="9" fill="#e8662e"/>` + sT(298, y + 1, k, { size: 12, w: 800, fill: '#fff' });
+  });
+  b += sT(170, 318, 'Python or C code would be other programs for it.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 328, 'Top: the algorithm, the steps in words: 1. Ask for two numbers. 2. Add them. 3. Show the result. An arrow labeled written in Java leads to the program: int a = in.nextInt(); int b = in.nextInt(); (step 1), int sum = a + b; (step 2), System.out.println(sum); (step 3). One algorithm; Python or C code would be other programs for it.', b);
+}
+
+/** Clean: programming is the whole loop; coding is one step of it. */
+export function progCycle() {
+  const st = [['Define', 170, 34], ['Plan', 282, 88], ['Code', 282, 192], ['Test', 170, 246], ['Debug', 58, 192], ['Improve', 58, 88]];
+  let b = '';
+  for (let i = 0; i < st.length; i++) {
+    const [, x1, y1] = st[i], [, x2, y2] = st[(i + 1) % st.length];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    const sx = x1 + (dx / L) * 34, sy = y1 + (dy / L) * 22, ex = x2 - (dx / L) * 40, ey = y2 - (dy / L) * 24;
+    b += mapArrow(+sx.toFixed(1), +sy.toFixed(1), +ex.toFixed(1), +ey.toFixed(1), '#0e6b63', 2.2);
+  }
+  st.forEach(([n, x, y]) => {
+    const hot = n === 'Code';
+    b += mapBox(x - 42, y - 16, 84, 32, hot ? '#fce9e0' : '#e3f1ef', hot ? '#e8662e' : '#0e6b63', hot ? 2.8 : 2, 16);
+    b += sT(x, y + 5, n, { size: 14, w: 800, fill: hot ? '#b4461a' : '#0b544e' });
+  });
+  b += sT(170, 116, 'Programming', { size: 15, w: 800, fill: '#0b544e' }) + sT(170, 134, '= the whole loop', { size: 13, w: 700, fill: '#37474a' });
+  b += sT(170, 168, 'Coding', { size: 15, w: 800, fill: '#b4461a' }) + sT(170, 186, '= one step', { size: 13, w: 700, fill: '#37474a' });
+  return introPic(340, 272, 'A loop of six steps: Define, Plan, Code, Test, Debug, Improve, then back to Define. Programming is the whole loop; coding (highlighted) is one step of it.', b);
+}
+
+/** Clean: data structure, algorithm, both, and ADT, side by side. */
+export function dsAlgoPic() {
+  let b = '';
+  const panel = (x, y, title, col, cap) => {
+    b += mapBox(x, y, 160, 156, '#fff', '#c9d6d4', 1.5, 10);
+    b += sT(x + 80, y + 24, title, { size: 14.5, w: 800, fill: col });
+    b += sT(x + 80, y + 144, cap, { size: 12.5, w: 800, fill: '#37474a' });
+  };
+  const arr = (x, y, hot = -1) => [19, 3, 42, 7].map((v, i) => mapBox(x + i * 30, y, 30, 30, i === hot ? '#fce9e0' : '#e3f1ef', i === hot ? '#e8662e' : '#0e6b63', 2, 3) + sT(x + i * 30 + 15, y + 20, v, { mono: true, size: 13, w: 700 }) + sT(x + i * 30 + 15, y + 46, i, { mono: true, size: 12, w: 600, fill: '#37474a' })).join('');
+  panel(6, 6, 'Data structure', '#0b544e', 'stores the data');
+  b += arr(26, 56);
+  b += sT(86, 124, 'an array', { size: 12.5, w: 700, fill: '#37474a' });
+  panel(174, 6, 'Algorithm', '#b4461a', 'steps that work on it');
+  ['Find 42:', 'check 19: no', 'check 3: no', 'check 42: yes!'].forEach((t, i) => { b += sT(196, 54 + i * 21, t, { size: 13, w: i === 0 ? 800 : 700, anchor: 'start', fill: i === 3 ? '#0b544e' : '#1b2a2e' }); });
+  panel(6, 172, 'Both', '#2f6fa8', 'a lesson teaches both');
+  b += arr(26, 200, 2);
+  b += sT(86, 274, 'the array + its', { size: 12.5, w: 700, fill: '#37474a' }) + sT(86, 292, 'search, insert, delete', { size: 12.5, w: 700, fill: '#37474a' });
+  panel(174, 172, 'ADT', '#7a4fa8', 'what, not how');
+  b += mapBox(196, 200, 116, 82, '#f4eefa', '#7a4fa8', 1.8, 6);
+  b += sT(254, 220, 'A set can:', { size: 13, w: 800, fill: '#5a3a80' });
+  ['add', 'remove', 'contains'].forEach((t, i) => { b += sT(212, 240 + i * 17, '• ' + t, { size: 12.5, w: 700, anchor: 'start' }); });
+  return introPic(340, 326, 'Four panels. Data structure: an array holding 19, 3, 42, 7; it stores the data. Algorithm: find 42 by checking 19 (no), 3 (no), 42 (yes); steps that work on it. Both: the same array with 42 found, plus its search, insert, and delete; a lesson teaches both. ADT: a set can add, remove, and check contains; it says what it can do, not how it is stored.', b);
+}

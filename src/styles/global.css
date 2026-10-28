@@ -923,3 +923,4 @@ svg.objbox.map-pic { max-width: 22rem; }
 .raw-org .ro-pile b:nth-child(5) { transform: rotate(-11deg) translateY(6px); }
 .raw-org .ro-pile b:nth-child(6) { transform: rotate(4deg) translateX(3px) translateY(-3px); }
 .raw-org .mini-arr { margin: 0; }
+svg.objbox.intro-pic { max-width: 22rem; }
