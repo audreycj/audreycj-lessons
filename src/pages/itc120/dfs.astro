@@ -4,10 +4,13 @@ import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import TraverseLab from '../../components/TraverseLab.astro';
 import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
 import { course } from '../../data/itc120.js';
 import { city, oneWay, islands } from '../../data/graphs.js';
-import { dfsSteps, bfsSteps } from '../../lib/graph.js';
-import { dfsDive, folderDive, stackIsPath, bfsVsDfs } from '../../lib/illus.js';
+import { dfsSteps, bfsSteps, svgGraph } from '../../lib/graph.js';
+import { dfsDive, folderDive, stackIsPath, bfsVsDfs, dfsTwoWays, dfsInIT } from '../../lib/illus.js';
+const labPeek = svgGraph(city, { label: 'The main example graph: A-B, A-D, B-C, B-E, C-F, D-E, E-F, E-G, F-G' }) + '<p class="small">The <b>Main example</b> in the Part 3 lab: the same vertices and edges. There, tap <b>Next step</b> to watch DFS move one step at a time.</p>';
+const stackSvg = stackIsPath(), folderSvg = folderDive();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -114,12 +117,12 @@ const quiz = [
         <p class="note-label">Depth-first search (DFS)</p>
         <p><b>Depth-first search (DFS)</b> is a <b>graph traversal algorithm</b> that visits every vertex reachable from a starting vertex. It starts at one vertex and keeps moving to an unvisited neighbor, going as <b>deep</b> as possible. When it reaches a vertex with no unvisited neighbors (a dead end), it <b>backtracks</b>: it goes back to the previous vertex and tries another neighbor. It uses a <b>stack</b>.</p>
       </div>
-      <figure class="fig illus-fig"><Fragment set:html={dfsDive()} /><figcaption>DFS from A on the main example (the same graph as the lab in Part 3). It goes A → B → C → F → E → D. D has no unvisited neighbors (a dead end), so DFS backs up to E and goes on to G. G is a dead end too, so DFS backs up again, all the way to A.</figcaption></figure>
+      <figure class="fig illus-fig"><Fragment set:html={dfsDive()} /><figcaption>DFS from A on the main example (<Peek label="the same graph as the lab in Part 3" title="Part 3 lab: main example" html={labPeek} />). It goes A → B → C → F → E → D. D has no unvisited neighbors (a dead end), so DFS backs up to E and goes deeper to G. G is a dead end too, so it backs up to E again. Now E, F, C, B, and A have no unvisited neighbors left, so DFS backs up through each of them to A, and the stack is empty.</figcaption></figure>
       <div class="sticky">
         <p class="note-label">Think of opening folders</p>
         <p>You are looking for a file on a computer. You open the first folder, then the first folder inside it, then the first folder inside <i>that</i>... until a folder has no more folders inside. Then you click <b>Back</b> once and open the next folder there. The Back button is the stack: it remembers the way you came.</p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={folderDive()} /><figcaption>Open folders deep first: Documents, ITC120, Week 9. Week 9 has no folders inside, so click <b>Back</b>: you return to ITC120, the folder you came from, and open Week 10. Two more Backs bring you to Documents, which still has Photos.</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={folderSvg} /><figcaption>Open folders deep first: Documents, ITC120, Week 9. Week 9 is empty, so click <b>Back</b>: you return to ITC120, the folder you came from, and open Week 10. Two more Backs bring you to Documents, which still has Photos. Photos is empty too, so one last Back, and you have seen every folder.</figcaption></figure>
       <p>Compare with BFS: BFS spreads out in waves (wide first). DFS dives down one path (deep first). Same graph, same start, different order:</p>
       <table class="tbl">
         <tbody>
@@ -139,7 +142,7 @@ const quiz = [
     <div class="flow">
       <p>Recall the stack: you <b>push</b> onto the top and <b>pop</b> from the top. Last in, first out, like a stack of plates.</p>
       <p>In DFS, the stack holds the <b>path you are currently on</b>. The top is where you are now. Pushing = taking one step deeper. Popping = taking one step back. Because the most recent vertex comes off first, you always back up to <span class="hl">the place you just came from</span>.</p>
-      <figure class="fig illus-fig"><Fragment set:html={stackIsPath()} /><figcaption>One moment of DFS from A: it has just reached D. The stack, bottom to top, is A, B, C, F, E, D: exactly the path it walked. D is a dead end, so pop it. The new top, E, is the vertex DFS came from, so that is where it goes back to.</figcaption></figure>
+      <figure class="fig illus-fig"><Fragment set:html={stackSvg} /><figcaption>One moment of DFS from A: it has just reached D. <b>Before:</b> the stack, bottom to top, is A, B, C, F, E, D, exactly the path it walked. D is a dead end, so pop it. <b>After the pop:</b> the new top is E, the vertex DFS came from, so that is where it goes back to.</figcaption></figure>
       <div class="sub">
         <h3>The DFS procedure</h3>
         <p>Every DFS follows these steps:</p>
@@ -147,7 +150,7 @@ const quiz = [
           <li><b>Visit</b> the start vertex and <b>push</b> it onto the stack.</li>
           <li>While the stack is not empty, look at the vertex on <b>top</b>:
             <ol type="a">
-              <li>If it has an unvisited neighbor, take the first one (alphabetical order). <b>Visit</b> it and <b>push</b> it. (Go deeper.)</li>
+              <li>If it has an unvisited neighbor, take the first one in alphabetical order (or smallest number first, if the vertices are numbers). <b>Visit</b> it and <b>push</b> it. (Go deeper.)</li>
               <li>If all its neighbors are visited, <b>pop</b> it. (Backtrack.)</li>
             </ol>
           </li>
@@ -156,15 +159,27 @@ const quiz = [
       </div>
       <div class="trap">
         <p class="note-label">Exam traps</p>
-        <ul>
-          <li>After popping, do not stop. Check the <b>new top</b> for other unvisited neighbors.</li>
-          <li>Write a vertex in the DFS order when you <b>first visit</b> (push) it, not when you pop it.</li>
-          <li>As with BFS, the neighbor order changes the answer, so more than one DFS order can be correct. Use alphabetical order (for numbered vertices, smallest number first, compared as numbers: 2 before 10) unless told otherwise.</li>
-        </ul>
+        <ol class="flow">
+          <li><b>Popping is not the end.</b> After you pop, look at the <b>new top</b>: it may still have an unvisited neighbor. In <Peek label="the stack picture" title="From the start of Part 2" html={stackSvg} />, after popping D the new top is E, and E still has G. So push G. DFS stops only when the stack is <b>empty</b>.</li>
+          <li><b>Write a vertex when you push it, not when you pop it.</b> Pushing is the first visit. If you write the vertices as they are popped, you get a different list. Main example from A:
+            <div class="mk-ans mk-solo">
+              <p class="mk-wrong"><b>✗ Pop order (not the DFS order)</b><span class="mono">D, G, E, F, C, B, A</span></p>
+              <p class="mk-right"><b>✓ DFS order (push order)</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
+            </div>
+          </li>
+          <li><b>The neighbor order changes the answer.</b> At A, both B and D are unvisited. Taking B first (alphabetical) gives the expected answer. Taking the last neighbor first (Z to A) gives a different list. It is still a correct DFS, but it is not the answer the question expects:
+            <div class="mk-ans mk-solo">
+              <p class="mk-right"><b>✓ Alphabetical (use this)</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
+              <p><b>Z to A (correct DFS, but not expected)</b><span class="mono">A, D, E, G, F, C, B</span></p>
+            </div>
+            Use alphabetical order unless the question says otherwise. For numbered vertices, take the smallest number first, comparing them as numbers (2 before 10).</li>
+        </ol>
       </div>
       <div class="plain">
-        <p class="note-label">Good to know: another way some books do it</p>
-        <p>Some books and websites pop a vertex, visit it if it is not visited yet, and then push <b>all</b> its unvisited neighbors at once. That is also a correct DFS, but it can give a different order, and its stack is a to-do list, not the path you are on. In this course, use the procedure above.</p>
+        <p class="note-label">Good to know: the "push-all" way in some books</p>
+        <p>Some books and websites use a different stack routine: pop a vertex; if it is not visited yet, visit it and push <b>all</b> its unvisited neighbors. Its stack is a <b>to-do list</b>, not the path you are on:</p>
+        <figure class="fig illus-fig"><Fragment set:html={dfsTwoWays()} /><figcaption>Right after DFS from A visits D. Our stack is the path from A to D. The push-all stack holds D and E, which are already visited (they get skipped when popped), and G twice.</figcaption></figure>
+        <p>Does it give the same order? That depends on how it pushes the neighbors. Pushed <b>Z to A</b>, the A-side neighbor lands on top and comes off first, so the order matches ours. Pushed <b>A to Z</b>, the last neighbor comes off first, so the order changes. Some versions also mark a vertex as visited when it is <b>pushed</b>; that shortcut can give an order that is not a real DFS. In this course, use the procedure above.</p>
       </div>
     </div>
   </section>
@@ -237,6 +252,7 @@ const quiz = [
         <p class="note-label">Where you see DFS in IT</p>
         <p>Searching all folders on a drive, solving mazes and puzzles, and checking for <b>cycles</b>. For example, a project tool can check if tasks wait on each other in a circle (task A waits for B, B waits for C, C waits for A), which would mean nothing can ever start.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={dfsInIT()} /><figcaption>A maze is a graph: each corner or crossing is a vertex, and each hallway is an edge. DFS follows one hallway to its end, backs up at a dead end, and tries the next. In a project plan, if DFS reaches a task that is still on its stack, it has gone around a circle: those tasks wait for each other forever. (Searching folders works like <Peek label="the folder picture in Part 1" title="From Part 1" html={folderSvg} />.)</figcaption></figure>
     </div>
   </section>
 

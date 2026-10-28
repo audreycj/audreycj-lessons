@@ -9,6 +9,8 @@ export const C = {
   amber: '#f0a93b', butter: '#f8dc95', pink: '#f6d6d0', sky: '#d6e6f2', red: '#b23a33',
 };
 
+/** o.dash = SVG dash pattern, e.g. '6 5' (use with single: true so the dashes stay clean). */
+const dashAttr = (o) => (o.dash ? ` stroke-dasharray="${o.dash}"` : '');
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export class Sketch {
@@ -39,13 +41,13 @@ export class Sketch {
   }
   circle(cx, cy, d, o = {}) { return this.push(this.g.circle(cx, cy, d, this.opt(o))); }
   ellipse(cx, cy, w, h, o = {}) { return this.push(this.g.ellipse(cx, cy, w, h, this.opt(o))); }
-  line(x1, y1, x2, y2, o = {}) { return this.push(this.g.line(x1, y1, x2, y2, this.opt(o))); }
-  path(d, o = {}) { return this.push(this.g.path(d, this.opt(o))); }
+  line(x1, y1, x2, y2, o = {}) { return this.push(this.g.line(x1, y1, x2, y2, this.opt(o)), dashAttr(o)); }
+  path(d, o = {}) { return this.push(this.g.path(d, this.opt(o)), dashAttr(o)); }
   /** Line with a small open arrowhead at (x2, y2). */
   arrow(x1, y1, x2, y2, o = {}) {
     this.line(x1, y1, x2, y2, o);
     const a = Math.atan2(y2 - y1, x2 - x1), L = o.head ?? 9;
-    for (const s of [-0.5, 0.5]) this.line(x2, y2, x2 - L * Math.cos(a + s), y2 - L * Math.sin(a + s), { ...o, single: true });
+    for (const s of [-0.5, 0.5]) this.line(x2, y2, x2 - L * Math.cos(a + s), y2 - L * Math.sin(a + s), { ...o, single: true, dash: null });
     return this;
   }
   /** Curved arrow from (x1,y1) to (x2,y2), bending by `bend` units. */
@@ -54,7 +56,7 @@ export class Sketch {
     const cx = mx - (dy / len) * bend, cy = my + (dx / len) * bend;
     this.path(`M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`, o);
     const a = Math.atan2(y2 - cy, x2 - cx), L = o.head ?? 9;
-    for (const s of [-0.5, 0.5]) this.line(x2, y2, x2 - L * Math.cos(a + s), y2 - L * Math.sin(a + s), { ...o, single: true });
+    for (const s of [-0.5, 0.5]) this.line(x2, y2, x2 - L * Math.cos(a + s), y2 - L * Math.sin(a + s), { ...o, single: true, dash: null });
     return this;
   }
   /** A folder icon with its name underneath. */

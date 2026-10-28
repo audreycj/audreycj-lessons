@@ -1209,6 +1209,7 @@ export function queueSteps() {
 }
 
 
+
 /* ---- DFS pictures (dfs lesson). Clean style for the graph, sketch for the folder example. ---- */
 const dfsLab = (x, y, t, c = C.ink, a = 'middle', sz = 13, w = 700) => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='Nunito, sans-serif' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
 const dfsCityPos = { A: [50, 50], B: [170, 40], C: [290, 55], D: [45, 185], E: [165, 150], F: [290, 175], G: [190, 228] };
@@ -1234,91 +1235,158 @@ const dfsBackArrow = (P, a, b, bend, col = C.teal, r = 17) => {
 const dfsNode = (x, y, k, fill, stroke, r = 17) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>` + dfsLab(x, y + 5, k, C.ink, 'middle', 15, 800);
 const dfsShift = (dx, dy) => Object.fromEntries(Object.entries(dfsCityPos).map(([k, [x, y]]) => [k, [x + dx, y + dy]]));
 
-/** Clean: DFS from A on the city graph: deep arrows, two back-ups, visit order strip. */
+/** Clean: DFS from A on the city graph: deep arrows, every back-up step, visit order strip. */
 export function dfsDive() {
   const P = dfsShift(0, 48), O = C.orange, T = C.teal;
-  let s = `<svg class="objbox" viewBox="0 0 340 392" role="img" aria-label="DFS from A on the main example graph. Orange arrows go deeper: A to B, B to C, C to F, F to E, E to D. D is a dead end, so a dashed arrow backs up to E. Then E goes deeper to G, another dead end, and DFS backs up again. Visit order: A, B, C, F, E, D, G.">`;
+  let s = `<svg class="objbox" viewBox="0 0 340 414" role="img" aria-label="DFS from A on the main example graph. Orange arrows go deeper: A to B, B to C, C to F, F to E, E to D. D is a dead end, so a dashed arrow backs up to E. E goes deeper to G, another dead end, so DFS backs up to E again. Then dashed arrows back up from E to F, F to C, C to B, and B to A, where DFS ends. Visit order: A, B, C, F, E, D, G.">`;
   s += dfsLab(170, 24, 'DFS from A: go deep, then back up', C.ink, 'middle', 15, 800);
   for (const [a, b] of dfsCityEdges) s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="#c9d0cd" stroke-width="1.6"/>`;
   for (const [a, b] of [['A', 'B'], ['B', 'C'], ['C', 'F'], ['F', 'E'], ['E', 'D'], ['E', 'G']]) s += dfsEdgeArrow(P, a, b, O);
   s += dfsBackArrow(P, 'D', 'E', 30) + dfsBackArrow(P, 'G', 'E', 30);
+  for (const [a, b] of [['E', 'F'], ['F', 'C'], ['C', 'B'], ['B', 'A']]) s += dfsBackArrow(P, a, b, -22);
   for (const [k, [x, y]] of Object.entries(P)) s += dfsNode(x, y, k, k === 'A' ? C.butter : C.tealWash, k === 'A' ? '#a8650f' : T);
-  s += dfsLab(P.A[0], P.A[1] - 24, 'start', '#a8650f', 'middle', 12, 800);
+  s += dfsLab(P.A[0], P.A[1] - 24, 'start and end', '#a8650f', 'middle', 12, 800);
   s += dfsLab(P.D[0], P.D[1] + 34, 'dead end!', C.red, 'middle', 12.5, 800) + dfsLab(P.D[0], P.D[1] + 49, 'back up to E', T, 'middle', 12, 800);
   s += dfsLab(P.G[0] + 26, P.G[1] + 6, 'dead end!', C.red, 'start', 12.5, 800);
-  // legend
-  const ly = 320;
+  s += dfsLab(170, 312, 'Then nothing new is left: back up E → F → C → B → A.', T, 'middle', 12.5, 800);
+  const ly = 342;
   s += `<line x1="14" y1="${ly}" x2="44" y2="${ly}" stroke="${O}" stroke-width="3" stroke-linecap="round"/>` + dfsHead(14, ly, 46, ly, O) + dfsLab(54, ly + 4, 'go deeper', C.ink, 'start', 12.5, 800);
-  s += `<line x1="170" y1="${ly}" x2="200" y2="${ly}" stroke="${T}" stroke-width="2.4" stroke-dasharray="6 4"/>` + dfsHead(170, ly, 202, ly, T) + dfsLab(210, ly + 4, 'back up (dead end)', C.ink, 'start', 12.5, 800);
-  // visit order
-  s += dfsLab(14, 350, 'Visit order:', C.soft, 'start', 12.5, 800);
-  'ABCFEDG'.split('').forEach((v, i) => { const x = 98 + i * 33; s += `<rect x="${x}" y="335" width="30" height="28" rx="4" fill="${C.card}" stroke="${C.ink}" stroke-width="1.5"/>` + dfsLab(x + 15, 354, v, C.ink, 'middle', 14, 800) + dfsLab(x + 15, 380, String(i + 1), C.soft, 'middle', 11, 700); });
+  s += `<line x1="170" y1="${ly}" x2="200" y2="${ly}" stroke="${T}" stroke-width="2.4" stroke-dasharray="6 4"/>` + dfsHead(170, ly, 202, ly, T) + dfsLab(210, ly + 4, 'back up', C.ink, 'start', 12.5, 800);
+  s += dfsLab(14, 372, 'Visit order:', C.soft, 'start', 12.5, 800);
+  'ABCFEDG'.split('').forEach((v, i) => { const x = 98 + i * 33; s += `<rect x="${x}" y="357" width="30" height="28" rx="4" fill="${C.card}" stroke="${C.ink}" stroke-width="1.5"/>` + dfsLab(x + 15, 376, v, C.ink, 'middle', 14, 800) + dfsLab(x + 15, 402, String(i + 1), C.soft, 'middle', 11, 700); });
   return s + '</svg>';
 }
 
-/** Sketch: opening folders deep first; Back goes to the folder you came from. */
+/** Sketch: opening folders deep first. Orange = open (go deeper), teal dashed = Back. */
 export function folderDive() {
-  const s = new Sketch(340, 372, 53);
-  const F = { Documents: [147, 30], ITC120: [58, 128], Photos: [236, 128], 'Week 9': [10, 228], 'Week 10': [106, 228] };
-  const mid = (k) => [F[k][0] + 23, F[k][1]];
-  const low = (k) => [F[k][0] + 23, F[k][1] + 54];
-  // open (orange) arrows down the tree
-  const O = { stroke: C.orange, sw: 2.4, head: 8 };
-  const down = (a, b) => { const [x1, y1] = low(a), [x2, y2] = mid(b); s.arrow(x1, y1, x2, y2 - 6, O); };
-  down('Documents', 'ITC120'); down('ITC120', 'Week 9'); down('ITC120', 'Week 10'); down('Documents', 'Photos');
+  const s = new Sketch(340, 368, 53);
+  const F = { Documents: [147, 22], ITC120: [60, 114], Photos: [234, 114], 'Week 9': [14, 208], 'Week 10': [110, 208] };
+  const top = (k) => [F[k][0] + 23, F[k][1] - 4], below = (k) => [F[k][0] + 23, F[k][1] + 58];
+  const O = { stroke: C.orange, sw: 2.4, head: 8, single: true, rough: 0.5 };
+  const B = { stroke: C.teal, sw: 2.2, head: 8, single: true, rough: 0.4, dash: '6 5' };
+  const open = (a, b) => { const [x1, y1] = below(a), [x2, y2] = top(b); s.arrow(x1, y1, x2, y2, O); };
+  open('Documents', 'ITC120'); open('Documents', 'Photos'); open('ITC120', 'Week 9'); open('ITC120', 'Week 10');
+  // Back: from the child's top corner to the parent's side, bulging outward
+  s.curve(16, 204, 54, 132, 20, B);        // Week 9 -> ITC120
+  s.curve(150, 204, 112, 132, -20, B);     // Week 10 -> ITC120
+  s.curve(64, 110, 140, 40, -24, B);       // ITC120 -> Documents
+  s.curve(276, 110, 200, 40, 24, B);       // Photos -> Documents
   for (const [k, [x, y]] of Object.entries(F)) s.folder(x, y, k, { fill: k === 'Documents' ? C.amber : C.butter });
   const order = { Documents: 1, ITC120: 2, 'Week 9': 3, 'Week 10': 4, Photos: 5 };
   for (const [k, n] of Object.entries(order)) { const [x, y] = F[k]; s.circle(x + 52, y + 4, 22, { fill: C.orangeWash, sw: 1.4 }); s.text(x + 52, y + 9, String(n), { font: 'body', size: 13, weight: 800 }); }
-  // Back arrows (teal), curving up beside the open arrows
-  const B = { stroke: C.teal, sw: 2.2, head: 8 };
-  s.curve(16, 224, 50, 148, 22, B);
-  s.text(14, 186, 'Back', { font: 'body', size: 12, weight: 800, color: C.teal, anchor: 'start' });
-  s.curve(152, 224, 114, 148, -22, B);
-  s.text(160, 186, 'Back', { font: 'body', size: 12, weight: 800, color: C.teal, anchor: 'start' });
-  s.curve(66, 122, 140, 50, -26, B);
-  s.text(72, 72, 'Back', { font: 'body', size: 12, weight: 800, color: C.teal, anchor: 'end' });
-  s.text(33, 296, 'no folders', { font: 'body', size: 11.5, weight: 700, color: C.soft });
-  s.text(33, 310, 'inside', { font: 'body', size: 11.5, weight: 700, color: C.soft });
-  s.text(129, 296, 'no folders', { font: 'body', size: 11.5, weight: 700, color: C.soft });
-  s.text(129, 310, 'inside', { font: 'body', size: 11.5, weight: 700, color: C.soft });
-  // address bar while inside Week 9
-  s.round(186, 222, 148, 92, 10, { fill: C.card, sw: 1.6 });
-  s.text(260, 244, 'Inside Week 9:', { font: 'body', size: 12, weight: 800, color: C.soft });
-  s.text(260, 266, 'Documents ›', { font: 'body', size: 13, weight: 800 });
-  s.text(260, 284, 'ITC120 ›', { font: 'body', size: 13, weight: 800 });
-  s.text(260, 302, 'Week 9', { font: 'body', size: 13, weight: 800, color: C.orange });
-  s.text(170, 346, 'Back remembers the way you came, newest first:', { font: 'body', size: 12.5, weight: 700, color: C.soft });
-  s.text(170, 364, 'that is a stack.', { font: 'body', size: 12.5, weight: 800, color: C.teal });
-  return s.svg('Folders opened deep first: 1 Documents, 2 ITC120, 3 Week 9. Week 9 has no folders inside, so Back returns to ITC120, which opens 4 Week 10. Week 10 has no folders inside, so Back returns to ITC120, then Back again to Documents, which opens 5 Photos. While inside Week 9, the path reads Documents, ITC120, Week 9. Back remembers the way you came, newest first: that is a stack.').replace(/(\d+\.\d)\d+/g, '$1');
+  for (const k of ['Week 9', 'Week 10', 'Photos']) s.text(F[k][0] + 23, F[k][1] + 66, '(empty)', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  // path box while inside Week 9
+  s.round(194, 206, 140, 84, 10, { fill: C.card, sw: 1.5, rough: 0.6 });
+  s.text(264, 226, 'Inside Week 9:', { font: 'body', size: 12, weight: 800, color: C.soft });
+  s.text(264, 246, 'Documents ›', { font: 'body', size: 13, weight: 800 });
+  s.text(264, 263, 'ITC120 ›', { font: 'body', size: 13, weight: 800 });
+  s.text(264, 280, 'Week 9', { font: 'body', size: 13, weight: 800, color: C.orange });
+  // legend
+  s.arrow(16, 312, 46, 312, O);
+  s.text(54, 316, 'open (go deeper)', { font: 'body', size: 12.5, weight: 800, anchor: 'start' });
+  s.arrow(186, 312, 216, 312, B);
+  s.text(224, 316, 'Back (go back up)', { font: 'body', size: 12.5, weight: 800, anchor: 'start' });
+  s.text(170, 344, 'Back remembers the way you came, newest first:', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(170, 362, 'that is a stack.', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  return s.svg('Folders opened deep first: 1 Documents, 2 ITC120, 3 Week 9. Week 9 is empty, so Back returns to ITC120, which opens 4 Week 10. Week 10 is empty, so Back returns to ITC120, then Back again to Documents, which opens 5 Photos. Photos is empty, so Back returns to Documents. While inside Week 9, the path reads Documents, ITC120, Week 9.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
-/** Clean: one moment of DFS from A (at D, a dead end): the stack is the path; pop goes back to E. */
+/** Clean: DFS from A at D (a dead end). The stack is the path. Two stacks: before and after popping D. */
 export function stackIsPath() {
   const P = dfsShift(2, 34), O = C.orange, T = C.teal;
   const path = ['A', 'B', 'C', 'F', 'E', 'D'];
-  let s = `<svg class="objbox" viewBox="0 0 340 600" role="img" aria-label="DFS from A, at the moment it reaches D. The path A, B, C, F, E, D is drawn thick. The stack, bottom to top, holds A, B, C, F, E, D: the same path. D is on top and is a dead end, so it is popped. The new top is E, the vertex DFS came from.">`;
+  let s = `<svg class="objbox" viewBox="0 0 340 690" role="img" aria-label="DFS from A, at the moment it reaches D. The path A, B, C, F, E, D is drawn thick. Before: the stack, bottom to top, holds A, B, C, F, E, D, the same path, with D on top. D is a dead end, so pop D. After the pop, the stack holds A, B, C, F, E, and the new top is E, the vertex DFS came from.">`;
   s += dfsLab(170, 22, 'The stack is the path you are on', C.ink, 'middle', 15, 800);
   for (const [a, b] of dfsCityEdges) s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="#c9d0cd" stroke-width="1.6"/>`;
   for (let i = 0; i + 1 < path.length; i++) { const [a, b] = [P[path[i]], P[path[i + 1]]]; s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${T}" stroke-width="5" stroke-linecap="round"/>`; }
   for (const [k, [x, y]] of Object.entries(P)) s += k === 'D' ? dfsNode(x, y, k, O, O) : path.includes(k) ? dfsNode(x, y, k, C.tealWash, T) : dfsNode(x, y, k, C.card, '#9aa5a2');
   s += dfsLab(P.D[0] - 2, P.D[1] + 36, 'you are here', O, 'start', 12.5, 800);
   s += dfsLab(P.G[0] + 24, P.G[1] + 5, 'not visited yet', C.soft, 'start', 12, 700);
-  // the stack (one column), bottom A ... top D
-  const sx = 46, bw = 64, bh = 40, base = 576;
-  s += `<path d="M${sx - 6} ${base - 6 * bh - 10} L${sx - 6} ${base + 4} L${sx + bw + 6} ${base + 4} L${sx + bw + 6} ${base - 6 * bh - 10}" fill="none" stroke="${C.ink}" stroke-width="2"/>`;
-  path.forEach((v, i) => {
-    const y = base - (i + 1) * bh, top = v === 'D';
-    s += `<rect x="${sx}" y="${y}" width="${bw}" height="${bh - 3}" rx="4" fill="${top ? O : C.tealWash}" stroke="${top ? O : T}" stroke-width="1.8"/>` + dfsLab(sx + bw / 2, y + 24, v, top ? C.card : C.ink, 'middle', 15, 800);
-  });
-  s += dfsLab(sx + bw / 2, base - 6 * bh - 18, 'stack', C.soft, 'middle', 12.5, 800);
-  const tx = 132, yD = base - 6 * bh + 19, yE = base - 5 * bh + 19, yA = base - bh + 19;
-  s += `<line x1="${tx - 4}" y1="${yD}" x2="${sx + bw + 12}" y2="${yD}" stroke="${O}" stroke-width="2"/>` + dfsHead(tx - 4, yD, sx + bw + 12, yD, O, 7);
-  s += dfsLab(tx, yD - 4, 'top = D, where you are.', C.ink, 'start', 12.5, 800) + dfsLab(tx, yD + 12, 'Dead end, so pop D.', O, 'start', 12.5, 800);
-  s += `<line x1="${tx - 4}" y1="${yE}" x2="${sx + bw + 12}" y2="${yE}" stroke="${T}" stroke-width="2"/>` + dfsHead(tx - 4, yE, sx + bw + 12, yE, T, 7);
-  s += dfsLab(tx, yE - 4, 'new top = E, the vertex', C.ink, 'start', 12.5, 800) + dfsLab(tx, yE + 12, 'you came from', T, 'start', 12.5, 800);
-  s += `<line x1="${tx - 4}" y1="${yA}" x2="${sx + bw + 12}" y2="${yA}" stroke="${C.soft}" stroke-width="1.6"/>` + dfsHead(tx - 4, yA, sx + bw + 12, yA, C.soft, 7);
-  s += dfsLab(tx, yA - 4, 'bottom = A, the start', C.ink, 'start', 12.5, 800) + dfsLab(tx, yA + 12, 'bottom to top: A B C F E D', C.soft, 'start', 12, 700);
+  s += `<line x1="8" y1="314" x2="332" y2="314" stroke="#d9dedb" stroke-width="1.5"/>`;
+  const bw = 64, bh = 34, base = 616;
+  const col = (cx, items, head, l1, l2, c2) => {
+    const x = cx - bw / 2, n = items.length, topY = base - n * bh;
+    let o = dfsLab(cx, base + 28, head, C.ink, 'middle', 14, 800);
+    o += `<path d="M${x - 6} ${topY - 14} L${x - 6} ${base + 4} L${x + bw + 6} ${base + 4} L${x + bw + 6} ${topY - 14}" fill="none" stroke="${C.ink}" stroke-width="2"/>`;
+    items.forEach((v, i) => { const y = base - (i + 1) * bh, isTop = i === n - 1;
+      o += `<rect x="${x}" y="${y}" width="${bw}" height="${bh - 4}" rx="4" fill="${isTop ? O : C.tealWash}" stroke="${isTop ? O : T}" stroke-width="1.8"/>` + dfsLab(cx, y + 21, v, isTop ? C.card : C.ink, 'middle', 15, 800); });
+    // label above, then a real arrow down to the top box
+    const ly = topY - 70;
+    o += dfsLab(cx, ly, l1, C.ink, 'middle', 12.5, 800) + dfsLab(cx, ly + 16, l2, c2, 'middle', 12.5, 800);
+    o += `<line x1="${cx}" y1="${ly + 26}" x2="${cx}" y2="${topY - 22}" stroke="${c2}" stroke-width="2.2" stroke-linecap="round"/>` + dfsHead(cx, ly + 26, cx, topY - 20, c2, 8);
+    return o;
+  };
+  s += col(84, path, 'Before', 'top = D, where you are', 'dead end, so pop D', O);
+  s += col(256, path.slice(0, 5), 'After the pop', 'new top = E, the', 'vertex you came from', T);
+  // pop arrow between the two stacks
+  s += `<line x1="132" y1="510" x2="200" y2="510" stroke="${O}" stroke-width="3" stroke-linecap="round"/>` + dfsHead(132, 510, 203, 510, O);
+  s += dfsLab(166, 498, 'pop D', O, 'middle', 13, 800);
+  s += dfsLab(170, 676, 'Bottom to top, each stack is the path from A.', C.soft, 'middle', 12.5, 800);
   return s + '</svg>';
+}
+
+/** Clean: the same moment (DFS from A has just visited D) in two stack routines. */
+export function dfsTwoWays() {
+  const O = C.orange, T = C.teal, G = '#9aa5a2';
+  let s = `<svg class="objbox" viewBox="0 0 340 352" role="img" aria-label="The same moment in two stack routines, right after DFS from A visits D. Our way: the stack holds A, B, C, F, E, D, the path from A to D. Push-all way: the stack holds D, E, G, G from bottom to top. D and E are already visited and will be skipped, and G is in it twice. It is a to-do list, not a path.">`;
+  s += dfsLab(170, 22, 'Just visited D: what is on each stack?', C.ink, 'middle', 15, 800);
+  const bw = 64, bh = 32, base = 286;
+  const col = (cx, items, head, sub) => {
+    const x = cx - bw / 2, n = items.length;
+    let o = dfsLab(cx, 52, head, C.ink, 'middle', 14, 800) + dfsLab(cx, 69, sub, C.soft, 'middle', 12, 700);
+    o += `<path d="M${x - 6} ${base - 6 * bh - 12} L${x - 6} ${base + 4} L${x + bw + 6} ${base + 4} L${x + bw + 6} ${base - 6 * bh - 12}" fill="none" stroke="${C.ink}" stroke-width="2"/>`;
+    items.forEach(([v, kind, tag], i) => { const y = base - (i + 1) * bh;
+      const fill = kind === 'top' ? O : kind === 'stale' ? '#eef0ef' : C.tealWash, st = kind === 'top' ? O : kind === 'stale' ? G : T;
+      o += `<rect x="${x}" y="${y}" width="${bw}" height="${bh - 4}" rx="4" fill="${fill}" stroke="${st}" stroke-width="1.8"${kind === 'stale' ? ' stroke-dasharray="5 3"' : ''}/>` + dfsLab(cx, y + 20, v, kind === 'top' ? C.card : kind === 'stale' ? '#6b7774' : C.ink, 'middle', 15, 800);
+      if (tag) o += dfsLab(x + bw + 12, y + 19, tag, kind === 'stale' ? C.red : T, 'start', 11.5, 800);
+    });
+    return o;
+  };
+  s += col(70, [['A'], ['B'], ['C'], ['F'], ['E'], ['D', 'top']], 'Our way', 'this course');
+  s += col(220, [['D', 'stale', 'visited: skip'], ['E', 'stale', 'visited: skip'], ['G', 'todo', 'to do'], ['G', 'todo', 'again!']], 'Push-all way', 'some books');
+  s += dfsLab(70, 316, 'the path A → … → D', T, 'middle', 12.5, 800);
+  s += dfsLab(244, 316, 'a to-do list, not a path', C.red, 'middle', 12.5, 800);
+  s += dfsLab(170, 342, 'Both end with the same visit order here: A B C F E D G.', C.soft, 'middle', 12, 700);
+  return s + '</svg>';
+}
+
+/** Sketch: where DFS is used: a maze (dead end, back up) and tasks waiting in a circle. */
+export function dfsInIT() {
+  const s = new Sketch(340, 556, 61);
+  const O = { stroke: C.orange, sw: 2.6, head: 8, single: true, rough: 0.5 };
+  const B = { stroke: C.teal, sw: 2.2, head: 8, single: true, rough: 0.4, dash: '6 5' };
+  // Panel 1: maze
+  s.round(4, 6, 332, 268, 12, { fill: C.card, sw: 1.5, stroke: C.soft, rough: 0.6 });
+  s.text(18, 32, 'Solving a maze', { font: 'body', size: 15, weight: 800, anchor: 'start' });
+  const hall = { stroke: '#eadfc2', sw: 26, single: true, rough: 0.3 };
+  s.line(40, 90, 290, 90, hall).line(130, 90, 130, 200, hall).line(130, 200, 250, 200, hall).line(290, 90, 290, 150, hall);
+  s.text(40, 66, 'Start', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.text(292, 178, 'Exit', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.circle(40, 90, 14, { fill: C.teal, sw: 1.2, stroke: C.teal });
+  s.arrow(52, 84, 120, 84, O).arrow(124, 98, 124, 192, O).arrow(132, 194, 236, 194, O);
+  s.line(244, 186, 256, 198, { stroke: C.red, sw: 2.4, single: true }).line(256, 186, 244, 198, { stroke: C.red, sw: 2.4, single: true });
+  s.text(250, 228, 'dead end!', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  s.arrow(236, 210, 142, 210, B).arrow(142, 206, 142, 104, B);
+  s.text(186, 230, 'back up', { font: 'body', size: 12, weight: 800, color: C.teal });
+  s.arrow(150, 82, 282, 82, O).arrow(298, 98, 298, 146, O);
+  s.text(170, 246, 'Try one way to its end. At a dead end,', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.text(170, 261, 'back up and try the next way.', { font: 'body', size: 12, weight: 700, color: C.soft });
+  // Panel 2: tasks waiting in a circle
+  const y0 = 286;
+  s.round(4, y0, 332, 264, 12, { fill: C.card, sw: 1.5, stroke: C.soft, rough: 0.6 });
+  s.text(18, y0 + 26, 'Finding a cycle in a project plan', { font: 'body', size: 15, weight: 800, anchor: 'start' });
+  const card = (cx, cy, name, job) => { s.round(cx - 46, cy - 24, 92, 48, 8, { fill: C.butter, sw: 1.6, rough: 0.6 }); s.text(cx, cy - 4, name, { font: 'body', size: 13.5, weight: 800 }); s.text(cx, cy + 14, job, { font: 'body', size: 12, weight: 700, color: C.soft }); };
+  const A = [170, y0 + 70], Bc = [266, y0 + 176], Cc = [74, y0 + 176];
+  card(...A, 'Task A', 'Design'); card(...Bc, 'Task B', 'Build'); card(...Cc, 'Task C', 'Test');
+  const W = { stroke: C.ink, sw: 2, head: 8, single: true, rough: 0.5 };
+  s.curve(214, y0 + 86, 262, y0 + 148, -18, W).curve(218, y0 + 190, 122, y0 + 190, -14, W).curve(80, y0 + 148, 126, y0 + 86, -18, W);
+  s.text(300, y0 + 122, 'waits for', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  s.text(170, y0 + 226, 'waits for', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  s.text(40, y0 + 122, 'waits for', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  s.text(170, y0 + 140, 'stuck!', { font: 'body', size: 14, weight: 800, color: C.red });
+  s.text(170, y0 + 156, 'no task can start', { font: 'body', size: 11.5, weight: 700, color: C.red });
+  s.text(170, y0 + 250, 'DFS finds it: it reaches a task that is still on its stack.', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  return s.svg('Two places DFS is used. Solving a maze: from Start, try one hallway to its end; at a dead end, back up and try the next hallway, until you reach the Exit. Finding a cycle in a project plan: Task A waits for Task B, B waits for C, and C waits for A, so no task can start. DFS finds this because it reaches a task that is still on its stack.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
 /** Clean: the same graph, BFS order vs DFS order (badges = visit order, thick edges = how each vertex was reached). */
