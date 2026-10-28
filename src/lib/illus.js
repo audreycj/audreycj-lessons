@@ -1892,3 +1892,62 @@ export function chainPic() {
   b += sT(170, 318, 'Aa and BB share bucket 0 (a collision). Both are kept.', { size: 12.5, w: 800, fill: '#0b544e' });
   return mapPic(340, 330, 'Buckets of a HashMap with chaining. Bucket 0 holds a chain: Aa to first, then BB to second. Bucket 6 holds CAT to Puspin, bucket 12 holds DOG to Aspin, others are empty. get BB goes to bucket 0, checks Aa: not BB, then BB: found. Aa and BB share bucket 0, a collision, and both are kept.', b);
 }
+
+/** Clean: finding a grade in a list (by position, check one by one) vs a map (by key, one jump). */
+export function posVsKey() {
+  const ids = [['2025-0012', '89'], ['2025-0047', '92'], ['2025-0101', '89'], ['2025-0150', '85']];
+  let b = sT(170, 20, 'Where is the grade of 2025-0101?', { size: 14, w: 800 });
+  b += sT(18, 50, 'In a list: by position', { size: 13, w: 800, anchor: 'start', fill: '#0b544e' });
+  ids.forEach(([id, g], i) => {
+    const x = 18 + i * 77, hit = i === 2;
+    b += sT(x + 36, 70, `[${i}]`, { mono: true, size: 12, w: 700, fill: '#37474a' });
+    b += mapBox(x, 76, 72, 44, hit ? '#fce9e0' : '#fff', hit ? '#e8662e' : '#1b2a2e', hit ? 2.2 : 1.6, 5);
+    b += sT(x + 36, 94, id, { mono: true, size: 10.5, w: 600, fill: '#37474a' }) + sT(x + 36, 113, g, { mono: true, size: 13, w: 700 });
+    if (i < 3) b += `<circle cx="${x + 36}" cy="138" r="11" fill="${hit ? '#e8662e' : '#fff'}" stroke="${hit ? '#b4461a' : '#b23a33'}" stroke-width="1.6"/>` + sT(x + 36, 143, String(i + 1), { size: 12, w: 800, fill: hit ? '#fff' : '#b23a33' });
+    if (i < 2) b += sT(x + 56, 143, '✗', { size: 13, w: 800, fill: '#b23a33' });
+  });
+  b += sT(228, 143, '✓', { size: 14, w: 800, fill: '#b4461a' });
+  b += sT(170, 170, 'You don\'t know its position, so check one by one.', { size: 12.5, w: 700, fill: '#37474a' });
+  b += `<line x1="16" y1="186" x2="324" y2="186" stroke="#c9d6d4" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+  b += sT(18, 210, 'In a map: by key', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
+  const tx = 168;
+  b += mapBox(tx, 220, 154, 120, '#fff', '#1b2a2e', 1.8, 6);
+  b += `<rect x="${tx + 1}" y="221" width="152" height="22" rx="5" fill="#e3f1ef"/><line x1="${tx}" y1="243" x2="${tx + 154}" y2="243" stroke="#1b2a2e" stroke-width="1.4"/><line x1="${tx + 96}" y1="220" x2="${tx + 96}" y2="340" stroke="#1b2a2e" stroke-width="1.4"/>`;
+  b += sT(tx + 48, 237, 'key', { size: 12, w: 800, fill: '#0b544e' }) + sT(tx + 125, 237, 'value', { size: 12, w: 800, fill: '#b4461a' });
+  ids.forEach(([id, g], i) => {
+    const y = 243 + i * 24, hit = i === 2;
+    if (hit) b += `<rect x="${tx + 2}" y="${y + 1}" width="150" height="22" rx="3" fill="#fce9e0" stroke="#e8662e" stroke-width="1.8"/>`;
+    b += sT(tx + 48, y + 17, id, { mono: true, size: 12, w: 600 }) + sT(tx + 125, y + 17, g, { mono: true, size: 13, w: 700, fill: hit ? '#b4461a' : '#1b2a2e' });
+  });
+  b += sT(80, 284, 'get("2025-0101")', { mono: true, size: 12, w: 700, fill: '#b4461a' });
+  b += mapArrow(128, 291, tx - 2, 291, '#e8662e', 2.4);
+  b += sT(80, 306, 'one jump', { size: 12, w: 800, fill: '#b4461a' });
+  b += sT(170, 364, 'Ask by the key you know. No counting positions.', { size: 12.5, w: 700, fill: '#37474a' });
+  return mapPic(340, 376, 'Where is the grade of 2025-0101? In a list, by position: four boxes, [0] 2025-0012 89, [1] 2025-0047 92, [2] 2025-0101 89, [3] 2025-0150 85. You do not know its position, so you check one by one: 1 not it, 2 not it, 3 found. In a map, by key: a key and value table with the same four students; get 2025-0101 goes straight to its row and finds 89 in one jump.', b);
+}
+
+/** Clean: 67868 & 15 bit by bit; only the last 4 bits survive (1100 = 12). */
+export function andBits() {
+  const bits = (67868).toString(2), n = bits.length, W = 16, x0 = 340 - 8 - n * W;
+  let b = sT(170, 18, '67868 & 15, bit by bit', { size: 14, w: 800 });
+  b += `<rect x="${x0 + (n - 4) * W - 3}" y="28" width="${4 * W + 6}" height="114" rx="6" fill="#fce9e0" stroke="#e8662e" stroke-width="1.8"/>`;
+  const row = (y, label, str, mode) => {
+    let t = sT(x0 - 8, y + 17, label, { mono: true, size: 12.5, w: 700, anchor: 'end' });
+    [...str].forEach((c, i) => {
+      const last = i >= n - 4, dim = mode !== 'num' && !last;
+      t += `<rect x="${x0 + i * W + 1}" y="${y}" width="${W - 2}" height="24" rx="3" fill="#fff" stroke="${dim ? '#c9d6d4' : '#1b2a2e'}" stroke-width="1.2"/>`;
+      t += sT(x0 + i * W + W / 2, y + 17, c, { mono: true, size: 13, w: last ? 800 : 600, fill: dim ? '#9aa8aa' : (last ? '#b4461a' : '#1b2a2e') });
+    });
+    return t;
+  };
+  b += row(34, '67868', bits, 'num');
+  b += row(66, '& 15', '0'.repeat(n - 4) + '1111', 'mask');
+  b += `<line x1="${x0}" y1="98" x2="${x0 + n * W}" y2="98" stroke="#1b2a2e" stroke-width="2"/>`;
+  b += row(108, '=', '0'.repeat(n - 4) + bits.slice(-4), 'res');
+  ['8', '4', '2', '1'].forEach((p, i) => { b += sT(x0 + (n - 4 + i) * W + W / 2, 160, p, { size: 12, w: 800, fill: '#0b544e' }); });
+  b += sT(x0 + (n - 4) * W - 8, 160, 'worth:', { size: 12, w: 700, anchor: 'end', fill: '#0b544e' });
+  b += sT(170, 186, 'A 1 stays only where BOTH rows have a 1.', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 206, '15 has 1s only in the last 4 places, so only they survive.', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 230, '1100 = 8 + 4 = 12, so the bucket is 12.', { size: 13, w: 800, fill: '#b4461a' });
+  return mapPic(340, 242, '67868 in binary is 1 0000 1001 0001 1100. Below it, 15 in binary: all zeros except 1111 at the end. AND them bit by bit: a 1 stays only where both rows have a 1, so only the last 4 bits survive: 1100. Those places are worth 8, 4, 2, 1, so 1100 = 8 + 4 = 12, bucket 12.', b);
+}
