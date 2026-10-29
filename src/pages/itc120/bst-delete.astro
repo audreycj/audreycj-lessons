@@ -168,13 +168,13 @@ const quiz = [
     <KindChips />
     <p class="lede">Removing a value by hand, then in Java.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>see why deleting is harder than inserting;</li>
-        <li>delete a node in each of the <b>three cases</b>, by hand;</li>
-        <li>find the <b>next value</b> (the in-order successor);</li>
-        <li>read and trace <code>deleteRec</code>, the Java version;</li>
-        <li>spot common mistakes.</li>
+        <li>explain why deleting is harder than inserting;</li>
+        <li>delete a node by hand in each of the <b>three cases</b> and draw the tree after;</li>
+        <li>find the <b>next value</b> (the in-order successor) of any node;</li>
+        <li>trace <code>deleteRec</code>, the Java version;</li>
+        <li>spot common deletion mistakes, and write a recursive <code>deleteMin</code>.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bst-insert/'}>BST Insertion</a>, <a href={base + '/itc120/traversals/'}>Traversals</a>, and <a href={base + '/itc120/recursion/'}>Recursion</a> lessons (especially <code>insertRec</code>), scratch paper, and a pen.</p>
@@ -314,7 +314,7 @@ const quiz = [
         <p>The next value after 40 is the smallest value that is bigger than 40. The two steps find exactly that:</p>
         <ul>
           <li><b>Right once:</b> everything bigger than 40 is on its right side (yellow).</li>
-          <li><b>Left, left, left:</b> smaller values are on the left, so the node furthest left (42) is the smallest of them.</li>
+          <li><b>Left, left, left:</b> smaller values are on the left, so the node farthest left (42) is the smallest of them.</li>
         </ul>
         <figure class="fig"><Fragment set:html={figs.why} /></figure>
         <div class="plain"><p class="note-label">Same rule, any tree</p><p>For 20 in the starting BST: right once to 30. 30 has no left child, so "left, left, left" is zero steps. The next value is 30, the box right after 20 in <Peek label="the sorted list" title="The sorted list" html={sortedPeek} />.</p></div>

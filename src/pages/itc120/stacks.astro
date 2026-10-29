@@ -405,7 +405,7 @@ const quiz = [
       </div>
       <div class="def">
         <p class="note-label">Exception and <code>throw</code></p>
-        <p>An <b>exception</b> is Java's way of stopping a method when it cannot do its job. The <code>throw</code> statement stops the method at once with an exception object. <code>IllegalStateException</code> is Java's standard exception for "you asked at the wrong time," such as popping an empty stack. If nothing in the program handles it, the program stops, and Java prints the exception's name and message.</p>
+        <p>An <b>exception</b> is an error Java reports while the program is running; if nothing handles it, the program stops. A method can report one itself when it cannot do its job: the <code>throw</code> statement stops the method at once with an exception object. <code>IllegalStateException</code> is Java's standard exception for "you asked at the wrong time," such as popping an empty stack. When the program stops, Java prints the exception's name and message.</p>
       </div>
       <p>To use a stack, a program makes one object with <code>new</code>, then calls its methods with a dot:</p>
       <figure class="fig illus-fig"><Fragment set:html={stackObjPic()} /><figcaption>The object <code>s</code> has its own fields and its own methods. <code>s.push(4)</code> runs the <code>push</code> method of <b>this</b> stack, so only <code>s</code> changes.</figcaption></figure>

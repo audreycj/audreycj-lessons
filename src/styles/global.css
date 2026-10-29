@@ -1099,3 +1099,16 @@ p.formula { font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem;
 /* Three cards (bst "Your turn: valid BST or not?"): when only two fit per row, the third is centered, not left (chat 25). */
 .two-col.three { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
 .two-col.three > * { flex: 1 1 15rem; max-width: 22rem; }
+
+/* ---------- Phone picture zoom + tag size (QA #149, chat 33) ---------- */
+@media (max-width: 40rem) {
+  figure.can-zoom { cursor: zoom-in; }
+  figure.can-zoom::after { content: "Tap the picture to enlarge"; display: block; text-align: center; font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.25rem; }
+  .tree-svg .t-tag { font-size: 13px; }
+  .cw-pic .tree-svg .t-tag { font-size: 15px; }
+}
+.fig-zoom { position: fixed; inset: 0; z-index: 200; background: var(--paper); display: flex; flex-direction: column; }
+.fig-zoom[hidden] { display: none; }
+.fig-zoom-x { align-self: flex-end; margin: 0.6rem 0.8rem; }
+.fig-zoom-in { flex: 1; overflow: auto; padding: 0 0.8rem 1rem; -webkit-overflow-scrolling: touch; }
+html.zoom-open { overflow: hidden; }

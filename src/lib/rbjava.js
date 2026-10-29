@@ -3,8 +3,8 @@
 // code students read, the code they download, and the code we test can't drift apart.
 // The rotateRight answer is NOT in this file (repo may be public); it is in "Claude outputs/rb-java/".
 
-export const code1 = String.raw`static final boolean RED = true;
-static final boolean BLACK = false;
+export const code1 = String.raw`static final boolean RED = true;    // final: never changes
+static final boolean BLACK = false; // (a named constant)
 
 static class RBNode {  // static: used by static methods
   int data;

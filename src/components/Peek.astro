@@ -28,10 +28,15 @@ const body = (title ? `<p class="peek-title">${title}</p>` : '') + (html ?? (awa
     if (!narrow()) {
       const r = btn.getBoundingClientRect(), w = Math.min(card.offsetWidth, innerWidth - 32);
       const left = Math.max(16, Math.min(r.left + scrollX, scrollX + innerWidth - w - 16));
-      const below = r.bottom + 8 + card.offsetHeight < innerHeight;
+      // open on the side with room; if neither side fits, use the bigger side and let the card scroll (never above the window)
+      card.style.maxHeight = ''; card.style.overflow = '';
+      const h = card.offsetHeight, roomB = innerHeight - r.bottom - 16, roomA = r.top - 16;
+      const below = h <= roomB || roomB >= roomA, room = Math.max(below ? roomB : roomA, 160);
+      if (h > room) { card.style.maxHeight = room + 'px'; card.style.overflow = 'auto'; }
+      const hh = Math.min(h, room);
       card.style.left = left + 'px';
-      card.style.top = (below ? r.bottom + scrollY + 8 : r.top + scrollY - card.offsetHeight - 8) + 'px';
-    } else { card.style.left = ''; card.style.top = ''; }
+      card.style.top = (below ? r.bottom + scrollY + 8 : Math.max(scrollY + 8, r.top + scrollY - hh - 8)) + 'px';
+    } else { card.style.left = ''; card.style.top = ''; card.style.maxHeight = ''; card.style.overflow = ''; }
   }
   function close() { card.hidden = true; pinned = false; if (owner) owner.setAttribute('aria-expanded', 'false'); }
   document.querySelectorAll<HTMLButtonElement>('.peek-btn').forEach((btn) => {

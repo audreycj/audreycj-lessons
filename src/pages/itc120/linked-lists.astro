@@ -180,6 +180,95 @@ const taskAns = String.raw`static Node addLast(Node head, int value) {
   return head;
 }`;
 
+const doublyCode = String.raw`public class DoublyDemo {
+  // insert newNode right after current: 4 links change
+  static void insertAfter(DNode current, DNode newNode) {
+    newNode.prev = current;          // step 1: 25 looks back at 20
+    newNode.next = current.next;     // step 2: 25 looks ahead at 30
+    if (current.next != null) {      // (no next node at the end)
+      current.next.prev = newNode;   // step 3: 30 looks back at 25
+    }
+    current.next = newNode;          // step 4: 20 looks ahead at 25
+  }
+
+  public static void main(String[] args) {
+    DNode head = new DNode(20);
+    DNode tail = new DNode(30);
+    head.next = tail;
+    tail.prev = head;
+
+    insertAfter(head, new DNode(25));
+
+    DNode current = head;            // forward, using next
+    while (current != null) {
+      System.out.print(current.data + " ");
+      current = current.next;
+    }
+    System.out.println();            // 20 25 30
+
+    current = tail;                  // backward, using prev
+    while (current != null) {
+      System.out.print(current.data + " ");
+      current = current.prev;
+    }
+    System.out.println();            // 30 25 20
+  }
+}
+
+class DNode {
+  int data;
+  DNode prev;   // NEW: the node before this one
+  DNode next;
+
+  DNode(int value) {
+    data = value;
+    prev = null;
+    next = null;
+  }
+}`;
+const circCode = String.raw`public class CircularDemo {
+  public static void main(String[] args) {
+    Node head = new Node(10);
+    head.next = new Node(20);
+    head.next.next = new Node(30);
+    head.next.next.next = head;      // 30 points back to 10
+
+    System.out.print(head.data + " ");   // print the first node
+    Node current = head.next;
+    while (current != head) {        // stop when back at the start
+      System.out.print(current.data + " ");
+      current = current.next;
+    }
+    System.out.println();            // 10 20 30
+  }
+}
+
+class Node {
+  int data;
+  Node next;
+
+  Node(int value) {
+    data = value;
+    next = null;
+  }
+}`;
+const dlBox = (x, y, v, hot) => `<rect x="${x}" y="${y}" width="64" height="40" rx="8" style="fill:var(--card,#fff);stroke:${hot ? 'var(--orange,#e8662e)' : 'var(--ink,#1b2a2e)'};stroke-width:2"/><text x="${x + 32}" y="${y + 27}" text-anchor="middle" style="font:700 20px Nunito,sans-serif;fill:var(--ink,#1b2a2e)">${v}</text>`;
+const dlArr = (x1, x2, y, hot, lab, below) => {
+  const c = hot ? 'var(--orange-ink,#b4471a)' : 'var(--ink-soft,#37474a)';
+  const m = (x1 + x2) / 2, ly = below ? y + 22 : y - 9;
+  const tag = /^\d$/.test(lab)
+    ? `<circle cx="${m}" cy="${below ? y + 16 : y - 15}" r="11" style="fill:var(--orange,#e8662e)"/><text x="${m}" y="${below ? y + 22 : y - 9}" text-anchor="middle" style="font:700 15px Nunito,sans-serif;fill:#fff">${lab}</text>`
+    : `<text x="${m}" y="${ly}" text-anchor="middle" style="font:600 15px Nunito,sans-serif;fill:${c}">${lab}</text>`;
+  return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" style="stroke:${c};stroke-width:${hot ? 2.6 : 2}" marker-end="url(#dl-${hot ? 'h' : 'n'})"/>` + tag;
+};
+const dlT = (x, y, t) => `<text x="${x}" y="${y}" style="font:700 17px Fredoka,Nunito,sans-serif;fill:var(--teal-ink,#0e6b63)">${t}</text>`;
+const dllInsertPic = '<svg viewBox="0 0 520 250" role="img" aria-label="Before: 20 and 30 linked both ways. After inserting 25 after 20: four links change, numbered 1 to 4." style="max-width:520px;width:100%;height:auto">'
+  + '<defs><marker id="dl-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--ink-soft,#37474a)"/></marker><marker id="dl-h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--orange-ink,#b4471a)"/></marker></defs>'
+  + dlT(16, 26, 'Before') + dlBox(80, 50, 20) + dlBox(376, 50, 30) + dlArr(144, 374, 63, false, 'next') + dlArr(376, 146, 77, false, 'prev', true)
+  + dlT(16, 166, 'After insertAfter(20, 25)') + dlBox(40, 190, 20) + dlBox(228, 190, 25, true) + dlBox(416, 190, 30)
+  + dlArr(104, 226, 203, true, '4') + dlArr(292, 414, 203, true, '2') + dlArr(228, 106, 217, true, '1', true) + dlArr(416, 294, 217, true, '3', true)
+  + '</svg>';
+
 const quiz = [
   { q: 'What does each node in a singly linked list store?', opts: ['Only its value', 'Its value and its index', 'Its value and a reference to the next node', 'A copy of the whole list'], a: 2, why: 'A node holds <b>data</b> and <b>next</b>. It has no index: it only knows which node comes next.' },
   { q: 'To reach the 4th node, a linked list must…', opts: ['jump straight to index 3', 'start at head and follow 3 links', 'start at the last node', 'shift the other nodes'], a: 1, why: 'There are no indexes. Start at <code>head</code> and follow <code>next</code> three times.' },
@@ -193,7 +282,7 @@ const quiz = [
 const arrDefsPeek = `<div class="def"><p class="note-label">Access</p><p>Getting one value using its index. An array does it in one step.</p></div><div class="def"><p class="note-label">Traversal</p><p>Visiting every item in a data structure once, in order, to do something with it: print it, add it up, or compare it.</p></div>`;
 const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>First, make the new node refer to the node that will follow it.</li><li>Then, change the old reference to point to the new node.</li></ol><div class="illus">${llBarsPic()}</div><p class="small">Grab the next bar before you let go.</p>`;
 ---
-<Base title="Linked lists · ITC 120" description="Linked lists in plain English: nodes and references in Java, traversal, insertion, deletion, and singly, doubly, and circular lists." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Linked lists · ITC 120" description="Linked lists: nodes and references in Java, traversal, insertion, deletion, and singly, doubly, and circular lists." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Linked lists</p>
     <p class="kicker">Linear data structures · Lesson 2 of 4</p>
@@ -255,6 +344,10 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       <div class="def"><p class="note-label">Class and object</p><p>A <b>class</b> is a blueprint: it describes what every object of that kind will have (its <b>fields</b>, the variables inside each object) and what it can do (its <b>methods</b>). An <b>object</b> is one real thing made from the class with <code>new</code>. One class can make many objects, and each object keeps its own values.</p></div>
       <p>In this lesson, the class is <code>Node</code>, and every node in a list is one object made from it. Here is the class:</p>
       <pre class="code"><code set:html={hiN(node)} /></pre>
+      <div class="def">
+        <p class="note-label">Reference</p>
+        <p>A <b>reference</b> tells Java <b>where to find</b> an object. It is not the object itself. The special value <code>null</code> refers to no object.</p>
+      </div>
       <table class="tbl">
         <thead><tr><th>Line</th><th>Meaning</th></tr></thead>
         <tbody>
@@ -267,10 +360,6 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       <figure class="fig illus-fig illus"><Fragment set:html={classObjPic()} /><figcaption>One class, two objects. Each node has its own <code>data</code> and its own <code>next</code>.</figcaption></figure>
       <p><code>Node first = new Node(10);</code> does three things: <code>new</code> creates a node in memory, the constructor stores 10 in <code>data</code> and <code>null</code> in <code>next</code>, and <code>=</code> stores a reference to that node in the variable <code>first</code>. (The name <code>first</code> is our choice, not a Java keyword.)</p>
       <figure class="fig illus-fig illus"><Fragment set:html={llNewPic()} /><figcaption>One line, three jobs.</figcaption></figure>
-      <div class="def">
-        <p class="note-label">Reference</p>
-        <p>A <b>reference</b> tells Java <b>where to find</b> an object. It is not the object itself. The special value <code>null</code> refers to no object.</p>
-      </div>
       <div class="sub">
         <h3>Assignment copies the reference, not the node</h3>
         <pre class="code"><code set:html={hi(same)} /></pre>
@@ -286,7 +375,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       </div>
       <div class="trap">
         <p class="note-label">NullPointerException</p>
-        <p>An <b>exception</b> is an error Java reports while the program is running. If a reference is <code>null</code>, using <code>.data</code> or <code>.next</code> on it throws (reports) a <b>NullPointerException</b>, and the program stops at that line. Before writing <code>x.next</code>, ask: can <code>x</code> be <code>null</code> here?</p>
+        <p>An <b>exception</b> is an error Java reports while the program is running; if nothing handles it, the program stops. If a reference is <code>null</code>, using <code>.data</code> or <code>.next</code> on it throws (reports) a <b>NullPointerException</b>, and the program stops at that line. Before writing <code>x.next</code>, ask: can <code>x</code> be <code>null</code> here?</p>
       </div>
     </div>
   </section>
@@ -466,6 +555,31 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
         <p class="note-label">Circular is not a third number of links</p>
         <p>"Circular" describes the <b>loop</b>, not how many links each node has. A circular list can be singly or doubly linked. A playlist on repeat with Next and Previous is <b>circular doubly linked</b>.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={llCircPic()} /><figcaption>Circular singly and circular doubly: both loop back.</figcaption></figure>
+      </div>
+      <div class="sub" id="dll-ops">
+        <h3>Operations on doubly and circular lists</h3>
+        <p>The four operations are the same as in a singly list. Two things change: how many links you update, and how a loop knows when to stop.</p>
+        <p><b>Doubly linked: insert after a node.</b> Each node has one new field, <code>prev</code>, the node before it. In a singly list, inserting after a node changed 2 links (<Peek label="the safe order" title="From Part 4" html={safePeek} />). In a doubly list it changes <b>4</b>: two for the new node, and one for each neighbor.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={dllInsertPic} /><figcaption>Inserting 25 after 20. The four orange links are the ones that change, in the order of the code.</figcaption></figure>
+        <p>Here are the four changes, in order:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Step</th><th>Code</th><th>In words</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="nowrap"><code>newNode.prev = current;</code></td><td>25 looks back at 20</td></tr>
+            <tr><td>2</td><td class="nowrap"><code>newNode.next = current.next;</code></td><td>25 looks ahead at 30</td></tr>
+            <tr><td>3</td><td class="nowrap"><code>current.next.prev = newNode;</code></td><td>30 looks back at 25</td></tr>
+            <tr><td>4</td><td class="nowrap"><code>current.next = newNode;</code></td><td>20 looks ahead at 25</td></tr>
+          </tbody>
+        </table></div>
+        <p>The safe order is the same idea as before: give the new node its links first (steps 1 and 2), then point the neighbors at it (steps 3 and 4). If you do step 4 first, <code>current.next</code> is already 25, so step 2 makes 25 point at itself, and 30 is lost.</p>
+        <pre class="code"><code set:html={hiN(doublyCode)} /></pre>
+        <TryIt cls="DoublyDemo" />
+        <p>The <code>if</code> handles inserting after the last node: there is no next node, so there is no step 3. Deleting is shorter. To remove a node <code>x</code> that is not first or last, you need only <code>x.prev.next = x.next;</code> and <code>x.next.prev = x.prev;</code>. You do not have to search for the node before it, because <code>x.prev</code> already points to it.</p>
+        <p><b>Circular: walk the list once.</b> In a circular list, <code>current</code> never becomes <code>null</code>, so the usual <code>while (current != null)</code> loop would print 10 20 30 10 20 30 … forever. Instead, print the first node, then stop when you are <b>back at the head</b>:</p>
+        <pre class="code"><code set:html={hiN(circCode)} /></pre>
+        <TryIt cls="CircularDemo" />
+        <p class="small muted">This loop assumes the list has at least one node. If <code>head</code> can be <code>null</code>, check that first.</p>
+        <p>How do the three kinds compare in speed? Once you have the node, inserting or deleting takes a few steps in all three kinds, however long the list is. Doubly does about twice the link work and stores one more reference per node. In return, it can go backward, and it can delete a node without searching for the one before it.</p>
       </div>
     </div>
   </section>

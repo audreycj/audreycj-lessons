@@ -40,7 +40,7 @@ const bugs = String.raw`class Node {
   Node left, right;
   Node(int item) {
     key = item;
-    left = right = null;
+    left = right = null; // both become null
   }
 }
 class BinarySearchTree {
@@ -220,7 +220,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
 // Peeks back to earlier parts/lessons (chat 23)
 
 ---
-<Base title="Recursion and Traversal Code · ITC 120" description="Recursion in plain English: base case, recursive case, the call stack, and the Java code for tree traversals and recursive insert." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Recursion and Traversal Code · ITC 120" description="Recursion: base case, recursive case, the call stack, and the Java code for tree traversals and recursive insert." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 5 of 6</p>
@@ -228,12 +228,12 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
     <KindChips />
     <p class="lede">A method that calls itself, and how it walks a tree.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>learn what recursion is: the <b>base case</b> and the <b>recursive case</b>;</li>
-        <li>see where Java continues after a call finishes (the <b>call stack</b>);</li>
-        <li>trace <code>preOrder</code>, <code>inOrder</code>, and <code>postOrder</code> in Java;</li>
-        <li>follow the recursive version of insert, and read the same code written with other names.</li>
+        <li>point out the <b>base case</b> and the <b>recursive case</b> in a recursive method;</li>
+        <li>draw the <b>call stack</b> and say where Java continues after a call finishes;</li>
+        <li>trace <code>preOrder</code>, <code>inOrder</code>, and <code>postOrder</code> in Java and write their output;</li>
+        <li>trace the recursive insert, read the same code written with other names, and write a recursive <code>height</code> method.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bst-insert/'}>insertion</a> and <a href={base + '/itc120/traversals/'}>traversals</a> lessons, and scratch paper.</p>

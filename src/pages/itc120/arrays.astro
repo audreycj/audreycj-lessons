@@ -153,7 +153,7 @@ const quiz = [
   { q: 'Which operation is the array\'s best trick?', opts: ['Inserting at the front', 'Deleting from the middle', 'Accessing a value by its index', 'Growing bigger'], a: 2, why: 'Access takes <b>one step</b> no matter how many values there are. Inserting and deleting in the middle need shifting, and the size is fixed.' },
 ];
 ---
-<Base title="Arrays · ITC 120" description="Arrays in plain English: access, traversal, insertion, and deletion, with a step-by-step lab and Java code." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Arrays · ITC 120" description="Arrays: access, traversal, insertion, and deletion, with a step-by-step lab and Java code." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Arrays</p>
     <p class="kicker">Linear data structures · Lesson 1 of 4</p>
@@ -233,7 +233,7 @@ const quiz = [
       <div class="trap">
         <p class="note-label">Watch the last index</p>
         <div class="mini-arr sm" aria-label="marks has slots 0 to 4. There is no slot 5."><span class="nm"><b>marks</b><i></i></span>{[14, 28, 35, 49, 60].map((v, i) => <span><b>{v}</b><i>{i}</i></span>)}<span class="ghost"><b>✗</b><i>5?</i></span></div>
-        <p>Indexes start at 0, so the last index is <code>length - 1</code>. For <code>marks</code> (length 5), the last index is 4. There is no slot 5, so <code>marks[5]</code> stops the program with an <b>ArrayIndexOutOfBoundsException</b>. An <b>exception</b> is an error that happens while the program is running; if nothing handles it, the program stops. This is why loops use <code>i &lt; marks.length</code>, not <code>i &lt;= marks.length</code>.</p>
+        <p>Indexes start at 0, so the last index is <code>length - 1</code>. For <code>marks</code> (length 5), the last index is 4. There is no slot 5, so <code>marks[5]</code> stops the program with an <b>ArrayIndexOutOfBoundsException</b>. An <b>exception</b> is an error Java reports while the program is running; if nothing handles it, the program stops (see the <a href={base + '/itc120/programming-refresher/#errors'}>Programming refresher</a>). This is why loops use <code>i &lt; marks.length</code>, not <code>i &lt;= marks.length</code>.</p>
       </div>
     </div>
   </section>

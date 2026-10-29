@@ -248,7 +248,7 @@ const quiz = [
           <thead><tr><th>Type</th><th>What happens</th><th>Example</th></tr></thead>
           <tbody>
             <tr><td><b>Compile-time error</b> (often a <b>syntax error</b>)</td><td>Java's compiler rejects the code, so it never runs. Most of these break Java's grammar (syntax).</td><td>a missing <code>;</code>, or <code>int x = "Ana";</code> (text in an <code>int</code>)</td></tr>
-            <tr><td><b>Runtime error</b></td><td>The program starts, then crashes partway. Java calls these <b>exceptions</b>.</td><td><code>arr[5]</code> when <code>arr</code> has 5 slots (indexes 0 to 4)</td></tr>
+            <tr><td><b>Runtime error</b></td><td>The program starts, then crashes partway. Java calls these <b>exceptions</b>: errors Java reports while the program is running. If nothing handles one, the program stops.</td><td><code>arr[5]</code> when <code>arr</code> has 5 slots (indexes 0 to 4)</td></tr>
             <tr><td><b>Logic error</b></td><td>The program runs to the end, but the answer is wrong. No error message warns you.</td><td>writing <code>score &gt; 75</code> when the rule is 75 or higher (<code>&gt;=</code>)</td></tr>
           </tbody>
         </table>

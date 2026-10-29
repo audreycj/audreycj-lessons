@@ -39,7 +39,7 @@ static int height(TreeNode node) {
 // recompute height from the two children
 static void updateHeight(TreeNode node) {
   node.height = 1 + Math.max(height(node.left),
-                             height(node.right));
+                             height(node.right)); // the bigger one
 }
 
 // balance factor = left height - right height
@@ -252,7 +252,7 @@ const bfPeek = `<div class="def"><p class="note-label">Height and balance factor
 const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
 const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
 ---
-<Base title="AVL Trees · ITC 120" description="AVL trees in plain English: balance factors, the four rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="AVL Trees · ITC 120" description="AVL trees: balance factors, the four rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Balanced trees</p>
     <p class="kicker">Balanced trees · Lesson 1 of 2</p>

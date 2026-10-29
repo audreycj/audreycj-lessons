@@ -71,6 +71,34 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-done'); }, 1600);
       });
     });
+
+    // QA #149 (chat 33): on phones, a still picture shrunk to tiny text gets "Tap to enlarge" and opens full screen (scrolls sideways).
+    // Only still pictures: labs and walkthroughs are figures WITH an id, so they are skipped.
+    if (matchMedia('(max-width: 40rem)').matches) {
+      const zoom = document.createElement('div');
+      zoom.className = 'fig-zoom'; zoom.hidden = true;
+      zoom.innerHTML = '<button type="button" class="btn fig-zoom-x">Close ✕</button><div class="fig-zoom-in"></div>';
+      document.body.appendChild(zoom);
+      const inner = zoom.querySelector<HTMLElement>('.fig-zoom-in')!;
+      const shut = () => { zoom.hidden = true; inner.innerHTML = ''; document.documentElement.classList.remove('zoom-open'); };
+      zoom.querySelector('.fig-zoom-x')!.addEventListener('click', shut);
+      document.querySelectorAll<HTMLElement>('figure.fig:not([id])').forEach((fig) => {
+        if (fig.parentElement?.closest('figure') || fig.querySelector('button, input')) return;
+        const svg = fig.querySelector<SVGSVGElement>('svg');
+        const vb = svg?.viewBox?.baseVal;
+        if (!svg || !vb || !vb.width) return;
+        if (svg.getBoundingClientRect().width / vb.width > 0.75) return;   // already big enough
+        fig.classList.add('can-zoom');
+        fig.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('a, .peek-btn')) return;
+          const copy = svg.cloneNode(true) as SVGSVGElement;
+          copy.removeAttribute('width'); copy.removeAttribute('height');
+          copy.style.width = Math.max(vb.width, innerWidth) + 'px'; copy.style.maxWidth = 'none'; copy.style.height = 'auto';
+          inner.innerHTML = ''; inner.appendChild(copy);
+          zoom.hidden = false; document.documentElement.classList.add('zoom-open'); inner.scrollLeft = 0;
+        });
+      });
+    }
   </script>
   <button type="button" class="to-top" id="to-top" aria-label="Back to the top" title="Back to the top">↑</button>
   <script is:inline>

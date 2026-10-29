@@ -151,12 +151,12 @@ const walkPeek = `<ul><li><span class="k-pre">Pre-order</span>: write each node 
     <KindChips />
     <p class="lede">Visiting every node of a binary tree, in three different orders.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>define a traversal and see where programs need one in real life;</li>
-        <li>write the <b>pre-order</b>, <b>in-order</b>, and <b>post-order</b> of a binary tree;</li>
+        <li>define a traversal and give real-life examples of programs that need one;</li>
+        <li>write the <b>pre-order</b>, <b>in-order</b>, and <b>post-order</b> of any binary tree;</li>
         <li>check your answer with the <b>walk around the tree</b> picture;</li>
-        <li>see why in-order on a BST gives sorted values.</li>
+        <li>explain why in-order on a BST gives the values in sorted order.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/trees/'}>Trees lesson</a>, and scratch paper.</p>
@@ -354,7 +354,7 @@ const walkPeek = `<ul><li><span class="k-pre">Pre-order</span>: write each node 
             <p class="mk-right is-pre"><b>✓ Right pre-order</b><span class="mono">A, B, D, E, G, C, F</span></p>
           </div>
         </div>
-        <p><b>What went wrong:</b> the answer A, B, C, D, E, F, G is a real order called <b>level-order</b>, but it is not one of these three. <span class="k-pre">Pre-order</span> goes <b>deep</b> first: it finishes all of B's side (B, D, E, G) before it ever reaches C.</p>
+        <p><b>What went wrong:</b> the answer A, B, C, D, E, F, G is a real order called <b>level-order</b> (row by row, top to bottom; you will meet it again in <a href={base + '/itc120/bfs/'}>breadth-first search</a>), but it is not one of these three. <span class="k-pre">Pre-order</span> goes <b>deep</b> first: it finishes all of B's side (B, D, E, G) before it ever reaches C.</p>
         <p><b>The fix:</b> follow <span class="tk">N</span> <span class="tk">L</span> <span class="tk">R</span> at every node. The right <span class="k-pre">pre-order</span> is A, B, D, E, G, C, F. Compare with <Peek label="the pre-order picture" title="Pre-order of Tree L" html={tourL.pre} />.</p>
       </div>
       <div class="remember">

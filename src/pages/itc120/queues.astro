@@ -382,7 +382,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       </div>
       <div class="sub" id="java-queue">
         <h3>Java's own queue: <code>Queue&lt;Integer&gt;</code></h3>
-        <p>Java has no <code>LinkedQueue</code>; it is our own class, named for "a queue kept in a linked list." Java's own <code>Queue</code> is an <b>interface</b>: a list of methods that a class promises to have. You cannot make an object from an interface (<code>new Queue&lt;&gt;()</code> is a compile error), so you make an object of a class that has those methods, such as <code>LinkedList</code>, and keep the variable's type as <code>Queue</code>:</p>
+        <p>Java has no <code>LinkedQueue</code>; it is our own class, named for "a queue kept in a linked list." Java's own <code>Queue</code> is an <b>interface</b>: a list of methods that a class promises to have (the <a href={base + '/itc120/sets/#java'}>Sets</a> lesson explains interfaces with a picture). You cannot make an object from an interface (<code>new Queue&lt;&gt;()</code> is a compile error), so you make an object of a class that has those methods, such as <code>LinkedList</code>, and keep the variable's type as <code>Queue</code>:</p>
         <pre class="code"><code set:html={hiN(javaQueue)} /></pre>
         <TryIt />
         <p>The <code>&lt;Integer&gt;</code> works just like <Peek label="Stack<Integer> in the Stacks lesson" title="From the Stacks lesson" html={genericsPeek} />. Java's method names differ from ours, so here is how to read the new lines aloud:</p>

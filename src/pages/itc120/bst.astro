@@ -120,14 +120,14 @@ const searchPeek = `<pre class="code"><code>${hiN(searchCode)}</code></pre>`;
 
 const quiz = [
   { q: 'What is the BST rule?', opts: ['Each node has at most two children', 'For every node: everything in its left subtree is smaller, everything in its right subtree is larger', 'The root is the smallest value', 'Left child is smaller than right child'], a: 1, why: 'The rule is about whole <b>subtrees</b>, and it must hold at <b>every</b> node, not just between a parent and its children.' },
-  { q: 'In a BST, where can the value 55 be if the root is 50 and 55 is in the root\'s left subtree?', opts: ['That is fine', 'Nowhere: everything in 50\'s left subtree must be smaller than 50', 'Only as a leaf', 'Only as the left child of 50'], a: 1, why: 'Check a node against <b>all</b> its ancestors. 55 > 50, so it must be on 50\'s right side.' },
+  { q: 'In a BST whose root is 50, can the value 55 be anywhere in 50\'s left subtree?', opts: ['Yes, anywhere', 'No: everything in 50\'s left subtree must be smaller than 50', 'Only as a leaf', 'Only as the left child of 50'], a: 1, why: 'Check a node against <b>all</b> its ancestors. 55 > 50, so it must be on 50\'s right side.' },
   { q: 'In the lesson tree, which nodes do you visit when searching for 65?', opts: ['50, 70, 60, then null', '50, 30, 40', '50, 70, 80', '50, 60'], a: 0, why: '65 > 50 → right to 70. 65 < 70 → left to 60. 65 > 60 → right: null. <b>Not found.</b>' },
   { q: 'A search reaches <code>null</code>. What does that mean?', opts: ['The tree is broken', 'The value is not in the tree', 'The value is the root', 'Search again from the leaf'], a: 1, why: 'If the value were in the tree, the BST rule would have led us to it. Falling off the tree means <b>not found</b>.' },
   { q: 'Which line moves the search one level down to the left?', opts: ['<code>current.left = current;</code>', '<code>current = current.left;</code>', '<code>left = current;</code>', '<code>current == current.left;</code>'], a: 1, why: '<code>current = current.left;</code> makes <code>current</code> refer to the left child. The tree itself does not change.' },
   { q: 'Why does a BST usually not store duplicate values?', opts: ['Java does not allow it', 'The rule only has room for smaller (left) or larger (right); an equal value fits neither', 'It would make the tree too tall', 'Duplicates are always errors'], a: 1, why: 'Our rule only says smaller or larger. Many uses also need unique keys (one student ID = one student). Some BSTs do allow duplicates by picking a side or counting copies.' },
 ];
 ---
-<Base title="Binary Search Trees · ITC 120" description="Binary search trees in plain English: the BST rule, searching by hand, and the search method in Java." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Binary Search Trees · ITC 120" description="Binary search trees: the BST rule, searching by hand, and the search method in Java." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 2 of 6</p>
@@ -135,11 +135,11 @@ const quiz = [
     <KindChips />
     <p class="lede">A binary tree with one extra rule that tells each search to go left or right, so it can skip whole parts of the tree.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>state the <b>BST rule</b> and check if a tree follows it;</li>
-        <li>search a BST by hand, for a value that is found and one that is not;</li>
-        <li>read, trace, and complete the <code>search</code> method in Java.</li>
+        <li>state the <b>BST rule</b> and tell whether a given tree follows it;</li>
+        <li>search a BST by hand and list the nodes you visit, for a value that is found and one that is not;</li>
+        <li>trace the <code>search</code> method in Java, and write a method that returns the search path.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/trees/'}>Trees lesson</a>, and scratch paper.</p>
@@ -156,7 +156,7 @@ const quiz = [
         <p>Bea is thinking of a number from 1 to 100. Migs tries to guess it. After each guess, Bea only says "too low," "too high," or "yes." Watch how Migs thinks:</p>
       </div>
       <figure class="fig illus-fig illus" set:html={guessing()} />
-      <p>A binary search tree arranges values so that every comparison works like that guess.</p>
+      <p>A binary search tree arranges values so that every comparison works like that guess. You have met this halving idea before: in the number game in the <a href={base + '/itc120/intro/#guess'}>Introduction</a>, and as <a href={base + '/itc120/searching/#binary'}>binary search</a> in the Searching lesson.</p>
       <div class="def">
         <p class="note-label">Binary search tree (BST)</p>
         <p>A <b>binary search tree</b> is a binary tree where, for <b>every</b> node:</p>

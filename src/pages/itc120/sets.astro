@@ -180,6 +180,25 @@ a.addAll(b);
 return a;`;
 const symPeek = '<p>A △ B = (A − B) ∪ (B − A): the values in A or B, but <b>not both</b>.</p><div class="illus">' + setTrapPic(4) + '</div>';
 
+const libCode = String.raw`import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+public class Library {
+  public static void main(String[] args) {
+    Set<Integer> monday = new HashSet<>(Arrays.asList(1021, 1045, 1021, 1102, 1045, 1021, 1230));
+    Set<Integer> tuesday = new HashSet<>(Arrays.asList(1045, 1230, 1301));
+    System.out.println(monday.size());   // 4: each ID is kept once
+
+    Set<Integer> both = new HashSet<>(monday);
+    both.retainAll(tuesday);             // came both days
+    System.out.println(both);            // [1045, 1230]
+
+    Set<Integer> mondayOnly = new HashSet<>(monday);
+    mondayOnly.removeAll(tuesday);       // Monday but not Tuesday
+    System.out.println(mondayOnly);      // [1021, 1102]
+  }
+}`;
 const quiz = [
   { q: 'Which two properties describe a set?', opts: ['Sorted and indexed', 'No duplicates and no fixed order', 'Key-value pairs', 'First in, first out'], a: 1, why: 'A set holds each value <b>at most once</b> (unique), and its items have <b>no position or index</b> (unordered).' },
   { q: 'You call <code>add(5)</code> on a set that already contains 5. What happens?', opts: ['It throws an error', 'A second 5 is added', 'Nothing changes, and add returns false', 'All values are replaced by 5'], a: 2, why: 'The set ignores the duplicate. <code>add</code> returns <code>false</code> to tell you nothing was added.' },
@@ -195,7 +214,7 @@ const quiz = [
 // Peeks back to earlier parts/lessons (chat 23)
 const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p></div>`;
 ---
-<Base title="Sets in Java · ITC 120" description="Sets in plain English: unique, unordered collections; union, intersection, difference, and symmetric difference with Java's Set interface." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Sets in Java · ITC 120" description="Sets: unique, unordered collections; union, intersection, difference, and symmetric difference with Java's Set interface." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Final › Sets and maps</p>
     <p class="kicker">Sets and maps · Lesson 1 of 2</p>
@@ -433,7 +452,7 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
       <h2>Practice</h2>
     </div>
     <div class="flow">
-      <p>For each pair, write A ∪ B, A ∩ B, A − B, B − A, and A △ B. Drawing a quick Venn diagram first makes it easy: put shared values in the middle. After the three problems, a short coding task turns one of these operations into Java.</p>
+      <p>For each pair, write A ∪ B, A ∩ B, A − B, B − A, and A △ B. Drawing a quick Venn diagram first makes it easy: put shared values in the middle. After the four problems, a short coding task turns one of these operations into Java.</p>
       {practice.map((p, i) => (
         <div class="paper flow">
           <p class="note-label">Problem {i + 1}</p>
@@ -455,6 +474,30 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
           </details>
         </div>
       ))}
+      <div class="paper flow">
+        <p class="note-label">Problem 4: the library tap-in log</p>
+        <p>Students tap their ID cards when they enter the library, and they tap again each time they come back from a break. Monday morning's log, in tap order:</p>
+        <p class="mono">1021, 1045, 1021, 1102, 1045, 1021, 1230</p>
+        <p>Tuesday's different visitors were <span class="mono">&#123;1045, 1230, 1301&#125;</span>.</p>
+        <ol>
+          <li>How many <b>different</b> students visited on Monday?</li>
+          <li>Which students came on <b>both</b> days?</li>
+          <li>Which students came on Monday but <b>not</b> on Tuesday?</li>
+        </ol>
+        <details class="reveal">
+          <summary>Show the answer</summary>
+          <div class="flow">
+            <ol>
+              <li>Write the log as a set, keeping each ID once: Monday = <span class="mono">&#123;1021, 1045, 1102, 1230&#125;</span>. That is <b>4</b> different students, even though there were 7 taps.</li>
+              <li>Both days = Monday ∩ Tuesday = <span class="mono">&#123;1045, 1230&#125;</span>.</li>
+              <li>Monday only = Monday − Tuesday = <span class="mono">&#123;1021, 1102&#125;</span>.</li>
+            </ol>
+            <p>In Java, the set removes the repeated taps for you. Adding the whole log to a <code>HashSet</code> keeps each ID once:</p>
+            <pre class="code"><code set:html={hiN(libCode)} /></pre>
+            <TryIt cls="Library" />
+          </div>
+        </details>
+      </div>
       <div class="paper flow" id="task">
         <p class="note-label">Your coding task: A △ B without changing A or B</p>
         <p>In <Peek label="Part 2" title="From Part 2 · Symmetric difference" html={symPeek} />, A △ B was the two outer parts of the Venn diagram: (A − B) ∪ (B − A). Now write it in Java.</p>

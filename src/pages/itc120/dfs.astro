@@ -139,7 +139,7 @@ const taskAns = String.raw`static int countReach(int u) {
 const reachPeek = svgGraph(oneWay, { label: 'One-way graph: A to B, B to C, C to A, A to D, D to E, F to D' }) + '<p class="small">From A, DFS reaches A, B, C, D, E (5 vertices). From F, it reaches only F, D, E (3 vertices).</p>';
 
 const quiz = [
-  { q: 'Which data structure does DFS use to remember where to go back to?', opts: ['Queue', 'Stack', 'Hash table', 'Sorted array'], a: 1, why: 'DFS uses a <b>stack</b> (last in, first out). The top of the stack is where you are; popping takes you back to the vertex you came from. In recursive code, Java\'s call stack does this for you.' },
+  { q: 'Which data structure does DFS use to remember where to go back to?', opts: ['Queue', 'Stack', 'Linked list', 'Sorted array'], a: 1, why: 'DFS uses a <b>stack</b> (last in, first out). The top of the stack is where you are; popping takes you back to the vertex you came from. In recursive code, Java\'s call stack does this for you.' },
   { q: 'In DFS, when the vertex on top of the stack has no unvisited neighbors, you:', opts: ['Stop the whole search', 'Pop it and go back to the vertex below it (backtrack)', 'Push it again', 'Start over from the first vertex'], a: 1, why: 'A dead end means <b>backtrack</b>: pop the top vertex. The new top is the vertex you came from, and you check it for other unvisited neighbors.' },
   { q: 'Main example, starting at A (alphabetical order). What is the DFS order?', opts: ['A, B, D, C, E, F, G', 'A, B, C, F, E, D, G', 'A, D, E, G, F, C, B', 'A, B, C, D, E, F, G'], a: 1, why: `A → B → C → F → E → D. D is a dead end (A and E visited), so go back to E, then E → G. Order: <b>${dfsCity.order.join(', ')}</b>. The first choice is BFS's answer.` },
   { q: 'In the directed example, which vertices are <b>not</b> visited by DFS starting at F?', opts: ['None', `${fromF.missed.join(', ')}`, 'D and E', 'Only F'], a: 1, why: `From F the only arrow goes to D, and D only goes to E. A, B, and C cannot be reached by following arrows from F. DFS order from F: <b>${fromF.order.join(', ')}</b>.` },
@@ -147,7 +147,7 @@ const quiz = [
   { q: 'You need the route with the <b>fewest hops</b> between two computers in a network. Which is the better choice?', opts: ['DFS', 'BFS', 'Either one always gives the same path', 'Neither can find routes'], a: 1, why: 'BFS explores level by level, so the first time it reaches a vertex is through the fewest edges. DFS may wander far away before finding it.' },
 ];
 ---
-<Base title="Depth-First Search · ITC 120" description="Depth-first search (DFS) in plain English: going deep with a stack, backtracking, reachability, finding paths, and how it compares with BFS." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Depth-First Search · ITC 120" description="Depth-first search (DFS): going deep with a stack, backtracking, reachability, finding paths, and how it compares with BFS." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Graphs</p>
     <p class="kicker">Graphs · Lesson 3 of 3</p>

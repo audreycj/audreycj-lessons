@@ -52,7 +52,7 @@ const quiz = [
   { q: 'Are <code>left</code> and <code>right</code> like <code>previous</code> and <code>next</code> in a linked list?', opts: ['Yes, left goes back and right goes forward', 'No, both point down to children', 'Yes, but only in binary search trees', 'No, they point to the parent'], a: 1, why: 'Both <code>left</code> and <code>right</code> point <b>down</b>, to the node\'s two children.' },
 ];
 ---
-<Base title="Trees and Binary Trees · ITC 120" description="Trees in plain English: root, parent, child, leaf, depth, height, and binary trees with left and right children." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Trees and Binary Trees · ITC 120" description="Trees: root, parent, child, leaf, depth, height, and binary trees with left and right children." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Trees and BSTs</p>
     <p class="kicker">Trees and BSTs · Lesson 1 of 6</p>
@@ -60,11 +60,11 @@ const quiz = [
     <KindChips />
     <p class="lede">Our first non-linear data structure: nodes that branch out, like folders inside folders.</p>
     <div class="goals">
-      <p class="note-label">In this lesson, you will:</p>
+      <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>connect linked-list nodes to tree nodes;</li>
-        <li>use tree terminology: root, parent, child, sibling, leaf, ancestor, descendant, subtree, depth, height;</li>
-        <li>recognize a <b>binary tree</b> and read its <code>left</code> and <code>right</code> references in Java.</li>
+        <li>explain how a tree node is like a linked-list node with more than one <code>next</code>;</li>
+        <li>name the root, parents, children, siblings, leaves, ancestors, descendants, and subtrees in a given tree, and find any node's depth and height;</li>
+        <li>tell whether a tree is a <b>binary tree</b>, and read its <code>left</code> and <code>right</code> references in Java.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/linked-lists/'}>Linked lists lesson</a>, and scratch paper.</p>
@@ -91,7 +91,7 @@ const quiz = [
       </div>
       <div class="def">
         <p class="note-label">Tree</p>
-        <p>A <b>tree</b> is a non-linear data structure made of nodes connected by edges, arranged in levels from top to bottom. It follows three rules:</p>
+        <p>A <b>tree</b> is a non-linear data structure made of nodes connected by edges, arranged in levels from top to bottom (a node's <b>level</b> is how many edges it is from the root, so the root is level 0). It follows three rules:</p>
         <ol>
           <li>One node is at the top: the <b>root</b>.</li>
           <li>Every other node has exactly <b>one parent</b>.</li>
