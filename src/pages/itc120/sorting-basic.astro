@@ -1,0 +1,677 @@
+---
+import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import StepShow from '../../components/StepShow.astro';
+import SortLab from '../../components/SortLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import TryIt from '../../components/TryIt.astro';
+import Peek from '../../components/Peek.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+import { sortHook, glassSwap, heightLine, cardHand } from '../../lib/illus.js';
+import { bubbleCode, bubbleWalk, selectionCode, selectionWalk, insertionCode, insertionWalk, handSteps, swapPic, boundsPic, wrongMinPic, negIndexPic, stairsPic, stablePic } from '../../lib/sort.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const defBox = (t, b) => `<div class="def"><p class="note-label">${t}</p><p>${b}</p></div>`;
+const shiftPeek = defBox('Shifting (from the Arrays lesson)', 'Moving a group of values one slot over, all in the same direction: to the right to open a gap, or to the left to close one. To insert 25 at index 2 of 10, 20, 30, 40, move 40 right, then 30 right, then put 25 into the gap.');
+const voidPeek = defBox('void (from the Programming refresher)', 'A method marked <code>void</code> does a job but gives nothing back, so it has no <code>return</code> value. <code>static void greet()</code> prints a greeting; <code>static int add(int a, int b)</code> gives back a number.');
+const andPeek = defBox('&amp;&amp; (from the Programming refresher)', '<code>&amp;&amp;</code> means "and": the whole condition is true only when <b>both</b> sides are true. You need your ID <b>and</b> your permit to enter the exam room.');
+const lineupPeek = `<div class="flow">${heightLine()}</div>`;
+
+const swap3 = String.raw`int temp = arr[j];      // 1. save the left value
+arr[j] = arr[j + 1];     // 2. copy the right value to the left
+arr[j + 1] = temp;       // 3. put the saved value on the right`;
+const badSwap = String.raw`arr[j] = arr[j + 1];     // the left value is overwritten...
+arr[j + 1] = arr[j];     // ...so this copies the same value back`;
+const nested = String.raw`for (int day = 1; day <= 2; day++) {
+  for (int period = 1; period <= 3; period++) {
+    System.out.println("Day " + day + ", period " + period);
+  }
+}`;
+const badBubble = String.raw`for (int j = 0; j < n; j++) {        // should be j < n - 1 - i
+  if (arr[j] > arr[j + 1]) {`;
+const earlyStop = String.raw`static void bubbleSort(int[] arr) {
+  int n = arr.length;
+  for (int i = 0; i < n - 1; i++) {
+    boolean swapped = false;               // no swaps yet in this pass
+    for (int j = 0; j < n - 1 - i; j++) {
+      if (arr[j] > arr[j + 1]) {
+        int temp = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = temp;
+        swapped = true;
+      }
+    }
+    if (!swapped) {
+      break;                               // a pass with no swaps: sorted, stop
+    }
+  }
+}`;
+const badSel = String.raw`if (arr[j] < arr[i]) {       // should be arr[minIndex]
+  minIndex = j;
+}`;
+const badIns = String.raw`while (arr[j] > key && j >= 0) {    // the two checks are in the wrong order`;
+const full = String.raw`import java.util.Arrays;
+
+public class Main {
+  static void bubbleSort(int[] arr) {
+    int n = arr.length;
+    for (int i = 0; i < n - 1; i++) {
+      for (int j = 0; j < n - 1 - i; j++) {
+        if (arr[j] > arr[j + 1]) {
+          int temp = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = temp;
+        }
+      }
+    }
+  }
+
+  static void selectionSort(int[] arr) {
+    int n = arr.length;
+    for (int i = 0; i < n - 1; i++) {
+      int minIndex = i;
+      for (int j = i + 1; j < n; j++) {
+        if (arr[j] < arr[minIndex]) {
+          minIndex = j;
+        }
+      }
+      int temp = arr[i];
+      arr[i] = arr[minIndex];
+      arr[minIndex] = temp;
+    }
+  }
+
+  static void insertionSort(int[] arr) {
+    for (int i = 1; i < arr.length; i++) {
+      int key = arr[i];
+      int j = i - 1;
+      while (j >= 0 && arr[j] > key) {
+        arr[j + 1] = arr[j];
+        j--;
+      }
+      arr[j + 1] = key;
+    }
+  }
+
+  public static void main(String[] args) {
+    int[] a = {29, 10, 14, 37, 13};
+    int[] b = {29, 10, 14, 37, 13};
+    int[] c = {29, 10, 14, 37, 13};
+    bubbleSort(a);
+    selectionSort(b);
+    insertionSort(c);
+    System.out.println(Arrays.toString(a));   // [10, 13, 14, 29, 37]
+    System.out.println(Arrays.toString(b));   // [10, 13, 14, 29, 37]
+    System.out.println(Arrays.toString(c));   // [10, 13, 14, 29, 37]
+  }
+}`;
+const builtIn = String.raw`import java.util.Arrays;
+
+public class Main {
+  public static void main(String[] args) {
+    int[] scores = {29, 10, 14, 37, 13};
+    Arrays.sort(scores);
+    System.out.println(Arrays.toString(scores));   // [10, 13, 14, 29, 37]
+
+    String[] names = {"Mia", "Ben", "Joy", "Ana"};
+    Arrays.sort(names);                             // A to Z
+    System.out.println(Arrays.toString(names));    // [Ana, Ben, Joy, Mia]
+
+    // Highest first: read the sorted array from the end.
+    for (int i = scores.length - 1; i >= 0; i--) {
+      System.out.print(scores[i] + " ");           // 37 29 14 13 10
+    }
+    System.out.println();
+  }
+}`;
+const bugTask = String.raw`static void selectionSort(int[] arr) {
+  for (int i = 0; i < arr.length - 1; i++) {
+    int minIndex = i;
+    for (int j = i + 1; j < arr.length; j++) {
+      if (arr[j] < arr[i]) {
+        minIndex = j;
+      }
+    }
+    int temp = arr[i];
+    arr[i] = arr[minIndex];
+    arr[minIndex] = temp;
+  }
+}`;
+const starter = String.raw`public class Main {
+  static boolean isSorted(int[] arr) {
+    // YOUR CODE: compare each pair of neighbors.
+    // If a value is bigger than the one after it, return false.
+
+    return true;
+  }
+
+  public static void main(String[] args) {
+    System.out.println(isSorted(new int[] {10, 13, 14, 29, 37}));  // expected: true
+    System.out.println(isSorted(new int[] {10, 14, 13, 29, 37}));  // expected: false
+    System.out.println(isSorted(new int[] {5, 5, 8}));             // expected: true
+    System.out.println(isSorted(new int[] {42}));                  // expected: true
+  }
+}`;
+const answer = String.raw`static boolean isSorted(int[] arr) {
+  for (int i = 0; i < arr.length - 1; i++) {
+    if (arr[i] > arr[i + 1]) {
+      return false;
+    }
+  }
+  return true;
+}`;
+
+const quiz = [
+  { q: 'Bubble sort (smallest first) finishes pass 1 on <code>{29, 10, 14, 37, 13}</code>. Where is 37 now?', opts: ['At index 0', 'In the middle', 'At the last index', 'It has not moved'], a: 2, why: 'Each pass carries the biggest unsorted value to the <b>end</b>, one swap at a time, like a bubble rising. After pass 1, 37 is at the last index, in its final place.' },
+  { q: 'Why does a swap need <code>temp</code>?', opts: ['To make the code faster', 'To keep one value safe while it is overwritten', 'To count the swaps', 'Java needs three lines for every change'], a: 1, why: 'The first copy overwrites one of the two values. <code>temp</code> saves it first, like the extra glass when you swap two drinks.' },
+  { q: 'Selection sort (our code) on 5 values: how many times do the three swap lines run?', opts: ['Once', '4 times', '10 times', 'It depends on the values'], a: 1, why: 'Selection sort swaps <b>once per pass</b>, and 5 values need 4 passes (n - 1). Sometimes a value swaps with itself, but the lines still run.' },
+  { q: 'Which basic sort needs the fewest comparisons on an array that is <b>already sorted</b>?', opts: ['Bubble sort (our code)', 'Selection sort', 'Insertion sort', 'All the same'], a: 2, why: '<b>Insertion sort</b> checks each new key against its left neighbor once, finds it is already in place, and moves on: n - 1 comparisons (4 for 5 values). Our bubble sort and selection sort still make all 10.' },
+  { q: 'In insertion sort, why is it <code>j &gt;= 0 &amp;&amp; arr[j] &gt; key</code> and not the other way around?', opts: ['It is shorter', 'So Java never reads arr[-1]', 'So the loop runs more times', 'There is no difference'], a: 1, why: '<code>&amp;&amp;</code> checks the left side first. When <code>j</code> is -1, <code>j &gt;= 0</code> is false, so Java stops there and never reads <code>arr[-1]</code>, which does not exist.' },
+  { q: 'What does it mean when a sort is <b>stable</b>?', opts: ['It never crashes', 'It always makes the same number of comparisons', 'Equal values keep their original order', 'It sorts in place'], a: 2, why: 'A <b>stable</b> sort never lets equal values pass each other. If Ana came before Ben and both have 85, Ana is still before Ben after sorting by grade.' },
+  { q: 'Which of the three basic sorts is <b>not</b> stable?', opts: ['Bubble sort', 'Selection sort', 'Insertion sort', 'None of them'], a: 1, why: 'Selection sort swaps the smallest value with a value that may be far away. That long jump can carry a value past an equal one.' },
+  { q: 'About how many comparisons does our bubble sort make on 1,000 values?', opts: ['About 1,000', 'About 10,000', 'About 500,000', 'About 1,000,000,000'], a: 2, why: '999 + 998 + … + 1 = <b>499,500</b>, about n × n / 2. Doubling the number of values makes the work about <b>four times</b> bigger.' },
+];
+---
+<Base title="Basic Sorting · ITC 120" description="Bubble sort, selection sort, and insertion sort: by hand, step by step, and in Java, with how much work each one does and which ones are stable." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Sorting</p>
+    <p class="kicker">Sorting algorithms · Lesson 1 of 2</p>
+    <h1>Basic Sorting: Bubble, Selection, and Insertion Sort</h1>
+    <KindChips />
+    <p class="lede">Three simple ways to put values in order, how to trace each one by hand, and how much work each one does.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>explain what a sorting algorithm does, and what <b>comparison</b>, <b>swap</b>, and <b>pass</b> mean;</li>
+        <li>trace bubble sort, selection sort, and insertion sort by hand, writing the array after every pass;</li>
+        <li>read, fix, and complete the three sorts in Java;</li>
+        <li>compare their work (comparisons and swaps) and their <b>stability</b>, and choose one for a situation.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson (index, traversal, shifting), the <a href={base + '/itc120/programming-refresher/'}>Programming refresher</a> (loops, <code>&amp;&amp;</code>, methods), and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>Putting things in order</h2>
+    </div>
+    <div class="flow">
+      <p>A teacher checks five quiz papers and wants them from the lowest score to the highest, to see first who needs help. A person can do this by looking. A program has to do it with exact steps.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={sortHook()} /><figcaption>The same five papers, before and after sorting by score.</figcaption></figure>
+      <div class="def"><p class="note-label">Sorting algorithm</p><p>A <b>sorting algorithm</b> is an algorithm (a step-by-step process) that puts the values of a collection in <b>order</b>: smallest to largest, A to Z, oldest to newest, and so on.</p></div>
+      <p>Here are the words that come with sorting:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Word</th><th>Meaning</th><th>With the quiz papers</th></tr></thead>
+        <tbody>
+          <tr><td><b>ascending</b></td><td>smallest first, going up</td><td>10, 13, 14, 29, 37</td></tr>
+          <tr><td><b>descending</b></td><td>largest first, going down</td><td>37, 29, 14, 13, 10</td></tr>
+          <tr><td><b>comparison</b></td><td>checking two values to see which is bigger</td><td>"Is 29 more than 10?"</td></tr>
+          <tr><td><b>swap</b></td><td>two values trade places</td><td>Joy's paper and Ben's paper trade places</td></tr>
+          <tr><td><b>pass</b></td><td>one trip through the values</td><td>going through the pile once, from first to last</td></tr>
+        </tbody>
+      </table></div>
+      <p>In this lesson, every sort puts an array of <code>int</code>s in <b>ascending</b> order (smallest first), and all three sort <b>in place</b>: they rearrange the values inside the same array, without making a second one. Part 9 shows how to get descending order.</p>
+      <div class="remember">
+        <p class="note-label">Where you see sorting in IT</p>
+        <ul>
+          <li><b>"Sort by price: low to high"</b> in an online shop.</li>
+          <li>A <b>class list</b> in A-to-Z order, or a grade sheet ranked by score.</li>
+          <li><b>Files</b> sorted by name or by date modified in your phone's file manager.</li>
+          <li><b>Fast searching.</b> The fastest way to search a list, binary search (in the <a href={base + '/itc120/searching/'}>Searching</a> lesson), only works on sorted values.</li>
+        </ul>
+      </div>
+      <p>This lesson teaches three basic sorts. They are easy to trace and to code, so they are the best place to learn how sorting works. The next lesson, Advanced sorting, shows faster ones for big data.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="tools">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Two tools first</p>
+      <h2>Swapping, and loops inside loops</h2>
+    </div>
+    <div class="flow">
+      <p>All three sorts use two small coding tools that you have not met yet. Learn them here first.</p>
+      <div class="sub" id="swap">
+        <h3>Tool 1: swapping two values</h3>
+        <p>Think of two glasses: one with calamansi juice, one with Milo. To swap the drinks, you need a third, empty glass.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={glassSwap()} /><figcaption>Three pours, with an extra glass to hold one drink for a moment.</figcaption></figure>
+        <div class="def"><p class="note-label">Swap</p><p>To <b>swap</b> two values is to make them trade places. In code it takes three lines and a helper variable, usually called <code>temp</code> (short for "temporary"), that holds one value for a moment so it is not lost.</p></div>
+        <p>Here is the swap of <code>arr[j]</code> and the slot after it, <code>arr[j + 1]</code>. You will see these three lines in every sort in this lesson:</p>
+        <pre class="code"><code set:html={hiN(swap3)} /></pre>
+        <figure class="fig illus-fig"><Fragment set:html={swapPic()} /><figcaption>Line 1 copies 29 into <code>temp</code>. Line 2 copies 10 over the 29 in the array. Line 3 copies the saved 29 into the second slot.</figcaption></figure>
+        <div class="trap">
+          <p class="note-label">Mistake: swapping without temp</p>
+          <p><b>Situation:</b> a student skips the helper variable:</p>
+          <pre class="code"><code set:html={hi(badSwap)} /></pre>
+          <figure class="fig illus-fig"><Fragment set:html={swapPic(true)} /><figcaption>The first line overwrites 29 before it is saved anywhere.</figcaption></figure>
+          <p><b>What goes wrong:</b> after the first line, both slots hold 10. The second line copies 10 onto 10. The 29 is lost for good, like pouring the Milo into the juice.</p>
+          <p><b>Fix:</b> save one value in <code>temp</code> first, then copy, then put <code>temp</code> back.</p>
+        </div>
+      </div>
+      <div class="sub" id="nested">
+        <h3>Tool 2: a loop inside a loop</h3>
+        <p>Your class schedule has days, and each day has periods. For each day, you go through <b>all</b> its periods before the next day starts.</p>
+        <div class="def"><p class="note-label">Nested loop</p><p>A <b>nested loop</b> is a loop inside another loop. The <b>inner</b> loop runs all the way through, from start to end, every time the <b>outer</b> loop goes around once.</p></div>
+        <p>Here is the schedule as code, with 2 days of 3 periods each:</p>
+        <pre class="code"><code set:html={hiN(nested)} /></pre>
+        <TryIt />
+        <p>It prints six lines. Read the output from top to bottom and watch which number changes faster:</p>
+        <pre class="console">Day 1, period 1
+Day 1, period 2
+Day 1, period 3
+Day 2, period 1
+Day 2, period 2
+Day 2, period 3</pre>
+        <p>The inner variable (<code>period</code>) goes 1, 2, 3 for each value of the outer variable (<code>day</code>). In total, the inner loop body runs 2 × 3 = 6 times.</p>
+        <p>In the sorts, the <b>outer</b> loop counts the passes and the <b>inner</b> loop does the comparisons inside one pass.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="bubble">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Sort 1</p>
+      <h2>Bubble sort: neighbors swap</h2>
+    </div>
+    <div class="flow">
+      <p>Picture a class lining up by height for the flag ceremony, with no teacher arranging them. Each student only looks at the one beside them:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={heightLine()} /><figcaption>If the one on the left is taller, the two switch places. The tallest keeps moving right until the end of the line.</figcaption></figure>
+      <div class="def"><p class="note-label">Bubble sort</p><p><b>Bubble sort</b> compares each pair of <b>neighbors</b> (side-by-side values) from left to right, and swaps them when the left one is bigger. One pass carries the biggest unsorted value to the end, like a bubble rising to the top of water. It repeats the passes until everything is in order.</p></div>
+      <p>By hand, it follows these steps:</p>
+      <ol>
+        <li>Compare the values at index 0 and 1. If the left one is bigger, swap them.</li>
+        <li>Move one step right (index 1 and 2) and do the same. Keep going to the end. That is one pass, and the biggest value is now last.</li>
+        <li>Do another pass, but stop before the values already in place at the end.</li>
+        <li>With n values, after n - 1 passes the array is sorted.</li>
+      </ol>
+      <p>Step through it on the five quiz scores. Orange cells are being compared; green cells are in their final place:</p>
+      <StepShow id="show-bubble" cap="Bubble sort on 29, 10, 14, 37, 13, by hand" steps={handSteps('bubble')} />
+      <p>On paper (and on exams), write the array after each pass. Bold values are in their final place:</p>
+      <div class="tbl-wrap"><table class="tbl pass-tbl">
+        <thead><tr><th>After</th><th>Array</th><th>Swaps</th></tr></thead>
+        <tbody>
+          <tr><td>start</td><td><code>29 10 14 37 13</code></td><td></td></tr>
+          <tr><td>pass 1</td><td><code>10 14 29 13 <b>37</b></code></td><td>3</td></tr>
+          <tr><td>pass 2</td><td><code>10 14 13 <b>29 37</b></code></td><td>1</td></tr>
+          <tr><td>pass 3</td><td><code>10 <b>13 14 29 37</b></code></td><td>1</td></tr>
+          <tr><td>pass 4</td><td><code><b>10 13 14 29 37</b></code></td><td>0</td></tr>
+        </tbody>
+      </table></div>
+      <p>Notice that each pass needs one comparison fewer than the pass before: 4, then 3, 2, 1. The values at the end are already in place, so there is no need to compare them again.</p>
+      <div class="sub">
+        <h3>Bubble sort in Java</h3>
+        <p>The outer loop counts the passes and the inner loop compares the neighbors, just like the <Peek label="nested loop" title="Nested loop (Part 2)" html={defBox('Nested loop', 'A loop inside another loop. The inner loop runs all the way through every time the outer loop goes around once: for each day, every period.')} /> in Part 2. The method is <Peek label="void" title="From the Programming refresher" html={voidPeek} />: it changes the array itself and gives nothing back.</p>
+        <CodeWalk id="cw-bubble" code={bubbleCode} steps={bubbleWalk()} cap="Walkthrough: bubbleSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <p>Here is how to read the important lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>for (int i = 0; i &lt; n - 1; i++)</code></td><td>"do n - 1 passes." Five values need four passes.</td></tr>
+            <tr><td><code>for (int j = 0; j &lt; n - 1 - i; j++)</code></td><td>"walk along the neighbors, but skip the <code>i</code> values already in place at the end."</td></tr>
+            <tr><td><code>if (arr[j] &gt; arr[j + 1])</code></td><td>"if this value is bigger than its right neighbor..." (then swap them).</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake: comparing past the end of the array</p>
+        <p><b>Situation:</b> a student writes the inner loop as <code>j &lt; n</code>:</p>
+        <pre class="code"><code set:html={hi(badBubble)} /></pre>
+        <figure class="fig illus-fig"><Fragment set:html={boundsPic()} /><figcaption>When <code>j</code> is 4, the code reads <code>arr[j + 1]</code>, which is <code>arr[5]</code>. Five values only have indexes 0 to 4.</figcaption></figure>
+        <p><b>What goes wrong:</b> every comparison also reads the <b>next</b> slot. The last value has no right neighbor, so Java stops the program with an <code>ArrayIndexOutOfBoundsException</code> (an error for using an index that does not exist).</p>
+        <p><b>Fix:</b> stop one early: <code>j &lt; n - 1 - i</code> (or at least <code>j &lt; n - 1</code>).</p>
+      </div>
+      <div class="sub">
+        <h3>Stopping early</h3>
+        <p>Look at pass 4 in the table above: no swaps at all. A pass with no swaps means every neighbor is already in order, so the array is sorted and the remaining passes are wasted work. Many books add a <code>boolean</code> (true or false) variable to stop early:</p>
+        <pre class="code"><code set:html={hiN(earlyStop, [4, 10, 13, 14, 15])} /></pre>
+        <p><code>!swapped</code> reads "not swapped" (<code>!</code> flips true and false). On an array that is already sorted, this version makes one pass of n - 1 comparisons and stops. The plain version above still makes all of them. This lesson's walkthroughs and lab use the plain version.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="selection">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Sort 2</p>
+      <h2>Selection sort: pick the smallest</h2>
+    </div>
+    <div class="flow">
+      <p>Back to the <Peek label="flag ceremony line" title="The line-up from Part 3" html={lineupPeek} />. This time, the teacher looks over everyone who is not yet placed, calls the <b>shortest</b> one to the front, then the shortest of those left, and so on. Every call places one student for good.</p>
+      <div class="def"><p class="note-label">Selection sort</p><p><b>Selection sort</b> splits the array into a sorted part (on the left) and an unsorted part. Each pass <b>selects</b> the smallest value in the unsorted part and swaps it to the front of that part, which makes the sorted part one value longer.</p></div>
+      <p>By hand:</p>
+      <ol>
+        <li>Look at every value from index 0 to the end, and remember where the smallest one is.</li>
+        <li>Swap that smallest value with the value at index 0. Index 0 is now final.</li>
+        <li>Do the same for index 1 to the end, and swap the smallest into index 1. Then index 2, and so on.</li>
+        <li>After n - 1 passes, the last value is also in place.</li>
+      </ol>
+      <p>Step through it on the same scores. The yellow cell is the <b>smallest so far</b>:</p>
+      <StepShow id="show-selection" cap="Selection sort on 29, 10, 14, 37, 13, by hand" steps={handSteps('selection')} />
+      <p>Here is the table for selection sort. Bold values are final:</p>
+      <div class="tbl-wrap"><table class="tbl pass-tbl">
+        <thead><tr><th>After</th><th>Smallest found</th><th>Array</th></tr></thead>
+        <tbody>
+          <tr><td>start</td><td></td><td><code>29 10 14 37 13</code></td></tr>
+          <tr><td>pass 1</td><td>10 (swap with 29)</td><td><code><b>10</b> 29 14 37 13</code></td></tr>
+          <tr><td>pass 2</td><td>13 (swap with 29)</td><td><code><b>10 13</b> 14 37 29</code></td></tr>
+          <tr><td>pass 3</td><td>14 (already there)</td><td><code><b>10 13 14</b> 37 29</code></td></tr>
+          <tr><td>pass 4</td><td>29 (swap with 37)</td><td><code><b>10 13 14 29 37</b></code></td></tr>
+        </tbody>
+      </table></div>
+      <p>Bubble sort puts the <b>biggest</b> value in place at the <b>end</b> of each pass. Selection sort puts the <b>smallest</b> in place at the <b>front</b>.</p>
+      <div class="sub">
+        <h3>Selection sort in Java</h3>
+        <p>The variable <code>minIndex</code> remembers <b>where</b> the smallest value so far is. The swap happens only once per pass, after the inner loop:</p>
+        <CodeWalk id="cw-selection" code={selectionCode} steps={selectionWalk()} cap="Walkthrough: selectionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <p>Here is how to read the important lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int minIndex = i;</code></td><td>"to start, assume the first unsorted value is the smallest."</td></tr>
+            <tr><td><code>for (int j = i + 1; j &lt; n; j++)</code></td><td>"look at every value after it, to the end."</td></tr>
+            <tr><td><code>if (arr[j] &lt; arr[minIndex])</code></td><td>"if this value is smaller than the smallest so far..." (then remember its index).</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake: comparing with arr[i] instead of the smallest so far</p>
+        <p><b>Situation:</b> a student compares each value with the first unsorted value:</p>
+        <pre class="code"><code set:html={hi(badSel)} /></pre>
+        <figure class="fig illus-fig"><Fragment set:html={wrongMinPic()} /><figcaption>Top: 10, 14, and 13 are all smaller than 29, and each one replaces <code>minIndex</code>. Bottom: the last of them, 13, is swapped to the front.</figcaption></figure>
+        <p><b>What goes wrong:</b> the code finds the <b>last</b> value smaller than 29, not the smallest. 13 lands at index 0 even though 10 is smaller, so the array does not end up sorted.</p>
+        <p><b>Fix:</b> always compare with the smallest found so far: <code>arr[j] &lt; arr[minIndex]</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="insertion">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Sort 3</p>
+      <h2>Insertion sort: like cards in your hand</h2>
+    </div>
+    <div class="flow">
+      <p>When you play tong-its and pick up a new card, you do not re-sort your whole hand. You slide it into the right spot among the cards you already arranged:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={cardHand()} /><figcaption>The bigger cards slide right to make a gap, and the new card drops in.</figcaption></figure>
+      <div class="def"><p class="note-label">Insertion sort</p><p><b>Insertion sort</b> keeps a sorted part on the left, starting with just the first value. Each pass takes the next value, called the <b>key</b>, <b>shifts</b> the bigger sorted values one slot right, and <b>inserts</b> the key into the gap.</p></div>
+      <p>The moving step is the same <Peek label="shifting" title="From the Arrays lesson" html={shiftPeek} /> you used to insert into an array. By hand:</p>
+      <ol>
+        <li>Treat index 0 alone as sorted.</li>
+        <li>Take the next value (the key) out of the array. Its slot is now a gap.</li>
+        <li>Going left, shift every sorted value that is bigger than the key one slot right.</li>
+        <li>Stop at a value that is not bigger, or at the start of the array. Drop the key into the gap.</li>
+        <li>Repeat for every value to the end.</li>
+      </ol>
+      <StepShow id="show-insertion" cap="Insertion sort on 29, 10, 14, 37, 13, by hand" steps={handSteps('insertion')} />
+      <p>Here is the table. The green part of each row is the sorted part so far:</p>
+      <div class="tbl-wrap"><table class="tbl pass-tbl">
+        <thead><tr><th>After</th><th>Key</th><th>Array</th><th>Shifts</th></tr></thead>
+        <tbody>
+          <tr><td>start</td><td></td><td><code><b>29</b> 10 14 37 13</code></td><td></td></tr>
+          <tr><td>pass 1</td><td>10</td><td><code><b>10 29</b> 14 37 13</code></td><td>1</td></tr>
+          <tr><td>pass 2</td><td>14</td><td><code><b>10 14 29</b> 37 13</code></td><td>1</td></tr>
+          <tr><td>pass 3</td><td>37</td><td><code><b>10 14 29 37</b> 13</code></td><td>0</td></tr>
+          <tr><td>pass 4</td><td>13</td><td><code><b>10 13 14 29 37</b></code></td><td>3</td></tr>
+        </tbody>
+      </table></div>
+      <p>Careful: in insertion sort, <b>bold</b> means "sorted so far", not "final". In pass 4, 14, 29, and 37 still moved. In bubble and selection sort, a bold value never moves again.</p>
+      <div class="sub">
+        <h3>Insertion sort in Java</h3>
+        <p>The shifting uses a <code>while</code> loop with two conditions joined by <Peek label="&&" title="From the Programming refresher" html={andPeek} />:</p>
+        <CodeWalk id="cw-insertion" code={insertionCode} steps={insertionWalk()} cap="Walkthrough: insertionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <p>Here is how to read the important lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int key = arr[i];</code></td><td>"take out the value to insert, so its slot can be a gap."</td></tr>
+            <tr><td><code>while (j &gt;= 0 &amp;&amp; arr[j] &gt; key)</code></td><td>"while there is still a value on the left, and it is bigger than the key..."</td></tr>
+            <tr><td><code>arr[j + 1] = arr[j];</code></td><td>"shift that value one slot right." The gap moves one slot left.</td></tr>
+            <tr><td><code>arr[j + 1] = key;</code></td><td>"drop the key into the gap." (<code>j</code> stopped one slot left of the gap.)</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake: the two checks in the wrong order</p>
+        <p><b>Situation:</b> a student swaps the two sides of <code>&amp;&amp;</code>:</p>
+        <pre class="code"><code set:html={hi(badIns)} /></pre>
+        <figure class="fig illus-fig"><Fragment set:html={negIndexPic()} /><figcaption>After 29 shifts right, <code>j</code> is -1. The condition now starts with <code>arr[-1]</code>.</figcaption></figure>
+        <p><b>What goes wrong:</b> Java checks the left side of <code>&amp;&amp;</code> first. Here that is <code>arr[j] &gt; key</code>, so when <code>j</code> is -1 it reads <code>arr[-1]</code>, which does not exist, and the program stops with an <code>ArrayIndexOutOfBoundsException</code>.</p>
+        <p><b>Fix:</b> put <code>j &gt;= 0</code> first. When it is false, <code>&amp;&amp;</code> already knows the answer is false and <b>skips</b> the right side, so <code>arr[-1]</code> is never read.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Try it</p>
+      <h2>The sort lab</h2>
+    </div>
+    <div class="flow">
+      <p>Run all three sorts on the same array and count the work. Try the quiz scores first, then <b>already sorted</b> (which sort notices?), then <b>reversed</b> (the worst case), then your own numbers from the practice in Part 10.</p>
+      <SortLab id="lab-sort" />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="work">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Why this matters</p>
+      <h2>How much work does each sort do?</h2>
+    </div>
+    <div class="flow">
+      <p>We measure the work of a sort by counting two things: <b>comparisons</b> (checking two values) and <b>moves</b> (swaps, or shifts in insertion sort). Here are the counts for five values, from the lab (and from running the Java code):</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Array</th><th>Bubble</th><th>Selection</th><th>Insertion</th></tr></thead>
+        <tbody>
+          <tr><td>quiz scores <code>29 10 14 37 13</code></td><td>10 comparisons, 5 swaps</td><td>10 comparisons, 4 swaps</td><td>8 comparisons, 5 shifts</td></tr>
+          <tr><td>already sorted <code>10 13 14 29 37</code></td><td>10 comparisons, 0 swaps</td><td>10 comparisons, 4 swaps</td><td><b>4 comparisons</b>, 0 shifts</td></tr>
+          <tr><td>reversed <code>37 29 14 13 10</code></td><td>10 comparisons, 10 swaps</td><td>10 comparisons, 4 swaps</td><td>10 comparisons, 10 shifts</td></tr>
+        </tbody>
+      </table></div>
+      <p>Why 10 comparisons? Each pass compares one value fewer than the pass before. That makes a staircase:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={stairsPic()} /><figcaption>4 + 3 + 2 + 1 = 10. In general, n values need about n × n / 2 comparisons.</figcaption></figure>
+      <p>Five values is nothing. But the staircase grows fast. Here is the number of comparisons for our bubble sort and selection sort:</p>
+      <table class="tbl">
+        <thead><tr><th>Number of values</th><th>Comparisons</th></tr></thead>
+        <tbody>
+          <tr><td>10</td><td>45</td></tr>
+          <tr><td>100</td><td>4,950</td></tr>
+          <tr><td>1,000</td><td>499,500</td></tr>
+          <tr><td>1,000,000</td><td>about 500,000,000,000 (500 billion)</td></tr>
+        </tbody>
+      </table>
+      <p>Look at the pattern: <b>10 times</b> more values means about <b>100 times</b> more work, and twice as many values means about four times the work. That is fine for a class list of 40 students, but far too slow for a million GCash transactions. The sorts in the next lesson handle a million values in about 20 million comparisons.</p>
+      <p>Here is a summary of the best and worst cases for n values:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Sort</th><th>Comparisons</th><th>Moves</th></tr></thead>
+        <tbody>
+          <tr><td><b>Bubble</b> (plain)</td><td>always about n × n / 2</td><td>0 (sorted) to about n × n / 2 (reversed)</td></tr>
+          <tr><td><b>Bubble</b> (stop early)</td><td>n - 1 when already sorted; about n × n / 2 at worst</td><td>same as plain</td></tr>
+          <tr><td><b>Selection</b></td><td>always about n × n / 2, even when sorted</td><td>always n - 1 swaps: few, even in the worst case</td></tr>
+          <tr><td><b>Insertion</b></td><td>n - 1 when already sorted; about n × n / 2 when reversed</td><td>0 (sorted) to about n × n / 2 (reversed)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Two things stand out. <b>Insertion sort</b> is very fast when the data is already <b>almost sorted</b>, because each key moves only a little. <b>Selection sort</b> always makes the same number of comparisons, but very few swaps, which helps when moving a value is costly (for example, big records).</p>
+      <p class="small muted">Good to know: books describe this growth with short names. All three sorts are <b>O(n²)</b> ("order n squared") in the worst case: the work grows with n × n. Insertion sort (and bubble sort with the early stop) is <b>O(n)</b> in the best case, an already sorted array. You met O(n) in the searching lesson.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="stable">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Ties</p>
+      <h2>Stable sorting</h2>
+    </div>
+    <div class="flow">
+      <p>Real data is often a <b>record</b>: a name <b>and</b> a grade, not just a number. The class list is already in A-to-Z order. The teacher now sorts it by grade, lowest first, to see who needs help. Ana and Ben both have 85. Should Ana still come before Ben?</p>
+      <p>Most people expect yes: when two grades tie, the old A-to-Z order should stay. A sort that keeps it is called <b>stable</b>.</p>
+      <div class="def"><p class="note-label">Stable sort</p><p>A sorting algorithm is <b>stable</b> when values that are <b>equal</b> (by what we sort on) keep the order they had before sorting.</p></div>
+      <figure class="fig illus-fig"><Fragment set:html={stablePic()} /><figcaption>Sorting the A-to-Z list by grade. Insertion and bubble sort keep Ana before Ben; selection sort does not.</figcaption></figure>
+      <p>Why the difference?</p>
+      <ul>
+        <li><b>Bubble sort</b> and <b>insertion sort</b> only move a value past a neighbor that is <b>strictly bigger</b> (<code>&gt;</code>). Equal values never pass each other, so their order stays.</li>
+        <li><b>Selection sort</b> swaps across a long distance. In pass 1 here, the smallest grade (Cris, 80) is at the end. Swapping it with Ana at the front throws Ana to the end, past Ben. Ties can change order.</li>
+      </ul>
+      <div class="trap">
+        <p class="note-label">Mistake: <code>&gt;=</code> instead of <code>&gt;</code> in bubble sort</p>
+        <p><b>Situation:</b> a student writes <code>if (arr[j] &gt;= arr[j + 1])</code>.</p>
+        <p><b>What goes wrong:</b> the array still ends up sorted, but equal neighbors now swap too. That is wasted work, and Ana and Ben trade places, so the sort is <b>no longer stable</b>.</p>
+        <p><b>Fix:</b> swap only when the left value is strictly bigger: <code>&gt;</code>. The same goes for insertion sort's <code>arr[j] &gt; key</code>.</p>
+      </div>
+      <p class="small muted">Good to know: for plain <code>int</code>s, stability does not matter, because two equal numbers look exactly the same. It matters when you sort records, like students by grade or orders by date. Java's own sort for objects is stable.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="choose">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 9 · Choosing</p>
+      <h2>Which sort, and Java's own sort</h2>
+    </div>
+    <div class="flow">
+      <p>Here are the three sorts side by side:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th></th><th>Bubble</th><th>Selection</th><th>Insertion</th></tr></thead>
+        <tbody>
+          <tr><td>Idea</td><td>neighbors swap; the biggest moves to the end</td><td>find the smallest; swap it to the front</td><td>take the next value; insert it into the sorted part</td></tr>
+          <tr><td>Comparisons</td><td>about n × n / 2</td><td>about n × n / 2, always</td><td>n - 1 to about n × n / 2</td></tr>
+          <tr><td>Moves</td><td>many</td><td>few: n - 1 swaps, even in the worst case</td><td>many, but few on almost-sorted data</td></tr>
+          <tr><td>Stable?</td><td>yes</td><td>no</td><td>yes</td></tr>
+        </tbody>
+      </table></div>
+      <p>And here is how to choose among them:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Situation</th><th>Good choice</th></tr></thead>
+        <tbody>
+          <tr><td>A list that is almost sorted already, like a class list where a few late enrollees were added at the end</td><td>Insertion sort</td></tr>
+          <tr><td>New values arrive one at a time and the list must stay sorted, like cards dealt to your hand</td><td>Insertion sort</td></tr>
+          <tr><td>Moving (writing) a value is very costly, so swaps must be few</td><td>Selection sort</td></tr>
+          <tr><td>Records with ties whose order must stay</td><td>Insertion sort (stable)</td></tr>
+          <tr><td>Learning and tracing by hand</td><td>Bubble sort (simplest idea), but rarely the best in real programs</td></tr>
+          <tr><td>Large data in a real program</td><td>none of these: use Java's <code>Arrays.sort</code></td></tr>
+        </tbody>
+      </table></div>
+      <div class="sub">
+        <h3>All three in one program</h3>
+        <p>Here are the three sorts in one runnable file. Run it, and match each output line to its comment:</p>
+        <pre class="code"><code set:html={hiN(full)} /></pre>
+        <TryIt />
+      </div>
+      <div class="sub">
+        <h3>Sorting with Java's <code>Arrays</code></h3>
+        <p>In real programs, you rarely write a sort yourself. <code>Arrays.sort</code> sorts an array of numbers, or of <code>String</code>s in A-to-Z order, and it uses faster methods like the ones in the next lesson. It lives in <code>java.util.Arrays</code>, so the file starts with an <code>import</code> line.</p>
+        <pre class="code"><code set:html={hiN(builtIn)} /></pre>
+        <TryIt />
+        <p>Three things to notice:</p>
+        <ul>
+          <li><code>Arrays.sort</code> is <code>void</code>, like our sorts: it changes the array itself.</li>
+          <li>It always sorts in ascending order. For highest first, read the sorted array from the end (lines 14 to 16).</li>
+          <li>For <code>String</code>s, capital letters come before small letters: "Zed" comes before "ana". Keep names in the same case.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 10 · Your turn</p>
+      <h2>Practice</h2>
+    </div>
+    <div class="flow">
+      <div class="paper flow">
+        <p class="note-label">On paper</p>
+        <p>Use the array <code>{'{'}6, 2, 9, 1, 5{'}'}</code> for questions 1 to 3. Check your tables with the sort lab: type the numbers under "Or type your own".</p>
+        <ol class="flow">
+          <li>Bubble sort: write the array after each pass. How many swaps in total?</li>
+          <li>Selection sort: write the array after each pass. In which passes does the smallest value "swap" with itself?</li>
+          <li>Insertion sort: write the array after each pass (the key for pass 1 is 2). How many shifts in total?</li>
+          <li>Spot the bug. This method should sort the array, but <code>{'{'}29, 10, 14, 37, 13{'}'}</code> becomes <code>{'{'}13, 10, 14, 29, 37{'}'}</code>. Which line is wrong, and what should it be?
+            <pre class="code"><code set:html={hiN(bugTask)} /></pre>
+          </li>
+          <li>Which sort? (a) A grade sheet already in A-to-Z order, to be sorted by grade, with ties kept in A-to-Z order. (b) A list of 200 enrolled students in order, plus 3 late enrollees added at the end. (c) A memory where every write is slow, so you want as few swaps as possible.</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <p class="small muted">For self-study, not for grading. All answers were checked by running the code in Java.</p>
+          <ol class="flow">
+            <li>
+              <div class="tbl-wrap"><table class="tbl pass-tbl">
+                <thead><tr><th>After</th><th>Array</th><th>Swaps</th></tr></thead>
+                <tbody>
+                  <tr><td>pass 1</td><td><code>2 6 1 5 <b>9</b></code></td><td>3</td></tr>
+                  <tr><td>pass 2</td><td><code>2 1 5 <b>6 9</b></code></td><td>2</td></tr>
+                  <tr><td>pass 3</td><td><code>1 <b>2 5 6 9</b></code></td><td>1</td></tr>
+                  <tr><td>pass 4</td><td><code><b>1 2 5 6 9</b></code></td><td>0</td></tr>
+                </tbody>
+              </table></div>
+              <b>6 swaps</b> in total, and 10 comparisons.</li>
+            <li>
+              <div class="tbl-wrap"><table class="tbl pass-tbl">
+                <thead><tr><th>After</th><th>Smallest found</th><th>Array</th></tr></thead>
+                <tbody>
+                  <tr><td>pass 1</td><td>1 (swap with 6)</td><td><code><b>1</b> 2 9 6 5</code></td></tr>
+                  <tr><td>pass 2</td><td>2 (already there)</td><td><code><b>1 2</b> 9 6 5</code></td></tr>
+                  <tr><td>pass 3</td><td>5 (swap with 9)</td><td><code><b>1 2 5</b> 6 9</code></td></tr>
+                  <tr><td>pass 4</td><td>6 (already there)</td><td><code><b>1 2 5 6 9</b></code></td></tr>
+                </tbody>
+              </table></div>
+              Passes <b>2 and 4</b> swap a value with itself.</li>
+            <li>
+              <div class="tbl-wrap"><table class="tbl pass-tbl">
+                <thead><tr><th>After</th><th>Key</th><th>Array</th><th>Shifts</th></tr></thead>
+                <tbody>
+                  <tr><td>pass 1</td><td>2</td><td><code><b>2 6</b> 9 1 5</code></td><td>1</td></tr>
+                  <tr><td>pass 2</td><td>9</td><td><code><b>2 6 9</b> 1 5</code></td><td>0</td></tr>
+                  <tr><td>pass 3</td><td>1</td><td><code><b>1 2 6 9</b> 5</code></td><td>3</td></tr>
+                  <tr><td>pass 4</td><td>5</td><td><code><b>1 2 5 6 9</b></code></td><td>2</td></tr>
+                </tbody>
+              </table></div>
+              <b>6 shifts</b> in total, and 8 comparisons.</li>
+            <li>Line 5. It compares with <code>arr[i]</code>, so it finds the last value smaller than <code>arr[i]</code>, not the smallest. It should be <code>if (arr[j] &lt; arr[minIndex])</code>.</li>
+            <li>(a) <b>Insertion sort</b> (or bubble sort): it must be stable, and selection sort is not. (b) <b>Insertion sort</b>: the list is almost sorted, so each late enrollee is shifted into place with little work. (c) <b>Selection sort</b>: only n - 1 swaps.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Your coding task: is it sorted?</p>
+        <p>Before sorting, a program can check whether the work is needed at all. Finish <code>isSorted</code> so it returns <code>true</code> when every value is less than or equal to the value after it, and <code>false</code> otherwise. It is one pass of bubble sort's comparisons, with no swaps. Write about 5 lines where it says YOUR CODE, then run it: the four printed values must match the comments.</p>
+        <pre class="code"><code set:html={hiN(starter)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(answer)} /></pre>
+          <p>Output: <code>true</code>, <code>false</code>, <code>true</code>, <code>true</code>. The loop stops at <code>arr.length - 1</code> because each check also reads the next slot (the same reason as the bubble sort mistake in Part 3). One value, or two equal values, count as sorted.</p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 11 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-sort-basic" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A sorting algorithm puts values in order. We count its work in comparisons and moves (swaps or shifts).</li>
+          <li>A swap needs a helper variable, <code>temp</code>, or one value is lost.</li>
+          <li><b>Bubble sort</b>: neighbors swap; each pass moves the biggest to the end. <b>Selection sort</b>: find the smallest, swap it to the front. <b>Insertion sort</b>: shift bigger values right, insert the key.</li>
+          <li>All three need about n × n / 2 comparisons in the worst case. Insertion sort is fast on almost-sorted data; selection sort makes the fewest swaps.</li>
+          <li>Bubble and insertion sort are <b>stable</b> (ties keep their order); selection sort is not.</li>
+          <li>In real programs, use <code>Arrays.sort</code>.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> Advanced sorting: merge sort, quick sort, and heap sort (coming soon). After that: <a href={base + '/itc120/searching/'}>Linear and binary search</a>, where sorted data pays off.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>R. Sedgewick and K. Wayne, <i>Algorithms</i>, 4th ed. Addison-Wesley, 2011, Section 2.1 (elementary sorts, stability in 2.5). <a href="https://algs4.cs.princeton.edu/21elementary/">algs4.cs.princeton.edu</a></li>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 2 (selection sort).</li>
+          <li>Programiz, "Bubble Sort," "Selection Sort," and "Insertion Sort." <a href="https://www.programiz.com/dsa/bubble-sort">programiz.com/dsa</a></li>
+          <li>Oracle, "Class Arrays," Java SE 21 API (sort; the sort for objects is stable). <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Arrays.html">docs.oracle.com</a></li>
+          <li>ITC 120 Course Syllabus (Sorting Algorithms: basic and advanced; compare stability and performance), Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>

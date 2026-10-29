@@ -989,3 +989,30 @@ li > * + :is(pre, .scroll-x, .tbl-wrap, table, figure, .fig), li > :is(pre, .scr
 .srlab .legend .sr-l-out { background: #eef2f2; border: 2px dashed #9aa8aa; }
 .srlab .legend .sr-l-found { background: #2e7d4f; border-color: #1f5a38; }
 svg.objbox.search-pic { max-width: 26rem; }
+
+/* ---------- Sort lab + sorting pictures (chat 21) ---------- */
+.solab .so-try { color: var(--ink-soft); }
+.solab .so-chip { font: inherit; font-size: 0.85rem; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 999px; padding: 0.15rem 0.6rem; margin: 0.15rem 0.1rem; cursor: pointer; appearance: none; }
+.solab .so-chip[aria-pressed="true"] { border-color: var(--teal); background: var(--teal-wash, #d7ece9); font-weight: 800; }
+.solab .so-own { display: flex; flex-wrap: wrap; gap: 0.5rem 0.8rem; align-items: center; margin-top: 0.5rem; }
+.solab .so-lab { font-weight: 800; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.solab .so-in { width: 11rem; max-width: 100%; font: inherit; font-family: var(--font-mono); padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--card); color: var(--ink); }
+.solab .so-err { color: var(--red-pen); min-height: 1.3em; margin-top: 0.3rem; }
+.solab .so-modes .btn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.solab .so-pic { margin-top: 0.6rem; }
+.solab .so-pic svg { display: block; width: 100%; max-width: 26rem; height: auto; margin: 0 auto; }
+.solab .so-say { min-height: 7.5em; margin-top: 0.4rem; }
+.solab .so-cmp { min-height: 9.5em; margin-top: 0.3rem; }
+.solab .so-tbl { margin: 0; font-size: 0.9rem; }
+.solab .so-tbl tr.is-on td { font-weight: 800; background: var(--teal-wash, #d7ece9); }
+.solab .so-nav { align-items: center; justify-content: center; gap: 0.6rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.solab .so-nav .btn { white-space: nowrap; }
+.solab .legend i { display: inline-block; width: 0.9rem; height: 0.9rem; border: 2px solid var(--ink); vertical-align: -2px; margin-right: 0.25rem; }
+.solab .legend .so-l-cmp { background: #e8662e; border-color: #b4461a; }
+.solab .legend .so-l-swap { background: #fbdccc; border-color: #e8662e; }
+.solab .legend .so-l-min { background: #f8dc95; border-color: #a87412; }
+.solab .legend .so-l-done { background: #dff0e3; border-color: #2e7d4f; }
+.solab .legend .so-l-gap { background: #eef2f2; border: 2px dashed #9aa8aa; }
+svg.objbox.sort-pic { max-width: 26rem; }
+.pass-tbl td, .pass-tbl th { white-space: nowrap; }
+.pass-tbl td.hot { font-weight: 800; color: var(--teal-ink); }

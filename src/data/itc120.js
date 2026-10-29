@@ -23,7 +23,7 @@ export const terms = [
         { title: 'Queues', href: '/itc120/queues/', status: 'live', kind: ['ds'], blurb: 'First in, first out, like a canteen line. Enqueue and dequeue with a linked list, then stacks vs. queues side by side.' },
       ] },
       { name: 'Sorting algorithms', icon: 'list', lessons: [
-        { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: 'soon', kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
+        { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: 'live', kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
         { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: 'soon', kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
       ] },
     ],

@@ -4166,3 +4166,101 @@ export function searchHook() {
   s.text(192, 440, 'That is binary search.', { font: 'body', size: 12.5, weight: 800, color: C.teal, anchor: 'start' });
   return s.svg('Two ways to find Mia. 1: a pile of forms in no order: Cris, Paz, Ben, Mia, Ana, Joy. You check them one at a time: Cris no, Paz no, Ben no, Mia yes on the 4th check. That is linear search. 2: the class list in A to Z order. Open the middle: Joy. Mia comes after Joy, so the top half, Ana to Joy, is crossed out. Repeat on what is left. That is binary search.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+/* ---------------- Basic sorting (chat 21) ---------------- */
+
+/** Hook: quiz papers as collected, then sorted by score (lowest first). */
+export function sortHook() {
+  const s = new Sketch(340, 362, 411);
+  const paper = (x, y, nm, sc, o = {}) => {
+    if (o.rot) s.raw(`<g transform="rotate(${o.rot} ${x + 27} ${y + 34})">`);
+    s.rect(x, y, 54, 68, { fill: o.fill ?? '#ffffff', sw: 1.6 });
+    s.text(x + 27, y + 18, nm, { font: 'body', size: 12, weight: 800, color: C.soft });
+    s.text(x + 27, y + 46, String(sc), { font: 'body', size: 20, weight: 800, color: C.red });
+    s.line(x + 10, y + 56, x + 44, y + 56, { sw: 1, stroke: '#9aa5a6', single: true });
+    if (o.rot) s.raw('</g>');
+  };
+  s.text(170, 22, 'Checked quiz papers (scores out of 40)', { font: 'body', size: 15, weight: 800 });
+  s.round(8, 34, 324, 126, 10, { fill: '#fffdf5', sw: 1.6 });
+  s.text(20, 56, '1. As you collected them', { font: 'body', size: 13.5, weight: 800, color: C.orange, anchor: 'start' });
+  [['Joy', 29, -6, 4], ['Ben', 10, 5, -2], ['Paz', 14, -3, 6], ['Mia', 37, 7, 0], ['Cris', 13, -4, 3]].forEach(([nm, sc, rot, dy], i) => paper(22 + i * 62, 70 + dy, nm, sc, { rot }));
+  s.arrow(170, 166, 170, 196, { sw: 2, stroke: C.orange, head: 9 });
+  s.text(184, 186, 'sort by score', { font: 'body', size: 12.5, weight: 800, color: C.orange, anchor: 'start' });
+  s.round(8, 202, 324, 152, 10, { fill: '#fffdf5', sw: 1.6 });
+  s.text(20, 224, '2. Sorted: lowest score first', { font: 'body', size: 13.5, weight: 800, color: C.teal, anchor: 'start' });
+  [['Ben', 10], ['Cris', 13], ['Paz', 14], ['Joy', 29], ['Mia', 37]].forEach(([nm, sc], i) => paper(22 + i * 62, 236, nm, sc, { fill: '#eef7f0' }));
+  s.arrow(30, 318, 310, 318, { sw: 1.8, stroke: C.teal, head: 8 });
+  s.text(170, 342, 'smallest to largest = ascending order', { font: 'body', size: 12, weight: 700, color: C.soft });
+  return s.svg('Checked quiz papers, scores out of 40. 1: as you collected them: Joy 29, Ben 10, Paz 14, Mia 37, Cris 13. Sort by score. 2: sorted, lowest score first: Ben 10, Cris 13, Paz 14, Joy 29, Mia 37. Smallest to largest is called ascending order.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Swap: two drinks need a third glass (temp). */
+export function glassSwap() {
+  const s = new Sketch(340, 306, 417);
+  const glass = (x, liquid, label, sub) => {
+    if (liquid) s.path(`M${x + 6} 148 L${x + 10} 192 L${x + 50} 192 L${x + 54} 148 Z`, { fill: liquid, sw: 0.1, stroke: liquid, rough: 0.6 });
+    s.path(`M${x} 108 L${x + 10} 192 L${x + 50} 192 L${x + 60} 108`, { sw: 2 });
+    s.text(x + 30, 216, label, { font: 'body', size: 12.5, weight: 800 });
+    s.text(x + 30, 232, sub, { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  };
+  s.text(170, 22, 'Swap the drinks in glass A and glass B', { font: 'body', size: 15, weight: 800 });
+  glass(28, '#d9e27a', 'glass A', 'calamansi');
+  glass(140, '#8a5a3c', 'glass B', 'Milo');
+  glass(252, null, 'extra glass', '(temp)');
+  const step = (x, y, n) => { s.circle(x, y, 22, { fill: C.orange, sw: 1.2 }); s.text(x, y + 5, String(n), { font: 'body', size: 13, weight: 800, color: '#ffffff' }); };
+  s.curve(58, 100, 282, 100, -100, { sw: 2, stroke: C.orange, head: 8 }); step(170, 50, 1);
+  s.curve(164, 102, 76, 102, 22, { sw: 2, stroke: C.orange, head: 8 }); step(120, 91, 2);
+  s.curve(276, 102, 188, 102, 22, { sw: 2, stroke: C.orange, head: 8 }); step(232, 91, 3);
+  s.text(20, 260, '1. Pour A into the extra glass. 2. Pour B into A.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(20, 278, '3. Pour the extra glass into B.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(20, 298, 'No extra glass = one drink gets mixed away.', { font: 'body', size: 12.5, weight: 800, color: C.red, anchor: 'start' });
+  return s.svg('Swapping the drinks in two glasses: glass A has calamansi juice, glass B has Milo, and there is an empty extra glass, called temp. Step 1: pour A into the extra glass. Step 2: pour B into A. Step 3: pour the extra glass into B. Without the extra glass, one drink gets mixed away.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Bubble sort hook: lining up by height, neighbors switch places. */
+export function heightLine() {
+  const s = new Sketch(340, 300, 421);
+  const kid = (cx, h, shirt, hot) => {
+    const foot = 218, top = foot - h;
+    s.circle(cx, top + 11, 22, { fill: '#f3d2b3', sw: 1.6 });
+    s.path(`M${cx - 6} ${top + 4} Q${cx} ${top - 4} ${cx + 9} ${top + 3}`, { sw: 3, stroke: C.ink, single: true });
+    s.round(cx - 15, top + 24, 30, h * 0.42, 6, { fill: shirt, sw: 1.6 });
+    s.line(cx - 7, top + 24 + h * 0.42, cx - 7, foot, { sw: 3 });
+    s.line(cx + 7, top + 24 + h * 0.42, cx + 7, foot, { sw: 3 });
+  };
+  s.text(170, 22, 'Line up by height for the flag ceremony', { font: 'body', size: 15, weight: 800 });
+  const H = [29, 10, 14, 37, 13].map((v) => 64 + v * 2.2), xs = [42, 106, 170, 234, 298];
+  const shirts = [C.sky, C.butter, C.pink, C.tealWash, C.orangeWash];
+  xs.forEach((x, i) => kid(x, H[i], shirts[i], false));
+  s.line(10, 219, 330, 219, { sw: 1.8 });
+  s.round(18, 230, 112, 26, 8, { fill: C.orangeWash, sw: 1.4, stroke: C.orange });
+  s.text(74, 248, 'taller on the left', { font: 'body', size: 11.5, weight: 800, color: '#b4461a' });
+  s.curve(44, 80, 104, 120, -26, { sw: 2.2, stroke: C.orange, head: 8 });
+  s.curve(104, 120, 44, 80, 26, { sw: 2.2, stroke: C.orange, head: 8 });
+  s.text(150, 248, '→ switch places', { font: 'body', size: 12.5, weight: 800, color: C.orange, anchor: 'start' });
+  s.text(20, 276, 'Each pair of neighbors does this, left to right.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(20, 294, 'After one walk down the line, the tallest is last.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  return s.svg('Five students line up by height for the flag ceremony. The first two are compared: the taller one is on the left, so they switch places. Each pair of neighbors does this, from left to right. After one walk down the line, the tallest student is at the end.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Insertion sort hook: putting a new card into a sorted hand. */
+export function cardHand() {
+  const s = new Sketch(340, 272, 431);
+  const card = (x, y, v, o = {}) => {
+    s.round(x, y, 50, 72, 6, { fill: o.fill ?? '#ffffff', sw: 1.8, stroke: o.stroke ?? C.ink });
+    s.text(x + 10, y + 18, v, { font: 'body', size: 13, weight: 800, color: C.red, anchor: 'start' });
+    s.text(x + 25, y + 46, '♥', { font: 'body', size: 20, weight: 800, color: C.red });
+  };
+  s.text(170, 22, 'Tong-its: adding a new card to your hand', { font: 'body', size: 15, weight: 800 });
+  card(198, 38, '6', { fill: C.orangeWash, stroke: C.orange });
+  s.text(258, 64, 'new card', { font: 'body', size: 12.5, weight: 800, color: C.orange, anchor: 'start' });
+  s.arrow(222, 116, 160, 142, { sw: 2, stroke: C.orange, head: 8 });
+  card(24, 148, '2'); card(80, 148, '5');
+  s.rect(136, 150, 46, 68, { sw: 1.4, stroke: '#9aa5a6', dash: '5 4', single: true });
+  s.text(159, 190, 'gap', { font: 'body', size: 12, weight: 800, color: '#7d8b8d' });
+  card(192, 148, '8'); card(248, 148, '10');
+  s.arrow(186, 232, 214, 232, { sw: 1.8, stroke: C.teal, head: 7 }); s.arrow(242, 232, 270, 232, { sw: 1.8, stroke: C.teal, head: 7 });
+  s.text(228, 252, 'bigger cards slide right', { font: 'body', size: 12, weight: 700, color: C.teal });
+  s.text(20, 268, 'The hand stays in order. Drop the 6 into the gap.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  return s.svg('Tong-its: adding a new card to your hand. The hand is already in order: 2, 5, 8, 10 of hearts. The new card is 6. The bigger cards, 8 and 10, slide right to open a gap after the 5, and the 6 drops into the gap. The hand stays in order.').replace(/(\d+\.\d)\d+/g, '$1');
+}
