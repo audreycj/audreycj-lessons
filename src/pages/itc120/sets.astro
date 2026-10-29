@@ -208,8 +208,8 @@ const quiz = [
   { q: 'Which Java method keeps <b>only</b> the elements that are also in another set?', opts: ['addAll', 'retainAll', 'removeAll', 'containsAll'], a: 1, why: '<code>retainAll</code> = "keep only these" = intersection. <code>addAll</code> = union, <code>removeAll</code> = difference. <code>containsAll</code> changes nothing: it only checks whether every value of the other set is already in this one (a subset test).' },
   { q: 'Why do we write <code>new HashSet&lt;&gt;(a)</code> before calling <code>union.addAll(b)</code>?', opts: ['Java requires every set to be copied', 'addAll changes the set it is called on, so we copy A first to keep A unchanged', 'It sorts the set', 'It removes duplicates from B'], a: 1, why: '<code>addAll</code>, <code>retainAll</code>, and <code>removeAll</code> all <b>change</b> the set they are called on. Copy first, or you destroy A and get wrong answers in later operations.' },
   { q: 'Which Java set keeps its elements in <b>sorted</b> order?', opts: ['HashSet', 'LinkedHashSet', 'TreeSet', 'None of them'], a: 2, why: '<code>TreeSet</code> keeps its elements in a red-black tree (through a <code>TreeMap</code> inside), so they come out sorted. <code>HashSet</code> has no guaranteed order; <code>LinkedHashSet</code> keeps the order you added them.' },
-  { q: 'A = {1, 2} and B = {1, 2, 3}. Which is true?', opts: ['B ⊆ A', 'A ⊂ B (A is a proper subset of B)', 'A = B', 'The empty set { } is not a subset of A'], a: 1, why: 'Every value of A (1 and 2) is in B, and B also has 3, which A does not. So A ⊆ B and A ≠ B: a <b>proper</b> subset. B ⊆ A is false (3 is missing from A), and { } is a subset of every set.' },
-  { q: 'Which Java line checks whether A ⊆ B?', opts: ['a.containsAll(b)', 'b.containsAll(a)', 'a.retainAll(b)', 'a.equals(b)'], a: 1, why: 'A ⊆ B means "B contains all of A", so you ask B: <code>b.containsAll(a)</code>. <code>a.containsAll(b)</code> checks the other direction (B ⊆ A), <code>retainAll</code> changes <code>a</code>, and <code>equals</code> checks A = B.' },
+  { q: '(Extra) A = {1, 2} and B = {1, 2, 3}. Which is true?', opts: ['B ⊆ A', 'A ⊂ B (A is a proper subset of B)', 'A = B', 'The empty set { } is not a subset of A'], a: 1, why: 'Every value of A (1 and 2) is in B, and B also has 3, which A does not. So A ⊆ B and A ≠ B: a <b>proper</b> subset. B ⊆ A is false (3 is missing from A), and { } is a subset of every set.' },
+  { q: '(Extra) Which Java line checks whether A ⊆ B?', opts: ['a.containsAll(b)', 'b.containsAll(a)', 'a.retainAll(b)', 'a.equals(b)'], a: 1, why: 'A ⊆ B means "B contains all of A", so you ask B: <code>b.containsAll(a)</code>. <code>a.containsAll(b)</code> checks the other direction (B ⊆ A), <code>retainAll</code> changes <code>a</code>, and <code>equals</code> checks A = B.' },
 ];
 // Peeks back to earlier parts/lessons (chat 23)
 const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p></div>`;
@@ -225,9 +225,9 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
       <p class="note-label">By the end, you can:</p>
       <ol>
         <li>explain what a set is (an ADT with <b>unique</b>, <b>unordered</b> values) and tell when a problem needs a set instead of a list;</li>
-        <li>write A ∪ B, A ∩ B, A − B, B − A, and A △ B for two given sets, draw them on a Venn diagram, and tell whether one set is a <b>subset</b> of another;</li>
+        <li>write A ∪ B, A ∩ B, A − B, B − A, and A △ B for two given sets, draw them on a Venn diagram, and (extra) tell whether one set is a <b>subset</b> of another;</li>
         <li>predict what <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code> return on a Java <code>HashSet</code>;</li>
-        <li>write each set operation in Java with <code>addAll</code>, <code>retainAll</code>, or <code>removeAll</code> on a <b>copy</b>, check a subset with <code>containsAll</code>, and find the bug when a copy is missing or the wrong set is used;</li>
+        <li>write each set operation in Java with <code>addAll</code>, <code>retainAll</code>, or <code>removeAll</code> on a <b>copy</b>, (extra) check a subset with <code>containsAll</code>, and find the bug when a copy is missing or the wrong set is used;</li>
         <li>choose between <code>HashSet</code>, <code>LinkedHashSet</code>, and <code>TreeSet</code> by the order you need.</li>
       </ol>
     </div>
@@ -292,7 +292,8 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
       </div>
       <figure class="fig illus-fig illus"><Fragment set:html={attendanceSet()} /><figcaption>Top: Ana tapped her ID twice, but the attendance lists her once. Bottom: the same idea in IT. Repeat visits count once, a tag appears once per post, and the overlap of two class lists shows who is in both.</figcaption></figure>
       <div class="sub" id="subsets">
-        <h3>Review: subsets</h3>
+        <h3>Review: subsets <span class="xtra">(extra)</span></h3>
+        <p class="xtra-note"><b>Extra topic.</b> Subsets go a little beyond this course's required set topics (properties, union, intersection, difference, symmetric difference). Study it if you have time; your teacher will tell you if a quiz or exam uses it.</p>
         <p>You may remember subsets from math class. Here is a quick review, because Java can check them too (Part 3).</p>
         <div class="def">
           <p class="note-label">Subset</p>
@@ -426,7 +427,8 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
       </div>
 
       <div class="sub" id="subsets-java">
-        <h3>Subsets in Java</h3>
+        <h3>Subsets in Java <span class="xtra">(extra)</span></h3>
+        <p class="xtra-note"><b>Extra topic,</b> like the <a href="#subsets">subsets review</a> in Part 2.</p>
         <p>Java has no method named "subset". You check <Peek label="A ⊆ B" title="From Part 2" html={subsetPeek} /> with <code>containsAll</code>. This table shows each subset question in Java:</p>
         <div class="scroll-x"><table class="tbl">
           <thead><tr><th>By hand</th><th>In Java</th><th>Read it as</th></tr></thead>
@@ -533,7 +535,7 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
           <li>In Java: <code>addAll</code> (union), <code>retainAll</code> (intersection), <code>removeAll</code> (difference).</li>
           <li>Those methods change the set itself, so copy first with <code>new HashSet&lt;&gt;(a)</code>.</li>
           <li>HashSet: no order. LinkedHashSet: insertion order. TreeSet: sorted.</li>
-          <li>A ⊆ B when every value of A is in B. In Java: <code>b.containsAll(a)</code> (bigger set first).</li>
+          <li>(Extra) A ⊆ B when every value of A is in B. In Java: <code>b.containsAll(a)</code> (bigger set first).</li>
         </ol>
       </div>
       <p><b>Next lesson:</b> <a href={base + '/itc120/maps/'}>Maps and hashing</a>, where you will see how a HashSet and HashMap find things so fast.</p>

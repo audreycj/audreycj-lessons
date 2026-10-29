@@ -3021,6 +3021,44 @@ export function llStuckSteps() {
   ];
 }
 
+export const llPrintCode = String.raw`static void printList(Node start) {
+  Node current = start;
+  while (current != null) {
+    System.out.print(current.data + " -> ");
+    current = current.next;
+  }
+  System.out.println("null");
+}`;
+/** CodeWalk steps: the correct printList on 10 -> 20 -> 30 (chat 34, #154). */
+export function llPrintSteps() {
+  const y = 84, X = [0, 1, 2].map(rSlot), SOFT = '#4f5f62';
+  const nullX = rDot(X[2]) + 50 - R.D / 2;
+  const pic = (at, out, alt) => {
+    const cur = at === null ? [] : [['current', NEW]];
+    let b = rVars(X[0], y, at === 0 ? [...cur, ['start', SOFT], ['head', HEAD]] : [['start', SOFT], ['head', HEAD]]);
+    if (at !== null && at !== 0 && at < 3) b += rVars(X[at], y, cur);
+    if (at === 3) b += rVars(nullX, y, [['current', NEW]]);
+    [10, 20, 30].forEach((v, i) => { b += rBox(X[i], y, String(v), { fill: i === at ? '#fbdccc' : undefined }); if (i < 2) b += rLink(X[i], X[i + 1], y); });
+    b += rArrow(`M${rDot(X[2])} ${y + 20} H${rDot(X[2]) + 30}`) + sT(rDot(X[2]) + 36, y + 25, 'null', { mono: true, size: 13, w: 600, fill: at === 3 ? NEW : SOFT, anchor: 'start' });
+    b += `<rect x="10" y="160" width="364" height="40" rx="6" fill="#1b2a2e"/>` + sT(22, 185, out || ' ', { mono: true, size: 14, w: 700, fill: '#f8dc95', anchor: 'start' });
+    b += sT(14, 153, 'Output', { size: 11.5, w: 800, fill: SOFT, anchor: 'start' });
+    return rPic(384, 210, alt, b);
+  };
+  const o1 = '10 -> ', o2 = '10 -> 20 -> ', o3 = '10 -> 20 -> 30 -> ';
+  return [
+    { lines: [2], pic: pic(0, '', 'start, head and current all refer to node 10.'), vars: [['current', '→ 10']], say: '<code>start</code> got a copy of head\'s reference. <code>current</code> copies it again: all three refer to node <b>10</b>.' },
+    { lines: [3], pic: pic(0, '', 'current is node 10, not null.'), vars: [['current != null', 'true']], say: 'Is <code>current</code> null? No, it is node 10. Enter the loop.' },
+    { lines: [4], pic: pic(0, o1, 'Prints 10.'), vars: [['current.data', '= 10']], say: 'Print <b>10 -&gt; </b>.' },
+    { lines: [5], pic: pic(1, o1, 'current moves to node 20. head and start stay on 10.'), vars: [['current', '→ 20']], say: '<b>The move line.</b> <code>current</code> takes 10\'s <code>next</code>, so it is now on node <b>20</b>. <code>head</code> and <code>start</code> did not move.' },
+    { lines: [3, 4], pic: pic(1, o2, 'current is node 20. Prints 20.'), vars: [['current != null', 'true'], ['current.data', '= 20']], say: 'Node 20 is not null, so loop again: print <b>20 -&gt; </b>.' },
+    { lines: [5], pic: pic(2, o2, 'current moves to node 30.'), vars: [['current', '→ 30']], say: 'Move again: <code>current</code> is on node <b>30</b>.' },
+    { lines: [3, 4], pic: pic(2, o3, 'current is node 30. Prints 30.'), vars: [['current != null', 'true'], ['current.data', '= 30']], say: 'Not null: print <b>30 -&gt; </b>.' },
+    { lines: [5], pic: pic(3, o3, 'current takes 30\'s next, which is null.'), vars: [['current', 'null']], say: '30\'s <code>next</code> is <b>null</b>, so <code>current</code> becomes null. It has walked past the last node.' },
+    { lines: [3], pic: pic(3, o3, 'current is null. The loop stops.'), vars: [['current != null', 'false']], say: 'Is <code>current</code> null? <b>Yes</b>, so the loop stops. Every node was printed once.' },
+    { lines: [7], pic: pic(3, o3 + 'null', 'Prints null at the end.'), vars: [], say: 'Print the text <code>null</code> to mark the end. Output: <b>10 -&gt; 20 -&gt; 30 -&gt; null</b>.' },
+  ];
+}
+
 /** Sketch: a treasure hunt around school. */
 export function llHuntPic() {
   const s = new Sketch(340, 340, 216);

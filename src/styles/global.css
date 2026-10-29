@@ -1112,3 +1112,11 @@ p.formula { font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem;
 .fig-zoom-x { align-self: flex-end; margin: 0.6rem 0.8rem; }
 .fig-zoom-in { flex: 1; overflow: auto; padding: 0 0.8rem 1rem; -webkit-overflow-scrolling: touch; }
 html.zoom-open { overflow: hidden; }
+
+/* Extra topics beyond the syllabus DLOs (chat 34, #176) */
+h3 .xtra { font-size: .7em; font-weight: 600; color: #8a5a00; background: #fbecc4; border-radius: 999px; padding: .05em .55em; vertical-align: .15em; white-space: nowrap; }
+.xtra-note { border-left: 4px solid #f0a93b; background: #fdf6e3; padding: .55rem .8rem; border-radius: 0 8px 8px 0; }
+
+/* Coding-task code folds (chat 34): Base.astro adds .is-folded + a Show all / Show less button */
+#task pre.code.is-folded { max-height: 20rem; overflow-y: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 5rem), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 5rem), transparent); }
+#task .code-more { display: block; margin: 0.5rem auto 0; font-size: 0.95rem; }

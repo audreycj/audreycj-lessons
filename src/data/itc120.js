@@ -26,6 +26,9 @@ export const terms = [
         { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: 'live', kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
         { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: 'live', kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
       ] },
+      { name: 'Searching algorithms', icon: 'list', lessons: [
+        { title: 'Linear and binary search', href: '/itc120/searching/', status: 'live', kind: ['algo'], blurb: 'Check one by one, or halve the search each time. Both in Java, and how many checks each one needs.' },
+      ] },
     ],
   },
   {
@@ -34,9 +37,6 @@ export const terms = [
     name: 'Midterm topics',
     note: 'Everything you need for the midterm exam. Go in order: each lesson builds on the one before it.',
     units: [
-      { name: 'Searching algorithms', icon: 'list', lessons: [
-        { title: 'Linear and binary search', href: '/itc120/searching/', status: 'live', kind: ['algo'], blurb: 'Check one by one, or halve the search each time. Both in Java, and how many checks each one needs.' },
-      ] },
       { name: 'Trees and binary search trees', icon: 'tree', lessons: [
         { title: 'Trees and binary trees', href: '/itc120/trees/', status: 'live', kind: ['ds'], blurb: 'Root, parent, child, leaf, depth, height. Tap any node to see its family.' },
         { title: 'Binary search trees and BST search', href: '/itc120/bst/', status: 'live', kind: ['ds', 'algo'], blurb: 'The BST rule, searching by hand, and the search method in Java.' },

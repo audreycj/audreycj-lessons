@@ -6,7 +6,7 @@ import LinkedLab from '../../components/LinkedLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
-import { llDefPic, llHuntPic, llTrainPic, llWeakPic, llNewPic, llNamesPic, llAccessPic, llTravPic, llCircPic, llNullPic, llBarsPic, llTrainSkipPic, llStreetPic, llRoadsPic, llKindsPic, llFrontCode, llFrontSteps, llSwapCode, llSwapSteps, llAfterCode, llAfterSteps, llBypassCode, llBypassSteps, llStuckCode, llStuckSteps, polvoronMold, classObjPic } from '../../lib/illus.js';
+import { llDefPic, llHuntPic, llTrainPic, llWeakPic, llNewPic, llNamesPic, llAccessPic, llTravPic, llCircPic, llNullPic, llBarsPic, llTrainSkipPic, llStreetPic, llRoadsPic, llKindsPic, llFrontCode, llFrontSteps, llSwapCode, llSwapSteps, llAfterCode, llAfterSteps, llBypassCode, llBypassSteps, llStuckCode, llStuckSteps, llPrintCode, llPrintSteps, polvoronMold, classObjPic } from '../../lib/illus.js';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -397,6 +397,9 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       <pre class="code"><code set:html={hiN(print)} /></pre>
       <p>When <code>main</code> calls <code>printList(head)</code>, <code>start</code> gets a copy of head's reference. Then <code>current</code> copies it again. All three refer to node 10, but they are separate variables. <code>current = current.next;</code> moves only <code>current</code>. It does not move any node, and it does not change <code>head</code>.</p>
       <p>Two words in the first line: <code>static</code> lets <code>main</code> call <code>printList</code> directly, without making an object first, and <code>void</code> means it sends no value back (it only prints). Also, each method has its own variables: the <code>current</code> inside <code>printList</code> is separate from the <code>current</code> that <code>main</code> declares later in the whole program, even though the names match.</p>
+      <p>Step through it on the list 10 → 20 → 30. Watch <code>current</code> (orange) move while <code>head</code> and <code>start</code> stay on node 10.</p>
+      <CodeWalk id="cw-ll-print" code={llPrintCode} steps={llPrintSteps()} cap="Walkthrough: printList(head) on 10 → 20 → 30" hint="Use Next to go step by step, or tap a line to jump to it." />
+      <p>The same walk in one table:</p>
       <div class="scroll-x">
         <table class="tbl">
           <thead><tr><th>current</th><th>This step prints</th><th>Then</th></tr></thead>

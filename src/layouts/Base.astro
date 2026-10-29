@@ -72,6 +72,26 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       });
     });
 
+    // Chat 34: long code in coding-task boxes (#task) starts folded: a max height, the rest fades out, Show all / Show less.
+    // Copy still copies everything (codeText reads the whole text, folded or not). Code inside a closed answer is folded when it opens.
+    const foldCode = (pre: HTMLElement) => {
+      if (pre.dataset.fold || !pre.offsetHeight) return;
+      const max = parseFloat(getComputedStyle(document.documentElement).fontSize) * 20;
+      if (pre.scrollHeight < max + 96) return; // short code: leave it open
+      pre.dataset.fold = '1'; pre.classList.add('is-folded');
+      const lines = (codeText(pre).match(/\n/g) || []).length;
+      const more = document.createElement('button'); more.type = 'button'; more.className = 'btn code-more';
+      const label = () => { const f = pre.classList.contains('is-folded'); more.textContent = f ? 'Show all ' + lines + ' lines ▾' : 'Show less ▴'; more.setAttribute('aria-expanded', String(!f)); };
+      label(); pre.after(more);
+      more.addEventListener('click', () => {
+        const folding = !pre.classList.contains('is-folded');
+        pre.classList.toggle('is-folded', folding); label();
+        if (folding && pre.getBoundingClientRect().top < 0) pre.scrollIntoView({ block: 'start' });
+      });
+    };
+    document.querySelectorAll<HTMLElement>('#task pre.code').forEach(foldCode);
+    document.querySelectorAll<HTMLDetailsElement>('#task details').forEach((d) => d.addEventListener('toggle', () => { if (d.open) d.querySelectorAll<HTMLElement>('pre.code').forEach(foldCode); }));
+
     // QA #149 (chat 33): on phones, a still picture shrunk to tiny text gets "Tap to enlarge" and opens full screen (scrolls sideways).
     // Only still pictures: labs and walkthroughs are figures WITH an id, so they are skipped.
     if (matchMedia('(max-width: 40rem)').matches) {
