@@ -235,7 +235,7 @@ const quiz = [
 ---
 <Base title="Advanced Sorting · ITC 120" description="Merge sort, quick sort, and heap sort: the recursion they need, how to trace each one by hand, the Java code, how much work they save, and when to use which." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
-    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Sorting</p>
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Final › Sorting</p>
     <p class="kicker">Sorting algorithms · Lesson 2 of 2</p>
     <h1>Advanced Sorting: Merge, Quick, and Heap Sort</h1>
     <KindChips />
@@ -315,7 +315,7 @@ const quiz = [
         <p><b>What goes wrong:</b> every call makes another call, and none of them finishes. The call stack fills up memory, and Java stops the program with a <code>StackOverflowError</code>.</p>
         <p><b>Fix:</b> always write the base case first, and make sure each recursive call has a <b>smaller</b> job that reaches it.</p>
       </div>
-      <p class="small muted">Good to know: the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson (midterm) goes deeper, with recursion on trees. For this lesson, you only need to follow calls on the stack.</p>
+      <p class="small muted">Good to know: you met recursion on trees in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson (midterm). This part is a short review with arrays; for this lesson, you only need to follow calls on the stack.</p>
     </div>
   </section>
 
@@ -422,7 +422,7 @@ const quiz = [
       <figure class="fig illus-fig illus"><Fragment set:html={sportsFest()} /><figcaption>After the champion leaves, only the matches on the champion's path need a replay, not the whole fest.</figcaption></figure>
       <div class="sub" id="tree-words">
         <h3>First: a tree of values</h3>
-        <p>The bracket is a <b>tree</b>: values connected from the top down. You will study trees fully in the <a href={base + '/itc120/trees/'}>Trees</a> lesson (midterm); for heap sort you only need these words:</p>
+        <p>The bracket is a <b>tree</b>: values connected from the top down. You studied trees in the <a href={base + '/itc120/trees/'}>Trees</a> lesson (midterm); for heap sort you only need these words:</p>
         <div class="def"><p class="note-label">Tree words</p><p>Each circle is a <b>node</b> (it holds one value). The top node is the <b>root</b>. A node directly below another is its <b>child</b>; the one above is its <b>parent</b>. A node with no children is a <b>leaf</b>. In a <b>binary tree</b>, every node has at most 2 children.</p></div>
         <p>A heap is stored in a plain array. Read the array from left to right and fill the tree row by row, from left to right: index 0 is the root, index 1 and 2 are its children, and so on. No links are needed, because a simple rule finds every child:</p>
         <figure class="fig illus-fig"><Fragment set:html={heapIndexPic()} /><figcaption>The same five values as a tree (top) and as an array (bottom).</figcaption></figure>
@@ -624,7 +624,7 @@ const quiz = [
           <li>In real programs, use <code>Arrays.sort</code>: quick sort for numbers, stable merge sort for objects.</li>
         </ol>
       </div>
-      <p><b>Next lesson:</b> <a href={base + '/itc120/searching/'}>Linear and binary search</a>, where sorted data pays off.</p>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/hashing/'}>Hashing and hash tables</a>, the last topic of the course.</p>
       <div class="refs small muted">
         <p class="note-label">References</p>
         <ol>

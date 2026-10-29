@@ -61,31 +61,31 @@ for (int i = 0; i < stock.length; i++) {
 System.out.println("Items to restock: " + low);`;
 const practice = String.raw`public class Main {
   public static void main(String[] args) {
-    int[] marks = {78, 85, 91, 74, 88};
+    int[] temps = {-12, -5, -18, -3, -9};
 
-    // 1. print all five scores
-    for (int i = 0; i < marks.length; i++) {
-      System.out.println(marks[i]);
+    // 1. print all five readings
+    for (int i = 0; i < temps.length; i++) {
+      System.out.println(temps[i]);
     }
 
-    // 2. find the highest
-    int highest = marks[0];
-    for (int i = 1; i < marks.length; i++) {
-      if (marks[i] > highest) {
-        highest = marks[i];
+    // 2. find the warmest (highest) reading
+    int warmest = temps[0];
+    for (int i = 1; i < temps.length; i++) {
+      if (temps[i] > warmest) {
+        warmest = temps[i];
       }
     }
-    System.out.println("Highest: " + highest);
+    System.out.println("Warmest: " + warmest);
 
-    // 3 and 4. print scores 75 and above, and count them
-    int passing = 0;
-    for (int i = 0; i < marks.length; i++) {
-      if (marks[i] >= 75) {
-        System.out.println(marks[i]);
-        passing++;
+    // 3 and 4. print the readings warmer than -10, and count them
+    int tooWarm = 0;
+    for (int i = 0; i < temps.length; i++) {
+      if (temps[i] > -10) {
+        System.out.println(temps[i]);
+        tooWarm++;
       }
     }
-    System.out.println("Passing: " + passing);
+    System.out.println("Too warm: " + tooWarm);
   }
 }`;
 
@@ -164,7 +164,7 @@ const quiz = [
       <p class="note-label">By the end, you can:</p>
       <ol>
         <li>describe the four basic operations on an array (access, traversal, insertion, deletion), and write access and traversal in Java;</li>
-        <li>show which values move when you insert or delete in the middle, and in which order;</li>
+        <li>show which values move when you insert or delete in the middle, and in which order, and write a method that removes a value;</li>
         <li>compare arrays and linked lists, and choose one for a task.</li>
       </ol>
     </div>
@@ -394,34 +394,34 @@ Items to restock: 2</code></pre>
       <div class="paper flow">
         <p class="note-label">Quick check (on paper)</p>
         <ol>
-          <li>Given <code>marks = {'{'}75, 80, 93, 68, 88{'}'}</code>, what is <code>marks[3]</code>?</li>
-          <li>Insert 27 at index 2 of [11, 22, 33, 44, _]. Which values move, and in what order?</li>
-          <li>Delete index 1 of [10, 25, 30, 40, _]. Which values move, and in what order?</li>
+          <li>Given <code>marks = {'{'}64, 90, 77, 81, 59{'}'}</code>, what is <code>marks[4]</code>? What happens with <code>marks[5]</code>?</li>
+          <li>Insert 15 at index 1 of [5, 10, 20, 25, _]. Which values move, and in what order?</li>
+          <li>Delete index 0 of [8, 16, 24, 32, _]. Which values move, and in what order?</li>
           <li>Which of these would a linked list make easier, and why?</li>
         </ol>
         <details class="reveal"><summary>Show the answers</summary><div class="flow">
           <ol>
-            <li><b>68</b>. Count from 0: 75, 80, 93, <b>68</b>.</li>
-            <li>44 moves to index 4 first, then 33 moves to index 3. Then 27 goes into index 2: [11, 22, 27, 33, 44].</li>
-            <li>30 moves to index 1 first, then 40 moves to index 2. Size drops to 3: [10, 30, 40]. (Slot 3 still holds an old 40, but it is not counted.)</li>
+            <li><b>59</b>. Count from 0: 64, 90, 77, 81, <b>59</b>. The last index is length − 1 = 4, so <code>marks[5]</code> stops the program with an ArrayIndexOutOfBoundsException.</li>
+            <li>25 moves to index 4 first, then 20 to index 3, then 10 to index 2 (3 moves). Then 15 goes into index 1: [5, 15, 10, 20, 25].</li>
+            <li>16 moves to index 0 first, then 24 to index 1, then 32 to index 2 (3 moves: deleting at the front moves every later value). Size drops to 3: [16, 24, 32]. (Slot 3 still holds an old 32, but it is not counted.)</li>
             <li>Insertion and deletion (questions 2 and 3). A linked list changes one or two links instead of shifting values, once it is at the spot. Access (question 1) is easier in an array.</li>
           </ol>
         </div></details>
       </div>
       <div class="paper flow">
         <p class="note-label">Coding practice</p>
-        <p>Using <code>int[] marks = {'{'}78, 85, 91, 74, 88{'}'};</code>, write a program that:</p>
+        <p>A canteen freezer should stay at −10 °C or colder. Its thermometer saved five readings: <code>int[] temps = {'{'}-12, -5, -18, -3, -9{'}'};</code>. Write a program that:</p>
         <ol>
-          <li>prints all five scores using a loop;</li>
-          <li>finds and prints the highest score;</li>
-          <li>prints only the scores that are 75 and above;</li>
-          <li>counts and prints the number of passing scores.</li>
+          <li>prints all five readings using a loop;</li>
+          <li>finds and prints the warmest (highest) reading;</li>
+          <li>prints only the readings warmer than −10 (too warm for the freezer);</li>
+          <li>counts and prints how many readings were too warm.</li>
         </ol>
-        <p>Checklist: Did you use a loop? Did <code>highest</code> start with <code>marks[0]</code>? Did you use a condition for scores <code>&gt;= 75</code>? You can run it in the <a href="https://www.programiz.com/java-programming/online-compiler/">Programiz online compiler</a>.</p>
+        <p>Checklist: Did you use a loop? Did <code>warmest</code> start with <code>temps[0]</code>? (Starting at 0 would print 0, a reading that never happened: the trap from Part 3.) Did you use <code>&gt; -10</code>, so that exactly −10 counts as cold enough? You can run it in the <a href="https://www.programiz.com/java-programming/online-compiler/">Programiz online compiler</a>.</p>
         <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
           <pre class="code"><code set:html={hi(practice)} /></pre>
           <TryIt />
-          <p>Output: 78, 85, 91, 74, 88 (one per line), then <code>Highest: 91</code>, then 78, 85, 91, 88, then <code>Passing: 4</code>.</p>
+          <p>Output: −12, −5, −18, −3, −9 (one per line), then <code>Warmest: -3</code>, then −5, −3, −9, then <code>Too warm: 3</code>.</p>
         </div></details>
       </div>
       <div class="paper flow" id="task">
@@ -463,7 +463,7 @@ Items to restock: 2</code></pre>
           <li>Oracle, "Arrays," <i>The Java Tutorials</i>. <a href="https://docs.oracle.com/javase/tutorial/java/nutsandbolts/arrays.html">docs.oracle.com</a></li>
           <li>Programiz, "Java Array." <a href="https://www.programiz.com/java-programming/arrays">programiz.com</a></li>
           <li>N. Dale, D. T. Joyce, and C. Weems, <i>Object-Oriented Data Structures Using Java</i>, 4th ed. Jones &amp; Bartlett, 2018.</li>
-          <li>ITC 120 Course Syllabus, A.Y. 2026–2027, Davao Oriental State University.</li>
+          <li>ITC 120 Data Structures and Algorithms Syllabus, Faculty of Computing, Engineering, and Technology, Davao Oriental State University.</li>
         </ol>
       </div>
     </div>

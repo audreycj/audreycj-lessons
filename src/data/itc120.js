@@ -22,13 +22,6 @@ export const terms = [
         { title: 'Stacks', href: '/itc120/stacks/', status: 'live', kind: ['ds'], blurb: 'Last in, first out, like a pile of plates. Push, pop, and peek: traces, a walkthrough, and a stack in Java using an array.' },
         { title: 'Queues', href: '/itc120/queues/', status: 'live', kind: ['ds'], blurb: 'First in, first out, like a canteen line. Enqueue and dequeue with a linked list, then stacks vs. queues side by side.' },
       ] },
-      { name: 'Sorting algorithms', icon: 'list', lessons: [
-        { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: 'live', kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
-        { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: 'live', kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
-      ] },
-      { name: 'Searching algorithms', icon: 'list', lessons: [
-        { title: 'Linear and binary search', href: '/itc120/searching/', status: 'live', kind: ['algo'], blurb: 'Check one by one, or halve the search each time. Both in Java, and how many checks each one needs.' },
-      ] },
     ],
   },
   {
@@ -59,11 +52,18 @@ export const terms = [
   {
     id: 'final',
     name: 'Final topics',
-    note: 'After the midterm: sets, maps, and hashing.',
+    note: 'After the midterm: sets, maps, searching, sorting, and hashing.',
     units: [
       { name: 'Sets and maps', icon: 'venn', lessons: [
         { title: 'Sets in Java', href: '/itc120/sets/', status: 'live', kind: ['adt'], blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },
         { title: 'Maps and hashing in Java', href: '/itc120/maps/', status: 'live', kind: ['adt', 'tech'], blurb: 'Key-value pairs with put, get, remove. Compute a hashCode and bucket index by hand, and look inside a HashMap.' },
+      ] },
+      { name: 'Searching algorithms', icon: 'list', lessons: [
+        { title: 'Linear and binary search', href: '/itc120/searching/', status: 'live', kind: ['algo'], blurb: 'Check one by one, or halve the search each time. Both in Java, and how many checks each one needs.' },
+      ] },
+      { name: 'Sorting algorithms', icon: 'list', lessons: [
+        { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: 'live', kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
+        { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: 'live', kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
       ] },
       { name: 'Hashing', icon: 'venn', lessons: [
         { title: 'Hashing and hash tables', href: '/itc120/hashing/', status: 'live', kind: ['tech', 'ds'], blurb: 'Hash functions, collisions, chaining and open addressing, and how fast a hash table really is.' },

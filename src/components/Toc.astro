@@ -130,7 +130,13 @@ const { course, lesson } = Astro.props;
         if (!box.id) box.id = sec.id + '-' + (k + 1);
         box.style.scrollMarginTop = '1rem';
         var sl = document.createElement('li'), sa = document.createElement('a');
-        sa.href = '#' + box.id; sa.textContent = h3.textContent.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+        sa.href = '#' + box.id;
+        var tt = h3.textContent.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+        var nEl = h3.querySelector('.blk-n'), nn = null, mm;
+        if (nEl) { nn = nEl.textContent.trim(); tt = tt.slice(nn.length).trim(); }
+        else if ((mm = tt.match(/^(\d+)[.)]\s+(.+)$/))) { nn = mm[1]; tt = mm[2]; }
+        if (nn) { sa.className = 'has-n'; var nb = document.createElement('span'); nb.className = 'toc-n'; nb.textContent = nn; var nt = document.createElement('span'); nt.textContent = tt; sa.appendChild(nb); sa.appendChild(nt); }
+        else sa.textContent = tt;
         sl.appendChild(sa); ul.appendChild(sl); subs.push({ el: box, a: sa });
       });
       if (subs.length) li.appendChild(ul);

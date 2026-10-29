@@ -173,6 +173,7 @@ const quiz = [
         <pre class="code"><code set:html={hi(method)} /></pre>
         <div class="def"><p class="note-label">Method</p><p>A named block of code that does one task. Its <b>parameters</b> are the inputs it receives; its <b>return value</b> is the output it gives back.</p></div>
         <p>Think of a method as a small machine: <code>larger(3, 8)</code> puts 3 into <code>a</code> and 8 into <code>b</code>, and the machine gives back 8.</p>
+        <p>Notice that <code>if (a &gt; b) return a;</code> has no braces. When an <code>if</code> controls only one line, Java lets you leave the braces out. And <code>return</code> ends the method right away, so <code>return b;</code> runs only when <code>a &gt; b</code> is false. That is why no <code>else</code> is needed.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={methodMachine()} /><figcaption>Inputs go in as parameters; the return value comes out.</figcaption></figure>
         <p>Two more words in the first line. <code>int</code> before the name is the type of the value the method gives back. A method that gives nothing back (it only prints, for example) says <code>void</code> there instead, like <code>static void greet(String name)</code>. And <code>static</code> lets <code>main</code> (block 8) call the method directly. You will learn about methods that are not <code>static</code> in the Linked lists lesson.</p>
         <p>Methods matter in this course because every operation on a data structure is a method, such as <code>push()</code>, <code>pop()</code>, and <code>insert()</code>, and we can test each one on its own.</p>
@@ -205,7 +206,7 @@ const quiz = [
           <pre class="code"><code set:html={hiN(trace)} /></pre>
           <table class="tbl">
             <thead><tr><th>Round</th><th>i</th><th>total</th></tr></thead>
-            <tbody><tr><td>1</td><td>1</td><td>1</td></tr><tr><td>2</td><td>2</td><td>3</td></tr><tr><td>3</td><td>3</td><td>6</td></tr></tbody>
+            <tbody><tr><td>before</td><td>–</td><td>0</td></tr><tr><td>1</td><td>1</td><td>1</td></tr><tr><td>2</td><td>2</td><td>3</td></tr><tr><td>3</td><td>3</td><td>6</td></tr></tbody>
           </table>
         </div>
         <figure class="fig illus-fig illus"><Fragment set:html={traceFilm()} /><figcaption>The value of <code>total</code> after each round. The trace table above lists the same values.</figcaption></figure>

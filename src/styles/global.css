@@ -1120,3 +1120,8 @@ h3 .xtra { font-size: .7em; font-weight: 600; color: #8a5a00; background: #fbecc
 /* Coding-task code folds (chat 34): Base.astro adds .is-folded + a Show all / Show less button */
 #task pre.code.is-folded { max-height: 20rem; overflow-y: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 5rem), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 5rem), transparent); }
 #task .code-more { display: block; margin: 0.5rem auto 0; font-size: 0.95rem; }
+
+/* Toc: numbered subsections get a number badge (QA 1, chat 35) */
+.toc-subs a.has-n { display: flex; align-items: flex-start; gap: 0.5rem; }
+.toc-subs a.has-n .toc-n { flex: none; display: inline-grid; place-items: center; min-width: 1.35rem; height: 1.35rem; padding: 0 0.2rem; border-radius: 999px; background: var(--teal-wash); color: var(--teal-ink); font-family: var(--font-display, 'Fredoka'), sans-serif; font-weight: 600; font-size: 0.75rem; line-height: 1; margin-top: 0.05rem; }
+.toc-subs a.has-n.is-here .toc-n { background: var(--orange); color: #fff; }
