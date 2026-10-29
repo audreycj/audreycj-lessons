@@ -172,6 +172,7 @@ const quiz = [
   { q: 'What does it mean when a sort is <b>stable</b>?', opts: ['It never crashes', 'It always makes the same number of comparisons', 'Equal values keep their original order', 'It sorts in place'], a: 2, why: 'A <b>stable</b> sort never lets equal values pass each other. If Ana came before Ben and both have 85, Ana is still before Ben after sorting by grade.' },
   { q: 'Which of the three basic sorts is <b>not</b> stable?', opts: ['Bubble sort', 'Selection sort', 'Insertion sort', 'None of them'], a: 1, why: 'Selection sort swaps the smallest value with a value that may be far away. That long jump can carry a value past an equal one.' },
   { q: 'About how many comparisons does our bubble sort make on 1,000 values?', opts: ['About 1,000', 'About 10,000', 'About 500,000', 'About 1,000,000,000'], a: 2, why: '999 + 998 + … + 1 = <b>499,500</b>, about n × n / 2. Doubling the number of values makes the work about <b>four times</b> bigger.' },
+  { q: 'Bubble sort on 1,000,000 values. How much <b>extra</b> memory does it need, besides the array?', opts: ['A second array of 1,000,000 values', 'Half of the array', 'Only a few variables (temp, i, j)', 'More memory for every pass'], a: 2, why: 'Bubble sort works <b>in place</b>: it swaps values inside the same array, using only <code>temp</code>, <code>i</code>, and <code>j</code>. That is the same for 5 values or 1,000,000 values. (Selection and insertion sort are the same.)' },
 ];
 // Peeks back to earlier parts/lessons (chat 23)
 const onPeek = `<p>Linear search is <b>O(n)</b> ("order n"): the work grows with the number of values. 10 values need up to 10 checks; 1,000 values need up to 1,000.</p>`;
@@ -190,7 +191,7 @@ const boundsPeek = `${boundsPic()}<p class="small">When <code>j</code> is 4, the
         <li>explain what a sorting algorithm does, and what <b>comparison</b>, <b>swap</b>, and <b>pass</b> mean;</li>
         <li>trace bubble sort, selection sort, and insertion sort by hand, writing the array after every pass;</li>
         <li>read, fix, and complete the three sorts in Java;</li>
-        <li>compare their work (comparisons and swaps) and their <b>stability</b>, and choose one for a situation.</li>
+        <li>compare their work (comparisons and swaps), the extra memory they need, and their <b>stability</b>, and choose one for a situation.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson (index, traversal, shifting), the <a href={base + '/itc120/programming-refresher/'}>Programming refresher</a> (loops, <code>&amp;&amp;</code>, methods), and scratch paper.</p>
@@ -367,7 +368,8 @@ Day 2, period 3</pre>
       <div class="sub">
         <h3>Selection sort in Java</h3>
         <p>The variable <code>minIndex</code> remembers <b>where</b> the smallest value so far is. The swap happens only once per pass, after the inner loop:</p>
-        <CodeWalk id="cw-selection" code={selectionCode} steps={selectionWalk()} cap="Walkthrough: selectionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <pre class="code"><code set:html={hiN(selectionCode)} /></pre>
+        <p>Each pass of the outer loop (line 3) does what one pass did in the steps above. Lines 4 to 9 look through the unsorted part for the smallest value, and lines 10 to 12 are the swap from Part 2, done once at the end of the pass.</p>
         <p>Here is how to read the important lines aloud:</p>
         <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
@@ -377,6 +379,10 @@ Day 2, period 3</pre>
             <tr><td><code>if (arr[j] &lt; arr[minIndex])</code></td><td>"if this value is smaller than the smallest so far..." (then remember its index).</td></tr>
           </tbody>
         </table></div>
+        <details class="reveal"><summary>Step through the code line by line (optional)</summary><div class="flow">
+          <p class="small muted">The same five scores as the steps above, now with the code: each step lights up the line that runs and shows <code>i</code>, <code>j</code>, and <code>minIndex</code>.</p>
+          <CodeWalk id="cw-selection" code={selectionCode} steps={selectionWalk()} cap="Walkthrough: selectionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
+        </div></details>
       </div>
       <div class="trap">
         <p class="note-label">Mistake: comparing with arr[i] instead of the smallest so far</p>
@@ -422,7 +428,8 @@ Day 2, period 3</pre>
       <div class="sub">
         <h3>Insertion sort in Java</h3>
         <p>The shifting uses a <code>while</code> loop with two conditions joined by <Peek label="&&" title="From the Programming refresher" html={andPeek} />:</p>
-        <CodeWalk id="cw-insertion" code={insertionCode} steps={insertionWalk()} cap="Walkthrough: insertionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <pre class="code"><code set:html={hiN(insertionCode)} /></pre>
+        <p>Each pass of the <code>for</code> loop (line 2) does what one pass did in the steps above. Lines 3 and 4 take out the key and point <code>j</code> at the value on its left. The <code>while</code> loop (lines 5 to 8) shifts the bigger values right, and line 9 drops the key into the gap.</p>
         <p>Here is how to read the important lines aloud:</p>
         <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
@@ -433,6 +440,10 @@ Day 2, period 3</pre>
             <tr><td><code>arr[j + 1] = key;</code></td><td>"drop the key into the gap." (<code>j</code> stopped one slot left of the gap.)</td></tr>
           </tbody>
         </table></div>
+        <details class="reveal"><summary>Step through the code line by line (optional)</summary><div class="flow">
+          <p class="small muted">The same five scores as the steps above, now with the code: each step lights up the line that runs and shows <code>key</code> and <code>j</code>.</p>
+          <CodeWalk id="cw-insertion" code={insertionCode} steps={insertionWalk()} cap="Walkthrough: insertionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
+        </div></details>
       </div>
       <div class="trap">
         <p class="note-label">Mistake: the two checks in the wrong order</p>
@@ -496,6 +507,10 @@ Day 2, period 3</pre>
       </table></div>
       <p>Two things stand out. <b>Insertion sort</b> is very fast when the data is already <b>almost sorted</b>, because each key moves only a little. <b>Selection sort</b> always makes the same number of comparisons, but very few swaps, which helps when moving a value is costly (for example, big records).</p>
       <p class="small muted">Good to know: books describe this growth with short names. All three sorts are <b>O(n²)</b> ("order n squared") in the worst case: the work grows with n × n. Insertion sort (and bubble sort with the early stop) is <b>O(n)</b> in the best case, an already sorted array. You met <Peek label="O(n)" title="From the Searching lesson" html={onPeek} /> in the searching lesson.</p>
+      <h3 id="memory">How much memory does each sort need?</h3>
+      <p>Time is one cost. The other is <b>memory</b>: how much extra computer storage a sort needs while it works. Books call this its <b>space</b>.</p>
+      <p>All three sorts here work <b>in place</b> (Part 1): they move the values around inside the same array. Besides the array, they only need a few single variables: <code>temp</code> for the swap, <code>minIndex</code> (selection) or <code>key</code> (insertion), and the loop counters <code>i</code> and <code>j</code>. Five values or a million, it is the same handful of variables, so the extra memory does <b>not</b> grow with n.</p>
+      <p class="small muted">Good to know: books write this as <b>O(1) extra space</b> ("constant space": the same small amount for any n). Merge sort, in the next lesson, is different: it needs a second array as big as the first.</p>
     </div>
   </section>
 
@@ -660,6 +675,7 @@ Day 2, period 3</pre>
           <li>A swap needs a helper variable, <code>temp</code>, or one value is lost.</li>
           <li><b>Bubble sort</b>: neighbors swap; each pass moves the biggest to the end. <b>Selection sort</b>: find the smallest, swap it to the front. <b>Insertion sort</b>: shift bigger values right, insert the key.</li>
           <li>All three need about n × n / 2 comparisons in the worst case. Insertion sort is fast on almost-sorted data; selection sort makes the fewest swaps.</li>
+          <li>All three sort in place: besides the array, they need only a few variables, however big the array is.</li>
           <li>Bubble and insertion sort are <b>stable</b> (ties keep their order); selection sort is not.</li>
           <li>In real programs, use <code>Arrays.sort</code>.</li>
         </ol>

@@ -486,11 +486,12 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
         <p class="small muted">Why does this work? 16 = 2<sup>4</sup>, so dividing by 16 is like chopping off the last 4 bits. The chopped-off bits are the remainder. This only works because the capacity is a power of 2 (16, 32, 64…), which is why HashMap capacities always are.</p>
       </div>
 
-      <div class="factcheck remember">
-        <p class="note-label">Good to know: Java's real HashMap</p>
+      <p>For exams in this course, use this course formula. (Java's real <code>HashMap</code> adds one mixing step first, so the bucket it uses inside can be different. The Extra below explains it, if you are curious.)</p>
+      <details class="reveal"><summary>Extra: why Java's real HashMap can pick another bucket</summary><div class="flow">
+        <p class="xtra-note"><b>Extra topic.</b> Not needed for this course's quizzes or exams.</p>
         <p>The formula above is what this course uses, and what the Java program in Part 7 prints. The real <code>HashMap</code> adds one small step first: it mixes the hash code's front bits into its last 4 bits, so keys that differ only in their front bits still spread out over the buckets. Then it does <code>&amp; (capacity − 1)</code>. So the bucket Java <i>actually</i> uses inside can be different: "CAT" gets bucket 6 with our formula but bucket 7 inside Java's HashMap. For exams in this course, use the course formula.</p>
         <p class="small muted">For the curious: the extra step is <code>h ^ (h &gt;&gt;&gt; 16)</code>. <code>&gt;&gt;&gt; 16</code> slides the bits 16 places to the right, and <code>^</code> (XOR) gives a 1 where the two bits are different.</p>
-      </div>
+      </div></details>
     </div>
   </section>
 
@@ -518,10 +519,13 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
       <figure class="fig illus-fig illus"><Fragment set:html={chainPic()} /><figcaption>Chaining: a bucket can hold more than one entry. <code>get</code> checks only that bucket's chain.</figcaption></figure>
       <div class="sub" id="no-order">
         <h3>Why a HashMap has no order</h3>
-        <p>When you loop over a <code>HashMap</code>'s keys, Java walks its buckets in number order (0, 1, 2, …) and reads each chain. So the keys come out in <b>bucket order</b>, not in the order you added them. That is why the <Peek label="Grades program in Part 2" title="Output from Part 2" html={`<pre class="code"><code>${gradesOut}</code></pre>`} /> printed 2025-0101 before 2025-0012: inside Java's real HashMap, 2025-0101 sits in bucket 1 and 2025-0012 in bucket 2.</p>
+        <p>When you loop over a <code>HashMap</code>'s keys, Java walks its buckets in number order (0, 1, 2, …) and reads each chain. So the keys come out in <b>bucket order</b>, not in the order you added them. That is why the <Peek label="Grades program in Part 2" title="Output from Part 2" html={`<pre class="code"><code>${gradesOut}</code></pre>`} /> printed 2025-0101 before 2025-0012: inside Java's real HashMap (with the mixing step from Part 5), 2025-0101 sits in bucket 1 and 2025-0012 in bucket 2.</p>
         <p>Need the keys in the order you added them? Use <code>LinkedHashMap</code>. Sorted by key? Use <code>TreeMap</code>. Compare the three in <Peek label="the three-maps output from Part 2" title="From Part 2 · HashMap, LinkedHashMap, or TreeMap?" html={threePeek} />.</p>
       </div>
-      <p class="small muted">Good to know: Java's <code>HashMap</code> uses chaining. If one chain gets very long (8 or more entries, in a big enough table), Java turns that chain into a small red-black tree, so even a crowded bucket stays quick to search.</p>
+      <details class="reveal"><summary>Extra: what Java does with a very long chain</summary><div class="flow">
+        <p class="xtra-note"><b>Extra topic.</b> Open this if you are curious.</p>
+        <p>Java's <code>HashMap</code> uses chaining. If one chain gets very long (8 or more entries, in a big enough table), Java turns that chain into a small red-black tree, so even a crowded bucket stays quick to search.</p>
+      </div></details>
     </div>
   </section>
 

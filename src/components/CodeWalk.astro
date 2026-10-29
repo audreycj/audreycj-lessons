@@ -76,6 +76,8 @@ const used = new Set(steps.flatMap((s) => s.lines));
     }));
     fit(); addEventListener('resize', fit); addEventListener('load', fit);
     let at = 0;
+    // Inside a closed reveal the panel has no size at load: measure again when it opens.
+    fig.closest('details')?.addEventListener('toggle', () => { fit(); show(at); });
     function show(i: number) {
       panes.forEach((p, k) => { p.classList.toggle('is-hidden', k !== i); p.setAttribute('aria-hidden', String(k !== i)); });
       lines.forEach((l) => l.classList.toggle('is-on', groups[i].includes(Number(l.dataset.n))));

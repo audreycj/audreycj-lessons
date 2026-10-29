@@ -319,10 +319,10 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
           <p class="note-label">Exam trap: one value vs. a set</p>
           <p><b>Ana ∈ B</b> means "the value Ana is in B" (∈ = "is an element of"). <b>&#123;Ana&#125; ⊆ B</b> means "the set holding only Ana is a subset of B". Use ∈ for one value and ⊆ for a set. Writing "Ana ⊆ B" is wrong.</p>
         </div>
-        <div class="plain">
-          <p class="note-label">Good to know: ⊂ in other books</p>
+        <details class="reveal"><summary>Extra: ⊂ in other books</summary><div class="flow">
+          <p class="xtra-note"><b>Extra topic.</b> Open this if a book you read writes ⊂ differently.</p>
           <p>Some books write ⊂ for <i>any</i> subset (what we write ⊆). If a question uses ⊂, check how that book or teacher defines it. Rosen (reference 3) uses ⊆ and ⊂ the same way as this lesson.</p>
-        </div>
+        </div></details>
       </div>
     </div>
   </section>
@@ -356,10 +356,10 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
           <li><p>A △ B = (A ∪ B) − (A ∩ B) = (A − B) ∪ (B − A). All three give the same answer: the two outer parts, without the middle.</p><Fragment set:html={setTrapPic(4)} /></li>
         </ol>
       </div>
-      <div class="plain">
-        <p class="note-label">Good to know: other symbols in other books</p>
+      <details class="reveal"><summary>Extra: other symbols in other books</summary><div class="flow">
+        <p class="xtra-note"><b>Extra topic.</b> Open this if a book you read uses other symbols.</p>
         <p>Some books write the difference A − B as <b>A \ B</b>, and the symmetric difference A △ B as <b>A ⊕ B</b> (Rosen, reference 3) or <b>A Δ B</b>. They mean the same operations.</p>
-      </div>
+      </div></details>
 
     </div>
   </section>
@@ -428,7 +428,7 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
 
       <div class="sub" id="subsets-java">
         <h3>Subsets in Java <span class="xtra">(extra)</span></h3>
-        <p class="xtra-note"><b>Extra topic,</b> like the <a href="#subsets">subsets review</a> in Part 2.</p>
+        <p class="xtra-note"><b>Extra topic,</b> like the <a href="#subsets">subsets review</a> in Part 1.</p>
         <p>Java has no method named "subset". You check <Peek label="A ⊆ B" title="From Part 2" html={subsetPeek} /> with <code>containsAll</code>. This table shows each subset question in Java:</p>
         <div class="scroll-x"><table class="tbl">
           <thead><tr><th>By hand</th><th>In Java</th><th>Read it as</th></tr></thead>
