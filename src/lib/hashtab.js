@@ -54,6 +54,7 @@ export function htPic(m, o = {}) {
   const rowH = o.fixed ? Math.min(40, Math.floor(330 / m)) : (m <= 7 ? 38 : 30);
   const top = 70, H = o.fixed ? top + 330 + 34 : top + m * rowH + 34;
   const xi = 46, x0 = 54, sw = 62, xr = x0 + sw + 10;
+  const VW = o.vw || 340, big = !!o.vw; // o.vw: narrower picture (short chains) so it shows larger on phones
   let b = '';
   const hd = o.head || [];
   if (hd[0]) b += T(8, 18, hd[0], { size: 14, w: 800, fill: '#b4461a', anchor: 'start' });
@@ -62,19 +63,19 @@ export function htPic(m, o = {}) {
   const yOf = (s) => top + s * rowH;
   for (let s = 0; s < m; s++) {
     const y = yOf(s), [f, st, tc, d] = KIND[(o.kinds || {})[s] || ''];
-    b += T(xi, y + rowH / 2 + 4.5, s, { mono: true, size: 12.5, w: 600, fill: '#37474a', anchor: 'end' });
+    b += T(xi, y + rowH / 2 + 4.5, s, { mono: true, size: big ? 14 : 12.5, w: 600, fill: '#37474a', anchor: 'end' });
     b += `<rect x="${x0}" y="${y}" width="${sw}" height="${rowH}" fill="${f}" stroke="${st}" stroke-width="${f === '#ffffff' && st === '#1b2a2e' ? 1.6 : 2.2}"${d}/>`;
     const v = (o.slots || [])[s];
     if (o.mode === 'chain') {
       const chain = v || [];
-      if (!chain.length) b += T(x0 + sw / 2, y + rowH / 2 + 4, 'null', { mono: true, size: 11, w: 500, fill: '#9aa8aa' });
+      if (!chain.length) b += T(x0 + sw / 2, y + rowH / 2 + 4, 'null', { mono: true, size: big ? 12 : 11, w: 500, fill: '#9aa8aa' });
       else {
         b += `<circle cx="${x0 + sw / 2}" cy="${y + rowH / 2}" r="3.6" fill="${tc}"/>`;
         const nw = 40, gap = 11, nh = rowH - 12, show = chain.length > 4 ? chain.slice(0, 3) : chain;
         b += `<path d="M${x0 + sw / 2 + 4} ${y + rowH / 2} H${xr + 1}" stroke="#1b2a2e" stroke-width="1.8"/><path d="M${xr + 6} ${y + rowH / 2} l-7 -4.5 v9 Z" fill="#1b2a2e"/>`;
         show.forEach((k, j) => {
           const x = xr + 6 + j * (nw + gap), [nf, ns, nt] = KIND[(o.nodeKinds || {})[`${s}:${j}`] || ''];
-          b += `<rect x="${x}" y="${y + 6}" width="${nw}" height="${nh}" rx="5" fill="${nf}" stroke="${ns}" stroke-width="1.8"/>` + T(x + nw / 2, y + rowH / 2 + 4.5, k, { mono: true, size: 12.5, w: 700, fill: nt });
+          b += `<rect x="${x}" y="${y + 6}" width="${nw}" height="${nh}" rx="5" fill="${nf}" stroke="${ns}" stroke-width="1.8"/>` + T(x + nw / 2, y + rowH / 2 + (big ? 5 : 4.5), k, { mono: true, size: big ? 14.5 : 12.5, w: 700, fill: nt });
           if (j < show.length - 1) b += `<path d="M${x + nw} ${y + rowH / 2} h${gap - 5}" stroke="#1b2a2e" stroke-width="1.6"/><path d="M${x + nw + gap} ${y + rowH / 2} l-6 -4 v8 Z" fill="#1b2a2e"/>`;
         });
         if (chain.length > 4) { const x = xr + 6 + 3 * (nw + gap); b += `<path d="M${x - gap} ${y + rowH / 2} h${gap - 5}" stroke="#1b2a2e" stroke-width="1.6"/>` + T(x + 2, y + rowH / 2 + 4.5, `+${chain.length - 3} more`, { size: 11.5, w: 800, fill: '#b23a33', anchor: 'start' }); }
@@ -95,8 +96,8 @@ export function htPic(m, o = {}) {
     const col = t.status === 'free' || t.status === 'found' ? '#2e7d4f' : t.status === 'empty' ? '#b23a33' : '#e8662e', bw = Math.max(17, 8 + is.length * 7);
     b += `<rect x="${list.length > 1 ? 2 : 24 - bw}" y="${y - 8.5}" width="${bw}" height="17" rx="8.5" fill="${col}"/>` + T((list.length > 1 ? 2 : 24 - bw) + bw / 2, y + 4, is, { mono: true, size: 11, w: 700, fill: '#ffffff' });
   }
-  if (o.note) b += T(170, H - 12, o.note, { size: 12.5, w: 800, fill: o.noteFill || '#37474a' });
-  return `<svg class="objbox ht-pic" viewBox="0 0 340 ${H}" role="img" aria-label="${esc(o.alt || 'A hash table')}">${b}</svg>`;
+  if (o.note) b += T(VW / 2, H - 12, o.note, { size: 12.5, w: 800, fill: o.noteFill || '#37474a' });
+  return `<svg class="objbox ht-pic" viewBox="0 0 ${VW} ${H}" role="img" aria-label="${esc(o.alt || 'A hash table')}">${b}</svg>`;
 }
 
 const listTxt = (a) => a.join(' → ');
@@ -186,7 +187,12 @@ export function deleteShow() {
 }
 
 /** Turns a step list into StepShow steps. */
-export const toShow = (m, steps) => steps.map((st) => ({ pic: htPic(m, st.o), say: st.say }));
+/** Step pictures for a StepShow. Chaining runs whose chains stay at 3 or fewer nodes get a narrower picture (290 wide), so it shows larger on phones; same width on every step, so the panel never jumps. */
+export const toShow = (m, steps) => {
+  const chainMax = steps.every((st) => st.o.mode === 'chain') ? Math.max(...steps.map((st) => Math.max(...st.o.slots.map((x) => x.length)))) : 99;
+  const vw = chainMax <= 3 ? 290 : undefined;
+  return steps.map((st) => ({ pic: htPic(m, vw ? { ...st.o, vw } : st.o), say: st.say }));
+};
 
 /* ---------- Java walkthroughs ---------- */
 export const chainInsertCode = String.raw`void insert(int key) {
@@ -206,7 +212,7 @@ export const chainInsertCode = String.raw`void insert(int key) {
 /** CodeWalk: insert(92) into the chaining table that already holds 50, 700, 76, 85. */
 export function chainInsertWalk() {
   const m = M, before = [[700], [50, 85], [], [], [], [], [76]], s = [];
-  const P = (slots, o) => htPic(m, { mode: 'chain', slots, head: ['insert(92)', `i = 92 % ${m} = 1`], ...o });
+  const P = (slots, o) => htPic(m, { mode: 'chain', slots, head: ['insert(92)', `i = 92 % ${m} = 1`], vw: 290, ...o });
   s.push({ lines: [1], pic: P(before, { alt: 'The table holds 700 in bucket 0, 50 then 85 in bucket 1, and 76 in bucket 6.' }), vars: [['key', '= 92']], say: `The table already holds 700, 50, 76 and 85 (bucket 1 has a chain of two). We call ${c('insert(92)')}.` });
   s.push({ lines: [2], pic: P(before, { kinds: { 1: 'home' }, alt: 'Bucket 1 is chosen.' }), vars: [['i', '= 1']], say: `${c('92 % 7')} is 1 (92 = 13 × 7 + 1). So 92 belongs in <b>bucket 1</b>. ${c('%')} is Java's "mod": the remainder.` });
   s.push({ lines: [3], pic: P(before, { kinds: { 1: 'home' }, alt: 'A new node for 92 is made.' }), vars: [['newNode', '→ [92]']], say: `Make a new node holding 92. It is not in the table yet: it is only in the variable ${c('newNode')}.` });
