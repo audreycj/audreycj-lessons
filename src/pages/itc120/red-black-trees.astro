@@ -80,6 +80,8 @@ const decideHtml = `<table class="tbl decide">
               <b>Triangle</b> (LR or RL): first rotate at the parent to make a line, then do the line fix.</td></tr>
           </tbody>
         </table>`;
+const procPeek = '<p class="note-label is-plain">The insertion procedure: follow it for every value you insert</p>' + procHtml;
+const decidePeek = '<p class="note-label is-plain">Which fix to use after inserting a red node</p>' + decideHtml;
 const rotLPeek = `<pre class="code"><code>${hi(code4)}</code></pre>`;
 const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</li>').join('') + '</ol>';
 ---
@@ -360,7 +362,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
       <h2>Red-black insertion in Java</h2>
     </div>
     <div class="flow">
-      <p>The red-black code is longer than AVL's, because each node needs a link back to its <b>parent</b> (to find the grandparent and uncle). Read it alongside <Peek label="the procedure in Part 4" title="From Part 4" html={procHtml} />; you will see each step.</p>
+      <p>The red-black code is longer than AVL's, because each node needs a link back to its <b>parent</b> (to find the grandparent and uncle). Read it alongside <Peek label="the procedure in Part 4" title="From Part 4 · Inserting, step by step" html={procPeek} />; you will see each step.</p>
 
       <div class="sub">
         <h3>1. The node and a color helper</h3>
@@ -374,7 +376,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
       <div class="sub">
         <h3>3. The fix: recolor or rotate</h3>
         <pre class="code"><code set:html={hi(code3)} /></pre>
-        <p>Compare with <Peek label="the decision table in Part 3" title="From Part 3" html={decideHtml} />: <code>while (isRed(x.parent))</code> is "red-red problem", <code>isRed(u)</code> is "uncle red", and the <code>else</code> part is "uncle black: rotate". The last line is rule 2.</p>
+        <p>Compare with <Peek label="the decision table in Part 3" title="From Part 3 · The decision" html={decidePeek} />: <code>while (isRed(x.parent))</code> is "red-red problem", <code>isRed(u)</code> is "uncle red", and the <code>else</code> part is "uncle black: rotate". The last line is rule 2.</p>
       </div>
       <div class="sub">
         <h3>4. Rotation, with parent links</h3>
