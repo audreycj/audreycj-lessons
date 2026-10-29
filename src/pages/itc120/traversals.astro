@@ -5,6 +5,8 @@ import TreeFig from '../../components/TreeFig.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import Peek from '../../components/Peek.astro';
+import TryIt from '../../components/TryIt.astro';
+import { hiN } from '../../lib/code.js';
 import TapOrder from '../../components/TapOrder.astro';
 import { tourFig, folderJobs, folderTree, travJobs, everydayTrees, routesPic, treeKinds } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
@@ -33,6 +35,100 @@ const ruleTable = `<table class="tbl"><thead><tr><th>Order</th><th>Tasks</th></t
 const bstRule = `<p>For <b>every</b> node: everything in its <span class="w-left">left</span> subtree is smaller, and everything in its <span class="w-right">right</span> subtree is larger.</p>`;
 const folderTreePeek = `<div class="illus">${folderTree()}</div><p class="small">Internal storage is the root. DCIM holds Camera and Screenshots.</p>`;
 const folderPeek = `<div class="illus">${folderJobs()}</div>`;
+
+const taskCode = String.raw`import java.util.Stack;
+
+public class Main {
+  // Prints the pre-order of the tree.
+  // It uses a stack instead of recursion.
+  static void preOrder(TreeNode root) {
+    // YOUR CODE:
+    // 1. Make a Stack<TreeNode>.
+    // 2. If root is not null, push root. (An empty tree pushes
+    //    nothing, so the loop below never runs.)
+    // 3. While the stack is not empty:
+    //    a. Pop a node and print its data, then a space.  (N)
+    //    b. If it has a right child, push the right child.
+    //    c. If it has a left child, push the left child.
+    //    (Right goes in first, so left comes out first.)
+
+    System.out.println();
+  }
+
+  // Given: insert from the BST Insertion lesson.
+  static TreeNode insert(TreeNode root, int value) {
+    if (root == null) {
+      return new TreeNode(value);
+    }
+    TreeNode current = root;
+    while (true) {
+      if (value == current.data) {
+        return root;
+      } else if (value < current.data) {
+        if (current.left == null) {
+          current.left = new TreeNode(value);
+          return root;
+        }
+        current = current.left;
+      } else {
+        if (current.right == null) {
+          current.right = new TreeNode(value);
+          return root;
+        }
+        current = current.right;
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+    int[] values = {40, 20, 60, 10, 30, 50, 70};
+    TreeNode root = null;
+    for (int i = 0; i < values.length; i++) {
+      root = insert(root, values[i]);
+    }
+    preOrder(root);   // expected: 40 20 10 30 60 50 70
+
+    root = insert(root, 45);
+    preOrder(root);   // expected: 40 20 10 30 60 50 45 70
+
+    TreeNode chain = null;
+    chain = insert(chain, 10);
+    chain = insert(chain, 20);
+    chain = insert(chain, 30);
+    preOrder(chain);  // expected: 10 20 30
+
+    preOrder(null);   // expected: (an empty line)
+  }
+}
+
+class TreeNode {
+  int data;
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    left = null;
+    right = null;
+  }
+}`;
+const taskAns = String.raw`static void preOrder(TreeNode root) {
+  Stack<TreeNode> stack = new Stack<>();
+  if (root != null) {
+    stack.push(root);
+  }
+  while (!stack.isEmpty()) {
+    TreeNode node = stack.pop();
+    System.out.print(node.data + " ");
+    if (node.right != null) {
+      stack.push(node.right);
+    }
+    if (node.left != null) {
+      stack.push(node.left);
+    }
+  }
+  System.out.println();
+}`;
 
 const quiz = [
   { q: 'Which is the best definition of a tree traversal?', opts: ['Visiting the nodes row by row, from top to bottom', 'Visiting every node exactly once, following a fixed rule', 'Visiting only the leaves of the tree', 'Visiting the nodes from smallest to largest'], a: 1, why: 'A traversal visits <b>every</b> node, <b>exactly once</b>, in an order decided by a <b>fixed rule</b>. Row by row and smallest to largest are only some possible orders.' },
@@ -306,10 +402,10 @@ const walkPeek = `<ul><li><span class="k-pre">Pre-order</span>: write each node 
   <section class="chapter wrap" id="practice">
     <div class="chapter-head">
       <p class="chapter-num">Part 6 · Your turn</p>
-      <h2>Try it on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
-      <p>Write all three orders for each tree, using <Peek label="the three-task rule" title="From Part 2" html={ruleTable} />. Then check with the walk around the tree, and open the answer.</p>
+      <p>Write all three orders for each tree, using <Peek label="the three-task rule" title="From Part 2" html={ruleTable} />. Then check with the walk around the tree, and open the answer. The coding task at the end runs in Java.</p>
       {practice.map((p) => (
         <div class="paper flow">
           <p class="note-label">{p.name}</p>
@@ -329,6 +425,37 @@ const walkPeek = `<ul><li><span class="k-pre">Pre-order</span>: write each node 
         <p>This tree holds letters, placed like a BST in alphabetical order. Pick an order and tap the nodes in that order. If you miss twice, the next node glows. (Bonus: what do you notice about the in-order?)</p>
         <TapOrder id="tap-trav" spec="P(L(J,N(M,)),T(R,))" cap="Tap the traversal" />
         <details class="reveal"><summary>Show the bonus answer</summary><p>The in-order is J, L, M, N, P, R, T: alphabetical, because this tree follows the BST rule for letters.</p></details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: pre-order with a stack</p>
+        <p>The next lesson writes all three orders in Java with recursion. You can already write pre-order with a tool you know: a <a href={base + '/itc120/stacks/#java-stack'}>stack</a>. The stack holds the nodes that are still waiting for their turn.</p>
+        <p>Pre-order does N, then L, then R. When you pop a node, print it right away (N). Then its two children wait on the stack. A stack gives back the <b>last</b> item pushed, so push the right child first. Then the left child comes out first: L before R.</p>
+        <TreeFig spec={startBst} label="The starting BST: 40; 20 and 60; 10, 30, 50, 70" />
+        <p>Finish <code>preOrder</code> in about 13 lines where it says YOUR CODE. <code>Stack&lt;TreeNode&gt;</code> works like <code>Stack&lt;Integer&gt;</code>, but each item is a node. <code>main</code> builds the starting BST with <code>insert</code> from the BST Insertion lesson. Run it: each printed line must match its comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>40 20 10 30 60 50 70</code>, <code>40 20 10 30 60 50 45 70</code>, <code>10 20 30</code>, then an empty line.</p>
+          <p>Here is the starting BST again, one row each time the loop pops a node. The top of the stack is written first:</p>
+          <div class="scroll-x">
+            <table class="tbl">
+              <thead><tr><th>Pop and print</th><th>Push</th><th>Stack after (top first)</th></tr></thead>
+              <tbody>
+                <tr><td>40</td><td>60, then 20</td><td>20, 60</td></tr>
+                <tr><td>20</td><td>30, then 10</td><td>10, 30, 60</td></tr>
+                <tr><td>10</td><td>nothing (a leaf)</td><td>30, 60</td></tr>
+                <tr><td>30</td><td>nothing (a leaf)</td><td>60</td></tr>
+                <tr><td>60</td><td>70, then 50</td><td>50, 70</td></tr>
+                <tr><td>50</td><td>nothing (a leaf)</td><td>70</td></tr>
+                <tr><td>70</td><td>nothing (a leaf)</td><td>empty</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The stack is empty, so the loop stops. The printed order is 40, 20, 10, 30, 60, 50, 70: the same pre-order you get with the walk around the tree. For an empty tree, nothing is pushed, the loop never runs, and the last line prints an empty line.</p>
+          <p>A common mistake is pushing the left child first. Then the right child comes out first, and the program prints <code>40 60 70 50 20 30 10</code>: N, R, L instead of N, L, R. The chain 10, 20, 30 still comes out right, because none of its nodes has two children. That is why the tests use more than one tree.</p>
+          <p>In the next lesson, the recursive <code>preOrder</code> needs no stack of your own. Java keeps one for you: the call stack.</p>
+        </div></details>
       </div>
     </div>
   </section>

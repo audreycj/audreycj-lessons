@@ -1,6 +1,8 @@
 ---
 import { buildBst as buildBstP, svgTree as svgTreeP } from '../../lib/tree.js';
 import Peek from '../../components/Peek.astro';
+import TryIt from '../../components/TryIt.astro';
+import { hiN } from '../../lib/code.js';
 import Base from '../../layouts/Base.astro';
 import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
@@ -52,16 +54,6 @@ const code3 = String.raw`static TreeNode rotateRight(TreeNode z) {
   updateHeight(z);          // z first: it is lower now
   updateHeight(y);
   return y;                 // y is the new top
-}
-
-static TreeNode rotateLeft(TreeNode z) {
-  TreeNode y = z.right;
-  TreeNode moved = y.left;
-  y.left = z;               // z goes down, left
-  z.right = moved;
-  updateHeight(z);
-  updateHeight(y);
-  return y;
 }`;
 const code4 = String.raw`static TreeNode insertRec(TreeNode node, int value) {
   // Step 1: normal BST insert
@@ -110,6 +102,140 @@ const practice = [
   const r = buildAvl(p.values);
   return { ...p, pre: traverse(r, 'pre'), ino: traverse(r, 'in'), post: traverse(r, 'post') };
 });
+
+const taskCode = String.raw`public class Main {
+  // The mirror image of rotateRight: z's right child y moves up,
+  // z goes down to the left. Returns y, the new top.
+  static TreeNode rotateLeft(TreeNode z) {
+    // YOUR CODE (mirror rotateRight: swap every left and right):
+    // 1. y is z's right child. moved is y's left child.
+    // 2. z becomes y's left child.
+    // 3. moved becomes z's right child.
+    // 4. Update the heights: z first (it is lower now), then y.
+    // 5. Return y.
+
+    return z;
+  }
+
+  // Given: everything below is from this lesson.
+  static TreeNode rotateRight(TreeNode z) {
+    TreeNode y = z.left;
+    TreeNode moved = y.right;
+    y.right = z;
+    z.left = moved;
+    updateHeight(z);
+    updateHeight(y);
+    return y;
+  }
+
+  static int height(TreeNode node) {
+    if (node == null) {
+      return -1;
+    }
+    return node.height;
+  }
+
+  static void updateHeight(TreeNode node) {
+    node.height = 1 + Math.max(height(node.left),
+                               height(node.right));
+  }
+
+  static int balance(TreeNode node) {
+    return height(node.left) - height(node.right);
+  }
+
+  static TreeNode insertRec(TreeNode node, int value) {
+    if (node == null) {
+      return new TreeNode(value);
+    }
+    if (value < node.data) {
+      node.left = insertRec(node.left, value);
+    } else if (value > node.data) {
+      node.right = insertRec(node.right, value);
+    } else {
+      return node;
+    }
+    updateHeight(node);
+    int b = balance(node);
+    if (b > 1 && value < node.left.data) {   // LL
+      return rotateRight(node);
+    }
+    if (b < -1 && value > node.right.data) { // RR
+      return rotateLeft(node);
+    }
+    if (b > 1 && value > node.left.data) {   // LR
+      node.left = rotateLeft(node.left);
+      return rotateRight(node);
+    }
+    if (b < -1 && value < node.right.data) { // RL
+      node.right = rotateRight(node.right);
+      return rotateLeft(node);
+    }
+    return node;
+  }
+
+  static void preOrder(TreeNode node) {
+    if (node == null) { return; }
+    System.out.print(node.data + " ");
+    preOrder(node.left);
+    preOrder(node.right);
+  }
+
+  static TreeNode build(int[] values) {
+    TreeNode root = null;
+    for (int i = 0; i < values.length; i++) {
+      root = insertRec(root, values[i]);
+    }
+    return root;
+  }
+
+  public static void main(String[] args) {
+    // RR at 10. Expected: 20 10 30 height 1
+    TreeNode a = build(new int[] {10, 20, 30});
+    preOrder(a);
+    System.out.println("height " + a.height);
+
+    // RL at 10. Expected: 20 10 30 height 1
+    TreeNode b = build(new int[] {10, 30, 20});
+    preOrder(b);
+    System.out.println("height " + b.height);
+
+    // Three RR cases. Expected:
+    // 40 20 10 30 60 50 70 height 2
+    TreeNode c = build(new int[] {10, 20, 30, 40, 50, 60, 70});
+    preOrder(c);
+    System.out.println("height " + c.height);
+
+    // RL at 20, below the root. Expected:
+    // 50 25 20 30 70 height 2
+    TreeNode d = build(new int[] {50, 20, 70, 30, 25});
+    preOrder(d);
+    System.out.println("height " + d.height);
+  }
+}
+
+class TreeNode {
+  int data;
+  int height;
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    height = 0;
+  }
+}`;
+const taskAns = String.raw`static TreeNode rotateLeft(TreeNode z) {
+  TreeNode y = z.right;
+  TreeNode moved = y.left;
+  y.left = z;
+  z.right = moved;
+  updateHeight(z);
+  updateHeight(y);
+  return y;
+}`;
+const rotLMarks = { 20: 'down', 30: 'pivot', 25: 'moved' };
+const rotLPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([20, 10, 30, 25, 40]), { marks: rotLMarks, minW: 260, label: 'Before: 20 at the top, 30 on its right, 25 is 30 left child' })}<p class="small"><b>After left rotation at 20</b></p>${svgTreeP(buildBstP([30, 20, 40, 10, 25]), { marks: rotLMarks, minW: 260, label: 'After: 30 at the top, 20 on its left, 25 is now 20 right child' })}<p class="small">30 moves up, 20 moves down, and 25 changes parent.</p>`;
 
 const quiz = [
   { q: 'The balance factor of a node is computed as:', opts: ['Left subtree nodes − right subtree nodes', 'Right subtree height − left subtree height', 'Left subtree height − right subtree height', 'Number of edges × number of levels'], a: 2, why: 'Balance factor = height(left) − height(right). It uses <b>heights</b>, not node counts, and it is <b>left minus right</b>.' },
@@ -431,9 +557,10 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
       </div>
 
       <div class="sub">
-        <h3>3. The two rotations</h3>
+        <h3>3. The right rotation</h3>
 <pre class="code"><code set:html={hi(code3)} /></pre>
         <p>Compare <code>rotateRight</code> with the <Peek label="right rotation picture in Part 4" title="From Part 4" html={rotPeek} />: <code>z</code> is 40, <code>y</code> is 30, and <code>moved</code> is 35. The method <b>returns the new top</b>, so whoever called it can connect it back to the tree.</p>
+        <p><code>rotateLeft</code> is the mirror image, and <code>insertRec</code> below calls it too. You will write it yourself in <a href="#task">the coding task at the end of this part</a>.</p>
       </div>
 
       <div class="sub">
@@ -446,6 +573,20 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <p class="note-label">Why "on the way back up" works</p>
         <p>Recursion goes <b>down</b> to find the spot, then each call finishes in reverse order, from the new leaf <b>back up</b> to the root. That is exactly step 2 of the procedure: check from the new node upward. The first call to find <code>b</code> equal to 2 or −2 is the lowest unbalanced node, and it fixes itself before returning.</p>
         <p style="margin-top:0.5rem">How does the code name the case? <code>b &gt; 1</code> means the left side is too tall (first letter <b>L</b>). Then <code>value &lt; node.left.data</code> means the new value went left again (second letter <b>L</b>), and so on.</p>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: write rotateLeft</p>
+        <p>A left rotation fixes the RR case, when the right side is too tall. Look at <Peek label="a left rotation" title="A left rotation at 20" html={rotLPeek} />: <code>z</code> is 20, <code>y</code> is 30, and <code>moved</code> is 25. <code>y</code> moves up, <code>z</code> goes down to the left, and <code>moved</code> changes parent. In code, it is <code>rotateRight</code> with every <code>left</code> and <code>right</code> swapped.</p>
+        <p>Write <code>rotateLeft</code> in about 7 lines where it says YOUR CODE. The rest of the program is the code from this part: <code>rotateRight</code>, the three helpers, and <code>insertRec</code>, which calls <code>rotateLeft</code> in the RR, LR, and RL cases. Each test prints a tree's pre-order and its height. Run it: each printed line must match its comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>20 10 30 height 1</code>, <code>20 10 30 height 1</code>, <code>40 20 10 30 60 50 70 height 2</code>, <code>50 25 20 30 70 height 2</code>.</p>
+          <p>Put it beside <code>rotateRight</code>: <code>z.left</code> became <code>z.right</code>, and <code>y.right</code> became <code>y.left</code>. The two <code>updateHeight</code> lines stay the same, in the same order.</p>
+          <p>The tests reach <code>rotateLeft</code> in different ways. 10, 20, 30 is the RR case: one left rotation at 10. 10, 30, 20 is the RL case: a right rotation at 30, then a left rotation at 10. Inserting 10 to 70 in order needs four left rotations, the same as Problem 2, and ends as a perfect tree of height 2. The last test rotates at 20, below the root: the new top, 25, is returned and saved as 50's left child.</p>
+          <p>A common mistake is updating <code>y</code> before <code>z</code>. Then <code>y</code>'s height is counted from <code>z</code>'s <b>old</b> height, from when <code>z</code> was on top, so it comes out too big. The first test prints <code>20 10 30 height 3</code> for a tree of only three nodes. Wrong heights give wrong balance factors, so later rotations go wrong too: 10 to 70 ends as <code>60 40 20 10 30 50 70 height 5</code>. Update <code>z</code> first, because it is lower now and <code>y</code>'s height depends on it.</p>
+        </div></details>
       </div>
     </div>
   </section>

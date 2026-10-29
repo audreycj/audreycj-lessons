@@ -4,6 +4,7 @@ import KindChips from '../../components/KindChips.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import Peek from '../../components/Peek.astro';
+import TryIt from '../../components/TryIt.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TreeFig from '../../components/TreeFig.astro';
 import NameSwap from '../../components/NameSwap.astro';
@@ -63,6 +64,79 @@ class BinarySearchTree {
       System.out.print(root.key + " ");
       inorderRec(root.right);
     }
+  }
+}`;
+
+const taskCode = String.raw`public class Main {
+  // Returns the height of the tree: the number of edges
+  // on the longest path from node down to a leaf.
+  static int height(TreeNode node) {
+    // YOUR CODE:
+    // 1. Base case: if node is null (an empty spot), return -1.
+    //    (Then a leaf gets 1 + (-1) = 0, as in the Trees lesson.)
+    // 2. Recursive case: find the height of the left subtree
+    //    and the height of the right subtree.
+    // 3. Return 1 + the bigger of the two.
+
+    return 0;
+  }
+
+  // Given: insertRec from this lesson.
+  static TreeNode insertRec(TreeNode node, int value) {
+    if (node == null) {
+      return new TreeNode(value);
+    }
+    if (value < node.data) {
+      node.left = insertRec(node.left, value);
+    } else if (value > node.data) {
+      node.right = insertRec(node.right, value);
+    }
+    return node;
+  }
+
+  public static void main(String[] args) {
+    int[] values = {40, 20, 60, 10, 30, 50, 70};
+    TreeNode root = null;
+    for (int i = 0; i < values.length; i++) {
+      root = insertRec(root, values[i]);
+    }
+    System.out.println(height(root));  // expected: 2
+    System.out.println(height(root.left));  // expected: 1
+    System.out.println(height(root.left.left));  // expected: 0 (a leaf)
+
+    root = insertRec(root, 45);
+    System.out.println(height(root));  // expected: 3
+
+    TreeNode chain = null;
+    for (int v = 10; v <= 50; v = v + 10) {
+      chain = insertRec(chain, v);
+    }
+    System.out.println(height(chain));  // expected: 4
+    System.out.println(height(null));  // expected: -1
+  }
+}
+
+class TreeNode {
+  int data;
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    left = null;
+    right = null;
+  }
+}`;
+const taskAns = String.raw`static int height(TreeNode node) {
+  if (node == null) {
+    return -1;
+  }
+  int leftH = height(node.left);
+  int rightH = height(node.right);
+  if (leftH > rightH) {
+    return 1 + leftH;
+  } else {
+    return 1 + rightH;
   }
 }`;
 
@@ -482,7 +556,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
       <h2>Three common mistakes</h2>
     </div>
     <div class="flow">
-      <p>These three mistakes come up often in quizzes and lab work. For each one, read the situation, look at the picture, then read the fix.</p>
+      <p>These three mistakes come up often in quizzes and lab work. For each one, read the situation, look at the picture, then read the fix. After them, find the bugs in a class, then write a recursive method of your own in Java.</p>
       <div class="trap flow">
         <p class="note-label">Mistake 1 · <span class="k-pre">preOrder</span>: removing the null check</p>
         <p><b>The situation:</b> a student thinks line 2 is extra, deletes <code>if (node == null) {'{'} return; {'}'}</code>, and runs <code>preOrder(root)</code> on the small tree:</p>
@@ -532,6 +606,23 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
             <li><b>Line 25:</b> the work must run when the node is <b>not</b> null. Fix: <code>if (root != null)</code></li>
           </ul>
           <p>With the fixes, inserting 50, 30, 70, 20, 40 and printing the in-order gives <span class="mono">20 30 40 50 70</span>.</p>
+        </div></details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: the height of a tree</p>
+        <p>So far, our recursive methods print (<code>preOrder</code>) or give back a node (<code>insertRec</code>). This one gives back a number: the <b>height</b> of the tree. From the Trees lesson, height is the number of edges on the longest path from a node down to a leaf. A leaf has height 0.</p>
+        <p>Think of it the recursive way. The height of a node is 1 more than the height of its taller subtree: one edge down to that child, plus that child's own height. An empty spot (<code>null</code>) is the base case. It gets −1, so a leaf gets 1 + (−1) = 0.</p>
+        <TreeFig values={START} showH label="The starting BST with each height: leaves 10, 30, 50, 70 are 0; 20 and 60 are 1; 40 is 2" />
+        <p>Write <code>height</code> in about 10 lines where it says YOUR CODE. <code>main</code> builds the starting BST with <code>insertRec</code>. Run it: each printed line must match its comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>2</code>, <code>1</code>, <code>0</code>, <code>3</code>, <code>4</code>, <code>-1</code>.</p>
+          <p>For the starting BST, the answers come back from the bottom up. Each leaf (10, 30, 50, 70) gets 1 + (−1) = 0. Then 20 and 60 each get 1 + 0 = 1. Last, 40 gets 1 + 1 = 2. Like <span class="k-post">post-order</span>, a node finishes only after both of its subtrees are done.</p>
+          <p>After 45 is inserted under 50, the longest path is 40, 60, 50, 45: 3 edges, so the height is 3. The chain 10, 20, 30, 40, 50 has 4 edges. <code>Math.max(leftH, rightH)</code> also picks the bigger number, if you know it. The AVL lesson uses it.</p>
+          <p>A common mistake is returning 0 for <code>null</code>. Then every answer is 1 too big: the program prints <code>3 2 1 4 5 0</code> (one per line), and a leaf gets height 1. That counts <b>nodes</b>, not edges. Some books count that way, but in this course a leaf is 0.</p>
+          <p>Keep this method in mind. The AVL lesson needs the height of every node, again and again, so it stores each height inside the node instead of calling <code>height</code> each time.</p>
         </div></details>
       </div>
     </div>
