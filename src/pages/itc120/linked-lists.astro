@@ -5,7 +5,8 @@ import LinkedLab from '../../components/LinkedLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
-import { llDefPic, llHuntPic, llMemPic, llNewPic, llSamePic, llWalkPic, llStuckPic, llNullPic, llFrontPic, llSwapPic, llAfterPic, llSafePic, llBypassPic, llCostPic, llKindPic } from '../../lib/illus.js';
+import { llDefPic, llHuntPic, llBrigadePic, llWeakPic, llNewPic, llDrivePic, llWalkPic, llNullPic, llBarsPic, llSkipPic, llStreetPic, llRoadsPic, llKindsPic, llFrontCode, llFrontSteps, llSwapCode, llSwapSteps, llAfterCode, llAfterSteps, llBypassCode, llBypassSteps, llStuckCode, llStuckSteps } from '../../lib/illus.js';
+import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -161,6 +162,7 @@ const quiz = [
     </div>
     <div class="flow">
       <p>The array's one real weakness: to insert 25 at index 2 of 10, 20, 30, 40, both 30 and 40 had to move. The more values after the gap, the more work. So what if the values did not have to sit side by side at all?</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={llWeakPic()} /><figcaption>The array's weakness: every value after the gap moves.</figcaption></figure>
       <div class="def">
         <p class="note-label">Linked list</p>
         <p>A <b>linked list</b> is a <b>linear data structure</b> (a way to organize data where the items form one line, each item followed by at most one next item) made of a chain of <b>nodes</b>. A <b>node</b> is one small box of data in the chain. Each node stores two things: the value (<code>data</code>), and where to find the next node (<code>next</code>). A variable called <code>head</code> refers to the first node. The last node's <code>next</code> is <code>null</code>: the end. An <b>empty</b> list has <code>head</code> equal to <code>null</code>.</p>
@@ -172,7 +174,7 @@ const quiz = [
         <figure class="fig illus-fig illus"><Fragment set:html={llHuntPic()} /><figcaption>Follow the clues in order. You cannot skip to clue 4.</figcaption></figure>
       </div>
       <p>Here is the same sequence, organized two ways:</p>
-      <figure class="fig illus-fig illus"><Fragment set:html={llMemPic()} /><figcaption>Same values, two layouts in memory.</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={llBrigadePic()} /><figcaption>A seat plan jumps straight to a seat. A text brigade passes the message along.</figcaption></figure>
       <table class="tbl">
         <thead><tr><th>Array</th><th>Linked list</th></tr></thead>
         <tbody>
@@ -210,7 +212,7 @@ const quiz = [
       <div class="sub">
         <h3>Assignment copies the reference, not the node</h3>
         <pre class="code"><code set:html={hi(same)} /></pre>
-        <figure class="fig illus-fig illus"><Fragment set:html={llSamePic()} /><figcaption>Copying a reference vs. making a new node.</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={llDrivePic()} /><figcaption><code>Node b = a;</code> copies the link, not the file.</figcaption></figure>
         <p><code>Node b = a;</code> does <b>not</b> make a new node. It gives the same node a second name. Like two people with the same Google Drive link: if one edits the file, the other sees the change. Compare <code>Node b = new Node(5);</code>, which makes a separate node: changing <code>b.data</code> would not touch <code>a.data</code>.</p>
         <p>The dot in <code>b.data</code> means "the <code>data</code> field of the node that <code>b</code> refers to."</p>
       </div>
@@ -259,8 +261,8 @@ const quiz = [
       <div class="trap">
         <p class="note-label">Forgetting <code>current = current.next;</code></p>
         <p>Without that line, <code>current</code> never moves. It stays on node 10, so <code>current != null</code> is true forever: the loop prints <code>10 -&gt; </code> again and again and never ends.</p>
-        <figure class="fig illus-fig illus"><Fragment set:html={llStuckPic()} /><figcaption>Round by round: with the move line, current reaches null. Without it, current never leaves node 10.</figcaption></figure>
       </div>
+      <CodeWalk id="cw-ll-stuck" code={llStuckCode} steps={llStuckSteps()} cap="Walkthrough: the loop without the move line" hint="Use Next to go step by step, or tap a line to jump to it." />
       <div class="remember">
         <p class="note-label">null, two ways</p>
         <p>In <code>current != null</code>, <code>null</code> is a <b>reference value</b>: "no node." In <code>System.out.println("null")</code>, it is just <b>text</b> in quotation marks that the program prints.</p>
@@ -290,21 +292,19 @@ const quiz = [
       <div class="sub">
         <h3>Insert at the beginning</h3>
         <p>Start with 10 → 20 → 30. Insert 5 before 10:</p>
-        <pre class="code"><code set:html={hiN(front)} /></pre>
-        <figure class="fig illus-fig illus"><Fragment set:html={llFrontPic()} /><figcaption>The right order, one line at a time. Only the arrows change.</figcaption></figure>
+        <CodeWalk id="cw-ll-front" code={llFrontCode} steps={llFrontSteps()} cap="Walkthrough: insert 5 at the beginning" hint="Use Next to go step by step, or tap a line to jump to it." />
         <p>Nothing shifted. Two references changed.</p>
       </div>
       <div class="trap">
         <p class="note-label">Swap the lines, and the list is lost</p>
         <p>If <code>head = newNode;</code> runs first, then <code>newNode.next = head;</code> copies the <b>new</b> head, so node 5 refers to itself. Nothing refers to node 10 anymore, and <code>printList(head)</code> prints 5 forever.</p>
-        <figure class="fig illus-fig illus"><Fragment set:html={llSwapPic()} /><figcaption>The same two lines, swapped. Compare it with the right order above.</figcaption></figure>
       </div>
+      <CodeWalk id="cw-ll-swap" code={llSwapCode} steps={llSwapSteps()} cap="Walkthrough: the same lines, swapped" hint="Use Next to go step by step, or tap a line to jump to it." />
       <div class="sub">
         <h3>Insert after a node you already have</h3>
-        <p>Now the list is 5 → 10 → 20 → 30, and <code>current</code> refers to node 20. Insert 25 after it:</p>
-        <pre class="code"><code set:html={hiN(after)} /></pre>
-        <p><code>current.next</code> is the reference stored in node 20, which refers to node 30. So line 3 makes 25 refer to 30. Then line 4 makes 20 refer to 25. Result: 5 → 10 → 20 → <b>25</b> → 30.</p>
-        <figure class="fig illus-fig illus"><Fragment set:html={llAfterPic()} /><figcaption>25 waits below its spot until both links are set.</figcaption></figure>
+        <p>Start with 10 → 20 → 30, and <code>current</code> refers to node 20. Insert 25 after it:</p>
+        <CodeWalk id="cw-ll-after" code={llAfterCode} steps={llAfterSteps()} cap="Walkthrough: insert 25 after node 20" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <p><code>current.next</code> is the reference stored in node 20, which refers to node 30. So line 3 makes 25 refer to 30. Then line 4 makes 20 refer to 25. Result: 10 → 20 → <b>25</b> → 30.</p>
         <p class="small muted">Here we already had a reference to node 20. To insert after a <b>value</b>, you would first traverse to find that node.</p>
       </div>
       <div class="remember">
@@ -314,7 +314,7 @@ const quiz = [
           <li>Then, change the old reference to point to the new node.</li>
         </ol>
         <p>If B is the only thing pointing to C, and you change B first, nothing points to C anymore. The rest of the list is unreachable. Try "Insert: wrong order!" in the lab to see it happen.</p>
-        <figure class="fig illus-fig illus"><Fragment set:html={llSafePic()} /><figcaption>Connect the new node first, then change the old link.</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={llBarsPic()} /><figcaption>Grab the next bar before you let go.</figcaption></figure>
       </div>
     </div>
   </section>
@@ -327,11 +327,11 @@ const quiz = [
     <div class="flow">
       <div class="sub">
         <h3>Delete the node after another one</h3>
-        <p>The list is 5 → 10 → 20 → 25 → 30. To delete 25, we need a reference to the node <b>before</b> it, because a singly linked list cannot go backward. <code>previous</code> refers to node 20:</p>
-        <pre class="code"><code set:html={hi(bypass)} /></pre>
+        <figure class="fig illus-fig illus"><Fragment set:html={llSkipPic()} /><figcaption>Deleting is like a text brigade skipping someone.</figcaption></figure>
+        <p>Start with 10 → 20 → 25 → 30. To delete 25, we need a reference to the node <b>before</b> it, because a singly linked list cannot go backward. <code>previous</code> refers to node 20:</p>
+        <CodeWalk id="cw-ll-bypass" code={llBypassCode} steps={llBypassSteps()} cap="Walkthrough: delete the node after 20" hint="Use Next to go step by step, or tap a line to jump to it." />
         <p>Read it piece by piece: <code>previous.next</code> is node 25. <code>previous.next.next</code> is node 25's next, which is node 30. Storing that in <code>previous.next</code> makes 20 point to 30. Node 25 is no longer reachable from <code>head</code>, so it is no longer in the list. Nothing else moves.</p>
-        <figure class="fig illus-fig illus"><Fragment set:html={llBypassPic()} /><figcaption>Before, read, run: one link changes, and node 25 drops out of the list.</figcaption></figure>
-        <p class="small muted">Is node 25 gone? It is out of the <b>list</b>, but the node itself still exists: in our program, the variable <code>newNode</code> still refers to it, and its <code>next</code> still refers to 30. Once nothing at all refers to a node, Java's <b>garbage collector</b> (the part of Java that cleans up unused objects) frees its memory later. You do not delete it yourself.</p>
+        <p class="small muted">Is node 25 gone? It is out of the <b>list</b>. Once nothing at all refers to a node, Java's <b>garbage collector</b> (the part of Java that cleans up unused objects) frees its memory later. You do not delete it yourself. (In the whole program below, the variable <code>newNode</code> still refers to node 25, so that node still exists for now.)</p>
         <p class="small muted">This line needs <code>previous != null</code> and <code>previous.next != null</code>. Otherwise it uses a null reference and throws a NullPointerException.</p>
       </div>
       <div class="sub">
@@ -342,7 +342,7 @@ const quiz = [
       </div>
       <div class="sub">
         <h3>The whole program</h3>
-        <p>Here is everything together. Run it and match each output line to its <code>printList</code> call.</p>
+        <p>Here is everything together. The program runs all four operations one after another on <b>one</b> list, so its lists are a little longer than the short examples above. Run it and match each output line to its <code>printList</code> call.</p>
         <details class="reveal"><summary>Show the complete program</summary><div class="flow">
           <pre class="code"><code set:html={hiN(full)} /></pre>
           <TryIt />
@@ -356,7 +356,7 @@ const quiz = [
       <div class="sub">
         <h3>The real cost</h3>
         <p>Changing links is cheap. <b>Finding</b> the node is not:</p>
-        <figure class="fig illus-fig illus"><Fragment set:html={llCostPic()} /><figcaption>Arrays reach fast. Linked lists change fast, once you are there.</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={llStreetPic()} /><figcaption>House numbers vs. directions.</figcaption></figure>
         <table class="tbl">
           <thead><tr><th>Task</th><th>Array</th><th>Linked list</th></tr></thead>
           <tbody>
@@ -376,17 +376,16 @@ const quiz = [
       <h2>Singly, doubly, and circular</h2>
     </div>
     <div class="flow">
+      <figure class="fig illus-fig illus"><Fragment set:html={llRoadsPic()} /><figcaption>Three kinds, three kinds of road.</figcaption></figure>
       <div class="ds-grid">
         <div class="ds-card"><p class="ds-k">Singly linked</p>
-          <Fragment set:html={llKindPic('singly')} />
           <p>Each node knows only what comes <b>next</b>. It moves forward only. To reach the node before B, start over from the head. <b>Like checking attendance</b> from the top of the class list to the bottom.</p></div>
         <div class="ds-card"><p class="ds-k">Doubly linked</p>
-          <Fragment set:html={llKindPic('doubly')} />
           <p>Each node also has a <b>prev</b> link, so it moves both ways. The cost: more memory, and more links to update on every change. <b>Like a photo viewer</b> with Next and Previous buttons.</p></div>
         <div class="ds-card"><p class="ds-k">Circular</p>
-          <Fragment set:html={llKindPic('circular')} />
           <p>The last node points back to the first. There is no <code>null</code> at the end, so a loop must stop when it gets back to where it started. <b>Like a cleaning duty schedule</b> that returns to the first name.</p></div>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={llKindsPic()} /><figcaption>The same three kinds as nodes and arrows.</figcaption></figure>
       <p>Here they are side by side:</p>
       <div class="scroll-x">
         <table class="tbl">
