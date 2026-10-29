@@ -5,6 +5,7 @@ import TreeFig from '../../components/TreeFig.astro';
 import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import Peek from '../../components/Peek.astro';
+import TryIt from '../../components/TryIt.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TapTree from '../../components/TapTree.astro';
 import StepShow from '../../components/StepShow.astro';
@@ -66,6 +67,87 @@ const sortedPeek = figs.sorted;
 const del20Peek = shows.del20[4].pic + `<p class="small">After deleting 20: 30 is in 20's old spot, and the old 30 is gone.</p>`;
 const ruleCard = `<p class="hand" style="font-size:1.25rem">Go right once. Then go left, left, left… until there is no left child.</p><p style="font-size:1rem;margin-top:.4rem">This works when the node has a right child, which is always true for a node with two children.</p>`;
 const leaderPeek = `<div class="illus">${leaderLeaves()}</div>`;
+
+const taskCode = String.raw`public class Main {
+  // Deletes the smallest value in the BST and returns the root.
+  static TreeNode deleteMin(TreeNode node) {
+    // YOUR CODE:
+    // 1. If node is null (an empty tree), return null.
+    // 2. If node has no left child, node holds the smallest
+    //    value. Return node.right (it moves up, or it is null).
+    // 3. Otherwise the smallest value is in the left subtree:
+    //    delete it there, and save the answer in node.left.
+
+    return node;
+  }
+
+  // Given: insertRec and inOrder from the Recursion lesson.
+  static TreeNode insertRec(TreeNode node, int value) {
+    if (node == null) {
+      return new TreeNode(value);
+    }
+    if (value < node.data) {
+      node.left = insertRec(node.left, value);
+    } else if (value > node.data) {
+      node.right = insertRec(node.right, value);
+    }
+    return node;
+  }
+
+  static void inOrder(TreeNode node) {
+    if (node == null) { return; }
+    inOrder(node.left);
+    System.out.print(node.data + " ");
+    inOrder(node.right);
+  }
+
+  public static void main(String[] args) {
+    int[] values = {40, 20, 60, 10, 30, 50, 70, 15};
+    TreeNode root = null;
+    for (int i = 0; i < values.length; i++) {
+      root = insertRec(root, values[i]);
+    }
+    root = deleteMin(root);    // deletes 10 (it has a right child, 15)
+    inOrder(root);             // expected: 15 20 30 40 50 60 70
+    System.out.println();
+    System.out.println(root.left.left.data);   // expected: 15
+
+    root = deleteMin(root);    // deletes 15 (a leaf)
+    inOrder(root);             // expected: 20 30 40 50 60 70
+    System.out.println();
+
+    TreeNode small = null;
+    small = insertRec(small, 50);
+    small = insertRec(small, 70);
+    small = insertRec(small, 60);
+    small = deleteMin(small);  // deletes 50, the root
+    System.out.println(small.data);            // expected: 70
+    System.out.println(deleteMin(null) == null); // expected: true
+  }
+}
+
+class TreeNode {
+  int data;
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    left = null;
+    right = null;
+  }
+}`;
+const taskAns = String.raw`static TreeNode deleteMin(TreeNode node) {
+  if (node == null) {
+    return null;
+  }
+  if (node.left == null) {
+    return node.right;
+  }
+  node.left = deleteMin(node.left);
+
+  return node;
+}`;
 
 const quiz = [
   { q: 'You delete a node with <b>no children</b>. What happens?', opts: ['Its parent is deleted too', 'Just remove it: its parent\'s link becomes null', 'Copy the next value into it', 'Rebuild the tree'], a: 1, why: '<b>Case 1</b>: a leaf has nothing below it. Remove it; the parent\'s link becomes <code>null</code>.' },
@@ -436,7 +518,7 @@ const quiz = [
       <h2>Try it yourself</h2>
     </div>
     <div class="flow">
-      <p>Do these on scratch paper. Problems 1, 2, and 4 start from the starting BST; problem 3 has 65 added.</p>
+      <p>Do these on scratch paper. Problems 1, 2, and 4 start from the starting BST; problem 3 has 65 added. The coding task at the end runs in Java.</p>
       <div class="paper flow">
         <TreeFig values={start} label="Starting BST: 40; 20 and 60; 10, 30, 50, 70" />
         <ol>
@@ -459,6 +541,23 @@ const quiz = [
             <li>30 is a leaf. Its left is <code>null</code>, so <b>line 13</b> returns <code>node.right</code>, which is <code>null</code>. Back in the call for 20, <b>line 9</b> saves it: 20's right becomes <code>null</code>.</li>
             <li>A: <code>right</code> · B: <code>left</code> · C: <code>successor.data</code> · D: <code>successor.data</code></li>
           </ol>
+        </div></details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: delete the smallest value</p>
+        <p>At the registrar's window, the lowest queue number is served first, then it leaves the line. A BST can do the same job: find the smallest value, then delete it. Where is the smallest value? Start at the root and keep going left until a node has no left child.</p>
+        <p>Before you code, think: which of the three cases can that node be? (The answer is in the reveal.)</p>
+        <p>Write <code>deleteMin</code> in about 7 lines where it says YOUR CODE. It is recursive, like <Peek label="insertRec" title="From the Recursion lesson" html={insertRecPeek} /> and <code>deleteRec</code>: each call gives back a node, and the call above saves it. <code>main</code> uses the starting BST with 15 added under 10, shown below. It deletes the smallest value twice, then deletes from a small tree whose root is the smallest. Run it: each printed line must match its comment.</p>
+        <TreeFig values={[40, 20, 60, 10, 30, 50, 70, 15]} label="The tree main builds: the starting BST with 15 under 10" />
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>15 20 30 40 50 60 70</code>, <code>15</code>, <code>20 30 40 50 60 70</code>, <code>70</code>, <code>true</code>.</p>
+          <p><b>Which case?</b> The smallest node has no left child, because a left child would be even smaller. So it is <b>case 1</b> (a leaf) or <b>case 2</b> (one child, on the right). It is never case 3, so <code>deleteMin</code> never needs a next value. One line covers both cases: <code>return node.right;</code>. For a leaf, <code>node.right</code> is <code>null</code> (case 1). Otherwise the right child moves up (<Peek label="case 2" title="Case 2: the child moves up" html={case2Peek} />).</p>
+          <p><b>The tests:</b> first, 10 has a right child, 15. The call for 10 returns 15, and the call for 20 saves it, so 20's left is now 15. Next, 15 is a leaf, so its call returns <code>null</code>, and 20's left becomes empty. In the small tree, 50 has no left child, so the very first call returns 70, and <code>main</code> saves it: 70 is the new root. That is why <code>main</code> writes <code>small = deleteMin(small);</code>.</p>
+          <p>A common mistake is writing <code>deleteMin(node.left);</code> without <code>node.left =</code> in front. The call for 10 returns 15, but no one saves it, so 10 stays in the tree, and the first line prints <code>10 15 20 30 40 50 60 70</code>. The small-tree test still passes, because there the answer comes from the very first call, and <code>main</code> saves it. So one passing test does not prove the code is right.</p>
+          <p>Does this look familiar? "Keep going left until there is no left child" is how <code>deleteRec</code> finds the next value in case 3: right once, then left all the way. The next value is just the smallest value in the right subtree.</p>
         </div></details>
       </div>
     </div>

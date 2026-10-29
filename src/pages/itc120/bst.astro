@@ -6,6 +6,7 @@ import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import Peek from '../../components/Peek.astro';
+import TryIt from '../../components/TryIt.astro';
 import BstCheck from '../../components/BstCheck.astro';
 import { guessing, idLookup, treeNodePic, namesBst, listSearchPic } from '../../lib/illus.js';
 import { buildBst, svgTree } from '../../lib/tree.js';
@@ -54,6 +55,68 @@ const sidesPic = svgTree(buildBst(lessonTree), { marks: { 20: 'lt', 30: 'lt', 40
 const skipPic = svgTree(buildBst(lessonTree), { tags: { 50: '1', 70: '2', 80: '3' }, marks: { 50: 'path', 70: 'path', 80: 'found', 20: 'skip', 30: 'skip', 40: 'skip', 60: 'skip' }, label: 'Finding 80 in the BST: check 50, then 70, then 80. The faded nodes are skipped.' });
 const p25 = searchSteps(build(practiceTree), 25);
 const p70 = searchSteps(build(practiceTree), 70);
+
+const taskCode = String.raw`public class Main {
+  // Returns the values that a search for target visits, in order,
+  // then "found" or "not found". Example: "40 20 30 found".
+  static String searchPath(TreeNode root, int target) {
+    String path = "";
+    TreeNode current = root;
+    // YOUR CODE (a while loop, like search):
+    // 1. While current is not null: add current.data
+    //    and a space to the end of path.
+    // 2. If target equals current.data, return path + "found".
+    // 3. Otherwise move current left or right, as search does.
+
+    return path + "not found";
+  }
+
+  public static void main(String[] args) {
+    // The starting BST, linked by hand: 40; 20 and 60; 10, 30, 50, 70
+    TreeNode root = new TreeNode(40);
+    root.left = new TreeNode(20);
+    root.right = new TreeNode(60);
+    root.left.left = new TreeNode(10);
+    root.left.right = new TreeNode(30);
+    root.right.left = new TreeNode(50);
+    root.right.right = new TreeNode(70);
+
+    System.out.println(searchPath(root, 30));  // expected: 40 20 30 found
+    System.out.println(searchPath(root, 55));  // expected: 40 60 50 not found
+    System.out.println(searchPath(root, 40));  // expected: 40 found
+    System.out.println(searchPath(root, 5));   // expected: 40 20 10 not found
+    System.out.println(searchPath(null, 7));   // expected: not found
+  }
+}
+
+class TreeNode {
+  int data;
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    left = null;
+    right = null;
+  }
+}`;
+const taskAns = String.raw`static String searchPath(TreeNode root, int target) {
+  String path = "";
+  TreeNode current = root;
+  while (current != null) {
+    path = path + current.data + " ";
+    if (target == current.data) {
+      return path + "found";
+    } else if (target < current.data) {
+      current = current.left;
+    } else {
+      current = current.right;
+    }
+  }
+
+  return path + "not found";
+}`;
+const searchPeek = `<pre class="code"><code>${hiN(searchCode)}</code></pre>`;
 
 const quiz = [
   { q: 'What is the BST rule?', opts: ['Each node has at most two children', 'For every node: everything in its left subtree is smaller, everything in its right subtree is larger', 'The root is the smallest value', 'Left child is smaller than right child'], a: 1, why: 'The rule is about whole <b>subtrees</b>, and it must hold at <b>every</b> node, not just between a parent and its children.' },
@@ -232,9 +295,10 @@ const quiz = [
   <section class="chapter wrap" id="practice">
     <div class="chapter-head">
       <p class="chapter-num">Part 4 · Your turn</p>
-      <h2>Try it on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
+      <p>Problems 1 and 2 are on paper. The coding task at the end runs in Java.</p>
       <div class="paper flow">
         <p class="note-label">Problem 1: trace it</p>
         <TreeFig values={practiceTree} label="Practice BST: 40 at the root" />
@@ -257,6 +321,20 @@ const quiz = [
             <li><b>Left and right are swapped</b> (lines 7 and 9): smaller should go to <code>current.left</code>, larger to <code>current.right</code>.</li>
             <li><b>Wrong last line</b> (line 12): it should be <code>return false;</code>. With this bug, the method says every value is in the tree.</li>
           </ol>
+        </div></details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: show the search path</p>
+        <p>When you searched by hand, you wrote down every node you checked. That list is the <b>search path</b>. Now let Java write it. <code>searchPath</code> works like <Peek label="the search method" title="From Part 3: BST search in Java" html={searchPeek} />, but it does not just answer <code>true</code> or <code>false</code>. It gives back the path as text, for example <code>"40 20 30 found"</code>.</p>
+        <TreeFig values={practiceTree} label="The tree main builds: 40; 20 and 60; 10, 30, 50, 70" />
+        <p>Finish <code>searchPath</code> in about 9 lines where it says YOUR CODE. Insertion comes in the next lesson, so <code>main</code> links the seven nodes by hand. Run it: each printed line must match its comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>40 20 30 found</code>, <code>40 60 50 not found</code>, <code>40 found</code>, <code>40 20 10 not found</code>, <code>not found</code>.</p>
+          <p>It is the search loop with one new line at the top: <code>path = path + current.data + " ";</code>. It runs once for every node the loop checks, so the path grows one value at a time, in the same order you write them on paper. It comes <b>before</b> the <code>if</code>, so the node where the value is found is in the path too. <code>path + current.data</code> joins text and a number, as <code>toBinary</code> did in the Stacks lesson.</p>
+          <p>For 55: 55 &gt; 40, go right. 55 &lt; 60, go left. 55 &gt; 50, go right, but 50 has no right child. <code>current</code> becomes <code>null</code>, the loop stops, and the last line adds <code>not found</code>. With an empty tree (<code>null</code>), the loop never runs, so the answer is just <code>not found</code>.</p>
         </div></details>
       </div>
     </div>

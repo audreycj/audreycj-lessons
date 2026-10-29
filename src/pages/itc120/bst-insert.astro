@@ -6,6 +6,7 @@ import BstLab from '../../components/BstLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import Peek from '../../components/Peek.astro';
+import TryIt from '../../components/TryIt.astro';
 import TreeBuilder from '../../components/TreeBuilder.astro';
 import { idInsert, treeNodePic } from '../../lib/illus.js';
 import { insertCode, insertSteps, loopCode, loopSteps, insertFigs, searchCode, treeNodeCode } from '../../lib/walks.js';
@@ -24,6 +25,84 @@ const bugCode = String.raw`} else if (value < current.data) {
   current = current.left;
 }`;
 const prac = [50, 30, 75, 25, 40, 35, 90, 80, 95];
+
+const taskCode = String.raw`public class Main {
+  // Inserts value into the BST and returns the root.
+  // Duplicates are skipped.
+  static TreeNode insert(TreeNode root, int value) {
+    TreeNode newNode = new TreeNode(value);
+    if (root == null) {
+      return newNode;
+    }
+    TreeNode parent = null;
+    TreeNode current = root;
+    // YOUR CODE:
+    // 1. Walk down. While current is not null:
+    //    - if value equals current.data, return root (skip it);
+    //    - set parent = current, then move current
+    //      left or right.
+    // 2. Now current is null, and parent is the last node
+    //    visited. Connect newNode as parent's left child
+    //    if value < parent.data, otherwise as its right child.
+
+    return root;
+  }
+
+  public static void main(String[] args) {
+    int[] values = {40, 20, 60, 10, 30, 50, 70};
+    TreeNode root = null;
+    for (int i = 0; i < values.length; i++) {
+      root = insert(root, values[i]);
+    }
+    System.out.println(root.data);                   // expected: 40
+    System.out.println(root.right.left.data);        // expected: 50
+
+    root = insert(root, 55);
+    System.out.println(root.right.left.right.data);  // expected: 55
+    root = insert(root, 25);
+    System.out.println(root.left.right.left.data);   // expected: 25
+    root = insert(root, 30);                         // a duplicate
+    System.out.println(root.left.right.right == null); // expected: true
+  }
+}
+
+class TreeNode {
+  int data;
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    left = null;
+    right = null;
+  }
+}`;
+const taskAns = String.raw`static TreeNode insert(TreeNode root, int value) {
+  TreeNode newNode = new TreeNode(value);
+  if (root == null) {
+    return newNode;
+  }
+  TreeNode parent = null;
+  TreeNode current = root;
+  while (current != null) {
+    if (value == current.data) {
+      return root;
+    }
+    parent = current;
+    if (value < current.data) {
+      current = current.left;
+    } else {
+      current = current.right;
+    }
+  }
+  if (value < parent.data) {
+    parent.left = newNode;
+  } else {
+    parent.right = newNode;
+  }
+
+  return root;
+}`;
 
 const quiz = [
   { q: 'Where does a new value go in a BST?', opts: ['Always at the root', 'At the empty spot (null) where a search for it falls off the tree', 'Always as the left child of the root', 'At the end, like an array'], a: 1, why: 'Insert = <b>search</b> for the value, then attach it at the null spot. It always becomes a new <b>leaf</b>.' },
@@ -220,9 +299,10 @@ const quiz = [
   <section class="chapter wrap" id="practice">
     <div class="chapter-head">
       <p class="chapter-num">Part 5 · Your turn</p>
-      <h2>Try it on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
+      <p>Problems 1 to 3 are on paper. The coding task at the end runs in Java.</p>
       <div class="paper flow">
         <p class="note-label">Problem 1: trace table</p>
         <p>Using <Peek label="the starting BST" title="The starting BST" html={figs.startTree} /> (40, 20, 60, 10, 30, 50, 70), make a trace table for <code>insert(root, 55)</code>: one row each time the loop checks a node.</p>
@@ -257,6 +337,33 @@ const quiz = [
         <pre class="code"><code set:html={hiN(bugCode)} /></pre>
         <details class="reveal"><summary>Show the answer</summary><div>
           <p>Line 3: <code>current = new TreeNode(value);</code> only moves <code>current</code>; the new node is never connected. It should be <code>current.left = new TreeNode(value);</code></p>
+        </div></details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: insert with a parent pointer</p>
+        <p>Our insert looks <b>before</b> each move: is the spot on that side empty? Many books write insert another way. They walk down until <code>current</code> falls off the tree (becomes <code>null</code>), and they keep a second variable, <code>parent</code>, one step behind it. When <code>current</code> is <code>null</code>, <code>parent</code> is the node that gets the new child.</p>
+        <p>Why a second variable? Remember <Peek label="Mistake 2" title="Mistake 2: moving instead of connecting" html={figs.m2} />: <code>current = new TreeNode(…)</code> only moves the arrow. Once <code>current</code> is <code>null</code>, it cannot connect anything. <code>parent</code> still refers to a real node, so <code>parent.left = newNode;</code> really connects the new node.</p>
+        <p>Finish <code>insert</code> where it says YOUR CODE: about 15 short lines, and many of them are just braces. <code>main</code> builds <Peek label="the starting BST" title="The starting BST" html={figs.startTree} /> with the same <code>for</code> loop as before, then inserts 55, 25, and 30 again. Run it: each printed line must match its comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>40</code>, <code>50</code>, <code>55</code>, <code>25</code>, <code>true</code>.</p>
+          <p>Here is <code>insert(root, 55)</code> again, one row each time the loop checks a node. Compare it with your Problem 1 table:</p>
+          <div class="scroll-x">
+            <table class="tbl">
+              <thead><tr><th><code>current.data</code></th><th>Compare</th><th>Then <code>parent</code></th><th>Then <code>current</code></th></tr></thead>
+              <tbody>
+                <tr><td>40</td><td>55 &gt; 40</td><td>40</td><td>60 (go right)</td></tr>
+                <tr><td>60</td><td>55 &lt; 60</td><td>60</td><td>50 (go left)</td></tr>
+                <tr><td>50</td><td>55 &gt; 50</td><td>50</td><td><code>null</code> (50 has no right child)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The loop stops. 55 &gt; 50, so <code>parent.right = newNode;</code> and 55 becomes the right child of 50, the same spot as in Problem 1.</p>
+          <p>The last test inserts 30, which is already in the tree. The loop reaches 30, finds it equal, and returns <code>root</code>, so nothing is connected. Without that check, 30 is not smaller than 30, so it would go right, and a second 30 would hang under the first. Then <code>root.left.right.right</code> would not be <code>null</code>, and the line would print <code>false</code>.</p>
+          <p>A common mistake is writing <code>current = newNode;</code> after the loop. That is Mistake 2 again. The program prints <code>40</code>, then crashes with a <code>NullPointerException</code>. Only the first value was kept (40, the insert into the empty tree), so <code>root.right</code> is <code>null</code>.</p>
+          <p>Which version is better? Both visit the same nodes and do the same work. Ours connects inside the loop. This one connects in one place, after the loop. Use whichever you find easier to read.</p>
         </div></details>
       </div>
     </div>
