@@ -81,7 +81,7 @@ const decideHtml = `<table class="tbl decide">
           </tbody>
         </table>`;
 const rotLPeek = `<pre class="code"><code>${hi(code4)}</code></pre>`;
-const probPeek = `<ol>${practice.map((p) => `<li>${p.values.join(', ')}</li>`).join('')}</ol>`;
+const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</li>').join('') + '</ol>';
 ---
 <Base title="Red-Black Trees · ITC 120" description="Red-black trees in plain English: the five rules, recoloring, rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
