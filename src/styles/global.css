@@ -1125,3 +1125,7 @@ h3 .xtra { font-size: .7em; font-weight: 600; color: #8a5a00; background: #fbecc
 .toc-subs a.has-n { display: flex; align-items: flex-start; gap: 0.5rem; }
 .toc-subs a.has-n .toc-n { flex: none; display: inline-grid; place-items: center; min-width: 1.35rem; height: 1.35rem; padding: 0 0.2rem; border-radius: 999px; background: var(--teal-wash); color: var(--teal-ink); font-family: var(--font-display, 'Fredoka'), sans-serif; font-weight: 600; font-size: 0.75rem; line-height: 1; margin-top: 0.05rem; }
 .toc-subs a.has-n.is-here .toc-n { background: var(--orange); color: #fff; }
+
+/* QA 3 (chat 37): roomy sticky notes inside .sub blocks get the same space as in .flow */
+.sub > .sticky.roomy { margin-top: 1.9rem; margin-bottom: 1.9rem; }
+.sub > .sticky.roomy + * { margin-top: 1.9rem; }

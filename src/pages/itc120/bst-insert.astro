@@ -346,6 +346,7 @@ const quiz = [
         <p>Finish <code>insert</code> where it says YOUR CODE: about 15 short lines, and many of them are just braces. <code>main</code> builds <Peek label="the starting BST" title="The starting BST" html={figs.startTree} /> with the same <code>for</code> loop as before, then inserts 55, 25, and 30 again. Run it: each printed line must match its comment.</p>
         <pre class="code"><code set:html={hiN(taskCode)} /></pre>
         <TryIt />
+        <p class="small">Before you write the loop, the starter prints 40 and then stops with a <code>NullPointerException</code>: only the first value (40) was kept, so <code>root.right</code> is <code>null</code>. That is expected.</p>
         <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
           <pre class="code"><code set:html={hiN(taskAns)} /></pre>
           <p>Output, one per line: <code>40</code>, <code>50</code>, <code>55</code>, <code>25</code>, <code>true</code>.</p>
@@ -387,7 +388,7 @@ const quiz = [
           <li>Insertion order decides the shape of the tree.</li>
         </ol>
       </div>
-      <p><b>Next lesson:</b> <a href={base + '/itc120/traversals/'}>Tree traversals</a>. (In Lesson 5, you will also see a recursive version of insert.)</p>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/traversals/'}>Tree traversals</a>. (In the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson, you will also see a recursive version of insert.)</p>
       <div class="refs small muted">
         <p class="note-label">References</p>
         <ol>

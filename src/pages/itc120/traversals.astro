@@ -215,14 +215,17 @@ const walkPeek = `<ul><li><span class="k-pre">Pre-order</span>: write each node 
         <p class="hand" style="font-size:var(--step-1)">Pre = before. In = in between. Post = after.</p>
       </div>
       <div class="sub">
-        <h3>Which trees can we traverse?</h3>
-        <p>Before we go on, it helps to know which kinds of trees these three orders work on. The picture checks three kinds:</p>
-        <figure class="fig illus-fig"><Fragment set:html={treeKinds()} /><figcaption>Pre-order and post-order work on <b>any</b> tree. In-order needs exactly one left side and one right side, so it works only on <b>binary</b> trees. A BST is a binary tree, so all three work there too.</figcaption></figure>
-        <p>Why does in-order fail on P? In-order writes the node <b>in between</b> its left and right sides. P has three children, X, Y, and Z, so there is no single "in between" spot: between X and Y, or between Y and Z? Pre-order (P first) and post-order (P last) have no such problem.</p>
+        <h3 id="which-trees">Which trees can we traverse?</h3>
         <div class="remember">
           <p class="note-label">In this lesson</p>
           <p>We use <b>binary trees</b>, so all three orders work. They do not have to be BSTs.</p>
         </div>
+        <details class="reveal"><summary>Extra: what about trees with three or more children?</summary><div class="flow">
+          <p class="xtra-note"><b>Extra topic.</b> Trees with more than two children go beyond this course. Open this if you are curious.</p>
+          <p>The picture checks three kinds of trees:</p>
+          <figure class="fig illus-fig"><Fragment set:html={treeKinds()} /><figcaption>Pre-order and post-order work on <b>any</b> tree. In-order needs exactly one left side and one right side, so it works only on <b>binary</b> trees. A BST is a binary tree, so all three work there too.</figcaption></figure>
+          <p>Why does in-order fail on P? In-order writes the node <b>in between</b> its left and right sides. P has three children, X, Y, and Z, so there is no single "in between" spot: between X and Y, or between Y and Z? Pre-order (P first) and post-order (P last) have no such problem.</p>
+        </div></details>
       </div>
     </div>
   </section>

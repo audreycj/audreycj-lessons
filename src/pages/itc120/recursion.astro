@@ -314,15 +314,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
       <h2><code>preOrder</code> and the call stack</h2>
     </div>
     <div class="flow">
-      <p>Now we use recursion to <b>traverse</b> a tree: visit every node once, in a set order. Programs need this to print, save, copy, or delete every value. From the traversals lesson, there are three orders:</p>
-      <table class="tbl">
-        <thead><tr><th>Order</th><th>Rule</th><th>Useful for</th></tr></thead>
-        <tbody>
-          <tr><td><span class="k-pre">Pre-order</span></td><td class="nowrap"><span class="tk">N</span> <span class="tk">L</span> <span class="tk">R</span></td><td>copying a folder: create the folder first, then copy what is inside</td></tr>
-          <tr><td><span class="k-in">In-order</span></td><td class="nowrap"><span class="tk">L</span> <span class="tk">N</span> <span class="tk">R</span></td><td>sorted lists: a BST's values from smallest to largest, like a class list sorted by student ID</td></tr>
-          <tr><td><span class="k-post">Post-order</span></td><td class="nowrap"><span class="tk">L</span> <span class="tk">R</span> <span class="tk">N</span></td><td>deleting a folder: delete everything inside first, then the folder itself</td></tr>
-        </tbody>
-      </table>
+      <p>Now we use recursion to <b>traverse</b> a tree: visit every node once, in a set order. Programs need this to print, save, copy, or delete every value. From the traversals lesson, there are three orders: <span class="k-pre">pre-order</span> (<span class="tk">N</span> <span class="tk">L</span> <span class="tk">R</span>), <span class="k-in">in-order</span> (<span class="tk">L</span> <span class="tk">N</span> <span class="tk">R</span>), and <span class="k-post">post-order</span> (<span class="tk">L</span> <span class="tk">R</span> <span class="tk">N</span>).</p>
       <p>In Java, each order is a short recursive method. Each node is a <code>TreeNode</code> object, with a number (<code>data</code>) and two references (<code>left</code>, <code>right</code>), or <code>null</code> when a child is missing. Remember <Peek label="the TreeNode class" title="From the Trees lesson" html={nodePeek} />? Here is <span class="k-pre">pre-order</span> as a Java method:</p>
       <pre class="code"><code set:html={hiR(pre, [2], [3, 4, 5])} /></pre>
       <Fragment set:html={rgKey} />
@@ -381,8 +373,9 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
         <p>All the calls have a variable named <code>node</code>, but each has its <b>own</b>. When <code>preOrder(10)</code> finishes, <code>preOrder(20)</code> continues at line 5, and its <code>node</code> still points to 20. <code>return;</code> ends one call only.</p>
       </div>
       <div class="sub">
-        <h3>What happens at a leaf?</h3>
-        <p>A leaf has no children, but its call still runs every line. This table follows the call for 10, line by line:</p>
+        <h3 id="leaf">What happens at a leaf?</h3>
+        <p>A leaf has no children, but its call still runs every line. It prints, then makes two calls on its empty spots, and each of those stops at line 2.</p>
+        <details class="reveal"><summary>Show the call for 10, line by line</summary><div class="flow">
         <table class="tbl">
           <thead><tr><th>Line</th><th>What happens</th></tr></thead>
           <tbody>
@@ -396,6 +389,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
           </tbody>
         </table>
         <p class="small">The green rows are the two new calls. Each one stops at line 2.</p>
+        </div></details>
         <div class="sticky roomy">
           <p class="note-label">Why is null the base case, not the leaf?</p>
           <p>A leaf still needs a print and two more calls. A base case handles a situation <b>without</b> making another recursive call. In this traversal, that situation is an empty subtree (<code>null</code>): there is nothing to print.</p>
@@ -492,14 +486,15 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
       <Fragment set:html={stackKey} />
       <CodeWalk id="cw-insrec" code={insertRecCode} steps={insertRecSteps()} cap="Walkthrough: insertRec(root, 45)" hint="Going down: the calls pile up. Coming back up: each call saves an answer and returns its own node." />
       <div class="sub">
-        <h3>The key step: at 50</h3>
+        <h3 id="key-step">The key step: at 50</h3>
         <p>Only one call changes the tree. The call for 50 was paused at line 7, and the call below it just gave back node 45. The picture shows the tree before and after line 7 finishes:</p>
         <Fragment set:html={figs.key} />
         <div class="sticky roomy">
           <p class="note-label">Why "node.left = …"?</p>
           <p>Most calls just save the same child again. Only at the bottom does a call save the <b>new</b> node. Without <code>node.left =</code>, the new node is never connected (Part 6, Mistake 3).</p>
         </div>
-        <p>The calls for 60 and 40 do the same two steps (save, then return), but they save the child that was already there, so nothing changes. This table sums up the way back up:</p>
+        <p>The calls for 60 and 40 do the same two steps (save, then return), but they save the child that was already there, so nothing changes.</p>
+        <details class="reveal"><summary>Show the way back up in one table</summary><div>
         <table class="tbl">
           <thead><tr><th>Call</th><th>What it does</th><th>Returns</th></tr></thead>
           <tbody>
@@ -509,6 +504,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
             <tr><td><code>insertRec(40, 45)</code></td><td>saves 60 as 40's right again: no change</td><td>40</td></tr>
           </tbody>
         </table>
+        </div></details>
       </div>
       <div class="sub">
         <h3>Empty tree and duplicates</h3>

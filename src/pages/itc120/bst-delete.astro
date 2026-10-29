@@ -325,9 +325,10 @@ const quiz = [
         <StepShow id="show-del20" cap="Delete 20 (case 3)" steps={shows.del20} />
       </div>
       <div class="sub">
-        <h3>Delete the root, 40</h3>
-        <p>The root works the same way. Try predicting each step before you tap Next:</p>
-        <StepShow id="show-del40" cap="Delete 40 (case 3, the root)" steps={shows.del40} />
+        <details class="reveal" id="delete-root"><summary>Another example: delete the root, 40</summary><div class="flow">
+          <p>The root works the same way. Try predicting each step before you tap Next:</p>
+          <StepShow id="show-del40" cap="Delete 40 (case 3, the root)" steps={shows.del40} />
+        </div></details>
       </div>
       <div class="sub">
         <h3>Two notes on case 3</h3>
