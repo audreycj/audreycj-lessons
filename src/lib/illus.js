@@ -3867,3 +3867,31 @@ export function qCircPic() {
   b += sT(170, yb + 130, 'The next enqueue goes in cell (0 + 1) % 5 = 1.', { size: 12.5, w: 700, fill: '#4f5f62' });
   return rPic(340, yb + 146, 'An array of 5 cells, indexes 0 to 4, used as a circular queue. 1 to 5 were enqueued, then two dequeues removed 1 and 2, then 6 was enqueued. front is at cell 2 holding 3; cells 3 and 4 hold 4 and 5; rear wrapped around to cell 0, holding 6, because after cell 4 comes (4 + 1) % 5 = 0. Cell 1 is free. The queue from front to rear is 3, 4, 5, 6, and the next enqueue goes into cell 1.', b);
 }
+
+/** Clean: Mistake 1. With vs without `if (front == null) rear = null;` after the last dequeue, and what a stale rear could break. */
+export function qRearNullPic() {
+  const pan = (y, h, fill, line) => `<rect x="4" y="${y}" width="332" height="${h}" rx="10" fill="${fill}" stroke="${line}" stroke-width="1.5"/>`;
+  const head = (y, t, sub, col) => sT(16, y + 24, t, { size: 15, w: 800, fill: col, anchor: 'start' }) + sT(16, y + 43, sub, { mono: true, size: 12, w: 600, fill: '#4f5f62', anchor: 'start' });
+  const nul = (x, y, t) => sT(x, y, t, { mono: true, size: 13.5, w: 700, fill: '#b23a33', anchor: 'start' });
+  // 1. right
+  let y = 6, b = pan(y, 124, '#f1f8f7', '#9fd0c8') + head(y, '✓ With the if block', 'if (front == null) rear = null;', '#0b544e');
+  b += nul(24, y + 82, 'front = null') + nul(24, y + 104, 'rear  = null');
+  b += sT(240, y + 82, '(no nodes)', { size: 13, w: 700, fill: '#8a9799', it: true }) + sT(240, y + 104, 'Both say: empty.', { size: 13, w: 800, fill: '#0b544e' });
+  // 2. wrong
+  y = 140; let ny = y + 96;
+  b += pan(y, 210, '#fdecea', '#e6a9a3') + head(y, '✗ Without the if block', 'front moved on; rear was never cleared', '#b23a33');
+  b += nul(16, ny + 26, 'front = null');
+  b += rVars(160, ny, [['rear', '#0b544e']]) + rBox(160, ny, '8', { lost: true }) + rNullDown(160, ny, 'r');
+  b += sT(232, ny + 16, 'left the', { size: 12.5, w: 800, fill: '#b23a33', anchor: 'start' }) + sT(232, ny + 33, 'queue', { size: 12.5, w: 800, fill: '#b23a33', anchor: 'start' });
+  b += sT(170, ny + 102, 'front says empty; rear still says 8. They disagree.', { size: 12.5, w: 800, fill: '#b23a33' });
+  // 3. consequence
+  y = 360; ny = y + 100;
+  b += pan(y, 232, '#fff8e6', '#e8c784') + head(y, '✗ What it could break', 'if isEmpty() checked rear == null', '#9a5b07');
+  b += nul(24, ny - 24, 'front = null');
+  b += rBox(40, ny, '8', { lost: true }) + rLink(40, 180, ny, 'o', { w: 3 });
+  b += rVars(180, ny, [['rear', '#0b544e']]) + rBox(180, ny, '5', { fill: '#fbdccc' }) + rNullDown(180, ny);
+  b += sT(68, ny + 66, 'old 8', { size: 12.5, w: 800, fill: '#b23a33' });
+  b += sT(16, ny + 104, 'enqueue(5) links 5 after the old node 8.', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+  b += sT(16, ny + 122, 'front is still null, so 5 can never be dequeued.', { size: 12.5, w: 800, fill: '#9a5b07', anchor: 'start' });
+  return rPic(340, 598, 'Three panels about the last dequeue. One, with the if block: front is null and rear is null; no nodes; both say the queue is empty. Two, without the if block: front is null, but rear still refers to node 8, which has left the queue; front says empty, rear still says 8; they disagree. Three, what it could break, if isEmpty checked rear == null: enqueue(5) would link 5 after the old node 8 and move rear to 5, but front is still null, so 5 can never be dequeued.', b);
+}

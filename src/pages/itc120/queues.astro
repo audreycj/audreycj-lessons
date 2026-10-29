@@ -6,7 +6,7 @@ import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
 import Peek from '../../components/Peek.astro';
-import { canteenLine, queueWalkCode, queueWalkSteps, qDefPic, qEmptyPic, qFifoPic, qEndsPic, qLoopPic, qVsStackPic, qCircPic } from '../../lib/illus.js';
+import { canteenLine, queueWalkCode, queueWalkSteps, qDefPic, qEmptyPic, qFifoPic, qEndsPic, qLoopPic, qVsStackPic, qCircPic, qRearNullPic } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -310,9 +310,10 @@ const quiz = [
     </div>
     <div class="flow">
       <div class="trap">
-        <p class="note-label">Mistake 1: forgetting <code>rear = null</code> (lines 19–21 of the walkthrough code)</p>
-        <p><b>Situation:</b> a student deletes the <code>if (front == null)</code> block from <code>dequeue</code>. Then the walkthrough runs again: enqueue 7, enqueue 8, and <code>dequeue()</code> twice.</p>
-        <p><b>What goes wrong:</b> after the second <code>dequeue</code>, <code>front</code> is <code>null</code>, but <code>rear</code> <b>still refers to node 8</b>, which has left the queue (the red box in step 13 of the walkthrough). This time nothing clears it. The two references disagree about whether the queue is empty. The next <code>enqueue</code> happens to still work, because <code>isEmpty()</code> checks <code>front</code>. But any code that trusts <code>rear</code> goes wrong: a method that shows the last item would show 8, and if <code>isEmpty()</code> were written as <code>rear == null</code>, the next <code>enqueue</code> would attach the new node to the removed node 8, and <code>front</code> would stay <code>null</code>.</p>
+        <p class="note-label">Mistake 1: forgetting <code>rear = null</code></p>
+        <p><b>Situation:</b> a student deletes the <code>if (front == null)</code> block (lines 19–21 of the walkthrough code), then runs the walkthrough again: enqueue 7, enqueue 8, and dequeue twice.</p>
+        <figure class="fig illus-fig"><Fragment set:html={qRearNullPic()} /><figcaption>Middle: the red box from step 13 of the walkthrough, but this time nothing clears <code>rear</code>. Bottom: one thing a leftover <code>rear</code> could break.</figcaption></figure>
+        <p><b>What goes wrong:</b> <code>front</code> says the queue is empty, but <code>rear</code> still refers to node 8, which has left. Our <code>enqueue</code> still works, because <code>isEmpty()</code> checks <code>front</code>. But any code that trusts <code>rear</code> goes wrong, like the bottom panel.</p>
         <p><b>Fix:</b> when the last node leaves, clear both: <code>if (front == null) rear = null;</code>.</p>
       </div>
       <div class="trap">
