@@ -1016,3 +1016,13 @@ svg.objbox.search-pic { max-width: 26rem; }
 svg.objbox.sort-pic { max-width: 26rem; }
 .pass-tbl td, .pass-tbl th { white-space: nowrap; }
 .pass-tbl td.hot { font-weight: 800; color: var(--teal-ink); }
+
+/* Advanced sort lab + pictures (chat 22) */
+.adlab .legend .ad-l-L { background: #d7ece9; border-color: #0e6b63; }
+.adlab .legend .ad-l-R { background: #dde8f7; border-color: #2f6fa8; }
+.adlab .so-pic { aspect-ratio: 340 / 332; width: 100%; max-width: 26rem; margin-left: auto; margin-right: auto; display: flex; align-items: center; }
+.adlab .so-say { min-height: 8.5em; }
+.adlab .so-cmp { min-height: 13em; }
+svg.objbox.adv-pic { max-width: 26rem; }
+svg.objbox.stack-pic { max-width: 24rem; }
+svg.objbox.mtree-pic { max-width: 26rem; }

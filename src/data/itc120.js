@@ -24,7 +24,7 @@ export const terms = [
       ] },
       { name: 'Sorting algorithms', icon: 'list', lessons: [
         { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: 'live', kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
-        { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: 'soon', kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
+        { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: 'live', kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
       ] },
     ],
   },

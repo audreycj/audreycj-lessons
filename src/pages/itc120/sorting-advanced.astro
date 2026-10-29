@@ -1,0 +1,638 @@
+---
+import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import StepShow from '../../components/StepShow.astro';
+import AdvSortLab from '../../components/AdvSortLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import TryIt from '../../components/TryIt.astro';
+import Peek from '../../components/Peek.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN, hiR } from '../../lib/code.js';
+import { pileTeam, pivotTables, sportsFest } from '../../lib/illus.js';
+import { stairsPic } from '../../lib/sort.js';
+import { SCORES, halvesCode, halvesSteps, noBasePic, mergeOneSteps, mergeTreeSteps, mergeTreePic, mergeSortCode, mergeSortWalk, mergeCode, mergeWalk, leftoverBadPic, quickSteps, quickPic, quickSortCode, partitionCode, partitionWalk, quickTreePic, quickWorstPic, heapSteps, heapPic, heapSortCode, siftDownCode, siftWalk, heapIndexPic, heapOrNotPic, levelsPic, countAll, seeded } from '../../lib/advsort.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const defBox = (t, b) => `<div class="def"><p class="note-label">${t}</p><p>${b}</p></div>`;
+const stairsPeek = `<div class="flow">${stairsPic()}<p class="small">Bubble sort and selection sort on 5 values: 4 + 3 + 2 + 1 = 10 comparisons. n values need about n × n / 2.</p></div>`;
+const stableDef = defBox('Stable sort (from Basic sorting)', 'A sort is <b>stable</b> when values that are equal (by what we sort on) keep the order they had before sorting. Example: the list is A to Z, and Ana and Ben both have 85. After sorting by grade, a stable sort keeps Ana before Ben.');
+const voidDef = defBox('void and static (from the Programming refresher)', 'A <code>void</code> method does a job but gives nothing back. <code>static</code> means <code>main</code> can call it directly, without making an object first.');
+const treeDef = `<div class="flow">${heapIndexPic()}</div>`;
+
+// the picture steps (StepShows)
+const pic = (fn) => (st) => ({ pic: fn(st), say: st.say });
+const quickHand = quickSteps(SCORES).map(pic(quickPic));
+const heapHand = heapSteps(SCORES).map(pic(heapPic));
+
+// work tables (computed here, the same counts as the Java code)
+const c5 = { scores: countAll(SCORES), sorted: countAll([10, 13, 14, 29, 37]), reversed: countAll([37, 29, 14, 13, 10]) };
+const fmt = (n) => n.toLocaleString('en-US');
+const race = [10, 100, 1000, 10000].map((n) => ({ n, ...countAll(seeded(n)) }));
+const sorted1000 = countAll(Array.from({ length: 1000 }, (_, i) => i + 1));
+
+// practice
+const P = [8, 3, 5, 1, 9, 2];
+const practiceTree = mergeTreePic(P, 99, { title: 'Merge sort on 8, 3, 5, 1, 9, 2', alt: 'Merge sort on 8, 3, 5, 1, 9, 2. Split: 8, 3, 5 and 1, 9, 2. Split: 8, 3 and 5; 1, 9 and 2. Split: 8 and 3; 1 and 9. Merge: 3, 8 and 1, 9. Merge: 3, 5, 8 and 1, 2, 9. Merge: 1, 2, 3, 5, 8, 9.' });
+const pQuick = quickSteps(P).find((s) => s.chip === 'partition 0..5' && s.swap && s.swap[1] === 5);
+const pQuickPic = quickPic({ ...pQuick, chip: null, note: 'after the first partition', alt: 'After the first partition with pivot 2: 1, 2, 5, 8, 9, 3. The pivot 2 is at index 1.' });
+const pHeap = heapSteps(P).find((s) => s.chip === 'max-heap ready');
+const pHeapPic = heapPic({ ...pHeap, chip: null, kinds: {}, alt: 'The max-heap: 9, 8, 5, 1, 3, 2.' });
+
+const intDiv = String.raw`System.out.println(5 / 2);    // 2  (int / int drops the .5)
+System.out.println(1 / 2);    // 0`;
+const noBase = String.raw`static void printHalves(int n) {
+  System.out.print(n + " ");
+  printHalves(n / 2);          // no base case: it never stops
+}`;
+const badLeftover = String.raw`while (i <= mid && j <= high) {
+  ...                          // the main loop, as before
+}
+for (k = 0; k < temp.length; k++) {   // the two leftover loops are missing
+  arr[low + k] = temp[k];
+}`;
+const badQuick = String.raw`quickSort(arr, low, p);          // should be p - 1
+quickSort(arr, p + 1, high);`;
+const badHeap = String.raw`int child = 2 * i;               // the left child is 2 * i + 1`;
+const full = String.raw`import java.util.Arrays;
+
+public class Main {
+  static void mergeSort(int[] arr, int low, int high) {
+    if (low >= high) {
+      return;
+    }
+    int mid = (low + high) / 2;
+    mergeSort(arr, low, mid);
+    mergeSort(arr, mid + 1, high);
+    merge(arr, low, mid, high);
+  }
+
+  static void merge(int[] arr, int low, int mid, int high) {
+    int[] temp = new int[high - low + 1];
+    int i = low;
+    int j = mid + 1;
+    int k = 0;
+    while (i <= mid && j <= high) {
+      if (arr[i] <= arr[j]) {
+        temp[k] = arr[i];
+        i++;
+      } else {
+        temp[k] = arr[j];
+        j++;
+      }
+      k++;
+    }
+    while (i <= mid) {
+      temp[k] = arr[i];
+      i++;
+      k++;
+    }
+    while (j <= high) {
+      temp[k] = arr[j];
+      j++;
+      k++;
+    }
+    for (k = 0; k < temp.length; k++) {
+      arr[low + k] = temp[k];
+    }
+  }
+
+  static void quickSort(int[] arr, int low, int high) {
+    if (low >= high) {
+      return;
+    }
+    int p = partition(arr, low, high);
+    quickSort(arr, low, p - 1);
+    quickSort(arr, p + 1, high);
+  }
+
+  static int partition(int[] arr, int low, int high) {
+    int pivot = arr[high];
+    int i = low;
+    for (int j = low; j < high; j++) {
+      if (arr[j] < pivot) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+        i++;
+      }
+    }
+    int temp = arr[i];
+    arr[i] = arr[high];
+    arr[high] = temp;
+    return i;
+  }
+
+  static void heapSort(int[] arr) {
+    int n = arr.length;
+    for (int i = n / 2 - 1; i >= 0; i--) {
+      siftDown(arr, i, n);
+    }
+    for (int end = n - 1; end > 0; end--) {
+      int temp = arr[0];
+      arr[0] = arr[end];
+      arr[end] = temp;
+      siftDown(arr, 0, end);
+    }
+  }
+
+  static void siftDown(int[] arr, int i, int size) {
+    while (2 * i + 1 < size) {
+      int child = 2 * i + 1;
+      if (child + 1 < size && arr[child + 1] > arr[child]) {
+        child++;
+      }
+      if (arr[i] >= arr[child]) {
+        return;
+      }
+      int temp = arr[i];
+      arr[i] = arr[child];
+      arr[child] = temp;
+      i = child;
+    }
+  }
+
+  public static void main(String[] args) {
+    int[] a = {29, 10, 14, 37, 13};
+    mergeSort(a, 0, a.length - 1);
+    System.out.println(Arrays.toString(a));   // [10, 13, 14, 29, 37]
+
+    int[] b = {29, 10, 14, 37, 13};
+    quickSort(b, 0, b.length - 1);
+    System.out.println(Arrays.toString(b));   // [10, 13, 14, 29, 37]
+
+    int[] c = {29, 10, 14, 37, 13};
+    heapSort(c);
+    System.out.println(Arrays.toString(c));   // [10, 13, 14, 29, 37]
+  }
+}`;
+const starter = String.raw`import java.util.Arrays;
+
+public class Main {
+  static void merge(int[] arr, int low, int mid, int high) {
+    int[] temp = new int[high - low + 1];
+    int i = low;
+    int j = mid + 1;
+    int k = 0;
+    while (i <= mid && j <= high) {
+      if (arr[i] <= arr[j]) {
+        temp[k] = arr[i];
+        i++;
+      } else {
+        temp[k] = arr[j];
+        j++;
+      }
+      k++;
+    }
+    // YOUR CODE: copy the leftovers of the left half into temp.
+
+    // YOUR CODE: copy the leftovers of the right half into temp.
+
+    for (k = 0; k < temp.length; k++) {
+      arr[low + k] = temp[k];
+    }
+  }
+
+  public static void main(String[] args) {
+    int[] a = {10, 14, 29, 13, 37};
+    merge(a, 0, 2, 4);
+    System.out.println(Arrays.toString(a));  // expected: [10, 13, 14, 29, 37]
+    int[] b = {40, 50, 60, 1, 2};
+    merge(b, 0, 2, 4);
+    System.out.println(Arrays.toString(b));  // expected: [1, 2, 40, 50, 60]
+    int[] c = {7, 30};
+    merge(c, 0, 0, 1);
+    System.out.println(Arrays.toString(c));  // expected: [7, 30]
+  }
+}`;
+const answer = String.raw`while (i <= mid) {        // leftovers from the left half
+  temp[k] = arr[i];
+  i++;
+  k++;
+}
+while (j <= high) {       // leftovers from the right half
+  temp[k] = arr[j];
+  j++;
+  k++;
+}`;
+const sortedCalls = String.raw`int[] scores = {29, 10, 14, 37, 13};
+Arrays.sort(scores);                          // ints: a fast quick sort (dual-pivot)
+String[] names = {"Mia", "Ana", "Joy", "Ben"};
+Arrays.sort(names);                           // objects: a stable merge sort`;
+
+const quiz = [
+  { q: 'What does every recursive method need so that it stops?', opts: ['A loop', 'A base case', 'A temp variable', 'Two parameters'], a: 1, why: 'The <b>base case</b> is the situation where the method returns without calling itself again. Without it, the calls never stop and Java throws a <code>StackOverflowError</code>.' },
+  { q: 'Merge sort merges <code>3, 8</code> with <code>1, 9</code>. What is the result, and how many comparisons does the merge make?', opts: ['1, 3, 8, 9 with 3 comparisons', '1, 3, 8, 9 with 4 comparisons', '3, 8, 1, 9 with 2 comparisons', '1, 3, 9, 8 with 3 comparisons'], a: 0, why: '3 vs 1: take 1. 3 vs 9: take 3. 8 vs 9: take 8. The left half is used up, so 9 is a leftover: copied with no comparison. 3 comparisons.' },
+  { q: 'Quick sort (pivot = last value) partitions <code>&#123;7, 2, 9, 4&#125;</code>. Where does the pivot 4 end up?', opts: ['Index 0', 'Index 1', 'Index 2', 'Index 3'], a: 1, why: 'Only 2 is smaller than 4, so 2 goes to index 0 and the pivot 4 is swapped into index 1. The result is 2, 4, 9, 7: 9 and 7 are on the right, not sorted yet.' },
+  { q: 'In a max-heap stored in an array, where are the children of index 2?', opts: ['Index 3 and 4', 'Index 4 and 5', 'Index 5 and 6', 'Index 1 and 3'], a: 2, why: 'Children of index i are at 2i + 1 and 2i + 2: 2 × 2 + 1 = 5 and 2 × 2 + 2 = 6.' },
+  { q: 'Which sort needs an extra array as big as the data?', opts: ['Merge sort', 'Quick sort', 'Heap sort', 'None of them'], a: 0, why: 'Merge sort merges into <code>temp</code>, a helper array. Quick sort and heap sort move values around inside the same array (in place).' },
+  { q: 'When is our quick sort (pivot = last value) at its slowest?', opts: ['When the values are random', 'When the array is already sorted', 'When the array has 2 values', 'Never: it is always fast'], a: 1, why: 'On sorted data, the last value is always the biggest, so one side of every partition is empty. That gives about n × n / 2 comparisons, like bubble sort. A middle or random pivot avoids this.' },
+  { q: 'Which of the three advanced sorts is stable?', opts: ['Merge sort', 'Quick sort', 'Heap sort', 'All of them'], a: 0, why: 'Merge sort takes from the LEFT half on a tie (<code>&lt;=</code>), so equal values keep their order. Quick sort and heap sort swap values over long distances, which can carry a value past an equal one.' },
+  { q: 'About how many comparisons does merge sort need for 1,000,000 values?', opts: ['About 1,000,000', 'About 20,000,000', 'About 500,000,000,000', 'About 1,000,000,000,000'], a: 1, why: '1,000,000 values halve about 20 times (2 to the 20th is about a million), and each level touches every value: about 1,000,000 × 20. Bubble sort needs about 500 billion.' },
+];
+---
+<Base title="Advanced Sorting · ITC 120" description="Merge sort, quick sort, and heap sort: the recursion they need, how to trace each one by hand, the Java code, how much work they save, and when to use which." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Sorting</p>
+    <p class="kicker">Sorting algorithms · Lesson 2 of 2</p>
+    <h1>Advanced Sorting: Merge, Quick, and Heap Sort</h1>
+    <KindChips />
+    <p class="lede">Three faster ways to sort big data, the one new tool they need (recursion), and how to choose among them.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>explain <b>divide and conquer</b> and <b>recursion</b> (base case, recursive case, call stack), and trace a short recursive method;</li>
+        <li>trace merge sort, quick sort, and heap sort by hand on a small array;</li>
+        <li>read the three sorts in Java, find common bugs, and complete the merge step;</li>
+        <li>compare all six sorts by work (about n × n / 2 versus about n × log n comparisons), extra memory, and stability, and choose one for a situation.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/sorting-basic/'}>Basic sorting</a> lesson (swap, pass, comparisons, stability), the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson, the <a href={base + '/itc120/programming-refresher/'}>Programming refresher</a> (methods, loops, <code>&amp;&amp;</code>), and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>Why we need faster sorts</h2>
+    </div>
+    <div class="flow">
+      <p>Bubble, selection, and insertion sort are easy, but slow on big data: their work grows like a <Peek label="staircase" title="From Basic sorting" html={stairsPeek} />, about n × n / 2 comparisons. For the 1,000,000 transactions an e-wallet like GCash handles in a short time, that is about 500 billion comparisons. The sorts in this lesson need about 20 million.</p>
+      <p>How? Think of a teacher with a big pile of quiz papers and some helpful students:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={pileTeam()} /><figcaption>Nobody sorts the whole pile alone. Each person splits the job, and small piles are easy.</figcaption></figure>
+      <div class="def"><p class="note-label">Divide and conquer</p><p><b>Divide and conquer</b> is a way to solve a problem in three steps: <b>divide</b> it into smaller problems of the same kind, <b>solve</b> each smaller one (the same way), and <b>combine</b> their answers into the answer for the whole.</p></div>
+      <p>Merge sort and quick sort are divide-and-conquer sorts. Heap sort uses a different trick: it keeps the values in a special shape, a <b>heap</b>, where the biggest is always easy to find. Here they are at a glance:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Sort</th><th>Big idea</th><th>Real-life picture</th></tr></thead>
+        <tbody>
+          <tr><td><b>Merge sort</b></td><td>split in half until each part has one value, then merge sorted parts</td><td>the team of helpers above</td></tr>
+          <tr><td><b>Quick sort</b></td><td>pick a pivot; smaller values go left, the rest go right; repeat on each side</td><td>two tables: "below 20" and "20 or more"</td></tr>
+          <tr><td><b>Heap sort</b></td><td>build a heap (biggest on top), then take the biggest out again and again</td><td>a sports fest bracket: the champion is on top</td></tr>
+        </tbody>
+      </table></div>
+      <div class="remember">
+        <p class="note-label">Where you see fast sorting in IT</p>
+        <ul>
+          <li><b>Java's own <code>Arrays.sort</code></b> is a quick sort for numbers and a merge sort for objects (Part 8).</li>
+          <li><b>Databases</b> sort millions of records for "ORDER BY" and use merge sort when the data does not fit in memory.</li>
+          <li><b>Online shops and social apps</b> rank thousands of items by price or by time in a fraction of a second.</li>
+          <li><b>Priority lists</b>, like a hospital queue where the most urgent patient goes first, use a <b>heap</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="recursion">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · A tool first</p>
+      <h2>Recursion: a method that calls itself</h2>
+    </div>
+    <div class="flow">
+      <p>Look at the helpers again. Every helper follows the <b>same rule</b>, only on a smaller pile. In code, that means a method that calls <b>itself</b> with a smaller job. Merge sort and quick sort are written this way, so learn this tool first.</p>
+      <div class="def"><p class="note-label">Recursion</p><p><b>Recursion</b> is when a method calls itself to solve a smaller version of the same problem. Each <b>call</b> (one run of the method) gets its own copy of the parameters.</p></div>
+      <p>Every recursive method has two parts:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Part</th><th>Meaning</th><th>With the papers</th></tr></thead>
+        <tbody>
+          <tr><td><b class="c-base">base case</b></td><td>a job so small that the method answers it at once, <b>without</b> calling itself; this is what makes it stop</td><td>"Only 1 paper? It is sorted. Give it back."</td></tr>
+          <tr><td><b class="c-rec">recursive case</b></td><td>the method calls itself on a <b>smaller</b> job</td><td>"Split it; a helper takes each half."</td></tr>
+        </tbody>
+      </table></div>
+      <p>Here is a tiny recursive method. It prints a number, then calls itself with half of that number, until the number is 0. Green is the base case and blue is the recursive case:</p>
+      <p class="rg-key small"><span class="c-base">■ base case</span> <span class="c-rec">■ recursive case</span></p>
+      <pre class="code"><code set:html={hiR(halvesCode, [2, 3, 4], [6])} /></pre>
+      <p>One small Java fact first: dividing two <code>int</code>s drops the decimal part.</p>
+      <pre class="code"><code set:html={hi(intDiv)} /></pre>
+      <p>To keep track of the calls, Java uses the <b>call stack</b>:</p>
+      <div class="def"><p class="note-label">Call stack</p><p>The <b>call stack</b> is Java's list of method calls that have started but not finished. A new call goes on <b>top</b>; the call under it <b>waits</b>. When the top call finishes, it leaves, and Java goes back to the call below it, right where it left off. (It works like the stack of plates in the <a href={base + '/itc120/stacks/'}>Stacks</a> lesson.)</p></div>
+      <CodeWalk id="cw-halves" layout="stack" code={halvesCode} steps={halvesSteps()} cap="Walkthrough: printHalves(20)" hint="Use Next to watch the calls pile up on the stack, then leave it." />
+      <div class="trap">
+        <p class="note-label">Mistake: no base case</p>
+        <p><b>Situation:</b> a student leaves out the <code>if</code>:</p>
+        <pre class="code"><code set:html={hi(noBase)} /></pre>
+        <figure class="fig illus-fig"><Fragment set:html={noBasePic()} /><figcaption>0 / 2 is 0, so <code>printHalves(0)</code> calls <code>printHalves(0)</code> forever.</figcaption></figure>
+        <p><b>What goes wrong:</b> every call makes another call, and none of them finishes. The call stack fills up memory, and Java stops the program with a <code>StackOverflowError</code>.</p>
+        <p><b>Fix:</b> always write the base case first, and make sure each recursive call has a <b>smaller</b> job that reaches it.</p>
+      </div>
+      <p class="small muted">Good to know: the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson (midterm) goes deeper, with recursion on trees. For this lesson, you only need to follow calls on the stack.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="merge">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Sort 1</p>
+      <h2>Merge sort: split, then merge</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Merge sort</p><p><b>Merge sort</b> splits the array into two halves, sorts each half with merge sort (recursion), and then <b>merges</b> the two sorted halves into one sorted array. A part with one value is the base case: it is already sorted.</p></div>
+      <div class="sub" id="merge-step">
+        <h3>The key step: merging two sorted piles</h3>
+        <p>Two helpers hand back two sorted piles, face up: 10, 14, 29 and 13, 37. To make one sorted pile, you only ever look at the <b>top</b> paper of each pile: take the smaller one, and repeat. When one pile is empty, put the rest of the other pile at the end. Those are the <b>leftovers</b>, and they need no more comparisons.</p>
+        <StepShow id="show-merge-one" cap="Merging 10, 14, 29 with 13, 37, by hand" steps={mergeOneSteps()} />
+        <p>Merging two piles with a total of n values takes at most n - 1 comparisons. That is the cheap part.</p>
+      </div>
+      <div class="sub" id="merge-hand">
+        <h3>The whole sort by hand</h3>
+        <p>On paper, write the <b>split</b> rows going down until every part has one value, then the <b>merge</b> rows going back up. When a part has an odd number of values, the left half gets the extra one (like <code>mid</code> in binary search: <code>(low + high) / 2</code>, rounded down).</p>
+        <StepShow id="show-merge-tree" cap="Merge sort on 29, 10, 14, 37, 13, by hand" steps={mergeTreeSteps()} />
+      </div>
+      <div class="sub" id="merge-java">
+        <h3>Merge sort in Java</h3>
+        <p>The code has two methods. <code>mergeSort</code> does the splitting with recursion; <code>merge</code> does the merging. Both work on a <b>part</b> of the array, from index <code>low</code> to index <code>high</code>, so the first call is <code>mergeSort(arr, 0, arr.length - 1)</code>. Both are <Peek label="static void" title="From the Programming refresher" html={voidDef} />.</p>
+        <CodeWalk id="cw-mergesort" code={mergeSortCode} steps={mergeSortWalk()} cap="Walkthrough: mergeSort on 29, 10, 14" hint="Use Next to follow the calls. The array is short so you can see every call." />
+        <p>Now the <code>merge</code> method, on the last merge of the five scores. It is long, but it is just the "two piles" steps from above, in code:</p>
+        <CodeWalk id="cw-merge" code={mergeCode} steps={mergeWalk()} cap="Walkthrough: merge(arr, 0, 2, 4) on 10, 14, 29 | 13, 37" hint="Use Next to go step by step, or tap a line." />
+        <p>Some lines are new. Here is how to read them aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int[] temp = new int[high - low + 1];</code></td><td>"Make a new, empty <code>int</code> array called temp, with one slot for each value from low to high." A new <code>int</code> array starts full of 0s.</td></tr>
+            <tr><td><code>while (i &lt;= mid &amp;&amp; j &lt;= high)</code></td><td>"While BOTH halves still have values."</td></tr>
+            <tr><td><code>if (arr[i] &lt;= arr[j])</code></td><td>"If the left front is smaller or equal, take it." On a tie, the left one goes first.</td></tr>
+            <tr><td><code>arr[low + k] = temp[k];</code></td><td>"Copy slot k of temp back into the matching slot of arr." temp starts at 0, but the part of arr starts at <code>low</code>.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake: forgetting the leftovers</p>
+        <p><b>Situation:</b> a student writes only the main loop and the copy-back loop:</p>
+        <pre class="code"><code set:html={hi(badLeftover)} /></pre>
+        <figure class="fig illus-fig"><Fragment set:html={leftoverBadPic()} /><figcaption>The main loop stops when the left half is used up, so 37 is never copied.</figcaption></figure>
+        <p><b>What goes wrong:</b> when one half runs out, the other half still has values. They never reach <code>temp</code>, so its last slot keeps its starting 0, and 37 is replaced by 0.</p>
+        <p><b>Fix:</b> after the main loop, copy what is left of the left half, then what is left of the right half. Only one of the two loops will actually copy something.</p>
+      </div>
+      <p>One cost to remember: merge sort needs the extra array <code>temp</code>. For n values, that is extra memory for up to n values.</p>
+      <div class="break-note">Good place to take a break.</div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="quick">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Sort 2</p>
+      <h2>Quick sort: pick a pivot</h2>
+    </div>
+    <div class="flow">
+      <p>Merge sort does the easy part first (splitting) and the work at the end (merging). Quick sort does it the other way around: the work comes first, so nothing needs merging at the end.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={pivotTables()} /><figcaption>After one round, the pivot is in its final place, and each table is a smaller sorting job.</figcaption></figure>
+      <div class="def"><p class="note-label">Quick sort, pivot, partition</p><p><b>Quick sort</b> picks one value, the <b>pivot</b>, and <b>partitions</b> the array: it moves every value smaller than the pivot to the pivot's left and every other value to its right. The pivot is then in its final place. Quick sort then sorts the left part and the right part the same way (recursion). A part with 0 or 1 values is the base case.</p></div>
+      <p>There are many ways to pick a pivot. In this lesson, the pivot is always the <b>last value</b> of the part. By hand, partitioning goes like this:</p>
+      <ol>
+        <li>The pivot is the last value. Put a marker <code>i</code> at the first index: the next small value goes there.</li>
+        <li>Walk <code>j</code> from the first index to the one before the pivot. Each time <code>arr[j]</code> is smaller than the pivot, swap it into index <code>i</code> and move <code>i</code> one step right.</li>
+        <li>At the end, swap the pivot into index <code>i</code>. It is now in its final place.</li>
+        <li>Do the same for the part left of the pivot and the part right of it.</li>
+      </ol>
+      <p>Step through it. Gold is the pivot, teal values are smaller than the pivot, blue ones are not, and green values are in their final place:</p>
+      <StepShow id="show-quick" cap="Quick sort on 29, 10, 14, 37, 13, by hand" steps={quickHand} />
+      <p>Each pivot splits its part into "smaller" and "bigger", like a tree. On paper, you can draw it like this:</p>
+      <figure class="fig illus-fig"><Fragment set:html={quickTreePic()} /><figcaption>Pivot 13, then pivot 29. Parts with one value need no work.</figcaption></figure>
+      <div class="sub" id="quick-java">
+        <h3>Quick sort in Java</h3>
+        <p><code>quickSort</code> is short, because <code>partition</code> does the work. Compare it with <code>mergeSort</code>: here the work (partition) comes <b>before</b> the two recursive calls.</p>
+        <pre class="code"><code set:html={hiR(quickSortCode, [2, 3, 4], [6, 7])} /></pre>
+        <p>The first call is <code>quickSort(arr, 0, arr.length - 1)</code>. Here is the first partition of the five scores:</p>
+        <CodeWalk id="cw-partition" code={partitionCode} steps={partitionWalk()} cap="Walkthrough: partition(arr, 0, 4) on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line." />
+        <p><code>partition</code> changes the array <b>and</b> returns a value: the pivot's index, so <code>quickSort</code> knows where the two parts are.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake: including the pivot again</p>
+        <p><b>Situation:</b> a student writes the first recursive call with <code>p</code> instead of <code>p - 1</code>:</p>
+        <pre class="code"><code set:html={hi(badQuick)} /></pre>
+        <p><b>What goes wrong:</b> the pivot is already in place, but it is sorted again. On the part 10, 13, the pivot 13 stays at the end, so <code>quickSort(arr, 0, 1)</code> calls <code>quickSort(arr, 0, 1)</code>: the same job, forever. The program ends with a <code>StackOverflowError</code>, just like a missing base case.</p>
+        <p><b>Fix:</b> leave the pivot out: <code>low</code> to <code>p - 1</code> and <code>p + 1</code> to <code>high</code>. Each call must get a <b>smaller</b> job.</p>
+      </div>
+      <div class="sub" id="quick-worst">
+        <h3>Quick sort's weak spot</h3>
+        <p>Quick sort is fast when each pivot splits its part into two halves of about the same size. But what if the array is <b>already sorted</b>?</p>
+        <figure class="fig illus-fig"><Fragment set:html={quickWorstPic()} /><figcaption>Each partition only removes the pivot itself, so it does as much work as bubble sort.</figcaption></figure>
+        <p>With our last-value pivot, a sorted array of 1,000 values takes <b>{fmt(sorted1000.quick)}</b> comparisons, the same as bubble sort. Real programs avoid this by picking the <b>middle</b> value or a <b>random</b> value as the pivot (and swapping it to the end first). Then a bad split is very unlikely.</p>
+      </div>
+      <div class="break-note">Good place to take a break.</div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="heap">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Sort 3</p>
+      <h2>Heap sort: the biggest on top</h2>
+    </div>
+    <div class="flow">
+      <p>Selection sort finds the smallest value by checking every value, pass after pass. That is what makes it slow. Heap sort keeps the values in a shape where the biggest is always on top, like a sports fest bracket:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={sportsFest()} /><figcaption>After the champion leaves, only the matches on the champion's path need a replay, not the whole fest.</figcaption></figure>
+      <div class="sub" id="tree-words">
+        <h3>First: a tree of values</h3>
+        <p>The bracket is a <b>tree</b>: values connected from the top down. You will study trees fully in the <a href={base + '/itc120/trees/'}>Trees</a> lesson (midterm); for heap sort you only need these words:</p>
+        <div class="def"><p class="note-label">Tree words</p><p>Each circle is a <b>node</b> (it holds one value). The top node is the <b>root</b>. A node directly below another is its <b>child</b>; the one above is its <b>parent</b>. A node with no children is a <b>leaf</b>. In a <b>binary tree</b>, every node has at most 2 children.</p></div>
+        <p>A heap is stored in a plain array. Read the array from left to right and fill the tree row by row, from left to right: index 0 is the root, index 1 and 2 are its children, and so on. No links are needed, because a simple rule finds every child:</p>
+        <figure class="fig illus-fig"><Fragment set:html={heapIndexPic()} /><figcaption>The same five values as a tree (top) and as an array (bottom).</figcaption></figure>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>For the node at index i</th><th>Index</th><th>Check with index 1</th></tr></thead>
+          <tbody>
+            <tr><td>left child</td><td><code>2 * i + 1</code></td><td>3</td></tr>
+            <tr><td>right child</td><td><code>2 * i + 2</code></td><td>4</td></tr>
+            <tr><td>parent</td><td><code>(i - 1) / 2</code> (rounded down)</td><td>0</td></tr>
+          </tbody>
+        </table></div>
+        <div class="def"><p class="note-label">Max-heap</p><p>A <b>max-heap</b> is a binary tree, filled row by row from the left, where every parent is <b>greater than or equal to</b> its children. So the biggest value is always at the root, index 0.</p></div>
+        <figure class="fig illus-fig"><Fragment set:html={heapOrNotPic()} /><figcaption>Only parent and child are compared. 31 may be bigger than 25 on the other side.</figcaption></figure>
+      </div>
+      <div class="sub" id="heap-hand">
+        <h3>Heap sort by hand</h3>
+        <p>The main move is <b>sift down</b>: a value that is too small for its spot swaps with its <b>bigger</b> child, again and again, until it is at least as big as its children (or has none). Heap sort has two steps:</p>
+        <ol>
+          <li><b>Build a max-heap.</b> Sift down every parent, starting from the last parent (index n / 2 - 1) back to the root.</li>
+          <li><b>Take the biggest out, again and again.</b> Swap the root (the biggest) with the last value of the heap. That value is now in its final place, at the end, and leaves the heap. Sift the new root down to repair the heap. Repeat until the heap has one value.</li>
+        </ol>
+        <p>It is selection sort's idea ("find the biggest, put it at the end"), but the heap finds the biggest with a few swaps along one path instead of a whole pass. Watch the tree and the array change together:</p>
+        <StepShow id="show-heap" cap="Heap sort on 29, 10, 14, 37, 13, by hand" steps={heapHand} />
+      </div>
+      <div class="sub" id="heap-java">
+        <h3>Heap sort in Java</h3>
+        <p><code>heapSort</code> follows the two steps. It uses no recursion: the sifting is a <code>while</code> loop.</p>
+        <pre class="code"><code set:html={hiN(heapSortCode)} /></pre>
+        <p>Here is <code>siftDown</code>, right after 37 was swapped to the end (the heap is now index 0 to 3):</p>
+        <CodeWalk id="cw-sift" code={siftDownCode} steps={siftWalk()} cap="Walkthrough: siftDown(arr, 0, 4) on 13, 29, 14, 10 | 37" hint="Use Next to go step by step, or tap a line." />
+        <p>The parameter <code>size</code> matters: values at index <code>size</code> and beyond are already sorted, so <code>siftDown</code> must not treat them as children.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake: the wrong child formula</p>
+        <p><b>Situation:</b> a student remembers "children at 2i and 2i + 1" from a book:</p>
+        <pre class="code"><code set:html={hi(badHeap)} /></pre>
+        <p><b>What goes wrong:</b> that formula is for heaps that start at index 1. In a Java array, the root is at index 0, and 2 × 0 = 0: the root would be its own child, and the tree is read wrong.</p>
+        <p><b>Fix:</b> with the root at index 0, use <code>2 * i + 1</code> and <code>2 * i + 2</code>. Check the formula on index 0: its children must be 1 and 2 (see the <Peek label="index picture" title="Heap index rule" html={treeDef} />).</p>
+      </div>
+      <p class="small muted">Good to know: some books store the heap starting at index 1 (children 2i and 2i + 1). Both are correct; just use the formula that matches where the root is. Heaps are also used outside sorting, as <b>priority queues</b>: Java's <code>PriorityQueue</code> is a heap.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Try it</p>
+      <h2>The advanced sort lab</h2>
+    </div>
+    <div class="flow">
+      <p>Run all three sorts on the same arrays. Try "8 values" and "already sorted" with each sort, and look at the comparison table at the end. On tiny arrays the advanced sorts win by only a little; Part 7 shows what happens on big ones.</p>
+      <AdvSortLab id="lab-adv" />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="work">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Why this matters</p>
+      <h2>How much work do they save?</h2>
+    </div>
+    <div class="flow">
+      <p>First, the five quiz scores, counted from the lab (and from running the Java code). Here are the comparisons:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Array</th><th>Bubble</th><th>Insertion</th><th>Merge</th><th>Quick</th><th>Heap</th></tr></thead>
+        <tbody>
+          <tr><td>quiz scores</td><td>{c5.scores.bubble}</td><td>{c5.scores.insertion}</td><td>{c5.scores.merge}</td><td>{c5.scores.quick}</td><td>{c5.scores.heap}</td></tr>
+          <tr><td>already sorted</td><td>{c5.sorted.bubble}</td><td>{c5.sorted.insertion}</td><td>{c5.sorted.merge}</td><td>{c5.sorted.quick}</td><td>{c5.sorted.heap}</td></tr>
+          <tr><td>reversed</td><td>{c5.reversed.bubble}</td><td>{c5.reversed.insertion}</td><td>{c5.reversed.merge}</td><td>{c5.reversed.quick}</td><td>{c5.reversed.heap}</td></tr>
+        </tbody>
+      </table></div>
+      <p>With 5 values, there is not much difference. Heap sort even does more. The difference shows with <b>more values</b>. Here are the comparisons on random arrays (the same arrays for every sort):</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Values</th><th>Bubble / selection</th><th>Insertion</th><th>Merge</th><th>Quick</th><th>Heap</th></tr></thead>
+        <tbody>
+          {race.map((r) => <tr><td>{fmt(r.n)}</td><td>{fmt(r.bubble)}</td><td>{fmt(r.insertion)}</td><td>{fmt(r.merge)}</td><td>{fmt(r.quick)}</td><td>{fmt(r.heap)}</td></tr>)}
+        </tbody>
+      </table></div>
+      <p>For 10,000 values, bubble sort makes about {fmt(Math.round(race[3].bubble / race[3].merge))} times as many comparisons as merge sort. Why so big a gap? Look at how merge sort splits:</p>
+      <figure class="fig illus-fig"><Fragment set:html={levelsPic()} /><figcaption>The number of levels is how many times you can halve n until you reach 1.</figcaption></figure>
+      <div class="def"><p class="note-label">log₂ n ("log base 2 of n")</p><p><b>log₂ n</b> is the number of times you can halve n until you reach 1. log₂ 8 = 3 (8 → 4 → 2 → 1), log₂ 1,024 = 10, and log₂ 1,000,000 is about 20. It grows very slowly. (You met the same halving in <a href={base + '/itc120/searching/'}>binary search</a>.)</p></div>
+      <p>Merge sort has about log₂ n levels, and the merges on each level touch all n values. So its work is about <b>n × log₂ n</b>. For 1,000,000 values: about 1,000,000 × 20 = 20 million, against about 500 billion for bubble sort. Quick sort (with good pivots) and heap sort grow the same way, only with different extra amounts.</p>
+      <p>Here is the full summary of the three sorts in this lesson:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th></th><th>Merge sort</th><th>Quick sort</th><th>Heap sort</th></tr></thead>
+        <tbody>
+          <tr><td>Usual work</td><td>about n × log₂ n</td><td>about n × log₂ n, often the fastest in practice</td><td>about n × log₂ n</td></tr>
+          <tr><td>Worst case</td><td>still about n × log₂ n</td><td>about n × n / 2 (bad pivots, like sorted data with a last-value pivot)</td><td>still about n × log₂ n</td></tr>
+          <tr><td>Extra memory</td><td>a helper array of up to n values</td><td>none for values (only the call stack)</td><td>none</td></tr>
+          <tr><td>Stable?</td><td>yes</td><td>no</td><td>no</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Good to know: books write this growth as <b>O(n log n)</b> ("order n log n"). Merge sort and heap sort are O(n log n) even in the worst case; quick sort is O(n log n) on average and O(n²) in the worst case. You met O(n²) in Basic sorting.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="choose">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Choosing</p>
+      <h2>Stability, choosing, and Java's own sort</h2>
+    </div>
+    <div class="flow">
+      <div class="sub" id="stable">
+        <h3>Which ones are stable?</h3>
+        <p>Remember <Peek label="stable sorting" title="From Basic sorting" html={stableDef} />? Here is a short class list, already in A-to-Z order. Ana and Cris tie at 85. Here it is sorted by grade with each sort:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Sort</th><th>Result (by grade)</th><th>Ana still before Cris?</th></tr></thead>
+          <tbody>
+            <tr><td>start (A to Z)</td><td>Ana 85, Ben 80, Cris 85</td><td></td></tr>
+            <tr><td>Merge sort</td><td>Ben 80, Ana 85, Cris 85</td><td>✓ yes (stable)</td></tr>
+            <tr><td>Quick sort</td><td>Ben 80, Cris 85, Ana 85</td><td>✗ no</td></tr>
+            <tr><td>Heap sort</td><td>Ben 80, Cris 85, Ana 85</td><td>✗ no</td></tr>
+          </tbody>
+        </table></div>
+        <p>Merge sort is stable because on a tie it takes from the <b>left</b> half (<code>&lt;=</code>). In quick sort, Ben (smaller than the pivot Cris) swaps with Ana, and then the pivot swaps into Ana's new spot, which throws Ana behind Cris. In heap sort, the root Ana is swapped straight to the end, past Cris. Long jumps like these can carry a value past an equal one.</p>
+      </div>
+      <div class="sub" id="which">
+        <h3>Which sort when?</h3>
+        <p>Here are all six sorts from the two lessons, by situation:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Situation</th><th>Good choice</th></tr></thead>
+          <tbody>
+            <tr><td>Big data, sorted in memory, fastest on average</td><td>Quick sort (with a middle or random pivot)</td></tr>
+            <tr><td>Records with ties whose order must stay (students by grade)</td><td>Merge sort (stable)</td></tr>
+            <tr><td>Data too big for memory, or a linked list</td><td>Merge sort (it only reads each part from front to back)</td></tr>
+            <tr><td>Speed must be guaranteed and there is no room for an extra array</td><td>Heap sort</td></tr>
+            <tr><td>Small or almost-sorted data</td><td>Insertion sort (fast sorts use it for small parts too)</td></tr>
+            <tr><td>A real Java program</td><td><code>Arrays.sort</code></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="sub" id="java-sort">
+        <h3>What <code>Arrays.sort</code> uses</h3>
+        <p>Java's own sort, which you met in Basic sorting, picks a method by the kind of array:</p>
+        <pre class="code"><code set:html={hi(sortedCalls)} /></pre>
+        <p>For numbers (<code>int[]</code>, <code>double[]</code>), Java uses a <b>dual-pivot quick sort</b> (two pivots, three parts). Equal numbers look the same, so stability does not matter. For objects (<code>String[]</code>, records), it uses a <b>stable merge sort</b> called TimSort, so ties keep their order.</p>
+      </div>
+      <div class="sub" id="program">
+        <h3>All three in one program</h3>
+        <p>Here are the three sorts in one runnable file. Run it, and check that each line prints the sorted scores:</p>
+        <pre class="code"><code set:html={hiN(full)} /></pre>
+        <TryIt />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 9 · Practice</p>
+      <h2>Practice</h2>
+    </div>
+    <div class="flow">
+      <p>Work these out on paper first, then check the answers. Use the array <code>&#123;8, 3, 5, 1, 9, 2&#125;</code> for problems 1 to 3.</p>
+      <ol>
+        <li><b>Merge sort.</b> Draw the split rows and the merge rows. How many comparisons does the last merge make?</li>
+        <li><b>Quick sort.</b> Do the first partition (pivot = last value). Write the array after it, and the pivot's index.</li>
+        <li><b>Heap sort.</b> Build the max-heap. Write the array after step 1, and draw it as a tree.</li>
+        <li><b>Recursion.</b> What does <code>printHalves(13)</code> print? How many calls are made in total?</li>
+        <li><b>Which sort?</b> (a) A registrar sorts 30,000 student records by course, and students in the same course must stay in ID order. (b) A small device has almost no free memory but must sort 50,000 sensor readings with guaranteed speed.</li>
+      </ol>
+      <details class="reveal"><summary>Show the answers</summary><div class="flow">
+        <p class="small muted">For self-study, not for grading.</p>
+        <p><b>1.</b> Here are the rows. The last merge joins 3, 5, 8 with 1, 2, 9: 3 vs 1 (take 1), 3 vs 2 (take 2), 3 vs 9 (take 3), 5 vs 9 (take 5), 8 vs 9 (take 8), then 9 is a leftover: <b>5 comparisons</b>.</p>
+        <figure class="fig illus-fig"><Fragment set:html={practiceTree} /></figure>
+        <p><b>2.</b> Pivot 2. Only 1 is smaller: it swaps into index 0 (with 8). Then the pivot swaps into index 1. The array is <b>1, 2, 5, 8, 9, 3</b> and the pivot index is <b>1</b> (5 comparisons).</p>
+        <figure class="fig illus-fig"><Fragment set:html={pQuickPic} /></figure>
+        <p><b>3.</b> Start at the last parent, index 2 (5): its only child is 2, so nothing moves. Index 1 (3): its children are 1 and 9; swap with 9. Index 0 (8): its children are 9 and 5; swap with 9, then 8 is bigger than its new children 1 and 3, so it stops. The max-heap is <b>9, 8, 5, 1, 3, 2</b>.</p>
+        <figure class="fig illus-fig"><Fragment set:html={pHeapPic} /></figure>
+        <p><b>4.</b> It prints <b>13 6 3 1</b>. The calls are printHalves(13), (6), (3), (1), and (0), the base case: <b>5 calls</b>.</p>
+        <p><b>5.</b> (a) <b>Merge sort</b>, because it is stable (or <code>Arrays.sort</code> on objects, which is a stable merge sort). (b) <b>Heap sort</b>: about n × log₂ n even in the worst case, and no extra array.</p>
+      </div></details>
+      <div class="sub" id="task">
+        <h3>Coding task: finish <code>merge</code></h3>
+        <p>The <code>merge</code> method below is missing its two leftover loops. Write them (about 10 short lines), then run the file. All three lines should match the expected output.</p>
+        <pre class="code"><code set:html={hiN(starter)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hi(answer)} /></pre>
+          <p>Each test needs a different loop. In test <code>a</code>, the left half runs out first, so 37 is a leftover of the <b>right</b> half. In test <code>b</code>, 1 and 2 go first, so 40, 50, 60 are leftovers of the <b>left</b> half. Test <code>c</code> has one value on each side.</p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 10 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-sort-adv" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li><b>Recursion</b>: a method calls itself on a smaller job. The <b>base case</b> stops it; the <b>call stack</b> keeps track of the calls.</li>
+          <li><b>Merge sort</b>: split in half until one value is left, then merge sorted parts by taking the smaller front value. Stable, but needs an extra array.</li>
+          <li><b>Quick sort</b>: partition around a pivot (smaller left, the rest right); the pivot is then in its final place. Fast in practice, but slow with bad pivots.</li>
+          <li><b>Heap sort</b>: build a max-heap (children of i at 2i + 1 and 2i + 2), then swap the biggest to the end and sift down, again and again. No extra array, not stable.</li>
+          <li>All three need about <b>n × log₂ n</b> comparisons (quick sort: usually), far fewer than the basic sorts' n × n / 2 on big data.</li>
+          <li>In real programs, use <code>Arrays.sort</code>: quick sort for numbers, stable merge sort for objects.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/searching/'}>Linear and binary search</a>, where sorted data pays off.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>R. Sedgewick and K. Wayne, <i>Algorithms</i>, 4th ed. Addison-Wesley, 2011, Sections 2.2 (mergesort), 2.3 (quicksort), and 2.4 (heapsort). <a href="https://algs4.cs.princeton.edu/20sorting/">algs4.cs.princeton.edu</a></li>
+          <li>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <i>Introduction to Algorithms</i>, 3rd ed. MIT Press, 2009, Chapters 2.3, 6, and 7 (the last-value pivot partition is from Chapter 7).</li>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapters 3 (recursion) and 4 (divide and conquer, quicksort).</li>
+          <li>Oracle, "Class Arrays," Java SE 21 API (sort: dual-pivot quicksort for primitives; stable, adaptive mergesort for objects). <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Arrays.html">docs.oracle.com</a></li>
+          <li>ITC 120 Course Syllabus (Advanced sorting: implement merge, quick, and heap sort; evaluate time and space; assess when each is most effective), Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>

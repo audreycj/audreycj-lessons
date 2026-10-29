@@ -4264,3 +4264,106 @@ export function cardHand() {
   s.text(20, 268, 'The hand stays in order. Drop the 6 into the gap.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
   return s.svg('Tong-its: adding a new card to your hand. The hand is already in order: 2, 5, 8, 10 of hearts. The new card is 6. The bigger cards, 8 and 10, slide right to open a gap after the 5, and the 6 drops into the gap. The hand stays in order.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+/* ---------------- Advanced sorting (chat 22) ---------------- */
+
+/** A small person (head + shirt), feet at y. */
+function advPerson(s, cx, y, shirt, o = {}) {
+  const top = y - (o.h ?? 52);
+  s.circle(cx, top + 10, 20, { fill: '#f3d2b3', sw: 1.5 });
+  s.path(`M${cx - 7} ${top + 4} Q${cx} ${top - 3} ${cx + 8} ${top + 3}`, { sw: 3, stroke: C.ink, single: true });
+  s.round(cx - 12, top + 21, 24, (o.h ?? 52) - 21, 6, { fill: shirt, sw: 1.5 });
+}
+/** A small pile of papers with a count tag. */
+function advPile(s, x, y, n, o = {}) {
+  for (let k = 2; k >= 0; k--) s.rect(x + k * 2.5, y - k * 3, 26, 18, { fill: o.fill ?? '#ffffff', sw: 1.2 });
+  s.text(x + 13, y + 13, String(n), { font: 'body', size: 11.5, weight: 800, color: o.color ?? C.red });
+}
+
+/** Merge sort + recursion hook: a pile is split among helpers who all follow the same rule. */
+export function pileTeam() {
+  const s = new Sketch(340, 470, 451);
+  s.text(170, 22, 'Sorting 8 quiz papers as a team', { font: 'body', size: 15, weight: 800 });
+  s.round(10, 34, 320, 92, 10, { fill: '#fffdf5', sw: 1.6 });
+  s.text(22, 56, 'The SAME rule for everyone:', { font: 'body', size: 13, weight: 800, color: C.teal, anchor: 'start' });
+  s.text(22, 76, '1. Only 1 paper? It is sorted. Give it back.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(22, 95, '2. More? Split it in half; a helper takes each half.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(22, 114, '3. Merge the two sorted halves you get back.', { font: 'body', size: 12.5, weight: 700, color: C.soft, anchor: 'start' });
+  const lv = [[170], [90, 250], [50, 130, 210, 290]], ys = [212, 306, 400], piles = [8, 4, 2], shirts = [C.butter, C.sky, C.pink];
+  const label = ['Teacher', 'helpers', 'helpers'];
+  lv.forEach((xs, L) => xs.forEach((x) => {
+    advPerson(s, x, ys[L], shirts[L], { h: L ? 46 : 54 });
+    advPile(s, x + 14, ys[L] - 30, piles[L]);
+  }));
+  s.text(170, 228, 'Teacher', { font: 'body', size: 11.5, weight: 800, color: C.soft });
+  // arrows: split (orange, down) and sorted pile back (teal, up, dashed)
+  const link = (x1, y1, x2, y2) => {
+    const L = Math.hypot(x2 - x1, y2 - y1), px = -(y2 - y1) / L * 6, py = (x2 - x1) / L * 6;
+    s.arrow(x1 - px, y1 - py, x2 - px, y2 - py, { sw: 2, stroke: C.orange, head: 8 });
+    s.arrow(x2 + px, y2 + py, x1 + px, y1 + py, { sw: 1.8, stroke: C.teal, head: 7, dash: '5 4', single: true });
+  };
+  link(150, 236, 104, 262); link(190, 236, 236, 262);
+  [[90, 50], [90, 130], [250, 210], [250, 290]].forEach(([a, z]) => link(a + (z < a ? -8 : 8), 324, z + (z < a ? 8 : -8), 352));
+  s.text(170, 424, 'Helpers with 2 papers split once more, into single papers.', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  s.line(24, 444, 48, 444, { sw: 2.2, stroke: C.orange, single: true });
+  s.text(54, 448, 'split, pass a half on', { font: 'body', size: 11.5, weight: 800, color: C.orange, anchor: 'start' });
+  s.line(186, 444, 210, 444, { sw: 2, stroke: C.teal, dash: '5 4', single: true });
+  s.text(216, 448, 'sorted pile back', { font: 'body', size: 11.5, weight: 800, color: C.teal, anchor: 'start' });
+  return s.svg('Sorting 8 quiz papers as a team. The same rule for everyone: 1, only one paper? It is sorted, give it back. 2, more? Split it in half, and a helper takes each half. 3, merge the two sorted halves you get back. The teacher splits 8 papers into two piles of 4 for two helpers; each splits 4 into two piles of 2 for two more helpers; each helper of 2 splits once more into single papers. Orange arrows: split and pass a half on. Dashed teal arrows: the sorted pile comes back.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Quick sort hook: one paper is the pivot; smaller papers to one table, the rest to the other. */
+export function pivotTables() {
+  const s = new Sketch(340, 362, 457);
+  s.text(170, 22, 'Pick one paper as the pivot: 20', { font: 'body', size: 15, weight: 800 });
+  const paper = (x, y, v, o = {}) => { if (o.rot) s.raw(`<g transform="rotate(${o.rot} ${x + 16} ${y + 21})">`); s.rect(x, y, 32, 42, { fill: o.fill ?? '#ffffff', sw: 1.5 }); s.text(x + 16, y + 27, String(v), { font: 'body', size: 15, weight: 800, color: C.red }); if (o.rot) s.raw('</g>'); };
+  s.text(24, 52, 'The pile', { font: 'body', size: 12.5, weight: 800, color: C.soft, anchor: 'start' });
+  [[31, -5], [12, 4], [25, -3], [8, 6], [15, -4], [40, 3]].forEach(([v, r], k) => paper(30 + k * 40, 62 + (k % 2) * 6, v, { rot: r }));
+  paper(276, 62, 20, { fill: C.butter });
+  s.text(292, 124, 'pivot', { font: 'body', size: 12, weight: 800, color: '#7a5208' });
+  // two tables
+  const table = (x, label, vals, col) => {
+    s.rect(x, 230, 120, 12, { fill: '#e3c9a4', sw: 1.5 });
+    s.line(x + 10, 242, x + 10, 284, { sw: 2.5 }); s.line(x + 110, 242, x + 110, 284, { sw: 2.5 });
+    vals.forEach((v, k) => paper(x + 6 + k * 38, 182, v));
+    s.text(x + 60, 304, label, { font: 'body', size: 12.5, weight: 800, color: col });
+  };
+  table(14, 'smaller than 20', [12, 8, 15], C.teal);
+  table(206, '20 or more', [31, 25, 40], '#2f6fa8');
+  paper(154, 196, 20, { fill: C.butter });
+  s.text(170, 254, 'its final', { font: 'body', size: 11.5, weight: 800, color: '#1f5a38' });
+  s.text(170, 269, 'place', { font: 'body', size: 11.5, weight: 800, color: '#1f5a38' });
+  s.arrow(110, 128, 74, 172, { sw: 2, stroke: C.teal, head: 8 });
+  s.arrow(206, 128, 262, 172, { sw: 2, stroke: '#2f6fa8', head: 8 });
+  s.text(170, 330, 'Then do the same with each table, using a new pivot.', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(170, 349, 'The tables never need to be merged.', { font: 'body', size: 12.5, weight: 800, color: C.orange });
+  return s.svg('Quick sort with quiz papers. The pile has 31, 12, 25, 8, 15, 40, and the paper 20 is picked as the pivot. Papers smaller than 20 (12, 8, 15) go to the left table; papers 20 or more (31, 25, 40) go to the right table. The pivot 20 sits between the two tables: that is its final place. Then do the same with each table, using a new pivot. The tables never need to be merged.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Heap sort hook: a sports fest bracket; the strongest is always on top. */
+export function sportsFest() {
+  const s = new Sketch(340, 392, 463);
+  s.text(170, 22, 'Barangay sports fest: arm wrestling', { font: 'body', size: 15, weight: 800 });
+  const who = (cx, y, name, pts, shirt) => {
+    advPerson(s, cx, y, shirt, { h: 44 });
+    s.circle(cx + 20, y - 36, 22, { fill: '#ffffff', sw: 1.4 });
+    s.text(cx + 20, y - 31.5, String(pts), { font: 'body', size: 12, weight: 800, color: C.red });
+    s.text(cx, y + 16, name, { font: 'body', size: 11.5, weight: 800, color: C.soft });
+  };
+  // bracket lines
+  const xs = [46, 128, 212, 294];
+  s.path('M46 254 V236 H128 V254', { sw: 1.8, single: true }); s.path('M212 254 V236 H294 V254', { sw: 1.8, single: true });
+  s.path('M87 236 V218', { sw: 1.8, single: true }); s.path('M253 236 V218', { sw: 1.8, single: true });
+  s.path('M87 148 V136 H253 V148', { sw: 1.8, single: true }); s.path('M170 136 V126', { sw: 1.8, single: true });
+  [['Ana', 8, C.sky], ['Ben', 5, C.pink], ['Cris', 9, C.butter], ['Dan', 6, C.tealWash]].forEach(([n, p, sh], k) => who(xs[k], 300, n, p, sh));
+  who(87, 194, 'Ana', 8, C.sky); who(253, 194, 'Cris', 9, C.butter);
+  // champion on top with a trophy
+  advPerson(s, 170, 104, C.butter, { h: 44 });
+  s.circle(190, 68, 22, { fill: '#ffffff', sw: 1.4 }); s.text(190, 72.5, '9', { font: 'body', size: 12, weight: 800, color: C.red });
+  s.path('M134 52 h18 v8 q-9 12 -18 0 Z', { fill: C.amber, sw: 1.3 }); s.line(143, 64, 143, 74, { sw: 2 }); s.line(137, 75, 149, 75, { sw: 2 });
+  s.text(170, 120, 'Cris, champion', { font: 'body', size: 11.5, weight: 800, color: C.soft });
+  s.text(170, 340, 'Numbers = strength. Every winner sits above', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.text(170, 357, 'the ones they beat, so the strongest is on top.', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.text(170, 380, 'Take the champion out: a short replay finds the next one.', { font: 'body', size: 11.5, weight: 800, color: C.orange });
+  return s.svg('A barangay sports fest arm wrestling bracket. Ana (strength 8) beats Ben (5), and Cris (9) beats Dan (6). Then Cris beats Ana and is the champion at the top, with a trophy. Every winner sits above the ones they beat, so the strongest is on top. Take the champion out, and a short replay finds the next one.').replace(/(\d+\.\d)\d+/g, '$1');
+}

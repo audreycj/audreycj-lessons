@@ -1,0 +1,99 @@
+---
+// Advanced sort lab: merge, quick, or heap sort on one array, step by step; at the end, comparisons for all six sorts.
+interface Props { id: string; }
+const { id } = Astro.props;
+---
+<figure class="fig solab adlab" id={id}>
+  <p class="fig-cap">Advanced sort lab</p>
+  <p class="fig-hint">Pick an array, then a sort. Use Next step to watch it work. At the end, the lab compares the comparisons of all six sorts (basic and advanced) on the same array.</p>
+  <p class="so-try small">Arrays:
+    <button type="button" class="so-chip" data-a="29,10,14,37,13" aria-pressed="true">quiz scores</button>
+    <button type="button" class="so-chip" data-a="10,13,14,29,37" aria-pressed="false">already sorted</button>
+    <button type="button" class="so-chip" data-a="37,29,14,13,10" aria-pressed="false">reversed</button>
+    <button type="button" class="so-chip" data-a="5,8,1,9,3,7,2,6" aria-pressed="false">8 values</button>
+    <button type="button" class="so-chip" data-a="random" aria-pressed="false">random</button>
+  </p>
+  <div class="so-own">
+    <label class="so-lab">Or type your own <input type="text" inputmode="numeric" class="so-in" placeholder="8, 3, 5, 1, 9, 2" autocomplete="off" aria-label="Your own numbers, separated by commas" /></label>
+    <button type="button" class="btn so-use">Use these</button>
+  </div>
+  <p class="so-err small" aria-live="polite"></p>
+  <div class="btn-row so-modes" role="group" aria-label="Sort">
+    <button type="button" class="btn" data-mode="merge" aria-pressed="false">Merge sort</button>
+    <button type="button" class="btn" data-mode="quick" aria-pressed="false">Quick sort</button>
+    <button type="button" class="btn" data-mode="heap" aria-pressed="false">Heap sort</button>
+  </div>
+  <div class="so-pic"></div>
+  <p class="so-say" aria-live="polite"></p>
+  <div class="so-cmp small"></div>
+  <div class="btn-row so-nav">
+    <button type="button" class="btn" data-go="back">← Back</button>
+    <span class="so-count mono small">Step 0 of 0</span>
+    <button type="button" class="btn primary" data-go="next">Next step →</button>
+    <button type="button" class="btn" data-go="end">Skip to end</button>
+  </div>
+  <div class="legend">
+    <span><i class="so-l-cmp"></i> comparing now</span>
+    <span><i class="so-l-swap"></i> just moved</span>
+    <span><i class="ad-l-L"></i> left half / smaller</span>
+    <span><i class="ad-l-R"></i> right half / bigger</span>
+    <span><i class="so-l-min"></i> pivot / sifting</span>
+    <span><i class="so-l-done"></i> sorted or in place</span>
+  </div>
+</figure>
+
+<script>
+  import { ADV, advPic, countAll, mergePic } from '../lib/advsort.js';
+  const NAMES: Record<string, string> = { bubble: 'Bubble sort', selection: 'Selection sort', insertion: 'Insertion sort', merge: 'Merge sort', quick: 'Quick sort', heap: 'Heap sort' };
+  document.querySelectorAll<HTMLElement>('.adlab').forEach((root) => {
+    const q = <T extends Element>(s: string) => root.querySelector(s) as T;
+    const pic = q<HTMLElement>('.so-pic'), say = q<HTMLElement>('.so-say'), cmp = q<HTMLElement>('.so-cmp');
+    const err = q<HTMLElement>('.so-err'), count = q<HTMLElement>('.so-count'), own = q<HTMLInputElement>('.so-in');
+    const back = q<HTMLButtonElement>('[data-go="back"]'), next = q<HTMLButtonElement>('[data-go="next"]'), end = q<HTMLButtonElement>('[data-go="end"]');
+    const modes = [...root.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+    const chips = [...root.querySelectorAll<HTMLButtonElement>('.so-chip')];
+    let arr = [29, 10, 14, 37, 13], steps: any[] = [], k = 0, mode = '';
+    function summary() {
+      const c: any = countAll(arr);
+      const rows = ['bubble', 'selection', 'insertion', 'merge', 'quick', 'heap'].map((m) => `<tr${m === mode ? ' class="is-on"' : ''}><td>${NAMES[m]}</td><td>${c[m]}</td></tr>`).join('');
+      return `<table class="tbl so-tbl"><thead><tr><th>For ${arr.join(', ')}</th><th>Comparisons</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    function show() {
+      if (!steps.length) {
+        pic.innerHTML = mergePic({ vals: arr, alt: 'The array ' + arr.join(', ') });
+        say.innerHTML = 'Tap <b>Merge sort</b>, <b>Quick sort</b>, or <b>Heap sort</b> to start.';
+        count.textContent = 'Step 0 of 0'; cmp.innerHTML = ''; back.disabled = next.disabled = end.disabled = true; return;
+      }
+      const st = steps[k];
+      pic.innerHTML = advPic(mode, st);
+      say.innerHTML = st.say;
+      count.textContent = `Step ${k + 1} of ${steps.length}`;
+      back.disabled = k === 0; next.disabled = end.disabled = k === steps.length - 1;
+      cmp.innerHTML = k === steps.length - 1 ? summary() : '';
+    }
+    function run(m: string) {
+      mode = m; k = 0; steps = (ADV as any)[m](arr);
+      modes.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+      show();
+    }
+    function setArr(a: number[]) { arr = a; err.textContent = ''; if (mode) run(mode); else show(); }
+    chips.forEach((c) => c.addEventListener('click', () => {
+      chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+      if (c.dataset.a === 'random') { const a: number[] = []; for (let i = 0; i < 7; i++) a.push(1 + Math.floor(Math.random() * 50)); setArr(a); }
+      else setArr(c.dataset.a!.split(',').map(Number));
+    }));
+    q<HTMLButtonElement>('.so-use').addEventListener('click', useOwn);
+    own.addEventListener('keydown', (e) => { if (e.key === 'Enter') useOwn(); });
+    function useOwn() {
+      const a = own.value.split(/[\s,]+/).filter(Boolean).map(Number);
+      if (a.length < 2 || a.length > 8 || a.some((v) => !Number.isInteger(v) || Math.abs(v) > 99)) { err.textContent = 'Type 2 to 8 whole numbers (up to 99), separated by commas.'; return; }
+      chips.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      setArr(a);
+    }
+    modes.forEach((b) => b.addEventListener('click', () => run(b.dataset.mode!)));
+    back.addEventListener('click', () => { if (k > 0) { k--; show(); } });
+    next.addEventListener('click', () => { if (k < steps.length - 1) { k++; show(); } });
+    end.addEventListener('click', () => { k = steps.length - 1; show(); });
+    show();
+  });
+</script>

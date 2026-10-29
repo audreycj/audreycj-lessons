@@ -44,7 +44,7 @@ const { id } = Astro.props;
 <script>
   import { STEPS, countFor, stepPic, sortPic } from '../lib/sort.js';
   const NAMES: Record<string, string> = { bubble: 'Bubble sort', selection: 'Selection sort', insertion: 'Insertion sort' };
-  document.querySelectorAll<HTMLElement>('.solab').forEach((root) => {
+  document.querySelectorAll<HTMLElement>('.solab:not(.adlab)').forEach((root) => {
     const q = <T extends Element>(s: string) => root.querySelector(s) as T;
     const pic = q<HTMLElement>('.so-pic'), say = q<HTMLElement>('.so-say'), cmp = q<HTMLElement>('.so-cmp');
     const err = q<HTMLElement>('.so-err'), count = q<HTMLElement>('.so-count'), own = q<HTMLInputElement>('.so-in');
