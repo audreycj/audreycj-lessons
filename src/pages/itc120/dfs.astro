@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import TryIt from '../../components/TryIt.astro';
+import { hiN } from '../../lib/code.js';
 import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import TraverseLab from '../../components/TraverseLab.astro';
@@ -82,6 +83,60 @@ const code = String.raw`public class DFS {
     dfs(0);   // prints: A B C F E D G
   }
 }`;
+
+const taskCode = String.raw`public class Main {
+  static char[] names = {'A', 'B', 'C', 'D', 'E', 'F'};
+  static int n = names.length;
+  static int[][] adj = new int[n][n];
+  static boolean[] visited = new boolean[n];
+
+  static void addArrow(int from, int to) {   // directed
+    adj[from][to] = 1;
+  }
+
+  // DFS from u. Returns how many vertices it reaches,
+  // counting u itself.
+  static int countReach(int u) {
+    // YOUR CODE:
+    // 1. Mark u as visited.
+    // 2. Start a count at 1 (for u itself).
+    // 3. Check every v from 0 to n - 1. If v is a neighbor
+    //    of u and v is not visited yet, go deeper with
+    //    countReach(v), and add what it returns to the count.
+    // 4. Return the count.
+
+    return 0;
+  }
+
+  public static void main(String[] args) {
+    // the one-way graph from Part 4
+    addArrow(0, 1); addArrow(1, 2);   // A->B, B->C
+    addArrow(2, 0); addArrow(0, 3);   // C->A, A->D
+    addArrow(3, 4); addArrow(5, 3);   // D->E, F->D
+
+    System.out.println(countReach(0));   // expected: 5 (A B C D E)
+
+    visited = new boolean[n];            // clear for the next test
+    System.out.println(countReach(5));   // expected: 3 (F D E)
+
+    visited = new boolean[n];
+    System.out.println(countReach(4));   // expected: 1 (only E)
+
+    visited = new boolean[n];
+    System.out.println(countReach(1));   // expected: 5 (B C A D E)
+  }
+}`;
+const taskAns = String.raw`static int countReach(int u) {
+  visited[u] = true;
+  int count = 1;                      // u itself
+  for (int v = 0; v < n; v++) {       // A to Z order
+    if (adj[u][v] == 1 && !visited[v]) {
+      count = count + countReach(v);  // go deeper
+    }
+  }
+  return count;
+}`;
+const reachPeek = svgGraph(oneWay, { label: 'One-way graph: A to B, B to C, C to A, A to D, D to E, F to D' }) + '<p class="small">From A, DFS reaches A, B, C, D, E (5 vertices). From F, it reaches only F, D, E (3 vertices).</p>';
 
 const quiz = [
   { q: 'Which data structure does DFS use to remember where to go back to?', opts: ['Queue', 'Stack', 'Hash table', 'Sorted array'], a: 1, why: 'DFS uses a <b>stack</b> (last in, first out). The top of the stack is where you are; popping takes you back to the vertex you came from. In recursive code, Java\'s call stack does this for you.' },
@@ -375,6 +430,34 @@ const quiz = [
       <div class="plain">
         <p class="note-label">Match the code to the procedure</p>
         <p>Calling <code>dfs(v)</code> is the <b>push</b> (go deeper). When the <code>for</code> loop ends, the method returns: that is the <b>pop</b> (backtrack). The <code>visited</code> array stops us from going around a cycle forever. Compare with BFS: there is no queue here, because Java's call stack is the stack.</p>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: count what DFS can reach</p>
+        <p>In <Peek label="Part 4" title="From Part 4 · What can be reached?" html={reachPeek} />, DFS from A reached 5 vertices, but DFS from F reached only 3. Now write a DFS that counts them.</p>
+        <p>Finish <code>countReach</code> in about 8 lines where it says YOUR CODE. It is the <code>dfs</code> method from this part with a count added. Each call counts its own vertex (1), plus everything its deeper calls reach. Like <a href={base + '/itc120/recursion/#task'}>height in the Recursion lesson</a>, a recursive call gives back a number, and you add it. The graph is the one-way graph, built with <code>addArrow</code> (one direction only). <code>main</code> clears <code>visited</code> before each new test. Run it: each printed line must match its expected comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>5</code>, <code>3</code>, <code>1</code>, <code>5</code>.</p>
+          <p>Here is the first test, from A. The deepest calls finish first:</p>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>Call</th><th>Why</th><th>Returns</th></tr></thead>
+            <tbody>
+              <tr><td class="nowrap"><code>countReach(C)</code></td><td>C's only neighbor, A, is already visited</td><td>1</td></tr>
+              <tr><td class="nowrap"><code>countReach(B)</code></td><td>B itself + C</td><td>1 + 1 = 2</td></tr>
+              <tr><td class="nowrap"><code>countReach(E)</code></td><td>no arrows go out of E</td><td>1</td></tr>
+              <tr><td class="nowrap"><code>countReach(D)</code></td><td>D itself + E</td><td>1 + 1 = 2</td></tr>
+              <tr><td class="nowrap"><code>countReach(A)</code></td><td>A itself + B's 2 + D's 2</td><td>1 + 2 + 2 = 5</td></tr>
+            </tbody>
+          </table></div>
+          <p>The last test starts at B and also reaches 5: B → C → A, then A → D → E. The arrow C → A leads back to A. Only F is missed, because no arrow points into F.</p>
+          <p>Here are two common mistakes:</p>
+          <ul>
+            <li>Writing only <code>countReach(v);</code>. The call still runs, but the number it gives back is thrown away. Every call returns 1, so every test prints <code>1</code>.</li>
+            <li>Forgetting <code>visited[u] = true</code>. Then DFS goes A → B → C → A → B → … around the cycle forever. Each call waits for the next one, and Java's call stack fills up: the program stops with <code>StackOverflowError</code>.</li>
+          </ul>
+        </div></details>
       </div>
     </div>
   </section>

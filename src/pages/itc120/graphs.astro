@@ -2,6 +2,8 @@
 import Peek from '../../components/Peek.astro';
 import Base from '../../layouts/Base.astro';
 import TryIt from '../../components/TryIt.astro';
+import { hiN } from '../../lib/code.js';
+import { svgGraph } from '../../lib/graph.js';
 import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import MatrixLab from '../../components/MatrixLab.astro';
@@ -37,6 +39,88 @@ const readQuiz = [
   { q: 'What is the <b>out-degree</b> of D?', opts: ['0', '1', '2', '3'], a: 2, why: 'D has edges to B and E (row D has two 1s; D\'s list has two cells). Out-degree = 2.' },
   { q: 'In any adjacency matrix, a 1 on the diagonal (for example, [C][C]) means:', opts: ['There is a loop: an edge from C to itself', 'C is the starting vertex', 'C has no edges', 'There is an error in the matrix'], a: 0, why: 'The diagonal is where row and column are the same vertex. A 1 there means an edge from that vertex back to itself, called a <b>loop</b>.' },
 ];
+
+const taskCode = String.raw`import java.util.ArrayList;
+
+public class Main {
+  static char[] names = {'A', 'B', 'C', 'D', 'E'};
+  static int n = names.length;
+
+  // Builds the adjacency list of a graph from its matrix.
+  static ArrayList<ArrayList<Integer>> toList(int[][] adj) {
+    ArrayList<ArrayList<Integer>> list = new ArrayList<>();
+    for (int i = 0; i < n; i++) {
+      list.add(new ArrayList<>());   // one empty list each
+    }
+    // YOUR CODE:
+    // 1. Visit every cell: row i (from 0 to n - 1),
+    //    and in each row, column j (from 0 to n - 1).
+    // 2. If adj[i][j] is 1, there is an edge from i to j:
+    //    add j to vertex i's list.
+
+    return list;
+  }
+
+  // Given: prints each vertex's list, like "A: C D".
+  static void printList(ArrayList<ArrayList<Integer>> list) {
+    for (int i = 0; i < n; i++) {
+      System.out.print(names[i] + ":");
+      for (int j : list.get(i)) {
+        System.out.print(" " + names[j]);
+      }
+      System.out.println();
+    }
+  }
+
+  public static void main(String[] args) {
+    // Test 1: the directed graph from Reading practice
+    int[][] directed = {
+      {0, 0, 1, 1, 0},   // A -> C, A -> D
+      {1, 0, 0, 0, 0},   // B -> A
+      {0, 1, 0, 0, 0},   // C -> B
+      {0, 1, 0, 0, 1},   // D -> B, D -> E
+      {0, 0, 0, 0, 0}    // E points nowhere
+    };
+    printList(toList(directed));
+    // expected:
+    // A: C D
+    // B: A
+    // C: B
+    // D: B E
+    // E:
+
+    // Test 2: undirected A-B, A-D, B-C, B-D (E has no edges)
+    int[][] undirected = {
+      {0, 1, 0, 1, 0},
+      {1, 0, 1, 1, 0},
+      {0, 1, 0, 0, 0},
+      {1, 1, 0, 0, 0},
+      {0, 0, 0, 0, 0}
+    };
+    printList(toList(undirected));
+    // expected:
+    // A: B D
+    // B: A C D
+    // C: B
+    // D: A B
+    // E:
+  }
+}`;
+const taskAns = String.raw`static ArrayList<ArrayList<Integer>> toList(int[][] adj) {
+  ArrayList<ArrayList<Integer>> list = new ArrayList<>();
+  for (int i = 0; i < n; i++) {
+    list.add(new ArrayList<>());   // one empty list each
+  }
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+      if (adj[i][j] == 1) {
+        list.get(i).add(j);   // edge i -> j
+      }
+    }
+  }
+  return list;
+}`;
+const practicePeek = svgGraph(practiceG, { label: 'The Reading practice graph: A to C, A to D, B to A, C to B, D to B, D to E' }) + '<p class="small">Directed: A → C, A → D, B → A, C → B, D → B, D → E. E has no arrows going out.</p>';
 
 const checkQuiz = [
   { q: 'A graph is made of:', opts: ['Only nodes', 'Vertices and edges', 'A root and leaves', 'Keys and values'], a: 1, why: 'A graph is a set of <b>vertices</b> (nodes) and a set of <b>edges</b> that connect pairs of them. It has no root.' },
@@ -431,6 +515,19 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       </div>
       <p>Notice the difference when listing B's neighbors: the matrix loop checks all <code>n</code> cells in row 1, while the list loop only visits B's real neighbors.</p>
       <p>One more difference: the matrix loop always gives neighbors in index order (A, B, C, …), but an <code>ArrayList</code> keeps them in the order the edges were added. Here both give A C D. In the next lessons, this order matters: it decides which neighbor BFS and DFS visit first.</p>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: turn a matrix into a list</p>
+        <p>In <Peek label="Reading practice" title="From Part 7 · Reading practice" html={practicePeek} />, you read a matrix and wrote its adjacency list by hand: for each row, list the columns that hold a 1. Now write that in Java.</p>
+        <p>Finish <code>toList</code> in about 7 lines where it says YOUR CODE. You need a loop inside a loop: the outer loop picks row <code>i</code>, and the inner loop checks each column <code>j</code> of that row. To add to a vertex's list, use <code>list.get(i).add(j)</code>, as in the <a href="#java-list">adjacency list program</a> above. Test 1 is the directed graph from Reading practice. Test 2 is the undirected graph from this part, with a vertex E that has no edges. Run it: the printed lines must match the expected lines in the comments.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output: the ten lines in the comments, from <code>A: C D</code> to the last <code>E:</code>. E's list is empty in both tests, because E's row is all 0s.</p>
+          <p>Row <code>i</code> is the <b>from</b> vertex and column <code>j</code> is the <b>to</b> vertex, so a 1 in <code>adj[i][j]</code> goes into <b>i's</b> list. And because <code>j</code> counts up from 0, every list comes out in alphabetical order. BFS and DFS use that order in the next lessons.</p>
+          <p>A common mistake is <code>list.get(j).add(i)</code>, the wrong way around. Test 2 still passes: an undirected matrix is a <a href="#matrix">mirror image</a>, so every edge is stored both ways. Test 1 catches it. It prints <code>A: B</code>, <code>B: C D</code>, <code>C: A</code>, <code>D: A</code>, <code>E: D</code>: the arrows coming <b>into</b> each vertex, not going out. That is why the tests include a directed graph.</p>
+        </div></details>
+      </div>
     </div>
   </section>
 
