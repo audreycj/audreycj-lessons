@@ -200,7 +200,7 @@ const taskCode = String.raw`public class Main {
     preOrder(b);
     System.out.println("height " + b.height);
 
-    // Three RR cases. Expected:
+    // Four RR cases. Expected:
     // 40 20 10 30 60 50 70 height 2
     TreeNode c = build(new int[] {10, 20, 30, 40, 50, 60, 70});
     preOrder(c);
@@ -245,6 +245,7 @@ const quiz = [
   { q: 'You insert 10, then 30, then 20. Which case is this?', opts: ['RR', 'RL', 'LR', 'LL'], a: 1, why: 'From 10, the new value went right (to 30), then left (to 20). Right, then left: <b>RL</b>. It is a zigzag, so it needs two rotations: right at 30, then left at 10.' },
   { q: 'After an insertion, two nodes have balance factor +2: one is the root, the other is lower down, closer to the new value. Which one do you fix?', opts: ['The root, always', 'The lower one, closest to the new value', 'Both, one rotation each', 'Neither; rebuild the tree'], a: 1, why: 'Fix the <b>first</b> unbalanced node you meet going up from the new value. After that one fix, the nodes above it become balanced too.' },
   { q: 'During a right rotation at node z (its left child is y), what happens to y\'s right child?', opts: ['It is deleted', 'It becomes z\'s left child', 'It becomes y\'s left child', 'It becomes the new root'], a: 1, why: 'y moves up and z moves down to y\'s right. y\'s old right child cannot stay (that spot now holds z), so it moves over to become z\'s left child. It still fits the BST rule there.' },
+  { q: 'A plain BST and an AVL tree each get the values 1 to 1,000,000, inserted in sorted order. About how many steps can one search need in each?', opts: ['About 20 in both', 'Up to 1,000,000 in the BST; at most a few dozen (about 20 to 30) in the AVL tree', 'About 20 in the BST; up to 1,000,000 in the AVL tree', 'Up to 1,000,000 in both'], a: 1, why: 'Sorted input makes the plain BST a chain, so a search can pass every value: up to n steps, O(n). The AVL tree stays balanced, so its height grows like log₂ n: about 20 for a million values, O(log n). See <a href="#speed">How fast?</a> in Part 1.' },
   { q: 'Which traversal of any AVL tree gives the values in sorted order?', opts: ['Pre-order', 'In-order', 'Post-order', 'None; rotations mix up the order'], a: 1, why: 'An AVL tree is still a BST, and rotations never break the BST rule. So in-order (Left, Node, Right) is always sorted.' },
 ];
 // Peeks back to earlier parts/lessons (chat 23)
@@ -262,7 +263,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
     <div class="goals">
       <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>explain why a BST built from sorted values is slow, using its height;</li>
+        <li>explain why a BST built from sorted values is slow, using its height, and compare the time of search and insert in a balanced tree (about log₂ n steps) and an unbalanced one (up to n steps);</li>
         <li>compute the <b>height</b> and <b>balance factor</b> (left − right) of any node;</li>
         <li>name the case at an unbalanced node (<b>LL, RR, LR, RL</b>) and fix it with the right rotation(s);</li>
         <li>insert a list of values into an AVL tree <b>by hand</b> and write its traversals, the way the exam asks;</li>
@@ -299,6 +300,20 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
       </figure>
 
       <p>The left tree is really just a linked list wearing a tree costume. With 1,000 values inserted in sorted order, a search could need 1,000 comparisons. A well-shaped tree with 1,000 values needs only about 10.</p>
+
+      <div class="plain" id="speed">
+        <p class="note-label">How fast? Balanced vs. unbalanced</p>
+        <p>Search, insert, and delete each walk <b>one path down</b> the tree, so their work grows with the tree's <b>height</b>. Here is how the number of steps grows with n, the number of values:</p>
+        <table class="tbl">
+          <thead><tr><th>Tree</th><th>Height with n values</th><th>1,000 values</th><th>1,000,000 values</th></tr></thead>
+          <tbody>
+            <tr><td><b>Unbalanced BST</b> (worst case: a chain)</td><td>about n</td><td>up to 1,000 steps</td><td>up to 1,000,000 steps</td></tr>
+            <tr><td><b>Balanced tree</b> (AVL, red-black)</td><td>close to log₂ n</td><td>about 10 steps</td><td>about 20 steps</td></tr>
+          </tbody>
+        </table>
+        <p><b>log₂ n</b> means "how many times you can cut n in half until you reach 1". 1,000 → 500 → 250 → … → 1 takes about 10 halvings. So doubling the number of values adds only <b>one</b> more level. The rotations that keep a tree balanced take only a few steps each, so insert and delete stay fast too.</p>
+        <p class="small muted">Good to know: books write this as <b>O(n)</b> ("order n") for the unbalanced worst case and <b>O(log n)</b> ("order log n") for a balanced tree. An AVL tree is never taller than about 1.44 × log₂ n (a red-black tree: 2 × log₂ n), so even a million values need at most a few dozen steps.</p>
+      </div>
 
       <div class="remember">
         <p class="note-label">Where you see this in IT</p>
@@ -604,7 +619,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
       <div class="remember">
         <p class="note-label">Key takeaways</p>
         <ol>
-          <li>A BST can become a slow chain if values arrive in sorted order.</li>
+          <li>A BST can become a slow chain if values arrive in sorted order: up to n steps per search. A balanced tree needs only about log₂ n.</li>
           <li>Balance factor = height(left) − height(right). Allowed: −1, 0, +1. Fix at ±2.</li>
           <li>An AVL tree is a BST that keeps every balance factor in −1 to +1 using rotations.</li>
           <li>Name the case from the unbalanced node: LL and RR need 1 rotation; LR and RL need 2.</li>

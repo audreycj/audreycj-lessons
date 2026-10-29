@@ -27,10 +27,11 @@ function summarize(values) {
     const tags = out.steps.map((s) => s.tag);
     if (i === 0) { notes.push(`<b>${v}</b>: becomes the root, colored black.`); return; }
     const acts = [];
-    tags.forEach((t) => {
+    tags.forEach((t, k) => {
+      const up = k > 0 && tags[k - 1] === 'Recolor' ? 'the problem moved up to the grandparent; there, ' : '';
       if (t === 'Recolor') acts.push('uncle is red → <b>recolor</b>');
-      else if (t === 'LL shape' || t === 'RR shape') acts.push(`uncle is black, <b>line (${t.slice(0, 2)})</b> → 1 rotation + swap colors`);
-      else if (t === 'LR shape' || t === 'RL shape') acts.push(`uncle is black, <b>triangle (${t.slice(0, 2)})</b> → 2 rotations + swap colors`);
+      else if (t === 'LL shape' || t === 'RR shape') acts.push(`${up}uncle is black, <b>line (${t.slice(0, 2)})</b> → 1 rotation + swap colors`);
+      else if (t === 'LR shape' || t === 'RL shape') acts.push(`${up}uncle is black, <b>triangle (${t.slice(0, 2)})</b> → 2 rotations + swap colors`);
       else if (t === 'Recolor root') acts.push('root turned red, so color it <b>black</b>');
     });
     if (acts.length) notes.push(`<b>${v}</b>: ${acts.join('; then ')}.`);
@@ -337,6 +338,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
           <tr><td><b>Extra info per node</b></td><td>height (or balance factor)</td><td>one color: red or black</td></tr>
           <tr><td><b>Balance promise</b></td><td>left and right heights differ by at most 1</td><td>longest path is at most 2× the shortest</td></tr>
           <tr><td><b>Shape</b></td><td>more tightly balanced (shorter)</td><td>a little looser (can be a bit taller)</td></tr>
+          <tr><td><b>Search, insert, delete</b></td><td>about log₂ n steps (see <a href={base + '/itc120/avl-trees/#speed'}>How fast?</a>)</td><td>about log₂ n steps (the height can be up to twice as tall as AVL's)</td></tr>
           <tr><td><b>How it fixes</b></td><td>rotations</td><td>recoloring first; rotations only when the uncle is black</td></tr>
           <tr><td><b>Good for</b></td><td>lots of searching, fewer changes</td><td>lots of inserts and deletes</td></tr>
         </tbody>
@@ -419,7 +421,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
           <span class="copy-out small" id="rb-copy-out" aria-live="polite"></span>
         </div>
         <details class="reveal">
-          <summary>Show the starter file ({starter.split('\n').length} lines)</summary>
+          <summary>Show the starter file ({starter.trimEnd().split('\n').length} lines)</summary>
           <pre class="code"><code id="rb-starter" set:html={hi(starter)} /></pre>
         </details>
       </div>

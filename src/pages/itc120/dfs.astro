@@ -236,8 +236,8 @@ const quiz = [
             Many books, courses, and exams still add a rule, usually alphabetical order, <b>so everyone gets the same answer</b> and answers are easy to check. If the question gives a rule, follow it. If it gives none, any correct order is fine, but alphabetical is the safe habit: it matches most answer keys. For numbered vertices, the usual rule is smallest number first, comparing them as numbers (2 before 10).</li>
         </ol>
       </div>
-      <div class="plain">
-        <p class="note-label">Good to know: the "push-all" way in some books</p>
+      <details class="reveal"><summary>Extra: the "push-all" way in some books</summary><div class="flow">
+        <p class="xtra-note"><b>Extra topic.</b> Open this if a book or website shows DFS with a different stack routine. In this course, use the procedure above.</p>
         <p>Some books and websites use a different stack routine: pop a vertex; if it is not visited yet, visit it and push <b>all</b> its unvisited neighbors. Its stack is a <b>to-do list</b>, not the path you are on:</p>
         <figure class="fig illus-fig"><Fragment set:html={dfsTwoWays()} /><figcaption>Right after DFS from A visits D. Our stack is the path from A to D. The push-all stack holds D and E, which are already visited (they get skipped when popped), and G twice.</figcaption></figure>
         <p class="after-fig">Does the push-all way visit the vertices in the same order as ours? It depends on <b>which neighbor it pushes last</b>, because a stack gives back the last thing pushed first. Look at the start, A, whose unvisited neighbors are B and D:</p>
@@ -246,7 +246,7 @@ const quiz = [
           <li><b>Push B, then D</b> (A to Z): D is on top, so D is visited next. The order changes: <span class="mono">A, D, E, G, F, C, B</span>.</li>
         </ul>
         <p>One warning: some versions tick a vertex as visited when it is <b>pushed</b>, instead of when it is popped. That shortcut can give an order that is not a real DFS. In this course, use the procedure above.</p>
-      </div>
+      </div></details>
     </div>
   </section>
 

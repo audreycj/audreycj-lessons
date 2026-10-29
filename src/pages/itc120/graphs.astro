@@ -220,9 +220,12 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <div class="def">
         <p class="note-label">Graph</p>
         <p>A <b>graph</b> is a non-linear data structure made of a set of <b>vertices</b> (also called nodes) and a set of <b>edges</b>. Each edge connects two vertices.</p>
-        <p>We often write a graph as <b>G = (V, E)</b>: V is the set of vertices, E is the set of edges. Here, a <b>set</b> just means a group of items with no repeats, listed inside curly braces &#123; &#125;. (Sets get their own lesson later.)</p>
       </div>
-      <GraphFig g={small} label="A small graph: A connects to B and D; B connects to C and D" caption="V = {A, B, C, D}   ·   E = {A–B, A–D, B–C, B–D}" />
+      <GraphFig g={small} label="A small graph: A connects to B and D; B connects to C and D" caption="Vertices: A, B, C, D   ·   Edges: A–B, A–D, B–C, B–D" />
+      <details class="reveal"><summary>Extra: how books write a graph</summary><div class="flow">
+        <p class="xtra-note"><b>Extra topic.</b> You may see this short math form in books. Open this if you are curious.</p>
+        <p>Books often write a graph as <b>G = (V, E)</b>: V is the set of vertices, E is the set of edges. Here, a <b>set</b> just means a group of items with no repeats, listed inside curly braces &#123; &#125;. (Sets get their own lesson later.) The graph above is V = &#123;A, B, C, D&#125; and E = &#123;A–B, A–D, B–C, B–D&#125;.</p>
+      </div></details>
 
       <div class="sub">
         <h3>Graphs vs. trees</h3>

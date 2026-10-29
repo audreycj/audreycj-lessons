@@ -266,7 +266,7 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
         <p class="note-label">Exam traps</p>
         <ul>
           <li>Mark a vertex as seen <b>when you enqueue it</b>, not when you dequeue it. Otherwise it can enter the queue twice.</li>
-          <li>When a vertex has several unseen neighbors, the order you enqueue them changes the answer. Any order is still a correct BFS (the levels stay the same), so if the question does not say, more than one BFS order can be correct. <b>Alphabetical order</b> is the usual safe choice; for numbered vertices, use <b>smallest number first</b>, comparing them as numbers (2 before 10). Just be consistent. In code, the order is however the neighbors are stored.</li>
+          <li>When a vertex has several unseen neighbors, the order you enqueue them changes the answer. Use <b>alphabetical order</b> (for numbered vertices, <b>smallest number first</b>, comparing them as numbers: 2 before 10) unless the question gives another rule. The box below explains why.</li>
           <li>In a directed graph, follow the arrows only. An arrow <i>into</i> a vertex does not let you leave through it.</li>
         </ul>
       </div>
@@ -331,7 +331,7 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
       </div>
       <div class="trap">
         <p class="note-label">Careful</p>
-        <p>"Shortest" here means <b>fewest edges</b>. In a <b>weighted</b> graph, the path with fewer edges is not always the cheapest one For example, in the <Peek label="travel-time graph" title="From the Graphs lesson" html={travelPeek} /> from the Graphs lesson, A → B → C takes 19 minutes. If there were also a direct A–C road taking 30 minutes, A → C would have fewer edges but take 11 minutes longer. Weighted shortest paths use other algorithms, such as Dijkstra's algorithm.</p>
+        <p>"Shortest" here means <b>fewest edges</b>. In a <b>weighted</b> graph, the path with fewer edges is not always the cheapest one. For example, in the <Peek label="travel-time graph" title="From the Graphs lesson" html={travelPeek} /> from the Graphs lesson, A → B → C takes 19 minutes. If there were also a direct A–C road taking 30 minutes, A → C would have fewer edges but take 11 minutes longer. Weighted shortest paths use other algorithms, such as Dijkstra's algorithm.</p>
       </div>
     </div>
   </section>
