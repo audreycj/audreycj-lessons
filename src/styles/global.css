@@ -501,7 +501,7 @@ details.term:not([open]) + details.term { padding-top: 0.6rem; }
 svg.sketch, svg.objbox { display: block; width: 100%; height: auto; margin-inline: auto; }
 svg.sketch { max-width: 24rem; }
 svg.objbox { max-width: 20rem; }
-.illus { margin: 0; display: grid; gap: 0.6rem; justify-items: center; }
+.illus { margin-left: 0; margin-right: 0; margin-bottom: 0; display: grid; gap: 0.6rem; justify-items: center; }
 .illus > figcaption, .illus-cap { font-size: var(--step--1); color: var(--ink-soft); text-align: center; max-width: 34rem; }
 .illus-row { display: grid; gap: 1rem; align-items: center; }
 @media (min-width: 40rem) { .illus-row { grid-template-columns: 1fr 1fr; } .illus-row .illus-eq { grid-column: 1 / -1; grid-row: 1; } }
@@ -772,9 +772,9 @@ pre.code .rg-rec { display: inline-block; width: 100%; background: rgba(127, 179
 .c-base { color: #2e7d4f; font-weight: 800; }
 .c-rec { color: #2f6fa8; font-weight: 800; }
 /* "Good place to take a break" note */
-.break-note { margin: 0; padding: 0.6rem 0.9rem; border-radius: 10px; background: var(--teal-wash); border: 1.5px dashed var(--teal); font-weight: 700; }
+.break-note { margin-left: 0; margin-right: 0; margin-bottom: 0; padding: 0.6rem 0.9rem; border-radius: 10px; background: var(--teal-wash); border: 1.5px dashed var(--teal); font-weight: 700; }
 .break-note b { color: var(--teal-ink); }
-.console { margin: 0; background: #1b2a2e; color: #e8f1ef; border-radius: 8px; padding: 0.5rem 0.8rem; font-family: var(--font-mono, monospace); }
+.console { margin-left: 0; margin-right: 0; margin-bottom: 0; background: #1b2a2e; color: #e8f1ef; border-radius: 8px; padding: 0.5rem 0.8rem; font-family: var(--font-mono, monospace); }
 .console span { display: block; font-size: 0.75em; color: #8fb8b3; text-transform: uppercase; letter-spacing: 0.05em; }
 .tbl tr.rg-row td { background: #e3f3e6; }
 /* Recursion lesson, round 3 */
@@ -956,3 +956,16 @@ table.grid2d th { font-size: 0.8rem; font-weight: 600; color: var(--teal-ink); p
 table.grid2d th.g2-corner { font-family: var(--font-body, inherit); font-size: 0.72rem; color: var(--ink-soft); white-space: nowrap; }
 table.grid2d td { width: 2.8rem; height: 2.6rem; text-align: center; border: 2px solid var(--ink); background: var(--card); font-size: 1rem; color: var(--ink); }
 table.grid2d td.hot { background: var(--orange); color: #fff; font-weight: 700; }
+
+/* Spacing fixes (chat 20): space between blocks inside boxes, and above/below illustrations */
+.trap:not(.flow) > :not(.note-label) + *,
+.remember:not(.flow) > :not(.note-label) + *,
+.plain:not(.flow) > :not(.note-label) + *,
+.sticky:not(.flow) > :not(.note-label) + *,
+.def:not(.flow) > :not(.note-label) + *,
+.paper:not(.flow) > :not(.note-label) + * { margin-top: 0.75rem; }
+.fig:not(.illus) > * + figcaption { margin-top: 0.6rem; }
+.flow > .break-note, .sub > .break-note, * + .break-note { margin-top: 1.5rem; }
+li > * + :is(pre, .scroll-x, .tbl-wrap, table, figure, .fig), li > :is(pre, .scroll-x, .tbl-wrap, table, figure, .fig) + * { margin-top: 0.75rem; }
+:not(.flow):not(.sub) > * + .console { margin-top: 0.75rem; }
+.fig > :is(.gfig, .tree-fig, table, .tbl-wrap, .scroll-x, svg) + *, .fig > * + :is(table, .tbl-wrap, .scroll-x) { margin-top: 0.75rem; }
