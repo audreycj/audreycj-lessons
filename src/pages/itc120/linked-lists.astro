@@ -293,7 +293,8 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       <p class="note-label">By the end, you can:</p>
       <ol>
         <li>explain how nodes and references form a linked list;</li>
-        <li>trace access, traversal, insertion, and deletion on a box-and-arrow drawing and in Java;</li>
+        <li>trace access, traversal, insertion, and deletion on a box-and-arrow drawing and in Java, and write a method that adds a node at the end;</li>
+        <li>compare a linked list with an array: which tasks each one does faster, and when to use each;</li>
         <li>explain why the <b>order</b> of the lines matters when inserting;</li>
         <li>tell singly, doubly, and circular linked lists apart.</li>
       </ol>
@@ -321,6 +322,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       </div>
       <p>Here is the same sequence, organized two ways:</p>
       <figure class="fig illus-fig illus"><Fragment set:html={llTrainPic()} /><figcaption>A seat plan jumps straight to a seat. A train is walked car by car.</figcaption></figure>
+      <p>Side by side:</p>
       <table class="tbl">
         <thead><tr><th>Array</th><th>Linked list</th></tr></thead>
         <tbody>
@@ -399,7 +401,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       <p>Two words in the first line: <code>static</code> lets <code>main</code> call <code>printList</code> directly, without making an object first, and <code>void</code> means it sends no value back (it only prints). Also, each method has its own variables: the <code>current</code> inside <code>printList</code> is separate from the <code>current</code> that <code>main</code> declares later in the whole program, even though the names match.</p>
       <p>Step through it on the list 10 → 20 → 30. Watch <code>current</code> (orange) move while <code>head</code> and <code>start</code> stay on node 10.</p>
       <CodeWalk id="cw-ll-print" code={llPrintCode} steps={llPrintSteps()} cap="Walkthrough: printList(head) on 10 → 20 → 30" hint="Use Next to go step by step, or tap a line to jump to it." />
-      <p>The same walk in one table:</p>
+      <details class="reveal"><summary>Show the same walk in one table</summary><div class="flow">
       <div class="scroll-x">
         <table class="tbl">
           <thead><tr><th>current</th><th>This step prints</th><th>Then</th></tr></thead>
@@ -412,6 +414,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
         </table>
       </div>
       <p>Output: <code>10 -&gt; 20 -&gt; 30 -&gt; null</code></p>
+      </div></details>
       <div class="trap">
         <p class="note-label">Forgetting <code>current = current.next;</code></p>
         <p>Without that line, <code>current</code> never moves. It stays on node 10, so <code>current != null</code> is true forever: the loop prints <code>10 -&gt; </code> again and again and never ends.</p>
@@ -498,9 +501,10 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
         </div></details>
       </div>
       <div class="sub">
-        <h3>The real cost</h3>
+        <h3 id="cost">The real cost</h3>
         <p>Changing links is cheap. <b>Finding</b> the node is not:</p>
         <figure class="fig illus-fig illus"><Fragment set:html={llStreetPic()} /><figcaption>House numbers vs. directions.</figcaption></figure>
+        <p>Here is what each task costs:</p>
         <table class="tbl">
           <thead><tr><th>Task</th><th>Array</th><th>Linked list</th></tr></thead>
           <tbody>
@@ -560,7 +564,9 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
         <figure class="fig illus-fig illus"><Fragment set:html={llCircPic()} /><figcaption>Circular singly and circular doubly: both loop back.</figcaption></figure>
       </div>
       <div class="sub" id="dll-ops">
-        <h3>Operations on doubly and circular lists</h3>
+        <h3>Doubly and circular lists in Java <span class="xtra">(extra)</span></h3>
+        <p class="xtra-note"><b>Extra topic.</b> Writing doubly and circular lists in Java goes beyond this course. You only need to tell the three kinds apart and give a trade-off for each, as in the table above. Open this if you are curious.</p>
+        <details class="reveal"><summary>Show doubly and circular lists in Java</summary><div class="flow">
         <p>The four operations are the same as in a singly list. Two things change: how many links you update, and how a loop knows when to stop.</p>
         <p><b>Doubly linked: insert after a node.</b> Each node has one new field, <code>prev</code>, the node before it. In a singly list, inserting after a node changed 2 links (<Peek label="the safe order" title="From Part 4" html={safePeek} />). In a doubly list it changes <b>4</b>: two for the new node, and one for each neighbor.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={dllInsertPic} /><figcaption>Inserting 25 after 20. The four orange links are the ones that change, in the order of the code.</figcaption></figure>
@@ -583,6 +589,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
         <TryIt cls="CircularDemo" />
         <p class="small muted">This loop assumes the list has at least one node. If <code>head</code> can be <code>null</code>, check that first.</p>
         <p>How do the three kinds compare in speed? Once you have the node, inserting or deleting takes a few steps in all three kinds, however long the list is. Doubly does about twice the link work and stores one more reference per node. In return, it can go backward, and it can delete a node without searching for the one before it.</p>
+        </div></details>
       </div>
     </div>
   </section>
@@ -593,7 +600,8 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       <h2>Practice</h2>
     </div>
     <div class="flow">
-      <p>Draw boxes and arrows for every problem. That is what you will do on the exam. The first two sets are the same as the "Check your understanding" items in the module (Sections 3 and 4), so you may have done them already. The third set is new. The last box is a short coding task you can do on a phone.</p>
+      <p>Draw boxes and arrows for every problem. That is what you will do on the exam. The module's own "Check your understanding" items (Sections 3 and 4) are in the closed box below, in case you want to redo them. The "New problems" set is new. The last box is a short coding task you can do on a phone.</p>
+      <details class="reveal"><summary>Show the module's practice (Sections 3 and 4)</summary><div class="flow">
       <div class="paper flow">
         <p class="note-label">Nodes and references</p>
         <ol>
@@ -628,6 +636,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
           </ol>
         </div></details>
       </div>
+      </div></details>
       <div class="paper flow">
         <p class="note-label">New problems</p>
         <ol>

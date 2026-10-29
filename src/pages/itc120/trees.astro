@@ -9,11 +9,79 @@ import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import Peek from '../../components/Peek.astro';
 import TreeBuilder from '../../components/TreeBuilder.astro';
+import TryIt from '../../components/TryIt.astro';
 import { train, phoneFiles, folderTree, pathTree, listNodePic, treeNodePic, classObjPic } from '../../lib/illus.js';
 import { treeNodeCode, treeNodeSteps, buildCode, buildSteps } from '../../lib/walks.js';
 import { node, svgTree } from '../../lib/tree.js';
 import { course } from '../../data/itc120.js';
-import { hi } from '../../lib/code.js';
+import { hi, hiN } from '../../lib/code.js';
+const taskCode = String.raw`class TreeNode {
+  int data;
+  TreeNode left;
+  TreeNode right;
+
+  TreeNode(int value) {
+    data = value;
+    left = null;
+    right = null;
+  }
+}
+
+public class Main {
+  // Builds the tree in the picture and returns its root.
+  static TreeNode buildTree() {
+    TreeNode root = new TreeNode(50);
+    // YOUR CODE: put 30, 70, 20, 40, and 80 in their slots.
+    //         50
+    //        /  \
+    //      30    70
+    //     /  \     \
+    //   20    40    80
+
+    return root;
+  }
+
+  // Given (you do not need to change it): follows a path of
+  // L (left) and R (right) from the root, and returns the value
+  // there, or "null" if there is no node.
+  static String at(TreeNode root, String path) {
+    TreeNode current = root;
+    for (int i = 0; i < path.length(); i++) {
+      if (current == null) {
+        return "null";
+      }
+      if (path.charAt(i) == 'L') {
+        current = current.left;
+      } else {
+        current = current.right;
+      }
+    }
+    if (current == null) {
+      return "null";
+    }
+    return "" + current.data;
+  }
+
+  public static void main(String[] args) {
+    TreeNode root = buildTree();
+    System.out.println(at(root, ""));     // expected: 50
+    System.out.println(at(root, "L"));    // expected: 30
+    System.out.println(at(root, "R"));    // expected: 70
+    System.out.println(at(root, "LL"));   // expected: 20
+    System.out.println(at(root, "LR"));   // expected: 40
+    System.out.println(at(root, "RR"));   // expected: 80
+    System.out.println(at(root, "RL"));   // expected: null
+  }
+}`;
+const taskAns = String.raw`static TreeNode buildTree() {
+  TreeNode root = new TreeNode(50);
+  root.left = new TreeNode(30);
+  root.right = new TreeNode(70);
+  root.left.left = new TreeNode(20);
+  root.left.right = new TreeNode(40);
+  root.right.right = new TreeNode(80);
+  return root;
+}`;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const listNode = String.raw`class Node {
@@ -64,7 +132,8 @@ const quiz = [
       <ol>
         <li>explain how a tree node is like a linked-list node with more than one <code>next</code>;</li>
         <li>name the root, parents, children, siblings, leaves, ancestors, descendants, and subtrees in a given tree, and find any node's depth and height;</li>
-        <li>tell whether a tree is a <b>binary tree</b>, and read its <code>left</code> and <code>right</code> references in Java.</li>
+        <li>tell whether a tree is a <b>binary tree</b>, and read its <code>left</code> and <code>right</code> references in Java;</li>
+        <li>write the Java lines that build a binary tree from a drawing.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/linked-lists/'}>Linked lists lesson</a>, and scratch paper.</p>
@@ -222,6 +291,20 @@ const quiz = [
           <figure class="fig"><TreeFig values={[10, 20, 30, 40, 50, 60, 70]} label="A chain of height 6" /><p class="small" style="text-align:center">height 6: shaped like a chain</p></figure>
         </div>
         <p>The same seven values can make a short, bushy tree or a tall chain. Shape matters: you will see why in the next lessons (and again in AVL trees).</p>
+        <div class="def" id="properties">
+          <p class="note-label">Properties of a binary tree</p>
+          <p>Each node has at most two children, so each level can hold at most twice as many nodes as the level above it. Adding up the levels gives the most nodes a tree of that height can hold:</p>
+          <table class="tbl">
+            <thead><tr><th>Level</th><th>Most nodes on this level</th><th>Most nodes in a tree of this height</th></tr></thead>
+            <tbody>
+              <tr><td>0</td><td>1</td><td>1</td></tr>
+              <tr><td>1</td><td>2</td><td>1 + 2 = 3</td></tr>
+              <tr><td>2</td><td>4</td><td>3 + 4 = 7</td></tr>
+              <tr><td>3</td><td>8</td><td>7 + 8 = 15</td></tr>
+            </tbody>
+          </table>
+          <p>So 7 nodes fit in height 2 only when every spot is filled, like the bushy tree above. The fewest nodes for height <i>h</i> is <i>h</i> + 1: a chain. And whatever its shape, a tree with <i>n</i> nodes has <i>n</i> − 1 edges (every node except the root has one edge up to its parent).</p>
+        </div>
         <TreeBuilder id="build-shapes" values={[10, 20, 30, 40, 50, 60, 70]} cap="Build-a-tree challenges" hint="Drag values onto the dashed spots (or tap a value, then tap a spot). Tap a leaf to take it back. The orange line shows the longest path from the root: that is the height." challenges={[
           { say: 'Use all 7 values and make the tree as <b>short</b> as possible (height 2).', size: 7, height: 2 },
           { say: 'Use all 7 values and make the tree as <b>tall</b> as possible (height 6).', size: 7, height: 6 },
@@ -234,7 +317,7 @@ const quiz = [
   <section class="chapter wrap" id="practice">
     <div class="chapter-head">
       <p class="chapter-num">Part 4 · Your turn</p>
-      <h2>Label this tree</h2>
+      <h2>Label a tree, build a tree</h2>
     </div>
     <div class="flow">
       <div class="paper flow">
@@ -252,6 +335,21 @@ const quiz = [
             </ol>
           </div>
         </details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: build a tree in Java</p>
+        <p>In Part 3, you read code and drew the tree. Now go the other way: here is the drawing, and you write the code. Finish <code>buildTree</code> in about 5 lines where it says YOUR CODE, using the <code>TreeNode</code> class from Part 3.</p>
+        <figure class="fig"><TreeFig values={[50, 30, 70, 20, 40, 80]} label="The tree to build: 50 at the root; 30 on its left and 70 on its right; 20 and 40 under 30; 80 on the right of 70" /><figcaption>Build this tree. 70 has no left child.</figcaption></figure>
+        <p>The method <code>at</code> is given, so you can check your tree. Read <code>at(root, "LR")</code> as <code>root.left.right</code>: each L means "go left," and each R means "go right." Run it: each printed line must match its comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>50</code>, <code>30</code>, <code>70</code>, <code>20</code>, <code>40</code>, <code>80</code>, <code>null</code>.</p>
+          <p><b>Make a parent before its children.</b> <code>root.left.left = ...</code> means "go to root's left node, then store the new node in <b>its</b> left slot." If <code>root.left</code> is still <code>null</code>, there is no node to go to, and Java throws a NullPointerException, the same error as using a <code>null</code> reference in the Linked lists lesson.</p>
+          <p>Nothing is stored in 70's left slot, so it stays <code>null</code>, and <code>at(root, "RL")</code> prints <code>null</code>.</p>
+          <p>Other orders work too, as long as each parent comes first: for example, 30, 20, 40, then 70, 80.</p>
+        </div></details>
       </div>
     </div>
   </section>

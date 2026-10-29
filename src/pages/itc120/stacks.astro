@@ -265,7 +265,7 @@ const quiz = [
         <li>trace a program that uses Java's own <code>Stack&lt;Integer&gt;</code>, and explain what the <code>&lt;Integer&gt;</code> means.</li>
       </ol>
     </div>
-    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson. The <a href={base + '/itc120/linked-lists/'}>Linked lists</a> lesson helps for one optional part.</p>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> and <a href={base + '/itc120/linked-lists/'}>Linked lists</a> lessons (for classes, objects, and nodes).</p>
   </header>
 
   <section class="chapter wrap" id="idea">
@@ -306,17 +306,14 @@ const quiz = [
       </div>
       <figure class="fig illus-fig illus"><Fragment set:html={stkFlowPic()} /><figcaption>Both are mistakes in <i>when</i> the program calls a method, not problems with the data. In Part 4, each method checks for them first. Overflow can only happen when the storage has a fixed size, like an array.</figcaption></figure>
       <div class="sub">
-        <h3>Where you see LIFO</h3>
+        <h3 id="uses">Where you see LIFO</h3>
         <p>Here are three everyday places where the newest item comes out first:</p>
         <figure class="fig illus-fig illus"><Fragment set:html={stkLifoPic()} /><figcaption>In each one, the orange item went in last, so it is the first to come out.</figcaption></figure>
-        <p>Here is the full list, with two you will meet in later lessons:</p>
+        <p>Two more uses, which you will meet in later lessons:</p>
         <div class="scroll-x">
           <table class="tbl">
             <thead><tr><th>Use</th><th>How LIFO fits</th></tr></thead>
             <tbody>
-              <tr><td>Undo</td><td>Each change could be pushed. Undo pops the most recent change first.</td></tr>
-              <tr><td>The Back button</td><td>Each page you visit could be pushed. Back pops the most recent page.</td></tr>
-              <tr><td>Reversing a word</td><td>Push the letters, then pop them all: they come out in reverse (MATI becomes ITAM).</td></tr>
               <tr><td>Method calls in Java</td><td>Java keeps a stack of calls. A call is pushed when a method starts and popped when it finishes. You will see this in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson.</td></tr>
               <tr><td>Depth-first search</td><td>A stack remembers the path back. You will use it in the <a href={base + '/itc120/dfs/'}>DFS</a> lesson.</td></tr>
             </tbody>
@@ -504,8 +501,8 @@ const quiz = [
         <p class="note-label">Good to know: StackOverflowError</p>
         <p>You may also meet <code>StackOverflowError</code>. That is overflow on Java's own stack of method calls, usually from a recursive method that never stops. You will see it in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson.</p>
       </div>
-      <details class="reveal">
-        <summary>Optional: a stack built from a linked list</summary>
+      <details class="reveal" id="linked-stack">
+        <summary>A stack built from a linked list</summary>
         <div class="flow">
           <p>A stack can also use a <a href={base + '/itc120/linked-lists/'}>linked list</a>, with the <b>first node as the top</b>. Then <code>push</code> is "insert at the beginning" and <code>pop</code> is "delete the first node," the same two operations from the Linked lists lesson. It never gets full, so it has no <code>isFull()</code>.</p>
           <pre class="code"><code set:html={hiN(linkedStack)} /></pre>

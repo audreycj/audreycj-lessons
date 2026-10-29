@@ -285,14 +285,11 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       </div>
       <figure class="fig illus-fig illus"><Fragment set:html={qEmptyPic()} /><figcaption>Underflow is a mistake in <i>when</i> the program calls a method, not a problem with the data. In Part 4, <code>dequeue</code> and <code>peek</code> check for it first.</figcaption></figure>
       <div class="sub">
-        <h3>Where you see FIFO</h3>
+        <h3 id="uses">Where you see FIFO</h3>
         <p>Here are three everyday places where the item that waited longest goes first:</p>
         <figure class="fig illus-fig illus"><Fragment set:html={qFifoPic()} /><figcaption>In each one, the orange item has waited longest, so it goes first. The teal one just joined, so it goes last.</figcaption></figure>
-        <p>Queues fit any waiting line served in arrival order. Here is the full list, with one you will meet in a later lesson:</p>
+        <p>Queues fit any waiting line served in arrival order. Two more, one of which you will meet in a later lesson:</p>
         <ul>
-          <li>print jobs sent to one shared printer;</li>
-          <li>students at the registrar's window, or numbers called at a "Now serving" counter;</li>
-          <li>songs added to a music app's "Up next" list;</li>
           <li>passengers at a pedicab terminal;</li>
           <li>breadth-first search, which you will meet in the <a href={base + '/itc120/bfs/'}>BFS</a> lesson: it keeps the places it still has to visit in a queue.</li>
         </ul>
@@ -430,8 +427,8 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
         </details>
         <p>You can also write <code>Queue&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();</code> (with <code>import java.util.ArrayDeque;</code>). The program prints the same output, and Java's documentation says <code>ArrayDeque</code> is usually faster than <code>LinkedList</code> as a queue. In this course you still write your own, so you can see what happens inside.</p>
       </div>
-      <details class="reveal">
-        <summary>Optional: a queue in an array</summary>
+      <details class="reveal" id="array-queue">
+        <summary>A queue in an array</summary>
         <div class="flow">
           <p>A queue can also be kept in an array. If the front always stayed at index 0, every <code>dequeue</code> would have to shift all the other values one cell left, like deleting at index 0 in the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson. So array queues let the front <b>move forward</b> instead, and when the rear reaches the last cell, it <b>wraps around</b> to index 0 to reuse the cells that were freed. This is called a <b>circular array</b>.</p>
           <figure class="fig illus-fig"><Fragment set:html={qCircPic()} /><figcaption>Five cells. The two dequeues moved <code>front</code> to cell 2. Then 6 had no cell to the right of cell 4, so <code>rear</code> wrapped around to cell 0. Read the queue from <code>front</code>, going right and wrapping: 3, 4, 5, 6.</figcaption></figure>
@@ -508,7 +505,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       </div>
       <div class="remember">
         <p class="note-label">Rule vs. storage</p>
-        <p><b>LIFO and FIFO describe behavior</b>: which item leaves next. <b>An array or a linked list is storage</b>: where the items are kept. Any rule can use either storage. These lessons showed an array stack and a linked queue, but a linked stack and an array queue work too (see the optional parts of both lessons).</p>
+        <p><b>LIFO and FIFO describe behavior</b>: which item leaves next. <b>An array or a linked list is storage</b>: where the items are kept. Any rule can use either storage. These lessons showed an array stack and a linked queue, but a linked stack and an array queue work too (see the boxes "A stack built from a linked list" and "A queue in an array").</p>
       </div>
     </div>
   </section>
@@ -601,9 +598,10 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
       </div>
       <div class="paper flow" id="task">
         <p class="note-label">Your coding task: a queue in an array</p>
-        <p>Part 4's optional box kept a queue in a <b>circular array</b> (<Peek label="see the picture" title="From Part 4: a queue in an array" html={circPeek} />). Here it is in Java, as our own class <code>ArrayQueue</code>. <code>dequeue</code> is done: it takes the value at <code>front</code>, then moves <code>front</code> to the next cell, wrapping around with <code>%</code>. Finish <code>enqueue</code> in about 6 lines where it says YOUR CODE. It does the same thing at the <b>rear</b>. Run it: the printed lines must match the comments.</p>
+        <p>Part 4's box "A queue in an array" kept a queue in a <b>circular array</b> (<Peek label="see the picture" title="From Part 4: a queue in an array" html={circPeek} />). Here it is in Java, as our own class <code>ArrayQueue</code>. <code>dequeue</code> is done: it takes the value at <code>front</code>, then moves <code>front</code> to the next cell, wrapping around with <code>%</code>. Finish <code>enqueue</code> in about 6 lines where it says YOUR CODE. It does the same thing at the <b>rear</b>. Run it: the printed lines must match the comments.</p>
         <pre class="code"><code set:html={hiN(taskCode)} /></pre>
         <TryIt />
+        <p class="small">Before you write <code>enqueue</code>, the starter stops at the first <code>dequeue</code> with "Queue underflow: empty.", because nothing was added. That is expected.</p>
         <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
           <pre class="code"><code set:html={hiN(taskAns)} /></pre>
           <p>Output: <code>1</code>, <code>2</code>, <code>true</code>, then <code>3 4 5 6</code>.</p>
