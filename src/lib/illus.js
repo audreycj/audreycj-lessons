@@ -3631,3 +3631,239 @@ export function stkLifoPic() {
   s.text(276, 520, 'reversed!', { font: 'body', size: 12.5, weight: 800, color: C.soft });
   return s.svg('Three places where the newest item comes out first. Undo: three changes are piled up: typed Hello, made it bold, deleted a line on top. Undo takes the top one first, so the deleted line comes back. The Back button: pages piled up: search results, DOrSU website, ITC 120 page, and the Stacks lesson on top. Back takes the top page off, so you are back on the ITC 120 page. Reversing a word: push the letters M, A, T, I, then pop four times: they come out I, T, A, M, the word reversed.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+
+/* ---- Queues (chat 19): pictures for ideas that were text only ---- */
+
+/** Clean: the definition. A, B, C, D enqueued into a line open at BOTH ends; in-order = out-order. */
+export function qDefPic() {
+  const X0 = 74, W = 48, Y = 92, H = 44, xs = [0, 1, 2, 3].map((i) => X0 + i * W);
+  let b = sT(170, 26, 'A, B, C, D were enqueued in that order', { size: 15, w: 800, fill: '#0b544e' });
+  // walls: top and bottom only (both ends open)
+  b += `<path d="M${X0 - 6} ${Y - 5} H${X0 + 4 * W + 6} M${X0 - 6} ${Y + H + 5} H${X0 + 4 * W + 6}" stroke="#1b2a2e" stroke-width="3" stroke-linecap="round"/>`;
+  ['A', 'B', 'C', 'D'].forEach((v, i) => {
+    const f = i === 0, r = i === 3;
+    b += mapBox(xs[i], Y, W, H, f ? '#fbdccc' : r ? '#d7ece9' : '#ffffff', f ? '#e8662e' : r ? '#0e6b63' : '#1b2a2e', 2, 4);
+    b += sT(xs[i] + W / 2, Y + 29, v, { mono: true, size: 18, w: 700, fill: f ? '#b4461a' : r ? '#0b544e' : '#1b2a2e' });
+  });
+  b += sT(xs[0] + W / 2, Y - 16, 'front', { mono: true, size: 14, w: 700, fill: '#b4461a' });
+  b += sT(xs[3] + W / 2, Y - 16, 'rear', { mono: true, size: 14, w: 700, fill: '#0b544e' });
+  // out on the left, in on the right
+  b += solidArrow(X0 - 10, Y + 22, 14, Y + 22, '#e8662e', 2.6) + sT(38, Y + 58, 'leaves', { size: 12.5, w: 800, fill: '#b4461a' });
+  b += solidArrow(330, Y + 22, X0 + 4 * W + 10, Y + 22, '#0e6b63', 2.6) + sT(306, Y + 58, 'joins', { size: 12.5, w: 800, fill: '#0b544e' });
+  b += sT(38, 60, 'dequeue', { mono: true, size: 13, w: 700, fill: '#b4461a' }) + sT(306, 60, 'enqueue', { mono: true, size: 13, w: 700, fill: '#0b544e' });
+  // order rows
+  const ord = ['1st', '2nd', '3rd', '4th'];
+  b += sT(X0 - 8, 176, 'in:', { size: 13, w: 800, anchor: 'end', fill: '#0e6b63' }) + sT(X0 - 8, 198, 'out:', { size: 13, w: 800, anchor: 'end', fill: '#b4461a' });
+  ord.forEach((o, i) => { b += sT(xs[i] + W / 2, 176, o, { size: 13, w: 800, fill: '#0e6b63' }) + sT(xs[i] + W / 2, 198, o, { size: 13, w: 800, fill: '#b4461a' }); });
+  b += sT(170, 230, 'closed sides: nobody cuts in or leaves from the middle', { size: 12.5, w: 700, fill: '#4f5f62' });
+  b += sT(170, 256, 'First in (A) is the first out.', { size: 14, w: 800, fill: '#b4461a' });
+  return introPic(340, 270, 'A queue drawn as a line of four boxes, A, B, C, D, with walls on the top and bottom and both ends open. A is at the front, on the left; D is at the rear, on the right. enqueue adds a new item through the right end, at the rear. dequeue takes an item out through the left end, at the front. The order they went in, A 1st, B 2nd, C 3rd, D 4th, is the same order they come out. First in, first out.', b);
+}
+
+/** Sketch: underflow (nobody in line to serve) and why a linked queue does not overflow (the line can always grow). */
+export function qEmptyPic() {
+  const s = new Sketch(340, 420, 619);
+  const panel = (y, h) => s.round(6, y, 328, h, 10, { fill: '#fffdf8', sw: 1.2, stroke: '#d9cbb4', rough: 0.5 });
+  const counter = (y) => {
+    s.text(42, y - 52, 'Canteen', { font: 'body', size: 13, weight: 800, color: C.soft });
+    s.rect(16, y - 44, 52, 58, { fill: C.butter, sw: 1.6, rough: 0.8 });
+    s.rect(22, y - 36, 40, 10, { fill: C.orangeWash, sw: 1.1, rough: 0.6 });
+    s.line(4, y + 14, 336, y + 14, { sw: 1.4, stroke: C.soft, rough: 0.6 });
+  };
+  // Underflow
+  panel(6, 200);
+  s.text(18, 32, 'Underflow: the queue is empty', { font: 'body', size: 15, weight: 800, anchor: 'start', color: C.red });
+  counter(140);
+  kid(s, 112, 96, C.card, { ghost: true });
+  s.text(112, 172, 'nobody in line', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(258, 66, 'dequeue()', { font: 'mono', size: 15, weight: 700, color: C.orange });
+  s.curve(228, 76, 146, 98, 14, { stroke: C.orange, sw: 2.2, single: true, dash: '6 5' });
+  s.text(258, 112, 'Nobody', { font: 'body', size: 14, weight: 800, color: C.red });
+  s.text(258, 130, 'to serve!', { font: 'body', size: 14, weight: 800, color: C.red });
+  s.text(18, 196, 'In code: dequeue() or peek() when front == null', { font: 'body', size: 13, weight: 800, anchor: 'start', color: C.soft });
+  // No overflow
+  const y0 = 214;
+  panel(y0, 200);
+  s.text(18, y0 + 26, 'No overflow: the line can always grow', { font: 'body', size: 15, weight: 800, anchor: 'start', color: C.teal });
+  counter(y0 + 134);
+  const shirts = [C.orangeWash, C.sky, C.pink];
+  [102, 150, 198].forEach((x, i) => kid(s, x, y0 + 90, shirts[i]));
+  kid(s, 284, y0 + 90, C.card, { ghost: true });
+  s.text(284, y0 + 58, '+1', { font: 'body', size: 15, weight: 800, color: C.teal });
+  s.arrow(262, y0 + 112, 226, y0 + 112, { stroke: C.teal, sw: 2.4, head: 8 });
+  s.text(18, y0 + 172, 'A linked queue makes a new node for each item,', { font: 'body', size: 13, weight: 800, anchor: 'start', color: C.soft });
+  s.text(18, y0 + 190, 'so there is always room (until memory runs out).', { font: 'body', size: 13, weight: 800, anchor: 'start', color: C.soft });
+  return s.svg('Two panels. Top, underflow: the canteen line is empty, nobody is in line, so dequeue has nobody to serve. In code: dequeue or peek when front is null. Bottom, no overflow: three students are in line and a fourth joins at the end; a linked queue makes a new node for each item, so there is always room until the computer runs out of memory.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: three places FIFO fits: print jobs, "Now serving" numbers, a music app's "Up next" list. Front on the left / top. */
+export function qFifoPic() {
+  const s = new Sketch(340, 610, 733);
+  const pan = (y, h, title, sub) => {
+    s.round(6, y, 328, h, 10, { fill: '#fffdf8', sw: 1.2, stroke: '#d9cbb4', rough: 0.5 });
+    s.text(18, y + 26, title, { font: 'body', size: 15, weight: 800, anchor: 'start', color: C.teal });
+    s.text(18, y + 45, sub, { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  };
+  const doc = (x, y, t, o = {}) => {
+    s.rect(x, y, 40, 50, { fill: o.fill ?? C.card, sw: 1.6, stroke: o.stroke ?? C.ink, ...(o.dash ? { dash: o.dash, single: true } : {}) });
+    [14, 22, 30].forEach((d) => s.line(x + 8, y + d, x + 32, y + d, { sw: 1, stroke: '#9aa8aa', single: true }));
+    s.text(x + 20, y + 68, t, { font: 'body', size: 12.5, weight: 800, color: o.color ?? C.ink });
+  };
+  // 1. Printer
+  pan(6, 184, 'A shared printer', 'Jobs print in the order they were sent.');
+  s.rect(22, 92, 76, 44, { fill: '#e7ecec', sw: 1.8 });
+  s.rect(32, 82, 56, 12, { fill: C.card, sw: 1.4 });
+  s.rect(34, 136, 52, 20, { fill: C.card, sw: 1.4 });
+  s.line(28, 112, 92, 112, { sw: 1.2, single: true });
+  s.circle(86, 102, 7, { fill: '#7ac08f', sw: 1 });
+  s.text(60, 176, 'printing job 1', { font: 'body', size: 12.5, weight: 800, color: '#b4461a' });
+  doc(118, 92, 'job 2');
+  doc(170, 92, 'job 3');
+  doc(270, 92, 'job 4', { fill: C.tealWash, stroke: C.teal, color: C.teal });
+  s.arrow(262, 117, 218, 117, { stroke: C.teal, sw: 2.2 });
+  s.text(290, 80, 'just sent', { font: 'body', size: 12, weight: 800, color: C.teal });
+  // 2. Now serving
+  pan(198, 196, 'Now serving', 'Numbers are called in the order they were taken.');
+  s.round(20, 260, 112, 58, 6, { fill: '#1b2a2e', sw: 1.6 });
+  s.text(76, 280, 'NOW SERVING', { font: 'body', size: 11.5, weight: 800, color: C.butter });
+  s.text(76, 308, '015', { font: 'mono', size: 24, weight: 700, color: '#ffb072' });
+  const tick = (x, y, n, o = {}) => {
+    s.round(x, y, 46, 30, 4, { fill: o.fill ?? C.card, sw: 1.5, stroke: o.stroke ?? C.ink });
+    s.text(x + 23, y + 21, n, { font: 'mono', size: 14, weight: 700, color: o.color ?? C.ink });
+  };
+  tick(150, 274, '016');
+  tick(204, 274, '017');
+  tick(274, 274, '018', { fill: C.tealWash, stroke: C.teal, color: C.teal });
+  s.text(297, 266, 'just took', { font: 'body', size: 12, weight: 800, color: C.teal });
+  s.text(173, 326, 'called next', { font: 'body', size: 12, weight: 800, color: '#b4461a' });
+  s.text(18, 372, 'Like a line, but you can sit while you wait.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  // 3. Music app
+  pan(408, 196, 'A music app\'s "Up next" list', 'Songs you add to the queue go to the end.');
+  s.round(26, 464, 160, 128, 12, { fill: C.card, sw: 1.8 });
+  const row = (y, t, o = {}) => {
+    s.round(36, y, 140, 24, 4, { fill: o.fill ?? '#f4f6f6', sw: 1.2, stroke: o.stroke ?? '#9aa8aa' });
+    s.text(46, y + 17, t, { font: 'body', size: 12.5, weight: 800, anchor: 'start', color: o.color ?? C.ink });
+  };
+  row(474, '▶ Playing: Song 1', { fill: C.orangeWash, stroke: C.orange, color: '#b4461a' });
+  row(504, '2. Song 2');
+  row(532, '3. Song 3');
+  row(560, '4. Song 4', { fill: C.tealWash, stroke: C.teal, color: C.teal });
+  s.round(222, 548, 98, 30, 15, { fill: C.butter, sw: 1.6 });
+  s.text(271, 568, 'Add to queue', { font: 'body', size: 12.5, weight: 800 });
+  s.arrow(218, 566, 184, 572, { stroke: C.teal, sw: 2.2 });
+  s.text(266, 492, 'plays first:', { font: 'body', size: 12.5, weight: 800, color: '#b4461a' });
+  s.text(266, 510, 'it was added', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(266, 526, 'first', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  return s.svg('Three places where the item that waited longest goes first. A shared printer: job 1 is printing, jobs 2 and 3 wait, and job 4, just sent, joins at the end. Now serving: the board shows number 015; tickets 016 and 017 wait, and 018, just taken, is last. A music app: Song 1 is playing because it was added first; Songs 2 and 3 are up next; Add to queue puts Song 4 at the end.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: why a queue keeps rear, and why items join at the rear and leave at the front (not the other way). */
+export function qEndsPic() {
+  const X = [14, 96, 178, 260], F = ['front', '#b4461a'], Rr = ['rear', '#0b544e'];
+  const pan = (y, h, fill, line) => `<rect x="4" y="${y}" width="332" height="${h}" rx="10" fill="${fill}" stroke="${line}" stroke-width="1.5"/>`;
+  const head = (y, t, sub, col) => sT(16, y + 24, t, { size: 15, w: 800, fill: col, anchor: 'start' }) + sT(16, y + 43, sub, { size: 12.5, w: 700, fill: '#4f5f62', anchor: 'start' });
+  const chain = (y, vals, o = {}) => {
+    let b = '';
+    vals.forEach((v, i) => {
+      b += rBox(X[i], y, String(v), { fill: o.fills?.[i] });
+      if (i < vals.length - 1) b += rLink(X[i], X[i + 1], y, o.linkO === i ? 'o' : 'k', { w: o.linkO === i ? 3 : 2.2 });
+      else b += rNullDown(X[i], y);
+    });
+    return b;
+  };
+  // 1. without rear
+  let y = 6, b = pan(y, 190, '#ffffff', '#c9d6d4') + head(y, 'Without rear: walk to find the end', 'Only front is kept. Where does a new node go?', '#b23a33');
+  let ny = y + 96;
+  b += rVars(X[0], ny, [F]) + chain(ny, [7, 8, 3]);
+  b += `<path d="M${X[0] + 18} ${ny + 46} Q${X[0] + 59} ${ny + 74} ${X[1] + 14} ${ny + 46}" fill="none" stroke="#b23a33" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-r)"/>`;
+  b += `<path d="M${X[1] + 18} ${ny + 46} Q${X[1] + 59} ${ny + 74} ${X[2] + 14} ${ny + 46}" fill="none" stroke="#b23a33" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-r)"/>`;
+  b += sT(X[0] + 59, ny + 76, 'walk 1', { size: 12, w: 800, fill: '#b23a33' }) + sT(X[1] + 59, ny + 76, 'walk 2', { size: 12, w: 800, fill: '#b23a33' });
+  b += sT(X[3] + 28, ny + 14, 'found the', { size: 12.5, w: 800, fill: '#b23a33' }) + sT(X[3] + 28, ny + 31, 'end at last', { size: 12.5, w: 800, fill: '#b23a33' });
+  // 2. with rear
+  y = 206; ny = y + 96;
+  b += pan(y, 190, '#f1f8f7', '#9fd0c8') + head(y, 'With rear: jump straight to the end', 'rear.next = newNode;  one step, any length', '#0b544e');
+  b += rVars(X[0], ny, [F]) + rVars(X[2], ny, [Rr]) + rVars(X[3], ny, [['newNode', '#b4461a']]);
+  b += chain(ny, [7, 8, 3, 5], { fills: [null, null, null, '#fbdccc'], linkO: 2 });
+  // 3. why not leave from the rear
+  y = 406; ny = y + 96;
+  b += pan(y, 236, '#fdf1ea', '#f0c2a8') + head(y, 'Why not leave from the rear?', 'Arrows point forward only. There is no way back.', '#b4461a');
+  b += rVars(X[0], ny, [F]) + rVars(X[2], ny, [Rr]) + chain(ny, [7, 8, 3]);
+  b += `<path d="M${X[2] + 10} ${ny + 46} Q${X[2] - 20} ${ny + 80} ${X[1] + 30} ${ny + 46}" fill="none" stroke="#b23a33" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-r)"/>`;
+  b += sT(16, ny + 84, '✗ no arrow back to 8', { size: 12.5, w: 800, fill: '#b23a33', anchor: 'start' });
+  b += sT(16, ny + 112, 'To remove 3, node 8 must get next = null, but', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+  b += sT(16, ny + 130, 'finding 8 means walking from the front again.', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+  return rPic(340, 648, 'Three panels. One: without rear, only front is kept on the list 7, 8, 3, so to add a node the program must walk from 7 to 8 to 3 to find the end. Two: with rear on node 3, a new node 5 is linked in one step with rear.next = newNode, however long the queue is. Three: why not remove at the rear? Arrows point forward only; to remove 3, node 8 must change its next to null, but there is no arrow back from 3 to 8, so finding 8 means walking from the front again. Removing at the front is one step.', b);
+}
+
+/** Clean: Mistake 2. Right order (link, then move) vs swapped (move, then link): the new node points to itself. */
+export function qLoopPic() {
+  const X = [40, 160];
+  const pan = (y, h, fill, line) => `<rect x="4" y="${y}" width="332" height="${h}" rx="10" fill="${fill}" stroke="${line}" stroke-width="1.5"/>`;
+  let y = 6, ny = y + 96;
+  let b = pan(y, 186, '#f1f8f7', '#9fd0c8') + sT(16, y + 24, '✓ Link, then move', { size: 15, w: 800, fill: '#0b544e', anchor: 'start' });
+  b += sT(16, y + 43, 'rear.next = newNode;  then  rear = newNode;', { mono: true, size: 12, w: 600, fill: '#4f5f62', anchor: 'start' });
+  b += rVars(X[0], ny, [['front', '#b4461a']]) + rVars(X[1], ny, [['rear', '#0b544e']]);
+  b += rBox(X[0], ny, '7') + rLink(X[0], X[1], ny, 'o', { w: 3 }) + rBox(X[1], ny, '8', { fill: '#fbdccc' }) + rNullDown(X[1], ny);
+  b += sT(X[0] + 28, ny + 74, 'queue: 7, 8', { size: 13, w: 800, fill: '#0b544e' });
+  y = 202; ny = y + 96;
+  b += pan(y, 250, '#fdecea', '#e6a9a3') + sT(16, y + 24, '✗ Move, then link (swapped)', { size: 15, w: 800, fill: '#b23a33', anchor: 'start' });
+  b += sT(16, y + 43, 'rear = newNode;  then  rear.next = newNode;', { mono: true, size: 12, w: 600, fill: '#4f5f62', anchor: 'start' });
+  b += rVars(X[0], ny, [['front', '#b4461a']]) + rVars(X[1], ny, [['rear', '#0b544e']]);
+  b += rBox(X[0], ny, '7') + rNullDown(X[0], ny, 'r') + rBox(X[1], ny, '8', { fill: '#fbdccc' });
+  const d = rDot(X[1]);
+  b += `<path d="M${d} ${ny + 20} C${d + 40} ${ny + 20} ${d + 40} ${ny + 84} ${X[1] + 18} ${ny + 84} L${X[1] + 18} ${ny + 46}" fill="none" stroke="#e8662e" stroke-width="3" marker-end="url(#rm-o)"/>`;
+  b += sT(252, ny + 30, '8 points', { size: 12.5, w: 800, fill: '#b4461a', anchor: 'start' }) + sT(252, ny + 47, 'to itself', { size: 12.5, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += sT(rDot(X[0]), ny + 98, 'never linked', { size: 12.5, w: 800, fill: '#b23a33' });
+  b += sT(16, ny + 128, 'dequeue() returns 7, then front = 7.next = null.', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+  b += sT(16, ny + 146, 'The queue looks empty: 8 is lost.', { size: 12.5, w: 800, fill: '#b23a33', anchor: 'start' });
+  return rPic(340, 458, 'Two panels. Top, correct: link, then move. Node 7 points to node 8, rear refers to 8, and the queue is 7, 8. Bottom, swapped: move, then link. rear moved to 8 first, so rear.next = newNode makes node 8 point to itself. Node 7 still has next = null: 8 was never linked. dequeue returns 7, then front becomes null, so the queue looks empty and 8 is lost.', b);
+}
+
+/** Clean: the same 1, 2, 3 into a stack and a queue; they come out in opposite orders (module Figure 7.1). */
+export function qVsStackPic() {
+  const pan = (y, h, fill, line) => `<rect x="4" y="${y}" width="332" height="${h}" rx="10" fill="${fill}" stroke="${line}" stroke-width="1.5"/>`;
+  const outRow = (x, y, vals, col, wash) => vals.map((v, i) => mapBox(x + i * 46, y, 40, 36, i === 0 ? wash : '#ffffff', i === 0 ? col : '#1b2a2e', 2, 4) + sT(x + i * 46 + 20, y + 24, v, { mono: true, size: 16, w: 700, fill: i === 0 ? col : '#1b2a2e' })).join('');
+  // Stack
+  let b = pan(6, 214, '#ffffff', '#c9d6d4') + sT(16, 32, 'Stack: push 1, 2, 3', { size: 15, w: 800, fill: '#0b544e', anchor: 'start' });
+  const CX = 50, CW = 56, CH = 38, cy = (i) => 168 - i * CH;
+  b += `<path d="M${CX - 4} ${cy(2) - 6} V${cy(0) + CH + 4} H${CX + CW + 4} V${cy(2) - 6}" fill="none" stroke="#1b2a2e" stroke-width="3" stroke-linejoin="round"/>`;
+  [1, 2, 3].forEach((v, i) => { const t = i === 2; b += mapBox(CX, cy(i), CW, CH - 4, t ? '#fbdccc' : '#ffffff', t ? '#e8662e' : '#1b2a2e', 2, 4) + sT(CX + CW / 2, cy(i) + 23, v, { mono: true, size: 16, w: 700, fill: t ? '#b4461a' : '#1b2a2e' }); });
+  b += sT(CX + CW / 2, cy(2) - 14, 'top', { mono: true, size: 13, w: 700, fill: '#b4461a' });
+  b += solidArrow(CX + CW + 18, 120, 172, 120, '#e8662e');
+  b += sT(250, 92, 'pop 3 times:', { size: 13, w: 800, fill: '#37474a' }) + outRow(182, 104, [3, 2, 1], '#b4461a', '#fbdccc');
+  b += sT(250, 166, 'newest first', { size: 13, w: 800, fill: '#b4461a' }) + sT(250, 184, '(LIFO)', { size: 12.5, w: 700, fill: '#4f5f62' });
+  // Queue
+  b += pan(228, 214, '#ffffff', '#c9d6d4') + sT(16, 254, 'Queue: enqueue 1, 2, 3', { size: 15, w: 800, fill: '#0b544e', anchor: 'start' });
+  const QX = 90, QW = 52, QY = 290;
+  b += `<path d="M${QX - 5} ${QY - 5} H${QX + 3 * QW + 5} M${QX - 5} ${QY + 41} H${QX + 3 * QW + 5}" stroke="#1b2a2e" stroke-width="3" stroke-linecap="round"/>`;
+  [1, 2, 3].forEach((v, i) => { const f = i === 0; b += mapBox(QX + i * QW, QY, QW, 36, f ? '#fbdccc' : '#ffffff', f ? '#e8662e' : '#1b2a2e', 2, 4) + sT(QX + i * QW + QW / 2, QY + 24, v, { mono: true, size: 16, w: 700, fill: f ? '#b4461a' : '#1b2a2e' }); });
+  b += sT(QX + QW / 2, QY - 14, 'front', { mono: true, size: 13, w: 700, fill: '#b4461a' }) + sT(QX + 2.5 * QW, QY - 14, 'rear', { mono: true, size: 13, w: 700, fill: '#0b544e' });
+  b += solidArrow(QX - 10, QY + 18, 24, QY + 18, '#e8662e');
+  b += sT(124, 364, 'dequeue 3 times:', { size: 13, w: 800, fill: '#37474a', anchor: 'end' }) + outRow(136, 344, [1, 2, 3], '#b4461a', '#fbdccc');
+  b += sT(170, 412, 'oldest first (FIFO)', { size: 13, w: 800, fill: '#b4461a' });
+  return introPic(340, 448, 'Two panels. Stack: 1, 2, 3 are pushed, so 3 is on top; popping three times gives 3, 2, 1, newest first, LIFO. Queue: 1, 2, 3 are enqueued, so 1 is at the front; dequeuing three times gives 1, 2, 3, oldest first, FIFO.', b);
+}
+
+/** Clean (optional reveal): a circular array queue. 5 cells; enqueue 1-5, dequeue twice, enqueue 6 -> wraps to cell 0. */
+export function qCircPic() {
+  const X0 = 40, W = 52, Y = 92, H = 44, vals = ['6', '', '3', '4', '5'];
+  let b = sT(170, 24, 'Enqueue 1 to 5, dequeue twice, enqueue 6', { size: 14, w: 800, fill: '#0b544e' });
+  vals.forEach((v, i) => {
+    const x = X0 + i * W, free = v === '', isF = i === 2, isR = i === 0;
+    b += `<rect x="${x}" y="${Y}" width="${W}" height="${H}" fill="${free ? '#eef2f2' : isF ? '#fbdccc' : isR ? '#d7ece9' : '#ffffff'}" stroke="${free ? '#9aa8aa' : '#1b2a2e'}" stroke-width="2"${free ? ' stroke-dasharray="5 4"' : ''}/>`;
+    if (v) b += sT(x + W / 2, Y + 29, v, { mono: true, size: 17, w: 700, fill: isF ? '#b4461a' : isR ? '#0b544e' : '#1b2a2e' });
+    else b += sT(x + W / 2, Y + 28, 'free', { size: 12, w: 700, fill: '#8a9799' });
+    b += sT(x + W / 2, Y + H + 18, i, { mono: true, size: 13, w: 600, fill: '#37474a' });
+  });
+  b += sT(X0 + 2.5 * W, Y - 30, 'front', { mono: true, size: 13.5, w: 700, fill: '#b4461a' }) + rArrow(`M${X0 + 2.5 * W} ${Y - 24} V${Y - 4}`, 'o', 2);
+  b += sT(X0 + 0.5 * W, Y - 30, 'rear', { mono: true, size: 13.5, w: 700, fill: '#0b544e' }) + rArrow(`M${X0 + 0.5 * W} ${Y - 24} V${Y - 4}`, 't', 2);
+  // wrap-around arrow: from under cell 4 back to under cell 0
+  const yb = Y + H + 30;
+  b += `<path d="M${X0 + 4.5 * W} ${yb} C${X0 + 4.5 * W} ${yb + 44} ${X0 + 0.5 * W} ${yb + 44} ${X0 + 0.5 * W} ${yb + 4}" fill="none" stroke="#0e6b63" stroke-width="2.6" marker-end="url(#rm-t)"/>`;
+  b += sT(170, yb + 58, 'after cell 4 comes (4 + 1) % 5 = 0', { mono: true, size: 12.5, w: 700, fill: '#0b544e' });
+  b += sT(170, yb + 90, 'Queue, front → rear: 3, 4, 5, 6', { size: 14, w: 800, fill: '#1b2a2e' });
+  b += sT(170, yb + 112, 'Cells 0 and 1 were freed by the two dequeues.', { size: 12.5, w: 700, fill: '#4f5f62' });
+  b += sT(170, yb + 130, 'The next enqueue goes in cell (0 + 1) % 5 = 1.', { size: 12.5, w: 700, fill: '#4f5f62' });
+  return rPic(340, yb + 146, 'An array of 5 cells, indexes 0 to 4, used as a circular queue. 1 to 5 were enqueued, then two dequeues removed 1 and 2, then 6 was enqueued. front is at cell 2 holding 3; cells 3 and 4 hold 4 and 5; rear wrapped around to cell 0, holding 6, because after cell 4 comes (4 + 1) % 5 = 0. Cell 1 is free. The queue from front to rear is 3, 4, 5, 6, and the next enqueue goes into cell 1.', b);
+}

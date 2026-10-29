@@ -5,10 +5,12 @@ import SQLab from '../../components/SQLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
-import { canteenLine, queueWalkCode, queueWalkSteps } from '../../lib/illus.js';
+import Peek from '../../components/Peek.astro';
+import { canteenLine, queueWalkCode, queueWalkSteps, qDefPic, qEmptyPic, qFifoPic, qEndsPic, qLoopPic, qVsStackPic, qCircPic } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const defSvg = qDefPic();
 
 const queueFields = String.raw`class LinkedQueue {
   Node front;    // first node (leaves next); null means empty
@@ -163,9 +165,14 @@ const quiz = [
       <figure class="fig illus-fig illus"><Fragment set:html={canteenLine()} /><figcaption>Students join at the rear and leave from the front, in the order they came.</figcaption></figure>
       <div class="def">
         <p class="note-label">Queue</p>
-        <p>A <b>queue</b> is a linear data structure where items <b>join at one end</b>, the <b>rear</b>, and <b>leave from the other end</b>, the <b>front</b>. It follows the <b>FIFO</b> rule: <b>first in, first out</b>. The item that has waited longest is the first one removed.</p>
+        <p>A <b>queue</b> is a linear data structure (its items form one line) where items <b>join at one end</b>, the <b>rear</b>, and <b>leave from the other end</b>, the <b>front</b>. It follows the <b>FIFO</b> rule: <b>first in, first out</b>. The item that has waited longest is the first one removed.</p>
       </div>
-      <p>Like a <a href={base + '/itc120/stacks/'}>stack</a>, a queue is a <b>rule</b> placed on storage, not a new way of storing data. Here are its words:</p>
+      <p>Here is the definition as a picture. Four items joined, one after another:</p>
+      <figure class="fig illus-fig"><Fragment set:html={defSvg} /><figcaption>The items form <b>one line</b>, from the front (left) to the rear (right). <b>Both ends are open</b>, but each end has one job: items join only at the rear and leave only from the front. Read the two rows: A joined first and leaves first; D joined last and leaves last. That is FIFO.</figcaption></figure>
+      <p>What makes something a queue is the <b>rule</b> "join at the rear, leave from the front," not what holds the items. (In Part 4, a queue keeps its items in a linked list.)</p>
+      <p><b>Why follow such a strict rule?</b> It is fair: whoever has waited longest goes next, and nobody can cut in or be skipped. Many tasks need exactly that, like serving people or printing jobs in the order they arrived.</p>
+      <p>Compare it with a <a href={base + '/itc120/stacks/'}>stack</a>: a stack uses <b>one</b> end and gives back the <b>newest</b> item; a queue uses <b>two</b> ends and gives back the <b>oldest</b>.</p>
+      <p>Here are the words that come with a queue:</p>
       <div class="scroll-x">
         <table class="tbl">
           <thead><tr><th>Word</th><th>Meaning</th><th>In the canteen line</th></tr></thead>
@@ -175,6 +182,8 @@ const quiz = [
             <tr><td><code>enqueue(x)</code></td><td>add x at the rear</td><td>a new student lines up</td></tr>
             <tr><td><code>dequeue()</code></td><td>remove the front item and return it</td><td>the front student is served and leaves</td></tr>
             <tr><td><code>peek()</code></td><td>return the front item, but keep it there</td><td>see who is next, without serving them</td></tr>
+            <tr><td><code>size()</code></td><td>how many items the queue holds</td><td>count the students in line</td></tr>
+            <tr><td><code>isEmpty()</code></td><td><code>true</code> when there are no items</td><td>nobody is in line</td></tr>
           </tbody>
         </table>
       </div>
@@ -183,12 +192,16 @@ const quiz = [
         <p class="note-label">Underflow (and why there is no overflow here)</p>
         <p><b>Underflow</b>: dequeuing or peeking when the queue is <b>empty</b>. The queue in this lesson is built from a linked list, which has no fixed size, so it does not <b>overflow</b>: a new node can always be added (unless the computer runs out of memory). A queue stored in a fixed-size array can overflow.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={qEmptyPic()} /><figcaption>Underflow is a mistake in <i>when</i> the program calls a method, not a problem with the data. In Part 4, <code>dequeue</code> and <code>peek</code> check for it first.</figcaption></figure>
       <div class="sub">
         <h3>Where you see FIFO</h3>
-        <p>Queues fit any waiting line served in arrival order:</p>
+        <p>Here are three everyday places where the item that waited longest goes first:</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={qFifoPic()} /><figcaption>In each one, the orange item has waited longest, so it goes first. The teal one just joined, so it goes last.</figcaption></figure>
+        <p>Queues fit any waiting line served in arrival order. Here is the full list, with one you will meet in a later lesson:</p>
         <ul>
           <li>print jobs sent to one shared printer;</li>
-          <li>students at the registrar's window;</li>
+          <li>students at the registrar's window, or numbers called at a "Now serving" counter;</li>
+          <li>songs added to a music app's "Up next" list;</li>
           <li>passengers at a pedicab terminal;</li>
           <li>breadth-first search, which you will meet in the <a href={base + '/itc120/bfs/'}>BFS</a> lesson: it keeps the places it still has to visit in a queue.</li>
         </ul>
@@ -203,7 +216,7 @@ const quiz = [
       <h2>Queue lab</h2>
     </div>
     <div class="flow">
-      <p>Enqueue three values, then dequeue them. In which order do they come out? Compare with the stack lab from the last lesson.</p>
+      <p>Enqueue three values, then dequeue them. In which order do they come out? Compare with the <a href={base + '/itc120/stacks/#lab'}>stack lab</a> from the last lesson.</p>
       <SQLab id="lab-queue" mode="queue" />
     </div>
   </section>
@@ -228,10 +241,11 @@ const quiz = [
           </tbody>
         </table>
       </div>
+      <p>A dash (—) in the Returned column means the call gives nothing back: <code>enqueue</code> is a <code>void</code> method.</p>
       <div class="trap">
         <p class="note-label">Exam traps</p>
         <ol class="flow">
-          <li><b>Write the queue front → rear.</b> The newest item goes on the <b>right</b>, and <code>dequeue</code> removes from the <b>left</b>. (A stack removes from the right.)</li>
+          <li><b>Write the queue front → rear.</b> The newest item goes on the <b>right</b>, and <code>dequeue</code> removes from the <b>left</b>, like A in <Peek label="the A, B, C, D picture" title="From Part 1" html={defSvg} />. (A stack removes from the right.)</li>
           <li><b>A call removes even when nothing prints it.</b> <code>q.dequeue();</code> on its own line still removes the front item; write its value in the Returned column.</li>
         </ol>
       </div>
@@ -249,6 +263,8 @@ const quiz = [
         <p>A <b>node</b> is one box in a linked list. It holds a value, <code>data</code>, and a reference, <code>next</code>, to the node after it. <code>next</code> is <code>null</code> when no node comes after. A new node made with <code>new Node(value)</code> starts with <code>next = null</code>.</p>
       </div>
       <p>A linked list can insert and delete anywhere. A queue narrows that down to two places: <code>front</code> refers to the node that leaves next, and <code>rear</code> refers to the last node, where new nodes attach. Having <code>rear</code> means <code>enqueue</code> never has to walk the whole list to find the end.</p>
+      <p>Why keep <code>rear</code>, and why do items join at the rear and leave at the front, not the other way around? The picture shows both reasons:</p>
+      <figure class="fig illus-fig"><Fragment set:html={qEndsPic()} /><figcaption>Top: with only <code>front</code>, every <code>enqueue</code> would walk the whole list first. Middle: <code>rear</code> lets <code>enqueue</code> link the new node in one step. Bottom: removing at the rear would need the node <b>before</b> it, and a singly linked list has no arrows going back. Removing at the front takes one step (<code>front = front.next;</code>), so items leave there.</figcaption></figure>
       <pre class="code"><code set:html={hiN(queueFields)} /></pre>
       <p>The fields have no starting values in the code, so Java gives them <b>default values</b>: <code>null</code> for references and <code>0</code> for <code>int</code>. A new queue (<code>new LinkedQueue()</code>) starts with <code>front == null</code>, <code>rear == null</code>, and <code>count == 0</code>. <code>isEmpty()</code> is a boolean method: it returns <code>true</code> exactly when <code>front</code> is <code>null</code>.</p>
       <p>Now <code>enqueue</code> and <code>dequeue</code>. Follow them from an empty queue: enqueue 7, enqueue 8, then dequeue twice.</p>
@@ -266,6 +282,10 @@ const quiz = [
           </tbody>
         </table>
       </div>
+      <div class="plain">
+        <p class="note-label">Good to know: Java's ready-made queues</p>
+        <p>Java has no <code>LinkedQueue</code>. It is our own class, named for "a queue kept in a linked list." Java's own <code>Queue</code> is an interface (a list of methods that a class promises to have), and classes such as <code>ArrayDeque</code> and <code>LinkedList</code> have them. Their names differ from ours: <code>offer(x)</code> adds at the rear, <code>poll()</code> removes and returns the front, and <code>peek()</code> looks at it. On an empty queue, <code>poll()</code> and <code>peek()</code> return <code>null</code> instead of throwing an exception. In this course you build your own, so you can see what happens inside.</p>
+      </div>
       <div class="sub">
         <h3>The whole program</h3>
         <p>Here is everything in one runnable file. <code>main</code> does the walkthrough's calls, then a few more:</p>
@@ -276,6 +296,7 @@ const quiz = [
         <summary>Optional: a queue in an array</summary>
         <div class="flow">
           <p>A queue can also be kept in an array. If the front always stayed at index 0, every <code>dequeue</code> would have to shift all the other values one cell left, like deleting at index 0 in the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson. So array queues let the front <b>move forward</b> instead, and when the rear reaches the last cell, it <b>wraps around</b> to index 0 to reuse the cells that were freed. This is called a <b>circular array</b>.</p>
+          <figure class="fig illus-fig"><Fragment set:html={qCircPic()} /><figcaption>Five cells. The two dequeues moved <code>front</code> to cell 2. Then 6 had no cell to the right of cell 4, so <code>rear</code> wrapped around to cell 0. Read the queue from <code>front</code>, going right and wrapping: 3, 4, 5, 6.</figcaption></figure>
           <p>The wrap-around uses the <code>%</code> (remainder) operator: the cell after index <code>i</code> is <code>(i + 1) % data.length</code>. With 5 cells, after index 4 comes <code>(4 + 1) % 5</code> = 0. Unlike the linked queue, an array queue <b>can overflow</b>.</p>
         </div>
       </details>
@@ -299,6 +320,7 @@ const quiz = [
         <p><b>Situation:</b> a student swaps the two lines in the <code>else</code> part of <code>enqueue</code>:</p>
         <pre class="code"><code set:html={hi(wrongEnq)} /></pre>
         <p><b>What goes wrong:</b> after <code>rear = newNode;</code>, <code>rear</code> already refers to the new node, so <code>rear.next = newNode;</code> makes the new node point to <b>itself</b>. The old last node still has <code>next = null</code>, so the new node was never linked in. With 7 in the queue, <code>enqueue(8)</code> then <code>dequeue()</code> returns 7, and the queue looks empty: 8 is lost.</p>
+        <figure class="fig illus-fig"><Fragment set:html={qLoopPic()} /><figcaption>Top: the right order links 7 to 8. Bottom: swapped, 8 points to itself, and 7 still points to <code>null</code>.</figcaption></figure>
         <p><b>Fix:</b> link first (<code>rear.next = newNode;</code>), then move (<code>rear = newNode;</code>). Same idea as the safe insert order in the Linked lists lesson.</p>
       </div>
     </div>
@@ -312,7 +334,9 @@ const quiz = [
     <div class="flow">
       <div class="sub">
         <h3>Same inputs, opposite orders</h3>
-        <p>Add 1, 2, 3, then remove all three: a stack gives 3, 2, 1; a queue gives 1, 2, 3. Try a longer sequence below: tap <b>Same inputs, both structures</b>.</p>
+        <p>Add 1, 2, 3, then remove all three: a stack gives 3, 2, 1; a queue gives 1, 2, 3.</p>
+        <figure class="fig illus-fig"><Fragment set:html={qVsStackPic()} /><figcaption>The same three items in the same order. The stack hands back the newest first; the queue hands back the oldest first.</figcaption></figure>
+        <p>Try a longer sequence below: tap <b>Same inputs, both structures</b>.</p>
         <SQLab id="lab-both" mode="both" />
         <div class="scroll-x">
           <table class="tbl">
