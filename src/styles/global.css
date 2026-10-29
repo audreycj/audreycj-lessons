@@ -1051,6 +1051,8 @@ table.tbl.ra td:first-child code { overflow-wrap: break-word; word-break: normal
 
 /* ---------- Hash table lab + hashing pictures (chat 24) ---------- */
 svg.objbox.ht-pic { max-width: 24rem; }
+/* Hash table pictures are tall (one row per slot): the general 13rem/16rem step-picture height cap shrank them to a thin strip on phones (chat 25). Let them use the full panel width. */
+.cw-pic svg.ht-pic { max-height: 28rem; }
 .hslab .hs-ctl { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; }
 .hslab .hs-lab { font-weight: 800; display: flex; gap: 0.5rem; align-items: center; flex: 1 1 15rem; }
 .hslab .hs-keys { flex: 1; min-width: 0; font: inherit; font-family: var(--font-mono); padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--card); color: var(--ink); }
