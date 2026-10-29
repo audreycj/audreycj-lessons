@@ -8,6 +8,7 @@ import { course } from '../../data/itc120.js';
 import { hashSteps, bucketIndex, binShort } from '../../lib/hash.js';
 import { priceList, putReplace, hashFlow, pigeonWall, chainPic, posVsKey, andBits, strChars, hornerPic, mapTrapPic } from '../../lib/illus.js';
 import Peek from '../../components/Peek.astro';
+import { hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -129,6 +130,54 @@ const whichMap = [
   { q: 'The registrar looks up a grade by student ID thousands of times a day and never prints the list in any order. Which map fits?', opts: ['HashMap', 'LinkedHashMap', 'TreeMap'], a: 0, why: 'Only fast lookup matters, so use <code>HashMap</code>, the usual choice. Its order does not matter here.' },
   { q: 'A teacher wants the class list printed alphabetically by name, with each grade. Which map fits?', opts: ['HashMap', 'LinkedHashMap', 'TreeMap'], a: 2, why: '<code>TreeMap</code> keeps its keys <b>sorted</b>, so looping over it gives the names from A to Z.' },
 ];
+const taskCode = String.raw`import java.util.Map;
+import java.util.TreeMap;
+
+public class Main {
+  // Counts how many votes each name got.
+  static Map<String, Integer> countVotes(String[] votes) {
+    Map<String, Integer> counts = new TreeMap<>(); // sorted by name
+    for (String name : votes) {
+      // YOUR CODE:
+      // If name is already a key, put back its count + 1.
+      // If not, this is its first vote: put 1.
+
+    }
+    return counts;
+  }
+
+  public static void main(String[] args) {
+    String[] room1 = {"Ana", "Ben", "Ana", "Carla", "Ben", "Ana"};
+    System.out.println(countVotes(room1));
+    // expected: {Ana=3, Ben=2, Carla=1}
+
+    String[] room2 = {"Dan"};
+    System.out.println(countVotes(room2)); // expected: {Dan=1}
+
+    String[] room3 = {};                   // nobody voted
+    System.out.println(countVotes(room3)); // expected: {}
+
+    String[] room4 = {"Ben", "ben", "Ben"};
+    System.out.println(countVotes(room4)); // expected: {Ben=2, ben=1}
+  }
+}`;
+const taskAns = String.raw`for (String name : votes) {
+  if (counts.containsKey(name)) {
+    counts.put(name, counts.get(name) + 1); // one more vote
+  } else {
+    counts.put(name, 1);                    // first vote
+  }
+}`;
+const voteTrace = [
+  ['Ana', 'false', 'put("Ana", 1)', '{Ana=1}'],
+  ['Ben', 'false', 'put("Ben", 1)', '{Ana=1, Ben=1}'],
+  ['Ana', 'true', 'put("Ana", 1 + 1)', '{Ana=2, Ben=1}'],
+  ['Carla', 'false', 'put("Carla", 1)', '{Ana=2, Ben=1, Carla=1}'],
+  ['Ben', 'true', 'put("Ben", 1 + 1)', '{Ana=2, Ben=2, Carla=1}'],
+  ['Ana', 'true', 'put("Ana", 2 + 1)', '{Ana=3, Ben=2, Carla=1}'],
+];
+const methodsPeek = '<table class="tbl"><tbody><tr><td><code>put(key, value)</code></td><td><b>insert</b> a pair, or <b>replace</b> the value if the key exists</td></tr><tr><td><code>get(key)</code></td><td><b>look up</b> the value; <code>null</code> if the key is missing</td></tr><tr><td><code>containsKey(key)</code></td><td><code>true</code> if the key is in the map</td></tr></tbody></table>';
+
 const quiz = [
   { q: 'A map stores data as:', opts: ['Key-value pairs', 'Index-value pairs', 'Data-value pairs', 'Hash-index pairs'], a: 0, why: 'Each entry in a map is a <b>key</b> plus the <b>value</b> it points to. You look things up by key, not by index.' },
   { q: 'Which statement about a map is true?', opts: ['Both keys and values must be unique', 'Keys are unique, but values may repeat', 'Values are unique, but keys may repeat', 'Both keys and values may repeat'], a: 1, why: 'Each key appears once (so it can identify one entry). Different keys can share the same value, like two students with the same grade.' },
@@ -506,9 +555,10 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
   <section class="chapter wrap" id="paper">
     <div class="chapter-head">
       <p class="chapter-num">Part 8 · Your turn</p>
-      <h2>Try it on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
+      <p>Problems 1 to 3 are on paper. After them, a short coding task uses a map in Java.</p>
       {practice.map((p, i) => (
         <div class="paper flow">
           <p class="note-label">Problem {i + 1}</p>
@@ -546,6 +596,29 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
             </table>
           </div>
         </details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: count the votes</p>
+        <p>Room 1 is choosing its class president. Each vote is a name on a slip of paper. On the board, you would write each name once and add a mark beside it for every vote. A map does the same: name → number of votes.</p>
+        <p>Finish the loop in <code>countVotes</code> in about 5 lines where it says YOUR CODE. You need only three methods from <Peek label="Part 2" title="From Part 2 · Map methods" html={methodsPeek} />: <code>containsKey</code>, <code>get</code>, and <code>put</code>. The map is a <a href="#map-kinds">TreeMap</a>, so the names print sorted and your output can match the expected comments exactly. Run it: each printed line must match its expected comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>&#123;Ana=3, Ben=2, Carla=1&#125;</code>, <code>&#123;Dan=1&#125;</code>, <code>&#123;&#125;</code>, and <code>&#123;Ben=2, ben=1&#125;</code>.</p>
+          <p>Here is the map after each vote in room 1:</p>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>Vote</th><th>containsKey?</th><th>What runs</th><th>counts after</th></tr></thead>
+            <tbody>{voteTrace.map((t) => <tr><td class="mono">{t[0]}</td><td class="mono">{t[1]}</td><td class="nowrap"><code>{t[2]}</code></td><td class="mono small">{t[3]}</td></tr>)}</tbody>
+          </table></div>
+          <p>The map never gets two Ana entries: <code>put</code> on a key that is already there <b>replaces</b> the old count. In room 4, "Ben" and "ben" are two different keys, because Java compares keys letter by letter, and B and b have different character codes. The capital comes first in a TreeMap.</p>
+          <p>Here are two common mistakes:</p>
+          <ul>
+            <li>Writing only <code>counts.put(name, 1);</code>. Each vote replaces the count with 1 again, so room 1 prints <code>&#123;Ana=1, Ben=1, Carla=1&#125;</code>.</li>
+            <li>Skipping the <code>containsKey</code> check and always writing <code>counts.put(name, counts.get(name) + 1);</code>. For a new name, <code>get</code> returns <code>null</code>, and Java cannot add 1 to nothing. The program stops at the very first vote with <code>NullPointerException</code>.</li>
+          </ul>
+          <p class="small muted">Good to know: <code>counts.getOrDefault(name, 0)</code> gives 0 instead of <code>null</code> when the key is missing. With it, the whole if/else fits in one line: <code>counts.put(name, counts.getOrDefault(name, 0) + 1);</code></p>
+        </div></details>
       </div>
     </div>
   </section>

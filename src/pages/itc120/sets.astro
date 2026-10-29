@@ -130,6 +130,56 @@ Set<Integer> bMinusA = new HashSet<>(b);
 aMinusB.removeAll(a);
 System.out.println("B - A: " + aMinusB);`;
 
+const taskCode = String.raw`import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+public class Main {
+  // Returns A sym B = (A - B) u (B - A).
+  // It must NOT change a or b.
+  static Set<Integer> symDiff(Set<Integer> a, Set<Integer> b) {
+    // YOUR CODE:
+    // 1. Copy a, then remove all of b from the copy (A - B).
+    // 2. Copy b, then remove all of a from the copy (B - A).
+    // 3. Add all of B - A into A - B, and return it.
+
+    return new HashSet<>();
+  }
+
+  public static void main(String[] args) {
+    // Problem 1 from the paper practice
+    Set<Integer> a = new HashSet<>(Arrays.asList(2, 4, 6, 8, 10));
+    Set<Integer> b = new HashSet<>(Arrays.asList(3, 6, 9, 12));
+    System.out.println(symDiff(a, b)); // expected: [2, 3, 4, 8, 9, 10, 12]
+    System.out.println(symDiff(b, a)); // expected: [2, 3, 4, 8, 9, 10, 12]
+    System.out.println(a);             // expected: [2, 4, 6, 8, 10] (unchanged)
+    System.out.println(b);             // expected: [3, 6, 9, 12] (unchanged)
+
+    // Problem 2: same values, so nothing is left
+    Set<Integer> c = new HashSet<>(Arrays.asList(15, 25, 35, 45));
+    Set<Integer> d = new HashSet<>(Arrays.asList(45, 35, 25, 15));
+    System.out.println(symDiff(c, d)); // expected: []
+
+    // Problem 3: B is the empty set
+    Set<Integer> e = new HashSet<>(Arrays.asList(1, 2, 3));
+    Set<Integer> empty = new HashSet<>();
+    System.out.println(symDiff(e, empty)); // expected: [1, 2, 3]
+  }
+}`;
+const taskAns = String.raw`static Set<Integer> symDiff(Set<Integer> a, Set<Integer> b) {
+  Set<Integer> aMinusB = new HashSet<>(a);   // copy of A
+  aMinusB.removeAll(b);                      // A - B
+  Set<Integer> bMinusA = new HashSet<>(b);   // copy of B
+  bMinusA.removeAll(a);                      // B - A
+  aMinusB.addAll(bMinusA);                   // (A - B) u (B - A)
+  return aMinusB;
+}`;
+const taskMis = String.raw`a.removeAll(b);   // no copy: changes a itself
+b.removeAll(a);
+a.addAll(b);
+return a;`;
+const symPeek = '<p>A △ B = (A − B) ∪ (B − A): the values in A or B, but <b>not both</b>.</p><div class="illus">' + setTrapPic(4) + '</div>';
+
 const quiz = [
   { q: 'Which two properties describe a set?', opts: ['Sorted and indexed', 'No duplicates and no fixed order', 'Key-value pairs', 'First in, first out'], a: 1, why: 'A set holds each value <b>at most once</b> (unique), and its items have <b>no position or index</b> (unordered).' },
   { q: 'You call <code>add(5)</code> on a set that already contains 5. What happens?', opts: ['It throws an error', 'A second 5 is added', 'Nothing changes, and add returns false', 'All values are replaced by 5'], a: 2, why: 'The set ignores the duplicate. <code>add</code> returns <code>false</code> to tell you nothing was added.' },
@@ -380,10 +430,10 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
   <section class="chapter wrap" id="paper">
     <div class="chapter-head">
       <p class="chapter-num">Part 4 · Your turn</p>
-      <h2>Try it on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
-      <p>For each pair, write A ∪ B, A ∩ B, A − B, B − A, and A △ B. Drawing a quick Venn diagram first makes it easy: put shared values in the middle.</p>
+      <p>For each pair, write A ∪ B, A ∩ B, A − B, B − A, and A △ B. Drawing a quick Venn diagram first makes it easy: put shared values in the middle. After the three problems, a short coding task turns one of these operations into Java.</p>
       {practice.map((p, i) => (
         <div class="paper flow">
           <p class="note-label">Problem {i + 1}</p>
@@ -405,6 +455,21 @@ const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b
           </details>
         </div>
       ))}
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: A △ B without changing A or B</p>
+        <p>In <Peek label="Part 2" title="From Part 2 · Symmetric difference" html={symPeek} />, A △ B was the two outer parts of the Venn diagram: (A − B) ∪ (B − A). Now write it in Java.</p>
+        <p>Finish <code>symDiff</code> in about 5 lines where it says YOUR CODE. Use <code>removeAll</code> and <code>addAll</code> from <a href="#java">Part 3</a>, and watch out for the #1 bug: work on <b>copies</b>, so <code>a</code> and <code>b</code> stay the same. The tests use the pairs from Problems 1 to 3 above, so you can compare with your paper answers. Run it: each printed line must match its expected comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>[2, 3, 4, 8, 9, 10, 12]</code> twice (A △ B and B △ A are the same set), then <code>[2, 4, 6, 8, 10]</code> and <code>[3, 6, 9, 12]</code> (A and B did not change), then <code>[]</code> and <code>[1, 2, 3]</code>.</p>
+          <p>Another correct answer follows the Part 3 code: copy A and add all of B (the union), copy A and keep only B's values (the intersection), then remove the intersection from the union.</p>
+          <p>Here is the most common mistake: skipping the copies.</p>
+          <pre class="code"><code set:html={hiN(taskMis)} /></pre>
+          <p>The first line takes B's values out of A itself, so A is now [2, 4, 8, 10]. The second line removes that changed A from B, which takes out nothing. The last line adds B back, so the method returns [2, 3, 4, <b>6</b>, 8, 9, 10, 12]: 6 is back, even though it is in both sets. And since <code>a</code> itself was changed, the next tests are wrong too. Every line of the first test prints that same wrong set, and Problem 2 prints all four values instead of <code>[]</code>.</p>
+        </div></details>
+      </div>
     </div>
   </section>
 
