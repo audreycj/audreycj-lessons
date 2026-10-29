@@ -402,7 +402,7 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
           <tr><td class="mono">"BB"</td><td class="mono">31 × 66 + 66</td><td class="mono">{n(bb)}</td><td class="mono">{bucketIndex(bb)}</td></tr>
         </tbody>
       </table>
-      <p>The keys are different, so the map must keep <b>both</b>. A common way is <b>chaining</b>: each bucket holds a small <a href={base + '/itc120/linked-lists/'}>linked list</a> (a chain) of entries, one after another. To <code>get</code> "BB", Java goes to bucket {bucketIndex(bb)} and walks its short chain, comparing keys until it finds "BB" (see the picture below). (You will study more ways to handle collisions in the Hashing week, Week 17.)</p>
+      <p>The keys are different, so the map must keep <b>both</b>. A common way is <b>chaining</b>: each bucket holds a small <a href={base + '/itc120/linked-lists/'}>linked list</a> (a chain) of entries, one after another. To <code>get</code> "BB", Java goes to bucket {bucketIndex(bb)} and walks its short chain, comparing keys until it finds "BB" (see the picture below). (The <a href={base + '/itc120/hashing/'}>Hashing and hash tables</a> lesson shows more ways to handle collisions, and how to build a hash table yourself.)</p>
       <figure class="fig illus-fig illus"><Fragment set:html={chainPic()} /><figcaption>Chaining: a bucket can hold more than one entry. <code>get</code> checks only that bucket's chain.</figcaption></figure>
       <div class="sub" id="no-order">
         <h3>Why a HashMap has no order</h3>
@@ -507,7 +507,7 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
           <li>Different keys in the same bucket = a collision; the bucket keeps a chain of entries.</li>
         </ol>
       </div>
-      <p><b>You've reached the end of the midterm lessons.</b> Go back to the <a href={base + course.href}>ITC 120 page</a> and redo the self-checks of any lesson you are unsure about.</p>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/hashing/'}>Hashing and hash tables</a>, where you build a hash table yourself and learn more ways to handle collisions.</p>
       <div class="refs small muted">
         <p class="note-label">References</p>
         <ol>

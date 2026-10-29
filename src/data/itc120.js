@@ -66,7 +66,7 @@ export const terms = [
         { title: 'Maps and hashing in Java', href: '/itc120/maps/', status: 'live', kind: ['adt', 'tech'], blurb: 'Key-value pairs with put, get, remove. Compute a hashCode and bucket index by hand, and look inside a HashMap.' },
       ] },
       { name: 'Hashing', icon: 'venn', lessons: [
-        { title: 'Hashing and hash tables', href: '/itc120/hashing/', status: 'soon', kind: ['tech', 'ds'], blurb: 'Hash functions, collisions, chaining and open addressing, and how fast a hash table really is.' },
+        { title: 'Hashing and hash tables', href: '/itc120/hashing/', status: 'live', kind: ['tech', 'ds'], blurb: 'Hash functions, collisions, chaining and open addressing, and how fast a hash table really is.' },
       ] },
     ],
   },

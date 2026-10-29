@@ -1,0 +1,101 @@
+---
+// Hash table lab: insert keys with separate chaining or open addressing, one key per step (tap = run).
+interface Props { id: string; }
+const { id } = Astro.props;
+---
+<figure class="fig hslab" id={id}>
+  <p class="fig-cap">Hash table lab</p>
+  <p class="fig-hint">Tap a method to insert the keys. Use Next step to watch one key at a time. Change m or the keys and the lab runs again.</p>
+  <div class="hs-ctl">
+    <label class="hs-lab">Keys <input type="text" inputmode="text" class="hs-keys" value="50, 700, 76, 85, 92, 73" autocomplete="off" aria-label="Keys to insert, separated by commas" /></label>
+    <div class="btn-row hs-ms" role="group" aria-label="Table size m">
+      <span class="hs-mlab">m =</span>
+      <button type="button" class="btn" data-m="5" aria-pressed="false">5</button>
+      <button type="button" class="btn" data-m="7" aria-pressed="true">7</button>
+      <button type="button" class="btn" data-m="10" aria-pressed="false">10</button>
+      <button type="button" class="btn" data-m="11" aria-pressed="false">11</button>
+    </div>
+  </div>
+  <div class="btn-row hs-modes" role="group" aria-label="Method">
+    <button type="button" class="btn" data-mode="chain" aria-pressed="true">Chaining</button>
+    <button type="button" class="btn" data-mode="linear" aria-pressed="false">Linear</button>
+    <button type="button" class="btn" data-mode="quadratic" aria-pressed="false">Quadratic</button>
+    <button type="button" class="btn" data-mode="double" aria-pressed="false">Double</button>
+  </div>
+  <p class="hs-try small">Quick tries:
+    <button type="button" class="hs-chip" data-k="50, 700, 76, 85, 92, 73" data-pm="7">lesson keys</button>
+    <button type="button" class="hs-chip" data-k="12, 27, 33, 17, 40" data-pm="5">wrap around</button>
+    <button type="button" class="hs-chip" data-k="10, 20, 30, 40, 50" data-pm="10">prices (m = 10)</button>
+    <button type="button" class="hs-chip" data-k="3, 8, 13, 18, 23" data-pm="5">all the same h</button>
+  </p>
+  <p class="hs-err small" aria-live="polite"></p>
+  <div class="hs-pic"></div>
+  <p class="hs-say" aria-live="polite"></p>
+  <p class="hs-sum small"></p>
+  <div class="btn-row hs-nav">
+    <button type="button" class="btn" data-go="back">← Back</button>
+    <span class="hs-count mono small">Step 1 of 1</span>
+    <button type="button" class="btn primary" data-go="next">Next step →</button>
+  </div>
+  <details class="lab-key" open>
+    <summary>Color key</summary>
+    <div class="legend">
+      <span><i class="hs-l-home"></i> home slot or bucket (h)</span>
+      <span><i class="hs-l-busy"></i> tried, but taken</span>
+      <span><i class="hs-l-ok"></i> where the key goes</span>
+      <span><b class="hs-l-i">1</b> try number i</span>
+    </div>
+  </details>
+</figure>
+
+<script>
+  import { htPic, chainSteps, openSteps, rFor } from '../lib/hashtab.js';
+  document.querySelectorAll<HTMLElement>('.hslab').forEach((root) => {
+    const q = <T extends Element>(s: string) => root.querySelector(s) as T;
+    const input = q<HTMLInputElement>('.hs-keys'), pic = q<HTMLElement>('.hs-pic'), say = q<HTMLElement>('.hs-say');
+    const sum = q<HTMLElement>('.hs-sum'), err = q<HTMLElement>('.hs-err'), count = q<HTMLElement>('.hs-count');
+    const back = q<HTMLButtonElement>('[data-go="back"]'), next = q<HTMLButtonElement>('[data-go="next"]');
+    const modes = [...root.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+    const ms = [...root.querySelectorAll<HTMLButtonElement>('[data-m]')];
+    let steps: any[] = [], k = 0, mode = 'chain', m = 7, keys: number[] = [], extra = '';
+    function show() {
+      const st = steps[k];
+      pic.innerHTML = htPic(m, { ...st.o, fixed: true });
+      say.innerHTML = st.say;
+      count.textContent = `Step ${k + 1} of ${steps.length}`;
+      back.disabled = k === 0; next.disabled = k === steps.length - 1;
+      sum.innerHTML = k === steps.length - 1 ? extra : '';
+    }
+    function parse(): number[] | null {
+      const parts = input.value.split(/[\s,]+/).filter((x) => x !== '');
+      const nums = parts.map(Number);
+      if (!parts.length || nums.some((n) => !Number.isInteger(n) || n < 0 || n > 999)) { err.textContent = 'Type whole numbers from 0 to 999, separated by commas.'; return null; }
+      if (nums.length > 8) { err.textContent = 'Up to 8 keys, please.'; return null; }
+      if (new Set(nums).size !== nums.length) { err.textContent = 'Each key only once (like student IDs).'; return null; }
+      err.textContent = ''; return nums;
+    }
+    function run() {
+      const got = parse(); if (!got) return;
+      keys = got; k = 0;
+      modes.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+      ms.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.m) === m)));
+      const load = `load factor ${keys.length}/${m} = ${(keys.length / m).toFixed(2)}`;
+      if (mode === 'chain') {
+        const r = chainSteps(keys, m); steps = r.steps;
+        extra = `Longest chain: <b>${Math.max(...r.slots.map((c: number[]) => c.length))}</b> · ${load}`;
+      } else {
+        const r = openSteps(keys, m, mode, rFor(m)); steps = r.steps;
+        extra = `Tries in all: <b>${r.total}</b> for ${keys.length} keys · ${load}${mode === 'double' ? ` · R = ${rFor(m)}` : ''}${r.failed.length ? ` · <b>could not place ${r.failed.join(', ')}</b>` : ''}`;
+      }
+      show();
+    }
+    modes.forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode!; run(); }));
+    ms.forEach((b) => b.addEventListener('click', () => { m = Number(b.dataset.m); run(); }));
+    root.querySelectorAll<HTMLButtonElement>('.hs-chip').forEach((c) => c.addEventListener('click', () => { input.value = c.dataset.k!; m = Number(c.dataset.pm); run(); }));
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+    input.addEventListener('change', run);
+    back.addEventListener('click', () => { if (k > 0) { k--; show(); } });
+    next.addEventListener('click', () => { if (k < steps.length - 1) { k++; show(); } });
+    run();
+  });
+</script>

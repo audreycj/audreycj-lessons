@@ -4367,3 +4367,75 @@ export function sportsFest() {
   s.text(170, 380, 'Take the champion out: a short replay finds the next one.', { font: 'body', size: 11.5, weight: 800, color: C.orange });
   return s.svg('A barangay sports fest arm wrestling bracket. Ana (strength 8) beats Ben (5), and Cris (9) beats Dan (6). Then Cris beats Ana and is the champion at the top, with a trophy. Every winner sits above the ones they beat, so the strongest is on top. Take the champion out, and a short replay finds the next one.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+// ---------- Hashing lesson sketches (chat 24): trayHook (Part 1 hook), parkProbe (linear probing) ----------
+
+/** Sketch, Hashing Part 1 hook: the registrar sorts forms into 10 trays by the last digit of the ID. */
+export function trayHook() {
+  const s = new Sketch(340, 384, 917);
+  s.text(170, 22, "The registrar's 10 trays", { font: 'body', size: 16, weight: 800 });
+  // form 1
+  s.rect(14, 40, 124, 70, { fill: '#ffffff', sw: 1.6 });
+  s.text(24, 60, 'Enrollment form', { font: 'body', size: 11.5, weight: 800, color: C.soft, anchor: 'start' });
+  s.text(24, 82, 'ID 2025-034', { font: 'mono', size: 12.5, weight: 700, anchor: 'start' });
+  s.text(110, 82, '7', { font: 'mono', size: 14, weight: 800, color: C.orange, anchor: 'start' });
+  s.circle(114, 77, 20, { stroke: C.orange, sw: 1.6, single: true });
+  s.line(24, 96, 120, 96, { sw: 1, stroke: '#9aa5a6', single: true });
+  // the rule card
+  s.round(160, 40, 168, 70, 8, { fill: C.butter, sw: 1.6 });
+  s.text(172, 62, 'Rule: tray = last digit', { font: 'body', size: 12.5, weight: 800, anchor: 'start' });
+  s.text(172, 82, '20250347 mod 10 = 7', { font: 'mono', size: 11.5, weight: 700, color: C.orange, anchor: 'start' });
+  s.text(172, 100, '(last digit = the remainder)', { font: 'body', size: 11, weight: 700, color: C.soft, anchor: 'start' });
+  // ten trays in one row
+  const inside = { 2: 1, 4: 1, 7: 2, 9: 1 };
+  for (let j = 0; j < 10; j++) {
+    const x = 11 + j * 32, y = 214, hot = j === 7;
+    for (let k = 0; k < (inside[j] || 0); k++) {
+      s.rect(x + 4 + k * 4, y - 22 + k * 7, 20, 30, { fill: hot && k === 0 ? '#fff4ec' : '#ffffff', sw: 1.1 });
+      s.line(x + 8 + k * 4, y - 13 + k * 7, x + 20 + k * 4, y - 13 + k * 7, { sw: 0.8, stroke: '#9aa5a6', single: true });
+    }
+    s.path(`M${x} ${y} L${x + 30} ${y} L${x + 28} ${y + 44} L${x + 2} ${y + 44} Z`, { fill: hot ? C.orangeWash : C.tealWash, sw: hot ? 2.2 : 1.5, stroke: hot ? C.orange : C.ink });
+    s.text(x + 15, y + 30, String(j), { font: 'body', size: 17, weight: 800, color: hot ? '#b4461a' : C.teal });
+  }
+  s.text(170, 278, 'trays 0 to 9', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  // arrow from the form to tray 7
+  s.curve(70, 114, 246, 186, 46, { stroke: C.orange, sw: 2.2, head: 10 });
+  s.text(330, 150, 'straight to tray 7', { font: 'body', size: 12.5, weight: 800, color: C.orange, anchor: 'end' });
+  // collision note
+  s.text(170, 306, 'ID 2025-0127 also ends in 7: same tray.', { font: 'body', size: 12, weight: 800, color: C.red });
+  s.text(170, 324, 'Both forms stay in tray 7, one on top of the other.', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.round(20, 338, 300, 34, 8, { fill: '#dff0e3', sw: 1.4 });
+  s.text(170, 360, 'To find 2025-0347 later: look in tray 7 only.', { font: 'body', size: 12.5, weight: 800, color: '#1f5a38' });
+  return s.svg("The registrar's 10 trays, numbered 0 to 9. An enrollment form with ID 2025-0347 goes straight to tray 7, because the rule is: tray = last digit, which is 20250347 mod 10 = 7. The trays sit in one row. Trays 2, 4 and 9 already hold one form each. ID 2025-0127 also ends in 7, so it goes to the same tray; both forms stay in tray 7, one on top of the other. To find 2025-0347 later, look in tray 7 only.").replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch, linear probing: a parking row with numbered slots; car 85's slot (1) and the next one are taken. */
+export function parkProbe() {
+  const s = new Sketch(340, 330, 523);
+  s.text(170, 22, 'Parking by number', { font: 'body', size: 16, weight: 800 });
+  s.text(170, 44, "Car 92's slot: 92 mod 7 = 1", { font: 'mono', size: 12.5, weight: 700, color: '#b4461a' });
+  const x0 = 16, w = 44, top = 150, bot = 236;
+  s.rect(x0 - 6, 104, 320, 150, { fill: '#eceeee', sw: 1.4, stroke: '#9aa5a6' });
+  for (let j = 0; j <= 7; j++) s.line(x0 + j * w, top, x0 + j * w, bot, { sw: 2.2, stroke: '#ffffff', single: true });
+  for (let j = 0; j < 7; j++) s.text(x0 + j * w + w / 2, bot + 12, String(j), { font: 'body', size: 14, weight: 800, color: C.teal });
+  const car = (j, label, fill, y = 160) => {
+    const x = x0 + j * w + 7;
+    s.round(x, y, 30, 62, 8, { fill, sw: 1.6 });
+    s.rect(x + 5, y + 8, 20, 12, { fill: '#cfe3ee', sw: 1, single: true });
+    s.text(x + 15, y + 44, label, { font: 'mono', size: 11, weight: 800 });
+  };
+  car(0, '700', C.tealWash); car(1, '50', C.butter); car(2, '85', C.sky);
+  car(6, '76', C.pink);
+  // the new car arrives above slot 1, hops along the lane to slot 3
+  s.round(x0 + 1 * w + 7, 56, 30, 40, 8, { fill: C.orange, sw: 1.6 });
+  s.text(x0 + 1 * w + 22, 82, '92', { font: 'mono', size: 11, weight: 800, color: '#ffffff' });
+  s.path(`M${x0 + 1.5 * w} 100 Q${x0 + 2 * w} 126 ${x0 + 2.5 * w} 128 Q${x0 + 3 * w} 128 ${x0 + 3.5 * w - 2} 146`, { stroke: C.orange, sw: 2.2, dash: '6 5', single: true });
+  s.arrow(x0 + 3.5 * w - 6, 136, x0 + 3.5 * w - 1, 150, { stroke: C.orange, sw: 2.2, head: 8 });
+  car(3, '92', C.orange);
+  s.text(x0 + 1.5 * w, 122, '✗', { font: 'body', size: 15, weight: 800, color: C.red });
+  s.text(x0 + 2.5 * w, 146, '✗', { font: 'body', size: 15, weight: 800, color: C.red });
+  s.text(x0 + 3.5 * w + 26, 120, 'free!', { font: 'body', size: 12.5, weight: 800, color: '#1f5a38' });
+  s.text(170, 282, 'Slots 1 and 2 are taken. Slot 3 is free: park there.', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.text(170, 304, 'Taken? Try the next slot. That is linear probing.', { font: 'body', size: 12.5, weight: 800, color: '#b4461a' });
+  return s.svg("A parking row with slots numbered 0 to 6, seen from above. Cars 700, 50 and 85 are in slots 0, 1 and 2; car 76 is in slot 6. Car 92's slot is 92 mod 7 = 1. Slot 1 is taken, slot 2 is taken, slot 3 is free, so car 92 drives along and parks in slot 3. Taken? Try the next slot. That is linear probing.").replace(/(\d+\.\d)\d+/g, '$1');
+}

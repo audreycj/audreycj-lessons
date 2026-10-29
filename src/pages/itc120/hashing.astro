@@ -1,0 +1,754 @@
+---
+import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import StepShow from '../../components/StepShow.astro';
+import HashLab from '../../components/HashLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import TryIt from '../../components/TryIt.astro';
+import Peek from '../../components/Peek.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+import { trayHook, parkProbe, hashFlow } from '../../lib/illus.js';
+import { KEYS, M, mod, rFor, stepOf, htPic, chainSteps, openSteps, toShow, deleteShow, chainInsertCode, chainInsertWalk, probeFindCode, probeFindWalk, badHashPic, threeTablesPic, rehashPic } from '../../lib/hashtab.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Worked examples (lesson keys, m = 7) and practice (m = 5): all tables come from the same engine the Java was checked against.
+const chainRun = chainSteps(KEYS, M), linRun = openSteps(KEYS, M, 'linear'), quadRun = openSteps(KEYS, M, 'quadratic'), dblRun = openSteps(KEYS, M, 'double');
+const rows = (run, k = M, meth = '') => run.steps.slice(1, -1).map((s) => ({ k: s.k, h: mod(s.k, k), step: meth === 'double' ? stepOf(s.k, rFor(k)) : null, tried: s.tries.map((t) => t.slot).join(', '), at: s.placed }));
+const linRows = rows(linRun), quadRows = rows(quadRun), dblRows = rows(dblRun, M, 'double');
+const chainLines = chainRun.slots.map((c, i) => `${i}: ${c.join(' → ')}`).join('\n');
+const finalPic = (run) => htPic(M, run.steps[run.steps.length - 1].o);
+const P5 = [12, 27, 33, 17, 40], P5m = 5;
+const pc = chainSteps(P5, P5m), pl = openSteps(P5, P5m, 'linear'), pq = openSteps(P5, P5m, 'quadratic'), pd = openSteps(P5, P5m, 'double');
+const plRows = rows(pl, P5m), pqRows = rows(pq, P5m), pdRows = rows(pd, P5m, 'double');
+const p11 = openSteps(P5, 11, 'linear');
+const slotLine = (slots) => slots.map((v, i) => `${i}: ${v ?? '-'}`).join('\n');
+
+const defBox = (t, b) => `<div class="def"><p class="note-label">${t}</p><p>${b}</p></div>`;
+const searchPeek = defBox('Linear and binary search (from the Searching lesson)', 'Linear search checks the values one by one, so it may need <b>n</b> checks for n values. Binary search keeps halving a <b>sorted</b> array: about 20 checks for 1,000,000 values.');
+const mapsPeek = `<div class="illus">${hashFlow()}</div><p class="small">From the Maps lesson: a <code>HashMap</code> turns the key "CAT" into a number with <code>hashCode()</code>, turns that into a bucket number, and goes straight to that bucket.</p>`;
+const modPeek = defBox('The % operator (from the Programming refresher)', '<code>a % b</code> gives the <b>remainder</b> when a is divided by b. <code>17 % 5</code> is 2, because 17 = 3 × 5 + 2.');
+const llPeek = defBox('Linked list (from the Linked lists lesson)', 'A chain of <b>nodes</b>. Each node holds its data and <code>next</code>, a link to the next node. The last node\'s <code>next</code> is <code>null</code>. To reach a node, start at the first one and follow the links.');
+const chainPeek = `${finalPic(chainRun)}<p class="small">Separate chaining, keys ${KEYS.join(', ')}, m = 7.</p>`;
+const linPeek = `${finalPic(linRun)}<p class="small">Linear probing, keys ${KEYS.join(', ')}, m = 7.</p>`;
+const pricesPeek = `${badHashPic()}<p class="small">From Part 2: with m = 10, every price that ends in 0 lands in slot 0.</p>`;
+const wrongStop = htPic(M, { mode: 'chain', slots: chainRun.slots, kinds: { 1: 'home' }, nodeKinds: { '1:0': 'busy' }, head: ['Search for 92', 'h(92) = 92 mod 7 = 1'], note: 'stopped after 50: "not found" is wrong', noteFill: '#b23a33', alt: 'Bucket 1 holds 50, 85, 92. The search looks only at 50 and says not found, but 92 is further down the chain.' });
+
+const full = String.raw`class Node {
+  int key;
+  Node next;
+
+  Node(int key) {
+    this.key = key;
+  }
+}
+
+class ChainTable {
+  Node[] table;
+  int m;
+
+  ChainTable(int m) {
+    this.m = m;
+    table = new Node[m];           // every bucket starts as null
+  }
+
+  void insert(int key) {
+    int i = key % m;               // which bucket?
+    Node newNode = new Node(key);
+    if (table[i] == null) {        // empty bucket
+      table[i] = newNode;
+      return;
+    }
+    Node current = table[i];
+    while (current.next != null) { // walk to the last node
+      current = current.next;
+    }
+    current.next = newNode;        // add at the end of the chain
+  }
+
+  boolean contains(int key) {
+    Node current = table[key % m]; // only this bucket's chain
+    while (current != null) {
+      if (current.key == key) {
+        return true;
+      }
+      current = current.next;
+    }
+    return false;
+  }
+
+  void print() {
+    for (int i = 0; i < m; i++) {
+      System.out.print(i + ":");
+      Node current = table[i];
+      while (current != null) {
+        System.out.print(" " + current.key);
+        current = current.next;
+      }
+      System.out.println();
+    }
+  }
+}
+
+class ProbeTable {
+  static final int EMPTY = -1;     // never used
+  static final int DELETED = -2;   // a key was removed here
+  int[] table;
+  int m;
+
+  ProbeTable(int m) {
+    this.m = m;
+    table = new int[m];
+    for (int i = 0; i < m; i++) {
+      table[i] = EMPTY;
+    }
+  }
+
+  boolean insert(int key) {
+    int home = key % m;
+    for (int i = 0; i < m; i++) {
+      int slot = (home + i) % m;   // linear probing
+      if (table[slot] == EMPTY || table[slot] == DELETED) {
+        table[slot] = key;
+        return true;
+      }
+    }
+    return false;                  // no free slot
+  }
+
+  int find(int key) {
+    int home = key % m;
+    for (int i = 0; i < m; i++) {
+      int slot = (home + i) % m;          // linear probing
+      if (table[slot] == EMPTY) {
+        return -1;                        // a never-used slot: stop
+      }
+      if (table[slot] == key) {
+        return slot;                      // found it
+      }
+    }
+    return -1;                            // tried every slot
+  }
+
+  void remove(int key) {
+    int slot = find(key);
+    if (slot != -1) {
+      table[slot] = DELETED;       // a mark, not EMPTY
+    }
+  }
+
+  void print() {
+    for (int i = 0; i < m; i++) {
+      if (table[i] == EMPTY) {
+        System.out.println(i + ": -");
+      } else if (table[i] == DELETED) {
+        System.out.println(i + ": deleted");
+      } else {
+        System.out.println(i + ": " + table[i]);
+      }
+    }
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    int[] keys = {50, 700, 76, 85, 92, 73};
+
+    ChainTable chain = new ChainTable(7);
+    for (int i = 0; i < keys.length; i++) {
+      chain.insert(keys[i]);
+    }
+    chain.print();
+    System.out.println(chain.contains(92));   // true
+    System.out.println(chain.contains(15));   // false
+
+    ProbeTable probe = new ProbeTable(7);
+    for (int i = 0; i < keys.length; i++) {
+      probe.insert(keys[i]);
+    }
+    probe.print();
+    System.out.println(probe.find(92));       // 3
+    probe.remove(85);
+    System.out.println(probe.find(92));       // still 3
+    System.out.println(probe.find(85));       // -1
+  }
+}`;
+const fullOut = ['0: 700', '1: 50 85 92', '2:', '3: 73', '4:', '5:', '6: 76', 'true', 'false', '0: 700', '1: 50', '2: 85', '3: 92', '4: 73', '5: -', '6: 76', '3', '3', '-1'].join('\n');
+const starter = String.raw`public class Main {
+  static int m = 5;
+  static int[] table = {-1, -1, -1, -1, -1};   // -1 = empty
+
+  static boolean insert(int key) {
+    int home = key % m;
+    for (int i = 0; i < m; i++) {
+      // YOUR CODE: work out the slot with QUADRATIC probing,
+      // and if that slot is empty (-1), store the key there
+      // and return true.
+
+    }
+    return false;                    // no free slot found
+  }
+
+  public static void main(String[] args) {
+    int[] keys = {12, 27, 33, 17, 40};
+    for (int i = 0; i < keys.length; i++) {
+      insert(keys[i]);
+    }
+    for (int i = 0; i < m; i++) {
+      System.out.println(i + ": " + table[i]);
+    }
+    System.out.println(insert(99));
+  }
+}`;
+const answer = String.raw`static boolean insert(int key) {
+  int home = key % m;
+  for (int i = 0; i < m; i++) {
+    int slot = (home + i * i) % m;   // quadratic probing
+    if (table[slot] == -1) {
+      table[slot] = key;
+      return true;
+    }
+  }
+  return false;                    // no free slot found
+}`;
+const bugTask = String.raw`public class Main {
+  static int m = 5;
+  static int[] table = {-1, -1, -1, -1, -1};
+
+  static void insert(int key) {
+    int home = key % m;
+    for (int i = 0; i < m; i++) {
+      int slot = home + i;
+      if (table[slot] == -1) {
+        table[slot] = key;
+        return;
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+    insert(12);
+    insert(27);
+    insert(33);
+    insert(17);
+    System.out.println("done");
+  }
+}`;
+
+const quiz = [
+  { q: 'What is the main job of a hash function?', opts: ['To sort the keys in ascending order', 'To turn a key into a slot number (an index) in the hash table', 'To give every key a different number, always', 'To remove duplicate keys'], a: 1, why: 'A hash function maps a key to an index from 0 to m − 1. It <b>cannot</b> promise a different number for every key: there are more possible keys than slots, so collisions happen.' },
+  { q: 'What is a collision?', opts: ['Two different keys get the same slot number', 'The same key is inserted twice', 'The table runs out of memory', 'The hash function gives a negative number'], a: 0, why: 'A <b>collision</b> is two <b>different</b> keys with the same h(k). Every hash table needs a plan for it: chaining or open addressing.' },
+  { q: 'm = 7 and h(k) = k mod 7. Which slot does the key 45 get?', opts: ['0', '3', '6', '45'], a: 1, why: '45 = 6 × 7 + 3, so 45 mod 7 = <b>3</b>.' },
+  { q: 'Linear probing, m = 7. Slots 3 and 4 are taken; slot 5 is free. Where does the key 10 go?', opts: ['3', '4', '5', 'It cannot be inserted'], a: 2, why: '10 mod 7 = 3. Try 3 (taken), then 4 (taken), then <b>5</b> (free).' },
+  { q: 'Quadratic probing, m = 11, h(k) = 2. Which slot is try i = 2?', opts: ['4', '6', '8', '2'], a: 1, why: 'Try i uses (h + i²) mod m: (2 + 2²) mod 11 = <b>6</b>. (Linear probing would try 4.)' },
+  { q: 'In open addressing, why is a deleted key replaced with a "deleted" mark instead of an empty slot?', opts: ['To save memory', 'So that searches for other keys do not stop early at that slot', 'Because Java does not allow empty slots', 'To keep the keys in sorted order'], a: 1, why: 'A search stops at an <b>empty</b> slot. If a deleted key\'s slot looked empty, a key that probed past it would become unreachable. The mark says "keep looking".' },
+  { q: 'A table has m = 10 slots and holds 8 keys. What is its load factor?', opts: ['0.8', '1.25', '8', '2'], a: 0, why: 'Load factor = n / m = 8 / 10 = <b>0.8</b>. For open addressing, that is getting crowded: time to think about rehashing.' },
+  { q: 'Why is a prime number (like 7, 11, 101) a good table size for h(k) = k mod m?', opts: ['Primes make the math faster', 'Keys that share a pattern (like prices that all end in 0) still spread over all the slots', 'Java only accepts prime sizes', 'A prime table never has collisions'], a: 1, why: 'With m = 10, k mod 10 only looks at the last digit, so 10, 20, 30, … all collide. A prime m uses the <b>whole</b> key, so patterned keys spread out. Collisions can still happen.' },
+];
+---
+<Base title="Hashing and Hash Tables · ITC 120" description="Hashing by hand and in Java: hash functions, collisions, separate chaining, linear and quadratic probing, double hashing, load factor and rehashing." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Final › Hashing</p>
+    <p class="kicker">Hashing · Lesson 1 of 1</p>
+    <h1>Hashing and Hash Tables</h1>
+    <KindChips />
+    <p class="lede">Turn a key into a slot number, so a search can jump straight to it. Then learn what to do when two keys want the same slot.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>explain what <b>hashing</b>, a <b>hash function</b>, a <b>hash table</b>, and a <b>collision</b> are;</li>
+        <li>place keys into a table by hand with h(k) = k mod m, using <b>separate chaining</b>, <b>linear probing</b>, <b>quadratic probing</b>, and <b>double hashing</b>;</li>
+        <li>search a hash table, and explain why a deleted slot gets a mark instead of being emptied;</li>
+        <li>work out the <b>load factor</b>, and explain when and how a table is <b>rehashed</b>;</li>
+        <li>read and complete a hash table in Java;</li>
+        <li>compare a hash table's speed with linear search, binary search, and a BST, and choose when to use it.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> and <a href={base + '/itc120/linked-lists/'}>Linked lists</a> lessons, the <a href={base + '/itc120/searching/'}>Searching</a> lesson, the <a href={base + '/itc120/maps/'}>Maps</a> lesson (your first look at hashing), and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>Jump straight to the right place</h2>
+    </div>
+    <div class="flow">
+      <p>You already know two ways to find a value: <Peek label="linear search and binary search" title="From the Searching lesson" html={searchPeek} />. Linear search may check every value. Binary search is much faster, but the values must be sorted, and it still needs about 20 checks for a million values.</p>
+      <p>What if <b>one small calculation</b> told you exactly where a value is? Then you would look in one place only. Offices do this with paper every day:</p>
+      <div class="sticky">
+        <p class="note-label">Think of the registrar's trays</p>
+        <p>During enrollment, the registrar puts forms into 10 trays, numbered 0 to 9. The rule: use the <b>last digit</b> of the student ID. Form 2025-0347 goes into tray 7. Later, to find that form, the staff do not search all the trays. They use the same rule and look in tray 7 only.</p>
+      </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={trayHook()} /><figcaption>The rule turns an ID into a tray number. Finding the form means looking in one tray, not all ten.</figcaption></figure>
+      <div class="def">
+        <p class="note-label">Hashing</p>
+        <p><b>Hashing</b> means using a fixed rule to turn a key into a slot number, and storing the key in that slot. To find the key later, use the <b>same rule</b> again and look in that one slot.</p>
+      </div>
+      <p>You met this idea in the Maps lesson, where Java's <code>HashMap</code> did the hashing for you (see <Peek label="how a HashMap finds a bucket" title="From the Maps lesson" html={mapsPeek} />). In this lesson, you build the table yourself, with simple whole-number keys such as ID numbers.</p>
+      <p>Hashing comes with a few words. The table below matches each one to the trays:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Word</th><th>Meaning</th><th>With the trays</th></tr></thead>
+        <tbody>
+          <tr><td><b>key</b></td><td>the value we store and later look for</td><td>the student ID</td></tr>
+          <tr><td><b>hash table</b></td><td>an array of slots where the keys are kept</td><td>the row of trays</td></tr>
+          <tr><td><b>m</b></td><td>the table size: how many slots there are</td><td>10</td></tr>
+          <tr><td><b>slot</b> (or <b>bucket</b>)</td><td>one place in the table, numbered 0 to m − 1. "Bucket" is used when a slot can hold more than one key.</td><td>one tray</td></tr>
+          <tr><td><b>hash function</b>, h(k)</td><td>the rule that turns a key k into a slot number</td><td>"take the last digit"</td></tr>
+          <tr><td><b>collision</b></td><td>two different keys get the same slot number</td><td>2025-0347 and 2025-0127 both go to tray 7</td></tr>
+        </tbody>
+      </table></div>
+      <div class="remember">
+        <p class="note-label">Where you see hashing in IT</p>
+        <ul>
+          <li>Java's <code>HashMap</code> and <code>HashSet</code> (Sets and Maps lessons) are hash tables inside.</li>
+          <li><b>Databases</b> can build a hash index, so finding a record by its ID does not mean reading the whole table.</li>
+          <li>A <b>compiler</b> keeps the names of your variables in a hash table, so it can look each one up quickly.</li>
+        </ul>
+        <p class="small muted">Good to know: you may also hear about "password hashing". It uses a special kind of hash function (a cryptographic one) that is built so nobody can work backward from the number to the password. Same idea of a fixed rule, different goal, and not part of this course.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="function">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · The rule</p>
+      <h2>Hash functions: k mod m</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Hash function</p>
+        <p>A <b>hash function</b> is a fixed rule that takes a key and gives back a slot number from 0 to m − 1. We write it <b>h(k)</b>: "h of k". The same key must <b>always</b> give the same number, or you could never find it again.</p>
+      </div>
+      <p>The most common rule for whole-number keys is the remainder after dividing by m. Mathematicians call the remainder "mod", and Java writes it <Peek label="%" title="From the Programming refresher" html={modPeek} />:</p>
+      <p class="formula">h(k) = k mod m &nbsp;&nbsp;(in Java: <code>key % m</code>)</p>
+      <p>Here is how to work it out by hand: divide, and keep only what is left over.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>k mod m</th><th>Working</th><th>Answer</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">37 mod 5</td><td>37 = 7 × 5 + <b>2</b></td><td class="mono">2</td></tr>
+          <tr><td class="mono">50 mod 7</td><td>50 = 7 × 7 + <b>1</b></td><td class="mono">1</td></tr>
+          <tr><td class="mono">700 mod 7</td><td>700 = 100 × 7 + <b>0</b></td><td class="mono">0</td></tr>
+          <tr><td class="mono">4 mod 7</td><td>4 = 0 × 7 + <b>4</b> (smaller than m: the key itself)</td><td class="mono">4</td></tr>
+        </tbody>
+      </table></div>
+      <p>A remainder after dividing by m is always 0, 1, …, m − 1: exactly the slot numbers. That is why this rule fits a table of m slots so well. (The trays used it too: the last digit of a number is the number mod 10.)</p>
+      <div class="plain">
+        <p class="note-label">Course convention</p>
+        <p>In this course, keys are whole numbers (0 or more) and the hash function is <b>h(k) = k mod m</b>, unless a question gives another one. Books call it the <b>division method</b>.</p>
+      </div>
+      <div class="sub">
+        <h3>What makes a good hash function?</h3>
+        <p>A good hash function has four properties:</p>
+        <ol>
+          <li><b>Same key, same slot, every time.</b> Otherwise a stored key could never be found again.</li>
+          <li><b>Quick to compute.</b> The whole point is speed.</li>
+          <li><b>Spreads the keys evenly</b> over all the slots, so few keys collide.</li>
+          <li><b>Uses the whole key</b>, not just a part of it.</li>
+        </ol>
+        <p>Property 4 is where the table size matters. A sari-sari store keeps its prices in a hash table with m = 10. Prices are often round numbers: ₱10, ₱20, ₱30, ₱40, ₱50. But k mod 10 is just the <b>last digit</b>, and every one of these ends in 0:</p>
+        <figure class="fig illus-fig"><Fragment set:html={badHashPic()} /><figcaption>With m = 10, the rule only looks at the last digit. With m = 7, it depends on the whole number.</figcaption></figure>
+        <p>With m = 10, all five prices pile into slot 0, and finding one is as slow as searching a list. With a <b>prime</b> table size such as 7, 11, or 101, the remainder depends on the whole number, so keys that share a pattern still spread out. That is why books (and exams) like prime table sizes.</p>
+      </div>
+      <p class="small muted">Good to know: Java's <code>HashMap</code> uses table sizes 16, 32, 64, … and finds the bucket with <code>hashCode &amp; (capacity − 1)</code>, as the Maps lesson showed. For sizes that are powers of 2, that gives the same answer as mod, only faster. To avoid the "only the last digits matter" problem, Java first mixes the hash code's high bits into its low bits.</p>
+      <details class="reveal"><summary>Quick check: with m = 11, which slots do 25, 36, and 47 get?</summary><div class="flow">
+        <p>25 = 2 × 11 + <b>3</b>, 36 = 3 × 11 + <b>3</b>, 47 = 4 × 11 + <b>3</b>. All three get slot <b>3</b>! Even a good rule cannot stop that. The next part explains what to do.</p>
+      </div></details>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="collisions">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · When keys clash</p>
+      <h2>Collisions</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Collision</p>
+        <p>A <b>collision</b> happens when two <b>different</b> keys get the <b>same slot number</b>: h(k<sub>1</sub>) = h(k<sub>2</sub>). Both keys must still be stored, and both must be found later.</p>
+      </div>
+      <p>Can a clever hash function avoid collisions completely? No. Student IDs can go from 0 to 99,999,999, but the registrar has only 10 trays. With more keys than slots, some keys <b>must</b> share. (This is the <b>pigeonhole principle</b>: put 11 letters into 10 pigeonholes, and at least one pigeonhole gets two.) So every hash table needs a plan for collisions.</p>
+      <p>There are two families of plans:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Family</th><th>The idea</th><th>In real life</th></tr></thead>
+        <tbody>
+          <tr><td><b>Separate chaining</b> (Part 4)</td><td>Each slot keeps a linked list (a chain) of all the keys that hash to it.</td><td>Two forms in tray 7: one on top of the other.</td></tr>
+          <tr><td><b>Open addressing</b> (Parts 5 and 6)</td><td>Each slot holds <b>one</b> key. If the slot is taken, try other slots in a fixed order until one is free.</td><td>Your parking slot is taken, so you try the next one.</td></tr>
+        </tbody>
+      </table></div>
+      <p>To compare the methods fairly, every example in Parts 4 to 6 uses the <b>same six keys and the same table size</b>:</p>
+      <p class="formula">keys: {KEYS.join(', ')} &nbsp;·&nbsp; m = 7 &nbsp;·&nbsp; h(k) = k mod 7</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="chaining">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Method 1</p>
+      <h2>Separate chaining</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Separate chaining</p>
+        <p>In <b>separate chaining</b>, every slot (called a <b>bucket</b>) holds a <Peek label="linked list" title="From the Linked lists lesson" html={llPeek} />, called its <b>chain</b>, of all the keys that hash to it.<br /><b>Insert k:</b> compute h(k) and add k to that bucket's chain.<br /><b>Search for k:</b> compute h(k) and walk that one chain.</p>
+      </div>
+      <div class="plain">
+        <p class="note-label">Course convention</p>
+        <p>A new key goes at the <b>end</b> of its chain, as in Java's <code>HashMap</code>. Some books add it at the front instead (no walk needed). Both are correct; follow the question if it says which.</p>
+      </div>
+      <p>Step through the six keys:</p>
+      <StepShow id="show-chain" cap="Separate chaining, by hand (m = 7)" steps={toShow(M, chainRun.steps)} />
+      <p>On paper (and on exams), write each bucket with its chain:</p>
+      <pre class="code"><code>{chainLines}</code></pre>
+      <p>Searching follows the same rule. To find 92: 92 mod 7 = 1, so walk bucket 1's chain: 50, 85, 92. <b>Found</b> after 3 comparisons. To find 15: 15 mod 7 = 1, walk 50, 85, 92, reach <code>null</code>: <b>not found</b>. Buckets 0, 2, 3, 4, 5, and 6 are never touched.</p>
+      <div class="trap">
+        <p class="note-label">Mistake: stopping at the first node</p>
+        <p><b>Situation:</b> a student searches for 92. They compute bucket 1, see 50 at the front, and say "not found".</p>
+        <figure class="fig illus-fig"><Fragment set:html={wrongStop} /><figcaption>The search looked only at the first node of bucket 1.</figcaption></figure>
+        <p><b>What went wrong:</b> a bucket can hold <b>many</b> keys. Seeing a different key at the front means "keep walking", not "not found".</p>
+        <p><b>Fix:</b> walk the whole chain until you find the key or reach <code>null</code>.</p>
+      </div>
+      <div class="sub">
+        <h3>Separate chaining in Java</h3>
+        <p>The table is an array of chain heads: <code>Node[] table = new Node[m];</code>. Each <code>Node</code> holds a <code>key</code> and <code>next</code>, like the nodes in the Linked lists lesson. Every bucket starts as <code>null</code> (no chain yet). Step through <code>insert(92)</code> when bucket 1 already holds 50 and 85:</p>
+        <CodeWalk id="cw-chain" code={chainInsertCode} steps={chainInsertWalk()} cap="Walkthrough: insert(92)" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <p>Here is how to read the key lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl ra">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int i = key % m;</code></td><td>"the bucket number is the remainder of key divided by m."</td></tr>
+            <tr><td><code>if (table[i] == null)</code></td><td>"if bucket i has no chain yet..."</td></tr>
+            <tr><td><code>while (current.next != null)</code></td><td>"while current is not the last node..."</td></tr>
+            <tr><td><code>current.next = newNode;</code></td><td>"link the new node after the last one."</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="linear">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Method 2</p>
+      <h2>Open addressing: linear probing</h2>
+    </div>
+    <div class="flow">
+      <p>Chaining needs a node, and memory for its link, for every key. <b>Open addressing</b> keeps everything inside the array itself: one key per slot, no chains. When a slot is taken, it looks for another one.</p>
+      <div class="sticky">
+        <p class="note-label">Think of numbered parking</p>
+        <p>Each car's number decides its parking slot. Car 92's slot is 92 mod 7 = 1. Slot 1 is taken, so the driver tries slot 2: taken too. Slot 3 is free, so the car parks there. Anyone looking for car 92 later starts at slot 1 and walks the same way.</p>
+      </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={parkProbe()} /><figcaption>Taken? Try the next slot.</figcaption></figure>
+      <div class="def">
+        <p class="note-label">Open addressing and probing</p>
+        <p>In <b>open addressing</b>, every key is stored in the table itself, at most <b>one key per slot</b>. On a collision, the table tries other slots in a fixed order until it finds a free one. Each try is called a <b>probe</b>, and the order of tries is the <b>probe sequence</b>.</p>
+      </div>
+      <div class="def">
+        <p class="note-label">Linear probing</p>
+        <p>In <b>linear probing</b>, try number i goes to slot <b>(h(k) + i) mod m</b>, for i = 0, 1, 2, …<br />So the tries are h(k), then the next slot, then the next, one by one. Try i = 0 is the key's <b>home slot</b>, h(k).</p>
+      </div>
+      <p>Why "mod m" again? If the tries pass the last slot (m − 1), mod m brings them back around to slot 0, like a clock. Step through the same six keys:</p>
+      <StepShow id="show-linear" cap="Linear probing, by hand (m = 7)" steps={toShow(M, linRun.steps)} />
+      <p>On paper, list every key's tries. The number badges in the pictures are the try numbers i:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Key</th><th>h(k) = k mod 7</th><th>Slots tried</th><th>Goes into</th></tr></thead>
+        <tbody>{linRows.map((r) => <tr><td class="mono">{r.k}</td><td class="mono">{r.h}</td><td class="mono">{r.tried}</td><td class="mono"><b>{r.at}</b></td></tr>)}</tbody>
+      </table></div>
+      <div class="sub">
+        <h3>Clusters</h3>
+        <p>Look at the final table: slots 0 to 4 are one solid block. Any new key whose home slot is anywhere in that block has to walk to the end of it, and then it makes the block longer. Try 69: 69 mod 7 = 6, and slot 6 is taken, so it wraps around to 0, 1, 2, 3, 4 (all taken) and lands in slot <b>5</b> after 7 tries.</p>
+        <p>These blocks are called <b>clusters</b> (books say <b>primary clustering</b>). They are linear probing's big weakness, and the reason for the methods in Part 6.</p>
+      </div>
+      <div class="sub">
+        <h3>Searching: follow the same path</h3>
+        <p>A search must take the <b>same tries</b> the insert took. It stops in one of two ways: it finds the key, or it reaches an <b>empty</b> slot. An empty slot means the key was never inserted: if it had been, it would have stopped there at the latest.</p>
+        <p>In Java, the table is an <code>int[]</code>. Since keys are 0 or more, the value <code>-1</code> can stand for "empty" (named <code>EMPTY</code>). Step through <code>find(92)</code>, then <code>find(15)</code>:</p>
+        <CodeWalk id="cw-find" code={probeFindCode} steps={probeFindWalk()} cap="Walkthrough: find(92) and find(15)" hint="Use Next to go step by step, or tap a line to jump to it." />
+        <p>Here is how to read the key lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl ra">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int slot = (home + i) % m;</code></td><td>"try number i: i slots after home, wrapping around past the end."</td></tr>
+            <tr><td><code>if (table[slot] == EMPTY)</code></td><td>"if this slot was never used, the key cannot be further along: stop."</td></tr>
+            <tr><td><code>return slot;</code></td><td>"found: give back the slot number."</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="sub">
+        <h3>Deleting: leave a mark</h3>
+        <p>Deleting from a chain is easy: unlink the node. In open addressing, it is tricky, because other keys may have probed <b>past</b> the slot you want to empty. Step through deleting 85:</p>
+        <StepShow id="show-delete" cap="Deleting with linear probing" steps={deleteShow()} />
+        <div class="def">
+          <p class="note-label">Deleted mark (tombstone)</p>
+          <p>When a key is removed in open addressing, its slot gets a <b>deleted</b> mark instead of becoming empty. A <b>search</b> treats the mark as "something was here: keep going". An <b>insert</b> may reuse the slot as a free one.</p>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>Both tables in one program</h3>
+        <p>Here is the chaining table and the linear-probing table in one runnable file, with <code>insert</code>, search, <code>remove</code>, and <code>print</code>. Run it and match the output to the pictures above:</p>
+        <pre class="code"><code set:html={hiN(full)} /></pre>
+        <TryIt />
+        <p>Output:</p>
+        <pre class="console"><code>{fullOut}</code></pre>
+        <p>Two new lines to read aloud:</p>
+        <div class="tbl-wrap"><table class="tbl ra">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>static final int EMPTY = -1;</code></td><td>"EMPTY is a <b>constant</b> (a fixed value with a name) equal to -1." <code>final</code> means it can never change. Keys are 0 or more, so -1 can never be a real key.</td></tr>
+            <tr><td><code>table[slot] == EMPTY || table[slot] == DELETED</code></td><td>"the slot was never used, <b>or</b> its key was removed": either way, insert may use it.</td></tr>
+          </tbody>
+        </table></div>
+        <p class="small muted">Good to know: these tables assume every key is different, like student IDs. A real table would first search for the key and skip it if it is already there. Negative keys need <code>Math.floorMod(key, m)</code>, because Java's <code>%</code> gives a negative remainder for a negative number.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="better">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Methods 3 and 4</p>
+      <h2>Quadratic probing and double hashing</h2>
+    </div>
+    <div class="flow">
+      <p>Linear probing's trouble is that colliding keys all walk the <b>same path</b>, one slot at a time, so they pile up into clusters. The fix: jump <b>farther</b> on each try. Two ways to do that:</p>
+      <div class="sub">
+        <h3>Quadratic probing</h3>
+        <div class="def">
+          <p class="note-label">Quadratic probing</p>
+          <p>In <b>quadratic probing</b>, try number i goes to slot <b>(h(k) + i²) mod m</b>.<br />The jumps from home grow: 0, 1, 4, 9, 16, … slots away ("quadratic" means "with a square").</p>
+        </div>
+        <p>Same keys, same table:</p>
+        <StepShow id="show-quad" cap="Quadratic probing, by hand (m = 7)" steps={toShow(M, quadRun.steps)} />
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Key</th><th>h(k)</th><th>Slots tried</th><th>Goes into</th></tr></thead>
+          <tbody>{quadRows.map((r) => <tr><td class="mono">{r.k}</td><td class="mono">{r.h}</td><td class="mono">{r.tried}</td><td class="mono"><b>{r.at}</b></td></tr>)}</tbody>
+        </table></div>
+        <p>See 92: its third try jumped from slot 1 straight to slot 5 (1 + 2² = 5), out of the crowd.</p>
+        <div class="trap">
+          <p class="note-label">Watch out: quadratic probing can miss free slots</p>
+          <p>Because the jumps skip slots, the tries can keep landing on the same few taken slots while another slot is still free. In the lab in Part 7, tap <b>all the same h</b> with <b>Quadratic</b>: 18 and 23 cannot be placed, even though slots 0 and 1 are empty. (With <b>Double</b>, all five fit.)</p>
+          <p><b>The safe rule:</b> use a <b>prime</b> m and keep the table at most <b>half full</b>. Then quadratic probing always finds a free slot.</p>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>Double hashing</h3>
+        <div class="def">
+          <p class="note-label">Double hashing</p>
+          <p>In <b>double hashing</b>, a <b>second</b> hash function gives each key its own jump size, its <b>step</b>. Try number i goes to slot <b>(h(k) + i × step(k)) mod m</b>.<br />Two keys with the same home slot usually have different steps, so they stop following each other.</p>
+        </div>
+        <div class="plain">
+          <p class="note-label">Course convention</p>
+          <p>The step is <b>step(k) = R − (k mod R)</b>, where R is the largest prime smaller than m (m = 7 → R = 5; m = 5 → R = 3). It is always between 1 and R, so it is <b>never 0</b>: a step of 0 would try the same slot forever. Books use different second functions, so on a quiz or exam, <b>always use the one the question gives</b>.</p>
+        </div>
+        <p>With m = 7, R = 5. Same keys again:</p>
+        <StepShow id="show-double" cap="Double hashing, by hand (m = 7, R = 5)" steps={toShow(M, dblRun.steps)} />
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Key</th><th>h(k)</th><th>step(k) = 5 − (k mod 5)</th><th>Slots tried</th><th>Goes into</th></tr></thead>
+          <tbody>{dblRows.map((r) => <tr><td class="mono">{r.k}</td><td class="mono">{r.h}</td><td class="mono">{r.step}</td><td class="mono">{r.tried}</td><td class="mono"><b>{r.at}</b></td></tr>)}</tbody>
+        </table></div>
+      </div>
+      <div class="sub">
+        <h3>The three results side by side</h3>
+        <figure class="fig illus-fig"><Fragment set:html={threeTablesPic()} /><figcaption>Same keys, same m, three probing rules, three different tables.</figcaption></figure>
+        <p>In this tiny example, double hashing needed the <b>most</b> tries. With only 7 slots and 6 keys, every method runs into full slots. The payoff of quadratic probing and double hashing shows in <b>big</b> tables, where linear probing's clusters keep growing and the other two scatter the keys.</p>
+        <p>Here is a summary of the four methods:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Method</th><th>Try i goes to</th><th>Good</th><th>Watch out</th></tr></thead>
+          <tbody>
+            <tr><td>Separate chaining</td><td>always bucket h(k) (add to its chain)</td><td>simple; never "full"; easy delete</td><td>extra memory for nodes and links</td></tr>
+            <tr><td>Linear probing</td><td>(h + i) mod m</td><td>simple; no extra memory</td><td>clusters</td></tr>
+            <tr><td>Quadratic probing</td><td>(h + i²) mod m</td><td>breaks up clusters</td><td>can miss free slots (use prime m, at most half full)</td></tr>
+            <tr><td>Double hashing</td><td>(h + i × step(k)) mod m</td><td>each key has its own path</td><td>two hash functions to compute; step must never be 0</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Try it</p>
+      <h2>The hash table lab</h2>
+    </div>
+    <div class="flow">
+      <p>Put any keys into a table with any of the four methods, one key per step. Things to try:</p>
+      <ul>
+        <li>The lesson keys with all four methods: compare the "tries in all".</li>
+        <li><b>wrap around</b> with Linear: watch 17 go past slot 4 and back to slot 0.</li>
+        <li><b>prices (m = 10)</b>, then the same keys with m = 7 or 11.</li>
+        <li><b>all the same h</b> with Quadratic, then with Double.</li>
+      </ul>
+      <HashLab id="lab-hash" />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="load">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · When the table fills up</p>
+      <h2>Load factor and rehashing</h2>
+    </div>
+    <div class="flow">
+      <p>The more keys a table holds, the more collisions there are, and the more tries each insert and search needs. To know when a table is getting too crowded, we measure how full it is.</p>
+      <div class="def">
+        <p class="note-label">Load factor</p>
+        <p>The <b>load factor</b> is <b>α = n / m</b> ("alpha"): n is the number of keys stored, and m is the number of slots. Our lesson table has 6 keys in 7 slots: α = 6/7 ≈ 0.86.</p>
+      </div>
+      <p>It means slightly different things for the two families:</p>
+      <ul>
+        <li><b>Separate chaining:</b> α is the average chain length. It can go above 1 (more keys than buckets), but long chains are slow.</li>
+        <li><b>Open addressing:</b> α can never go above 1, because each slot holds one key. At α = 1 the table is full.</li>
+      </ul>
+      <p>For linear probing in a big table, here is about how many tries a search takes on average (from the formulas in Sedgewick and Wayne's <i>Algorithms</i>):</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Load factor α</th><th>Search, key is there</th><th>Search, key is not there</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">0.5 (half full)</td><td>1.5 tries</td><td>2.5 tries</td></tr>
+          <tr><td class="mono">0.75</td><td>2.5 tries</td><td>8.5 tries</td></tr>
+          <tr><td class="mono">0.9</td><td>5.5 tries</td><td>50.5 tries</td></tr>
+        </tbody>
+      </table></div>
+      <p>At half full, it is still about one or two tries. Near full, it gets slow fast. So tables are kept from getting too full: open addressing usually aims for α ≤ 0.5, and Java's <code>HashMap</code> (chaining) grows when α passes 0.75.</p>
+      <div class="def">
+        <p class="note-label">Rehashing</p>
+        <p><b>Rehashing</b> means making a bigger table (often about twice as big, and a prime) and inserting <b>every key again</b> with the new m.</p>
+      </div>
+      <p>Why not just copy the keys over to the same slot numbers? Because every slot number came from <b>k mod m</b>, and m has changed. In the bigger table, the keys belong in new places:</p>
+      <figure class="fig illus-fig"><Fragment set:html={rehashPic()} /><figcaption>Rehashing 4 keys from m = 5 into m = 11 (linear probing in both).</figcaption></figure>
+      <p>Rehashing takes work (every key is inserted again), but it happens rarely: after doubling, many more inserts fit before the next one. So, on average, inserts stay fast.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="speed">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 9 · Why this matters</p>
+      <h2>How fast is a hash table?</h2>
+    </div>
+    <div class="flow">
+      <p>Here is how finding one key compares, for n keys:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Where the keys are</th><th>Find, usually</th><th>Find, worst case</th><th>Keeps keys in order?</th></tr></thead>
+        <tbody>
+          <tr><td>Unsorted array (linear search)</td><td>up to n checks</td><td>n</td><td>no</td></tr>
+          <tr><td>Sorted array (binary search)</td><td>about log₂ n (20 for a million)</td><td>about log₂ n</td><td>yes</td></tr>
+          <tr><td>Balanced BST (AVL, red-black)</td><td>about log₂ n</td><td>about log₂ n</td><td>yes (in-order)</td></tr>
+          <tr><td><b>Hash table</b></td><td><b>1 or 2 tries</b>, if the load factor is kept low</td><td>n</td><td><b>no</b></td></tr>
+        </tbody>
+      </table></div>
+      <p>The worst case happens when (almost) every key collides: one long chain, or one long cluster. Remember <Peek label="the prices in a table of 10" title="From Part 2" html={pricesPeek} />. A good hash function, a prime m, and rehashing keep that from happening in practice.</p>
+      <p>Notice the last column: a hash table scatters the keys on purpose, so it cannot list them in order, or quickly find the smallest. Here is how to choose:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>You need to...</th><th>Good choice</th></tr></thead>
+        <tbody>
+          <tr><td>find, add, and remove by exact key, many times (ID → student record, username → account)</td><td>hash table (<code>HashMap</code>, <code>HashSet</code>)</td></tr>
+          <tr><td>keep keys sorted, find the smallest or largest, or list a range (all grades from 80 to 90)</td><td>balanced BST (<code>TreeMap</code>, <code>TreeSet</code>)</td></tr>
+          <tr><td>store a few values, or values by position</td><td>array or list</td></tr>
+        </tbody>
+      </table></div>
+      <p>Java's own <code>HashMap</code> and <code>HashSet</code> use <b>separate chaining</b> (see <Peek label="the chaining picture in Part 4" title="From Part 4" html={chainPeek} />), and double their table size when the load factor passes 0.75.</p>
+      <p class="small muted">Good to know: books write the hash table's usual speed as <b>O(1)</b> on average ("constant": it does not grow with n), and its worst case as <b>O(n)</b>. You will meet these names again when the course analyzes algorithms.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 10 · Your turn</p>
+      <h2>Practice</h2>
+    </div>
+    <div class="flow">
+      <div class="paper flow">
+        <p class="note-label">On paper</p>
+        <ol class="flow">
+          <li>m = 5, h(k) = k mod 5. Insert the keys <b>{P5.join(', ')}</b>, in this order, using (a) separate chaining, (b) linear probing, (c) quadratic probing, (d) double hashing with step(k) = 3 − (k mod 3). For (b) to (d), write a table of tries like the ones in Parts 5 and 6. The first row of (b) is done for you:
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>Key</th><th>h(k)</th><th>Slots tried</th><th>Goes into</th></tr></thead>
+              <tbody><tr><td class="mono">12</td><td class="mono">2</td><td class="mono">2</td><td class="mono">2</td></tr><tr><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td></tr></tbody>
+            </table></div>
+          </li>
+          <li>Use your linear-probing table from 1(b). (a) Which slots does a search for 40 check? (b) Which slots does a search for 22 check, and what does it return?</li>
+          <li>(a) What is the load factor of the table in 1(b)? (b) Rehash its keys into a table with m = 11, using linear probing.</li>
+          <li>Spot the bug. This program should insert four keys and print "done". What happens instead, and how do you fix it?
+            <pre class="code"><code set:html={hiN(bugTask)} /></pre>
+          </li>
+          <li>Hash table or not? (a) A canteen card system looks up a student's balance by card number, thousands of times a day. (b) The registrar must print the Dean's List from highest grade to lowest. (c) A linear-probing table is 90% full and searches are getting slow.</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <p class="small muted">For self-study, not for grading. All tables were checked by running the code in Java.</p>
+          <ol class="flow">
+            <li>(a) Separate chaining:
+              <pre class="code"><code>{pc.slots.map((c, i) => `${i}: ${c.join(' → ')}`).join('\n')}</code></pre>
+              (b) Linear probing:
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>Key</th><th>h(k)</th><th>Slots tried</th><th>Goes into</th></tr></thead>
+                <tbody>{plRows.map((r) => <tr><td class="mono">{r.k}</td><td class="mono">{r.h}</td><td class="mono">{r.tried}</td><td class="mono"><b>{r.at}</b></td></tr>)}</tbody>
+              </table></div>
+              <pre class="code"><code>{slotLine(pl.slots)}</code></pre>
+              17 wraps around: slots 2, 3, 4 are taken, so (2 + 3) mod 5 = 0.<br />
+              (c) Quadratic probing:
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>Key</th><th>h(k)</th><th>Slots tried</th><th>Goes into</th></tr></thead>
+                <tbody>{pqRows.map((r) => <tr><td class="mono">{r.k}</td><td class="mono">{r.h}</td><td class="mono">{r.tried}</td><td class="mono"><b>{r.at}</b></td></tr>)}</tbody>
+              </table></div>
+              <pre class="code"><code>{slotLine(pq.slots)}</code></pre>
+              17: (2 + 0) = 2 taken, (2 + 1) = 3 taken, (2 + 4) mod 5 = 1 free.<br />
+              (d) Double hashing, step(k) = 3 − (k mod 3):
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>Key</th><th>h(k)</th><th>step(k)</th><th>Slots tried</th><th>Goes into</th></tr></thead>
+                <tbody>{pdRows.map((r) => <tr><td class="mono">{r.k}</td><td class="mono">{r.h}</td><td class="mono">{r.step}</td><td class="mono">{r.tried}</td><td class="mono"><b>{r.at}</b></td></tr>)}</tbody>
+              </table></div>
+              <pre class="code"><code>{slotLine(pd.slots)}</code></pre>
+            </li>
+            <li>(a) 40 mod 5 = 0: slot 0 (17, not it), slot 1 (40): <b>found</b> after 2 tries. (b) 22 mod 5 = 2: slots 2, 3, 4, 0, 1 all hold other keys and none is empty, so the loop tries all 5 slots and returns <b>-1</b>. A full table makes every "not found" search check every slot.</li>
+            <li>(a) α = 5 / 5 = <b>1.0</b>: completely full. (b) With mod 11:
+              <pre class="code"><code>{slotLine(p11.slots).split('\n').filter((l) => !l.endsWith('-')).join('\n')}</code></pre>
+              Every other slot is empty, and no key collides.</li>
+            <li>It <b>crashes</b> while inserting 17: <code>ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5</code>. 17 mod 5 = 2; slots 2, 3, and 4 are taken, so the next try is slot 2 + 3 = 5, which does not exist. Line 8 forgot to wrap around. Fix: <code>int slot = (home + i) % m;</code>.</li>
+            <li>(a) <b>Hash table</b>: many lookups by exact key. (b) <b>Not</b> a hash table: it has no order. Use a sorted structure (a BST or <code>TreeMap</code>), or sort the grades. (c) <b>Rehash</b> into a bigger table (about twice the size, a prime), so the load factor drops below 0.5.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Your coding task: quadratic probing</p>
+        <p>This small table uses an array of 5 slots, with <code>-1</code> for empty. Finish <code>insert</code> so it uses <b>quadratic probing</b>: write about 5 lines where it says YOUR CODE, then run it. It should print the same table as your answer to Problem 1(c), then <code>false</code> (the table is full, so 99 cannot go in).</p>
+        <pre class="code"><code set:html={hiN(starter)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(answer)} /></pre>
+          <p>Output:</p>
+          <pre class="console"><code>{slotLine(pq.slots) + '\nfalse'}</code></pre>
+          <p>The only change from linear probing is <code>i * i</code> instead of <code>i</code>. Java has no "squared" operator, so i² is written <code>i * i</code>.</p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 11 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-hash" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Hashing turns a key into a slot number with a fixed rule, so a search can jump straight to one slot.</li>
+          <li>In this course, h(k) = k mod m. A prime m spreads keys better.</li>
+          <li>Collisions cannot be avoided. Separate chaining keeps a chain per bucket; open addressing tries other slots.</li>
+          <li>Try i: linear (h + i) mod m; quadratic (h + i²) mod m; double hashing (h + i × step(k)) mod m.</li>
+          <li>Searches follow the insert's path and stop at the key or at an empty slot, so deletes leave a "deleted" mark.</li>
+          <li>Load factor α = n / m. Keep it low, and rehash into a bigger table when it gets high. Then finding a key takes about 1 or 2 tries, but a hash table keeps no order.</li>
+        </ol>
+      </div>
+      <p><b>Where to next:</b> go back to the <a href={base + course.href}>ITC 120 page</a> and redo the self-checks of any lesson you are unsure about. The <a href={base + '/itc120/maps/'}>Maps</a> lesson shows how Java's <code>HashMap</code> turns <b>String</b> keys into numbers first.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, <i>Introduction to Algorithms</i>, 4th ed. MIT Press, 2022, Chapter 11 (Hash tables; the division method; open addressing).</li>
+          <li>R. Sedgewick and K. Wayne, <i>Algorithms</i>, 4th ed. Addison-Wesley, 2011, Section 3.4 (hash tables; average tries for linear probing). <a href="https://algs4.cs.princeton.edu/34hash/">algs4.cs.princeton.edu</a></li>
+          <li>M. T. Goodrich, R. Tamassia, and M. H. Goldwasser, <i>Data Structures and Algorithms in Java</i>, 6th ed. Wiley, 2014, Section 10.2 (double hashing with q − (k mod q)).</li>
+          <li>Programiz, "Hash Table." <a href="https://www.programiz.com/dsa/hash-table">programiz.com/dsa/hash-table</a></li>
+          <li>Oracle, "HashMap (Java SE 21 &amp; JDK 21)," Java API documentation (load factor 0.75). <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/HashMap.html">docs.oracle.com</a></li>
+          <li>ITC 120 Course Syllabus (Hashing Algorithms), Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
