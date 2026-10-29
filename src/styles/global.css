@@ -1083,3 +1083,16 @@ svg.objbox.ht-pic { max-width: 24rem; }
     box-shadow: 0 6px 18px rgba(27, 42, 46, 0.22); }
 }
 p.formula { font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem; background: var(--card); padding: 0.5rem 0.7rem; border-radius: 4px; overflow-x: auto; }
+
+/* ---------- Step labs on phones, round 2 (chat 25) ---------- */
+@media (max-width: 43.99rem) {
+  /* The buttons float, so text areas fit their content instead of keeping the longest step's height.
+     Picture boxes (.so-pic etc.) keep their size, so the picture never jumps. JS-reserved captions: see stable.js. */
+  .solab .so-say, .solab .so-cmp, .adlab .so-say, .adlab .so-cmp,
+  .srlab .sr-say, .srlab .sr-cmp, .hslab .hs-say, .hslab .hs-sum { min-height: 0; }
+  /* Back and Next side by side on row 1; the step counter and any extra button (Skip to end, Start over, Reset) on row 2. */
+  .solab .so-nav, .trlab .tr-nav, .bstlab .bl-nav, .avl-lab .lab-nav, .btn-row.al-nav { flex-wrap: wrap; justify-content: center; align-items: center; row-gap: 0.45rem; }
+  :is(.solab .so-nav, .trlab .tr-nav, .bstlab .bl-nav, .avl-lab .lab-nav, .btn-row.al-nav) > * { order: 3; }
+  :is(.solab .so-nav, .trlab .tr-nav, .bstlab .bl-nav, .avl-lab .lab-nav, .btn-row.al-nav) > [data-go="back"] { order: 1; flex: 1 1 40%; }
+  :is(.solab .so-nav, .trlab .tr-nav, .bstlab .bl-nav, .avl-lab .lab-nav, .btn-row.al-nav) > [data-go="next"] { order: 2; flex: 1 1 40%; }
+}
