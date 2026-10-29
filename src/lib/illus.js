@@ -3895,3 +3895,153 @@ export function qRearNullPic() {
   b += sT(16, ny + 122, 'front is still null, so 5 can never be dequeued.', { size: 12.5, w: 800, fill: '#9a5b07', anchor: 'start' });
   return rPic(340, 598, 'Three panels about the last dequeue. One, with the if block: front is null and rear is null; no nodes; both say the queue is empty. Two, without the if block: front is null, but rear still refers to node 8, which has left the queue; front says empty, rear still says 8; they disagree. Three, what it could break, if isEmpty checked rear == null: enqueue(5) would link 5 after the old node 8 and move rear to 5, but front is still null, so 5 can never be dequeued.', b);
 }
+
+/* ---------- Programming refresher, chat 20 (whole-site QA step 2) ---------- */
+const badge = (x, y, n, fill = '#e8662e') => `<circle cx="${x}" cy="${y}" r="10" fill="${fill}"/>` + sT(x, y + 4.5, String(n), { size: 12.5, w: 800, fill: '#fff' });
+
+/** Clean: else-if ladder for score 82: checks from the top, stops at the first true one. */
+export function elseIfPic() {
+  let b = sT(170, 20, 'score is 82', { size: 14, w: 800, fill: '#37474a' });
+  // check 1
+  b += mapBox(20, 34, 160, 40, '#fff8e6', '#f0a93b', 2.2, 8) + sT(100, 59, 'score >= 90 ?', { mono: true, size: 13, w: 700 });
+  b += mapArrow(180, 54, 226, 54, '#9aa5a6', 2) + sT(203, 46, 'YES', { size: 11.5, w: 800, fill: '#6b7778' });
+  b += mapBox(230, 34, 100, 40, '#f3f5f5', '#9aa5a6', 1.6, 8) + sT(280, 59, 'Excellent', { size: 13, w: 700, fill: '#6b7778' });
+  b += mapArrow(100, 74, 100, 108, '#1b2a2e', 2.2) + sT(110, 96, 'NO', { size: 12, w: 800, fill: '#b23a33', anchor: 'start' });
+  // check 2
+  b += mapBox(20, 112, 160, 40, '#fff8e6', '#f0a93b', 2.2, 8) + sT(100, 137, 'score >= 75 ?', { mono: true, size: 13, w: 700 });
+  b += mapArrow(180, 132, 226, 132, '#e8662e', 2.8) + sT(203, 124, 'YES', { size: 11.5, w: 800, fill: '#b4461a' });
+  b += mapBox(230, 112, 100, 40, '#fce9e0', '#e8662e', 2.6, 8) + sT(280, 137, 'Passed', { size: 14, w: 800, fill: '#b4461a' });
+  b += mapArrow(100, 152, 100, 186, '#9aa5a6', 2) + sT(110, 174, 'NO', { size: 12, w: 800, fill: '#6b7778', anchor: 'start' });
+  // else
+  b += mapBox(20, 190, 160, 40, '#f3f5f5', '#9aa5a6', 1.6, 8) + sT(100, 215, 'else: Failed', { size: 13, w: 700, fill: '#6b7778' });
+  b += sT(256, 196, 'skipped', { size: 12, w: 700, fill: '#6b7778' }) + sT(256, 212, '(gray)', { size: 12, w: 700, fill: '#6b7778' });
+  b += sT(170, 256, '82 >= 90? No. 82 >= 75? Yes: print Passed.', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 274, 'Java stops at the first true check.', { size: 12.5, w: 800, fill: '#b4461a' });
+  return introPic(340, 286, 'An if, else if, else ladder for a score of 82. First check: score >= 90? No, so go down. Second check: score >= 75? Yes, so print Passed, highlighted in orange. Excellent and the else part, Failed, are gray: skipped. Java stops at the first true check.', b);
+}
+
+/** Clean: && (and), || (or), ! (not) with everyday examples. */
+export function logicPic() {
+  const chip = (x, y, w, t, ok) => mapBox(x, y, w, 28, ok ? '#e3f1ef' : '#fbe3e1', ok ? '#0e6b63' : '#b23a33', 1.8, 6) + sT(x + w / 2, y + 19, t, { size: 12.5, w: 800, fill: ok ? '#0b544e' : '#b23a33' });
+  const row = (y, a, aok, op, c, cok, res) => chip(14, y, 92, a, aok) + sT(124, y + 19, op, { mono: true, size: 14, w: 700 }) + chip(142, y, 92, c, cok) + mapArrow(240, y + 14, 262, y + 14, '#37474a', 2) + chip(266, y, 62, res ? 'true' : 'false', res);
+  let b = '';
+  // AND
+  b += sT(14, 22, '&& (and): BOTH must be true', { size: 14, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += sT(14, 40, 'Enter the exam room? hasID && hasPermit', { mono: true, size: 11.5, w: 600, fill: '#37474a', anchor: 'start' });
+  b += row(50, 'ID ✓', true, '&&', 'permit ✓', true, true);
+  b += row(86, 'ID ✓', true, '&&', 'permit ✗', false, false);
+  // OR
+  b += sT(14, 146, '|| (or): at least ONE is true', { size: 14, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += sT(14, 164, 'Can you pay? hasCash || hasGCash', { mono: true, size: 11.5, w: 600, fill: '#37474a', anchor: 'start' });
+  b += row(174, 'cash ✗', false, '||', 'GCash ✓', true, true);
+  b += row(210, 'cash ✗', false, '||', 'GCash ✗', false, false);
+  // NOT
+  b += sT(14, 270, '! (not): flips true and false', { size: 14, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += sT(124, 300, '!', { mono: true, size: 16, w: 700 }) + chip(142, 282, 92, 'true', true) + mapArrow(240, 296, 262, 296, '#37474a', 2) + chip(266, 282, 62, 'false', false);
+  b += sT(14, 340, 'Read ! as "not": !hasPermit is "has no permit".', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+  return introPic(340, 352, 'Three logic operators. And, written as two ampersands: both must be true. To enter the exam room you need an ID and a permit: ID yes and permit yes gives true; ID yes and permit no gives false. Or, written as two bars: at least one must be true. To pay you need cash or GCash: no cash but GCash gives true; neither gives false. Not, written as an exclamation mark, flips true to false and false to true.', b);
+}
+
+/** Clean: a while loop as a flowchart, with a coin trace. */
+export function whilePic() {
+  let b = mapBox(110, 14, 120, 32, '#f3f5f5', '#37474a', 1.8, 8) + sT(170, 35, 'coins = 3', { mono: true, size: 13, w: 700 });
+  b += mapArrow(170, 46, 170, 66, '#1b2a2e', 2);
+  b += `<path d="M170 68 L240 98 L170 128 L100 98 Z" fill="#fff8e6" stroke="#f0a93b" stroke-width="2.4"/>` + sT(170, 103, 'coins > 0 ?', { mono: true, size: 13, w: 700 });
+  b += mapArrow(170, 128, 170, 154, '#e8662e', 2.6) + sT(178, 146, 'YES', { size: 11.5, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += mapBox(84, 156, 172, 48, '#fce9e0', '#e8662e', 2.4, 8) + sT(170, 176, 'play one round', { size: 13, w: 800, fill: '#b4461a' }) + sT(170, 195, 'coins--;', { mono: true, size: 13, w: 700 });
+  b += `<path d="M84 180 L44 180 L44 98 L92 98" fill="none" stroke="#0e6b63" stroke-width="2.4" stroke-linejoin="round"/>` + mapArrow(80, 98, 98, 98, '#0e6b63', 2.4);
+  b += sT(50, 140, 'check', { size: 11.5, w: 800, fill: '#0b544e', anchor: 'start' }) + sT(50, 154, 'again', { size: 11.5, w: 800, fill: '#0b544e', anchor: 'start' });
+  b += mapArrow(240, 98, 262, 98, '#9aa5a6', 2) + sT(250, 90, 'NO', { size: 11.5, w: 800, fill: '#6b7778' });
+  b += mapBox(264, 76, 70, 44, '#f3f5f5', '#9aa5a6', 1.6, 8) + sT(299, 95, 'No coins', { size: 12, w: 700, fill: '#37474a' }) + sT(299, 111, 'left', { size: 12, w: 700, fill: '#37474a' });
+  // trace strip
+  b += sT(16, 240, 'coins:', { size: 13, w: 800, fill: '#37474a', anchor: 'start' });
+  const xs = [96, 156, 216, 276], v = [3, 2, 1, 0], lab = ['round 1', 'round 2', 'round 3', 'stop'];
+  xs.forEach((x, i) => {
+    const last = i === 3;
+    b += `<circle cx="${x}" cy="236" r="16" fill="${last ? '#f3f5f5' : '#f8dc95'}" stroke="${last ? '#9aa5a6' : '#c98a16'}" stroke-width="2"/>` + sT(x, 241, String(v[i]), { mono: true, size: 14, w: 700, fill: last ? '#6b7778' : '#1b2a2e' });
+    b += sT(x, 270, lab[i], { size: 12, w: 700, fill: last ? '#b23a33' : '#37474a' });
+    if (i < 3) b += mapArrow(x + 18, 236, x + 40, 236, '#37474a', 1.8);
+  });
+  b += sT(170, 300, 'Each round uses one coin. At 0 the check is', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 318, 'false, so the loop ends.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 330, 'A while loop as a flowchart. coins starts at 3. Check: coins > 0? If yes, play one round and do coins minus minus, then go back and check again. If no, print No coins left. Below, coins goes 3, 2, 1 for rounds 1 to 3, then 0: stop. Each round uses one coin; at 0 the check is false, so the loop ends.', b);
+}
+
+/** Clean: three ways to make and fill an array, and its length. */
+export function arrMakePic() {
+  const row = (y, code, vals, kinds, note) => {
+    let s = sT(14, y, code, { mono: true, size: 12.5, w: 700, fill: '#0b544e', anchor: 'start' });
+    vals.forEach((v, i) => {
+      const x = 50 + i * 48, k = kinds[i];
+      s += mapBox(x, y + 12, 48, 40, k === 'hot' ? '#e8662e' : k === 'zero' ? '#f3f5f5' : '#ffffff', '#1b2a2e', 2, 0);
+      s += sT(x + 24, y + 38, String(v), { mono: true, size: 15, w: 700, fill: k === 'hot' ? '#fff' : k === 'zero' ? '#9aa5a6' : '#1b2a2e' });
+      s += sT(x + 24, y + 68, String(i), { mono: true, size: 12, w: 600, fill: '#0b544e' });
+    });
+    s += sT(14, y + 88, note, { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+    return s;
+  };
+  let b = '';
+  b += row(22, 'int[] arr = {19, 3, 42, 7, 56};', [19, 3, 42, 7, 56], [], 'Values in braces: Java counts them (5 slots).');
+  b += row(150, 'int[] scores = new int[5];', [0, 0, 0, 0, 0], ['zero', 'zero', 'zero', 'zero', 'zero'], 'new int[5]: 5 empty slots. Each starts at 0.');
+  b += row(278, 'scores[0] = 92;', [92, 0, 0, 0, 0], ['hot', 'zero', 'zero', 'zero', 'zero'], 'Store 92 in slot 0. The others stay 0.');
+  b += `<path d="M50 384 L50 392 L290 392 L290 384" fill="none" stroke="#e8662e" stroke-width="2"/>`;
+  b += sT(170, 412, 'scores.length is 5 (indexes 0 to 4)', { mono: true, size: 12.5, w: 700, fill: '#b4461a' });
+  return introPic(340, 424, 'Making arrays. Row 1: int[] arr = {19, 3, 42, 7, 56}; makes 5 slots holding those values; Java counts the values. Row 2: int[] scores = new int[5]; makes 5 empty slots, each starting at 0. Row 3: scores[0] = 92; stores 92 in slot 0; the others stay 0. Under it: scores.length is 5, indexes 0 to 4.', b);
+}
+
+/** Clean: anatomy of a complete program (Main.java), with numbered run order and its output. */
+export function programPic() {
+  const m = (x, y, t, o = {}) => sT(x, y, t, { mono: true, size: o.size ?? 12.5, w: 600, fill: o.fill ?? '#1b2a2e', anchor: 'start' });
+  let b = sT(170, 20, 'Inside the file Main.java', { size: 15, w: 800 });
+  b += mapBox(8, 32, 324, 300, '#e3f1ef', '#0e6b63', 2.4, 10);
+  b += m(20, 54, 'public class Main {', { size: 13, fill: '#0b544e' });
+  b += sT(318, 54, 'the class', { size: 12, w: 800, fill: '#0b544e', anchor: 'end' });
+  // larger
+  b += mapBox(24, 66, 292, 86, '#fff8e6', '#f0a93b', 2, 8);
+  b += m(34, 88, 'static int larger(int a, int b) {');
+  b += m(52, 108, 'if (a > b) return a;') + m(52, 126, 'return b;') + m(34, 144, '}');
+  b += sT(306, 126, 'a method', { size: 12, w: 800, fill: '#9a5b07', anchor: 'end' });
+  // main
+  b += mapBox(24, 164, 292, 142, '#fce9e0', '#e8662e', 2.4, 8);
+  b += m(32, 186, 'public static void main(String[] args) {', { size: 11 });
+  b += m(52, 208, 'int big = larger(4, 9);') + m(52, 228, 'System.out.print("Larger: ");') + m(52, 248, 'System.out.println(big);') + m(52, 268, 'System.out.println("Done!");') + m(34, 290, '}');
+  b += sT(306, 290, 'main: the start', { size: 12, w: 800, fill: '#b4461a', anchor: 'end' });
+  b += m(20, 324, '}', { size: 13, fill: '#0b544e' });
+  b += badge(24, 164, 1) + badge(268, 203, 2) + badge(150, 121, 3, '#c98a16') + badge(296, 223, 4);
+  // output
+  b += mapBox(8, 344, 324, 66, '#1b2a2e', '#1b2a2e', 1, 8);
+  b += sT(20, 362, 'Output', { size: 12, w: 800, fill: '#9fd3c7', anchor: 'start' });
+  b += m(20, 382, 'Larger: 9', { size: 13.5, fill: '#ffffff' }) + m(20, 400, 'Done!', { size: 13.5, fill: '#ffffff' });
+  // legend
+  const L = ['Java starts at main, not at the top of the file.', 'main calls larger(4, 9).', 'larger gives back 9; main stores it in big.', 'The prints run in order, top to bottom.'];
+  L.forEach((t, i) => { b += badge(20, 434 + i * 24, i + 1, i === 2 ? '#c98a16' : '#e8662e') + sT(38, 438.5 + i * 24, t, { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' }); });
+  return introPic(340, 520, 'A complete program in the file Main.java. The class Main holds two methods: larger, which gives back the bigger of a and b, and main, the starting point. Numbered badges show the run order: 1, Java starts at main, not at the top of the file. 2, main calls larger(4, 9). 3, larger gives back 9, and main stores it in big. 4, the print lines run in order. The output box shows Larger: 9 on the first line and Done! on the second.', b);
+}
+
+/** Sketch: a program is like a school building: class Main = the building, methods = rooms, main = the front door Java uses first. */
+export function schoolMain() {
+  const s = new Sketch(340, 318, 207);
+  s.text(170, 22, 'A program is like a school building', { font: 'body', size: 15, weight: 800 });
+  s.path('M28 96 L170 40 L312 96 Z', { fill: C.orangeWash, sw: 2 });
+  s.round(116, 62, 108, 26, 6, { fill: '#ffffff', sw: 1.6 });
+  s.text(170, 80, 'class Main', { font: 'mono', size: 13, weight: 700, color: C.teal });
+  s.rect(40, 96, 260, 148, { fill: '#fffdf5', sw: 2 });
+  // left room: a method
+  s.rect(54, 108, 108, 120, { fill: '#fff4d6', sw: 1.6 });
+  s.text(108, 132, 'larger', { font: 'mono', size: 14, weight: 700 });
+  s.text(108, 152, 'a room for', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.text(108, 168, 'one job', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.rect(80, 192, 56, 10, { fill: '#d9bf95', sw: 1.4 }); s.line(86, 202, 86, 222, { sw: 1.4 }); s.line(130, 202, 130, 222, { sw: 1.4 });
+  // right room: main with the front door
+  s.rect(178, 108, 108, 136, { fill: C.orangeWash, sw: 1.6 });
+  s.text(232, 132, 'main', { font: 'mono', size: 15, weight: 700, color: C.orange });
+  s.text(232, 152, 'the front door', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.round(212, 166, 40, 78, 4, { fill: C.orange, sw: 1.8 });
+  s.circle(244, 206, 6, { fill: C.butter, sw: 1.2 });
+  s.line(16, 244, 324, 244, { sw: 2 });
+  s.arrow(232, 286, 232, 252, { sw: 2.6, stroke: C.orange, head: 11 });
+  s.text(232, 304, 'Java enters here first', { font: 'body', size: 13, weight: 800, color: C.orange });
+  s.text(84, 276, 'Other rooms are used', { font: 'body', size: 12, weight: 700, color: C.soft });
+  s.text(84, 292, 'only when main calls them.', { font: 'body', size: 12, weight: 700, color: C.soft });
+  return s.svg('A program drawn as a school building. The roof sign says class Main: the whole building is the class. Inside are rooms. The left room, larger, is a method: a room for one job. The right room, main, has the front door, and an arrow shows Java enters here first. Other rooms are used only when main calls them.').replace(/(\d+\.\d)\d+/g, '$1');
+}

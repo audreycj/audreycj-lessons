@@ -6,19 +6,26 @@ import TreeFig from '../../components/TreeFig.astro';
 import GraphFig from '../../components/GraphFig.astro';
 import Quiz from '../../components/Quiz.astro';
 import Peek from '../../components/Peek.astro';
+import TryIt from '../../components/TryIt.astro';
 import { taxoPic, expertFour, dataSlips, spiceRack, familiesPic, recipeCard, traitsPic, algoVsProg, progCycle, dsAlgoPic } from '../../lib/illus.js';
 import { course, kindInfo, kindLessons } from '../../data/itc120.js';
 import { small } from '../../data/graphs.js';
 import { hi, hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-const addProg = String.raw`Scanner in = new Scanner(System.in);
-System.out.print("Enter first number: ");   // step 1
-int a = in.nextInt();
-System.out.print("Enter second number: ");
-int b = in.nextInt();
-int sum = a + b;                             // step 2
-System.out.println(sum);                     // step 3`;
+const addProg = String.raw`import java.util.Scanner;
+
+public class Main {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    System.out.print("Enter first number: ");   // step 1
+    int a = in.nextInt();
+    System.out.print("Enter second number: ");
+    int b = in.nextInt();
+    int sum = a + b;                             // step 2
+    System.out.println(sum);                     // step 3
+  }
+}`;
 
 const defBox = (t, b) => `<div class="def"><p class="note-label">${t}</p><p>${b}</p></div>`;
 const arrDef = defBox('Array and index', 'An <b>array</b> is a fixed number of slots, side by side, that all hold the same type of value. Each slot\'s numbered position is its <b>index</b>, counting from 0.');
@@ -43,7 +50,7 @@ const quiz = [
   { q: 'Binary search guesses the middle and throws away half. When does this work?', opts: ['Only when the values are in order (sorted)', 'Always, on any list', 'Only on lists of exactly 100 values', 'Only on linked lists'], a: 0, why: '"Too low" can rule out the whole lower half only because the values are <b>in order</b>. On an unsorted list, the secret could be anywhere.' },
 ];
 ---
-<Base title="Introduction to DSA · ITC 120" description="Introduction to data structures and algorithms in plain English: a programming refresher, linear vs. non-linear structures, and what makes an algorithm." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Introduction to DSA · ITC 120" description="Introduction to data structures and algorithms: data vs. data structures, linear vs. non-linear structures, and what makes an algorithm." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Introduction</p>
     <p class="kicker">Introduction · Lesson 2 of 2</p>
@@ -201,8 +208,10 @@ const quiz = [
         <figure class="fig illus-fig illus"><Fragment set:html={algoVsProg()} /><figcaption>The numbers on the right show which step each line carries out.</figcaption></figure>
         <p>One algorithm can become many programs. Written in Python or C, the code would look different (a different program), but the three steps would be the same (the same algorithm).</p>
         <details class="reveal"><summary>Optional: see it as a complete Java program</summary><div class="flow">
-          <p class="small muted">For the curious only; you do not need to memorize this. <code>Scanner</code> reads what the user types, and the file needs <code>import java.util.Scanner;</code> at the top.</p>
+          <p class="small muted">For the curious only; you do not need to memorize this. <code>Scanner</code> reads what the user types. The first line, <code>import java.util.Scanner;</code>, tells Java where to find <code>Scanner</code>. The class and <code>main</code> around the steps are explained in <a href={base + '/itc120/programming-refresher/#program'}>block 8 of the Programming refresher</a>.</p>
           <pre class="code"><code set:html={hi(addProg)} /></pre>
+          <TryIt />
+          <p class="small muted">In the online compiler, type the two numbers in the input area when the program asks. With 4 and 5, it prints 9.</p>
         </div></details>
       </div>
       <div class="sub" id="ds-or-algo">

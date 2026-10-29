@@ -3,7 +3,8 @@ import Base from '../../layouts/Base.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
-import { varBoxes, assignPic, condFlow, loopPic, methodMachine, lockerRow, traceFilm } from '../../lib/illus.js';
+import TryIt from '../../components/TryIt.astro';
+import { varBoxes, assignPic, condFlow, loopPic, methodMachine, lockerRow, traceFilm, elseIfPic, logicPic, whilePic, arrMakePic, schoolMain, programPic } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const vars = String.raw`String name = "Ana";
@@ -25,6 +26,43 @@ const method = String.raw`static int larger(int a, int b) {
   if (a > b) return a;
   return b;
 }`;
+const elseIf = String.raw`int score = 82;
+if (score >= 90) {
+  System.out.println("Excellent");
+} else if (score >= 75) {
+  System.out.println("Passed");      // this one runs
+} else {
+  System.out.println("Failed");
+}`;
+const logic = String.raw`boolean hasID = true;
+boolean hasPermit = false;
+System.out.println(hasID && hasPermit);  // false: both are needed
+System.out.println(hasID || hasPermit);  // true: one is enough
+System.out.println(!hasPermit);          // true: "not false"`;
+const whileC = String.raw`int coins = 3;
+while (coins > 0) {                  // check first
+  System.out.println("Play one round");
+  coins--;                           // use one coin
+}
+System.out.println("No coins left");`;
+const arrC = String.raw`int[] arr = {19, 3, 42, 7, 56};     // 5 slots with values
+int[] scores = new int[5];          // 5 empty slots (all 0)
+scores[0] = 92;                     // store 92 in slot 0
+System.out.println(arr[2]);         // 42
+System.out.println(scores.length);  // 5`;
+const prog = String.raw`public class Main {
+  static int larger(int a, int b) {
+    if (a > b) return a;
+    return b;
+  }
+
+  public static void main(String[] args) {
+    int big = larger(4, 9);
+    System.out.print("Larger: ");
+    System.out.println(big);
+    System.out.println("Done!");
+  }
+}`;
 const trace = String.raw`int total = 0;
 for (int i = 1; i <= 3; i++) {
   total = total + i;
@@ -37,8 +75,12 @@ const quiz = [
   { q: 'What does this print? <code>for (int i = 0; i &lt; 3; i++) System.out.println(i);</code>', opts: ['0, 1, 2', '1, 2, 3', '0, 1, 2, 3', '3'], a: 0, why: 'Start at 0; keep going while <code>i &lt; 3</code>. So <code>i</code> is 0, 1, 2. At 3 the condition is false and the loop stops.' },
   { q: 'What does <code>larger(4, 9)</code> return?', opts: ['4', '9', '13', 'true'], a: 1, why: '4 goes into <code>a</code> and 9 into <code>b</code>. <code>a &gt; b</code> is false, so the method returns <code>b</code>: <b>9</b>.' },
   { q: 'Which array index holds the <b>third</b> value?', opts: ['3', '2', '1', '0'], a: 1, why: 'Counting starts at 0: index 0 is the first value, index 1 the second, index 2 the third.' },
-  { q: 'The program runs, but the answer is wrong. What kind of error is this?', opts: ['Syntax error', 'Runtime error', 'Logic error', 'No error'], a: 2, why: 'A <b>logic error</b>: the code follows Java\'s rules and does not crash, but the steps are wrong (for example, a wrong condition).' },
-  { q: 'You forgot a <code>;</code> and the code will not compile. What kind of error is this?', opts: ['Compile-time (syntax) error', 'Runtime error', 'Logic error'], a: 0, why: 'A missing <code>;</code> breaks Java\'s grammar, so the compiler rejects the code and the program never starts: a <b>compile-time (syntax) error</b>.' },
+  { q: 'What does this print? <code>int n = 3; while (n &gt; 0) &#123; System.out.print(n + " "); n--; &#125;</code>', opts: ['3 2 1', '3 2 1 0', '1 2 3', 'It never stops'], a: 0, why: 'The check comes first. n is 3, 2, 1: each round prints n, then <code>n--</code> makes it 1 smaller. When n is 0, <code>n &gt; 0</code> is false and the loop ends, so 0 is never printed.' },
+  { q: 'What is <code>(5 &gt; 3) &amp;&amp; (2 &gt; 4)</code>?', opts: ['true', 'false', '5', 'An error'], a: 1, why: '<code>&amp;&amp;</code> needs <b>both</b> sides true. 5 &gt; 3 is true, but 2 &gt; 4 is false, so the answer is <b>false</b>. (With <code>||</code>, one true side is enough, so it would be true.)' },
+  { q: 'With <code>score = 82</code>, the code checks <code>score &gt;= 90</code>, then <code>else if (score &gt;= 75)</code>, then <code>else</code>. Which part runs?', opts: ['The first part (Excellent)', 'The else if part (Passed)', 'The else part (Failed)', 'All three'], a: 1, why: 'Java checks from the top and stops at the <b>first</b> true check. 82 &gt;= 90 is false; 82 &gt;= 75 is true, so only "Passed" runs.' },
+  { q: 'A file holds a class with two methods, <code>larger</code> (written first) and <code>main</code>. Where does Java start running?', opts: ['At the first line of the file', 'At larger, because it is first', 'At main', 'At the last line'], a: 2, why: 'Java always starts at <code>main</code>, wherever it sits in the file. Other methods run only when something calls them.' },
+  { q: 'The program runs, but the answer is wrong. What kind of error is this?', opts: ['Compile-time error', 'Runtime error', 'Logic error', 'No error'], a: 2, why: 'A <b>logic error</b>: the code follows Java\'s rules and does not crash, but the steps are wrong (for example, a wrong condition).' },
+  { q: 'You forgot a <code>;</code> and the code will not compile. What kind of error is this?', opts: ['Compile-time error', 'Runtime error', 'Logic error'], a: 0, why: 'A missing <code>;</code> breaks Java\'s grammar, so the compiler rejects the code and the program never starts: a <b>compile-time (syntax) error</b>.' },
 ];
 ---
 <Base title="Programming Refresher · ITC 120" description="A quick Java review before data structures and algorithms: variables, expressions, conditions, loops, methods, arrays, trace tables, and the three kinds of errors." course={{ code: course.code, href: base + course.href }} toc>
@@ -51,9 +93,10 @@ const quiz = [
       <p class="note-label">By the end, you can:</p>
       <ol>
         <li>read a line like <code>int score = 92;</code> aloud, and explain what <code>=</code> does;</li>
-        <li>predict what short code with conditions, loops, and methods prints;</li>
-        <li>find a value in an array by its index (counting from 0);</li>
+        <li>predict what short code with conditions (<code>if</code>, <code>else if</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>), loops (<code>for</code>, <code>while</code>), and methods prints;</li>
+        <li>make an array in Java and find a value in it by its index (counting from 0);</li>
         <li>trace a loop with a trace table;</li>
+        <li>read a complete Java program: where it starts (<code>main</code>) and what it prints;</li>
         <li>tell the three main kinds of errors apart: compile-time, runtime, and logic.</li>
       </ol>
     </div>
@@ -66,7 +109,7 @@ const quiz = [
       <h2>Rebuild the mental model first</h2>
     </div>
     <div class="flow">
-      <p>Before data structures, let's remember how programs store values, make decisions, repeat work, and reuse code. Every data structure in this course is built and used with these same pieces, so here are the seven things you need.</p>
+      <p>Before data structures, let's remember how programs store values, make decisions, repeat work, and reuse code. Every data structure in this course is built and used with these same pieces, so here are the eight things you need.</p>
       <div class="sub">
         <h3 class="blk-h"><span class="blk-n">1</span><span class="blk-t">Variables are named places for values</span></h3>
         <div class="def"><p class="note-label">Variable</p><p>A named place in memory that holds one value. Its <b>type</b> says what kind of value it can hold.</p></div>
@@ -87,6 +130,8 @@ const quiz = [
             <tr><td><code>+</code> <code>-</code> <code>*</code></td><td>add, subtract, multiply</td><td><code>7 * 3</code> gives 21</td></tr>
             <tr><td><code>/</code></td><td>divide (two <code>int</code>s drop the decimal part)</td><td><code>7 / 2</code> gives 3, but <code>7.0 / 2</code> gives 3.5</td></tr>
             <tr><td><code>%</code></td><td>remainder after dividing</td><td><code>7 % 2</code> gives 1; <code>17 % 5</code> gives 2</td></tr>
+            <tr><td><code>++</code> <code>--</code></td><td>add 1 / subtract 1 (a short way to write <code>count = count + 1</code>)</td><td>if <code>count</code> is 2, <code>count++;</code> makes it 3</td></tr>
+            <tr><td><code>+</code> with text</td><td>joins text and a value into one piece of text</td><td><code>"Score: " + 92</code> gives <code>Score: 92</code></td></tr>
           </tbody>
         </table>
       </div>
@@ -95,13 +140,33 @@ const quiz = [
         <pre class="code"><code set:html={hi(cond)} /></pre>
         <figure class="fig illus-fig illus"><Fragment set:html={condFlow()} /><figcaption>The same <code>if</code>/<code>else</code> as a flowchart. With a score of 92, only the YES path runs.</figcaption></figure>
         <p>If the score is 75 or higher, one path runs; otherwise, the other. Comparisons use <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>. Each comparison gives <code>true</code> or <code>false</code>.</p>
-        <p class="small muted">Good to know: to compare two <code>String</code>s, use <code>name.equals("Ana")</code>, not <code>==</code>. With text, <code>==</code> checks whether both are the very same object in memory, so it can say <code>false</code> even when the letters match.</p>
+        <p class="small muted">Good to know: to compare two <code>String</code>s, use <code>name.equals("Ana")</code>, not <code>==</code>. With text, <code>==</code> can say <code>false</code> even when the letters match, because it checks whether both are the very same thing in memory. (You will meet this idea, "the same object", in the Linked lists lesson.)</p>
+        <p><b>More than two paths: <code>else if</code>.</b> When there are several cases, chain the checks. Java checks from the top and runs only the <b>first</b> part whose check is true; the rest are skipped:</p>
+        <pre class="code"><code set:html={hi(elseIf)} /></pre>
+        <figure class="fig illus-fig illus"><Fragment set:html={elseIfPic()} /><figcaption>The same code as a ladder. With 82, the first check is false, the second is true, so only "Passed" runs.</figcaption></figure>
+        <p><b>Two checks at once: <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>.</b> Sometimes one check is not enough. To enter the exam room, you need your ID <b>and</b> your permit. To pay at the canteen, cash <b>or</b> GCash will do. Java has three words for this:</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={logicPic()} /><figcaption>And needs both; or needs at least one; not flips the answer.</figcaption></figure>
+        <table class="tbl">
+          <thead><tr><th>Operator</th><th>Read it as</th><th>True when…</th></tr></thead>
+          <tbody>
+            <tr><td><code>a &amp;&amp; b</code></td><td>"a and b"</td><td><b>both</b> are true</td></tr>
+            <tr><td><code>a || b</code></td><td>"a or b"</td><td><b>at least one</b> is true</td></tr>
+            <tr><td><code>!a</code></td><td>"not a"</td><td><code>a</code> is false</td></tr>
+          </tbody>
+        </table>
+        <pre class="code"><code set:html={hi(logic)} /></pre>
+        <p>You will see these in later lessons, for example <code>while (!queue.isEmpty())</code>: "while the queue is <b>not</b> empty."</p>
       </div>
       <div class="sub">
         <h3 class="blk-h"><span class="blk-n">4</span><span class="blk-t">Loops repeat a block of work</span></h3>
         <pre class="code"><code set:html={hi(loop)} /></pre>
         <figure class="fig illus-fig illus"><Fragment set:html={loopPic()} /><figcaption>The loop round by round. It stops the first time the condition is false.</figcaption></figure>
         <p>A <b>loop</b> runs the same lines again and again, with a new value of <code>i</code> each round. A <code>for</code> loop has three controls: where to <b>start</b> (<code>i = 0</code>), when to <b>keep going</b> (<code>i &lt; 4</code>), and how to <b>update</b> after each round (<code>i++</code>).</p>
+        <p><b>The <code>while</code> loop.</b> A <code>for</code> loop is best when you know how many rounds you need. A <code>while</code> loop keeps going <b>as long as</b> a check is true, like playing an arcade game while you still have coins:</p>
+        <pre class="code"><code set:html={hi(whileC)} /></pre>
+        <figure class="fig illus-fig illus"><Fragment set:html={whilePic()} /><figcaption>Check, run the block, check again. The loop ends the first time the check is false.</figcaption></figure>
+        <p>It prints "Play one round" 3 times, then "No coins left". The check comes <b>before</b> every round, so if <code>coins</code> started at 0, the block would not run at all.</p>
+        <div class="trap"><p class="note-label">Something inside must change</p><p>The block must change what the check looks at (here, <code>coins--;</code>). Without that line, <code>coins</code> stays 3, <code>coins &gt; 0</code> is true forever, and the loop never ends. You will see this same bug in the Linked lists lesson.</p></div>
       </div>
       <div class="sub">
         <h3 class="blk-h"><span class="blk-n">5</span><span class="blk-t">A method performs one reusable task</span></h3>
@@ -109,6 +174,7 @@ const quiz = [
         <div class="def"><p class="note-label">Method</p><p>A named block of code that does one task. Its <b>parameters</b> are the inputs it receives; its <b>return value</b> is the output it gives back.</p></div>
         <p>Think of a method as a small machine: <code>larger(3, 8)</code> puts 3 into <code>a</code> and 8 into <code>b</code>, and the machine gives back 8.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={methodMachine()} /><figcaption>Inputs go in as parameters; the return value comes out.</figcaption></figure>
+        <p>Two more words in the first line. <code>int</code> before the name is the type of the value the method gives back. A method that gives nothing back (it only prints, for example) says <code>void</code> there instead, like <code>static void greet(String name)</code>. And <code>static</code> lets <code>main</code> (block 8) call the method directly. You will learn about methods that are not <code>static</code> in the Linked lists lesson.</p>
         <p>Methods matter in this course because every operation on a data structure is a method, such as <code>push()</code>, <code>pop()</code>, and <code>insert()</code>, and we can test each one on its own.</p>
       </div>
       <div class="sub">
@@ -119,6 +185,19 @@ const quiz = [
         <div class="def"><p class="note-label">Array and index</p><p>An <b>array</b> is a fixed number of slots, side by side, that all hold the same type of value. Each slot's numbered position is its <b>index</b>.</p></div>
         <p>Counting starts at <b>0</b>, so <code>arr[2]</code> is the <b>third</b> slot: 42. The array is the first data structure of this course: you will see it again in <a href={base + '/itc120/intro/'}>Introduction to DSA</a>, and it gets a whole lesson in <a href={base + '/itc120/arrays/'}>Arrays</a>.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={lockerRow()} /><figcaption>An array is like a row of numbered lockers. The index is the number plate.</figcaption></figure>
+        <p><b>Making an array in Java.</b> There are two ways: list the values, or ask for empty slots and fill them later.</p>
+        <pre class="code"><code set:html={hi(arrC)} /></pre>
+        <figure class="fig illus-fig illus"><Fragment set:html={arrMakePic()} /><figcaption>Listing the values fills the slots. <code>new int[5]</code> makes 5 empty slots that start at 0.</figcaption></figure>
+        <p>Here is how to read each line aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int[] arr = &#123;19, 3, 42, 7, 56&#125;;</code></td><td>"make an int array named arr holding these 5 values." <code>int[]</code> means "an array of ints."</td></tr>
+            <tr><td><code>int[] scores = new int[5];</code></td><td>"make an int array with 5 slots." Each slot starts at 0.</td></tr>
+            <tr><td><code>scores[0] = 92;</code></td><td>"store 92 in slot 0."</td></tr>
+            <tr><td><code>scores.length</code></td><td>"how many slots": 5. The last index is <code>length - 1</code>, which is 4.</td></tr>
+          </tbody>
+        </table></div>
       </div>
       <div class="sub">
         <h3 class="blk-h"><span class="blk-n">7</span><span class="blk-t">Trace code one line at a time</span></h3>
@@ -131,6 +210,29 @@ const quiz = [
         </div>
         <figure class="fig illus-fig illus"><Fragment set:html={traceFilm()} /><figcaption>The value of <code>total</code> after each round. The trace table above lists the same values.</figcaption></figure>
         <p>A <b>trace table</b> shows how each variable changes, step by step. Output: <b>6</b>. You will use trace tables in every lesson of this course.</p>
+      </div>
+      <div class="sub" id="program">
+        <h3 class="blk-h"><span class="blk-n">8</span><span class="blk-t">Putting it together: a complete program</span></h3>
+        <p>So far you have seen pieces of code. To actually run them, Java needs them inside a <b>complete program</b>. Think of a school building: the building has a name, it has rooms, and everyone comes in through the front door.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={schoolMain()} /><figcaption>The class is the building. Each method is a room for one job. <code>main</code> is the front door: Java always starts there.</figcaption></figure>
+        <p>Here is a complete program that uses the <code>larger</code> method from block 5:</p>
+        <pre class="code"><code set:html={hiN(prog)} /></pre>
+        <TryIt />
+        <figure class="fig illus-fig illus"><Fragment set:html={programPic()} /><figcaption>The same file, with the run order numbered. <code>larger</code> is written first, but Java starts at <code>main</code>.</figcaption></figure>
+        <p>Here is how to read the new lines:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>public class Main &#123; … &#125;</code></td><td>"a class named Main." All the code goes inside its braces. The file must be saved as <code>Main.java</code>: same name as the class.</td></tr>
+            <tr><td><code>static int larger(int a, int b)</code></td><td>"a method inside the class" (block 5). It runs only when something calls it.</td></tr>
+            <tr><td><code>public static void main(String[] args)</code></td><td>"the starting point." Java runs <code>main</code> first, one line at a time, from top to bottom. Copy this line exactly as it is; you do not need to understand <code>args</code> for this course.</td></tr>
+            <tr><td><code>System.out.print(…)</code></td><td>"show this, and stay on the same line."</td></tr>
+            <tr><td><code>System.out.println(…)</code></td><td>"show this, then move to a new line." (<code>ln</code> stands for "line".)</td></tr>
+          </tbody>
+        </table></div>
+        <p>That is why the output has <code>Larger: </code> and <code>9</code> on the <b>same</b> line: <code>print</code> did not move to a new line, and the next <code>println</code> continued there.</p>
+        <p class="console"><span>Output</span>Larger: 9<br />Done!</p>
+        <p class="small muted">Good to know: in later lessons, some files hold a second class, like <code>class Node</code>, written outside the braces of <code>Main</code>. Only the class that holds <code>main</code> is <code>public</code>, and the file is named after it.</p>
       </div>
 </div>
   </section>
@@ -167,8 +269,9 @@ const quiz = [
         <p class="note-label">Key takeaways</p>
         <ol>
           <li><code>=</code> stores: work out the right side, then store it in the variable on the left.</li>
-          <li>Conditions choose a path; loops repeat; methods package one task with inputs and an output.</li>
-          <li>Array indexes start at 0, so <code>arr[2]</code> is the third value.</li>
+          <li>Conditions choose a path (<code>else if</code> for more cases; <code>&amp;&amp;</code> = both, <code>||</code> = at least one, <code>!</code> = not). Loops repeat: <code>for</code> for a known number of rounds, <code>while</code> as long as a check is true. Methods package one task with inputs and an output.</li>
+          <li>Array indexes start at 0, so <code>arr[2]</code> is the third value. <code>new int[5]</code> makes 5 slots, and <code>length</code> counts them.</li>
+          <li>A complete program is a class with a <code>main</code> method. Java always starts at <code>main</code>.</li>
           <li>A trace table shows how each variable changes, one step at a time.</li>
           <li>Compile-time (syntax) errors stop the program before it runs, runtime errors crash it partway, and logic errors give wrong answers.</li>
         </ol>
