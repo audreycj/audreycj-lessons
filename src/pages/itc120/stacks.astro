@@ -204,6 +204,38 @@ const taskAns = String.raw`static String toBinary(int n) {
   return result;
 }`;
 
+const javaStack = String.raw`import java.util.Stack;
+
+public class Main {
+  public static void main(String[] args) {
+    Stack<Integer> stack = new Stack<>();
+    stack.push(10);
+    stack.push(20);
+    stack.push(30);
+    System.out.println(stack.peek());
+    System.out.println(stack.pop());
+    System.out.println(stack.size());
+    System.out.println(stack);
+    stack.pop();
+    System.out.println(stack.isEmpty());
+    System.out.println(stack.pop());
+    System.out.println(stack.isEmpty());
+  }
+}`;
+const javaStackOut = ['30', '30', '2', '[10, 20]', 'false', '10', 'true'].join('\n');
+const javaDeque = String.raw`import java.util.ArrayDeque;
+
+public class Main {
+  public static void main(String[] args) {
+    ArrayDeque<Integer> stack = new ArrayDeque<>();
+    stack.push(10);
+    stack.push(20);
+    stack.push(30);
+    System.out.println(stack.pop());    // 30
+    System.out.println(stack.peek());   // 20
+    System.out.println(stack);          // [20, 10]  top first!
+  }
+}`;
 const quiz = [
   { q: 'A stack follows which rule?', opts: ['First in, first out', 'Last in, first out', 'Smallest first', 'Random order'], a: 1, why: 'A <b>stack</b> is LIFO: the item added most recently is removed first, like the top plate of a pile.' },
   { q: 'Push 1, push 2, push 3, then pop. What is returned?', opts: ['1', '2', '3', 'nothing'], a: 2, why: '3 was pushed last, so it is on top. <code>pop()</code> removes and returns <b>3</b>.' },
@@ -212,6 +244,8 @@ const quiz = [
   { q: 'An <code>ArrayStack</code> holds 4, 9 (so <code>top</code> is 1). After <code>pop()</code>, what is in <code>data[1]</code>?', opts: ['0', '9', '4', 'null'], a: 1, why: '<code>pop()</code> only moves <code>top</code> down to 0. The 9 <b>stays in cell 1</b>, but it is above <code>top</code>, so it is not part of the stack. The next <code>push</code> writes over it.' },
   { q: 'A program runs <code>s.pop();</code> on its own line, without printing it. What happens?', opts: ['Nothing, because the value is not used', 'The top item is still removed; its value is just not used', 'Java shows an error', 'The bottom item is removed'], a: 1, why: '<code>pop()</code> always removes the top item. Printing or storing the returned value is up to the program.' },
   { q: 'Why does <code>push</code> run <code>top++;</code> <b>before</b> <code>data[top] = value;</code>?', opts: ['top points at the current top item, so it must move up to a free cell first', 'Java requires ++ to come first', 'To check if the stack is full', 'It does not matter'], a: 0, why: '<code>top</code> is the index of the current top item. Storing first would write over that item (or use index -1 on an empty stack). Moving up first gives the new value its own cell.' },
+  { q: 'After <code>Stack&lt;Integer&gt; s = new Stack&lt;&gt;(); s.push(5); s.push(6); s.push(7); s.pop();</code> what does <code>System.out.println(s);</code> print?', opts: ['[5, 6]', '[6, 5]', '[5, 6, 7]', '[7]'], a: 0, why: '<code>pop()</code> removed 7, the top. A <code>Stack</code> prints bottom → top, so <b>[5, 6]</b>. (An <code>ArrayDeque</code> would print [6, 5], top first.)' },
+  { q: 'Why does <code>Stack&lt;int&gt;</code> not compile?', opts: ['The type in &lt; &gt; must be a class, and int is not a class', 'Stacks cannot hold numbers', 'int needs an import', 'The &lt;&gt; must be empty'], a: 0, why: 'Generics need a <b>class</b> type. Use <code>Integer</code>, the class version of <code>int</code>; Java converts between them for you.' },
 ];
 ---
 <Base title="Stacks · ITC 120" description="Stacks (last in, first out): push, pop, and peek, traces, real-life uses, and a stack in Java using an array." course={{ code: course.code, href: base + course.href }} toc>
@@ -227,7 +261,8 @@ const quiz = [
         <li>explain the last-in, first-out (LIFO) rule and name places where it fits;</li>
         <li>trace <code>push</code>, <code>pop</code>, and <code>peek</code> in a table, writing the stack from bottom to top and the value each call returns;</li>
         <li>say what each <code>ArrayStack</code> method changes in <code>data</code> and <code>top</code>;</li>
-        <li>explain underflow and overflow, and how the code guards against them.</li>
+        <li>explain underflow and overflow, and how the code guards against them;</li>
+        <li>trace a program that uses Java's own <code>Stack&lt;Integer&gt;</code>, and explain what the <code>&lt;Integer&gt;</code> means.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson. The <a href={base + '/itc120/linked-lists/'}>Linked lists</a> lesson helps for one optional part.</p>
@@ -391,9 +426,82 @@ const quiz = [
         <pre class="code"><code set:html={hiN(fullProgram)} /></pre>
         <TryIt />
       </div>
+      <div class="sub" id="java-stack">
+        <h3>Java's own stack: <code>Stack&lt;Integer&gt;</code></h3>
+        <p>Java has no <code>ArrayStack</code>, but it does come with ready-made stack classes, so real programs seldom write their own. The oldest is <code>java.util.Stack</code>, and exams often ask you to trace it. It has the same five methods as our <code>ArrayStack</code>: <code>push</code>, <code>pop</code>, <code>peek</code>, <code>isEmpty</code>, and <code>size</code>. Here is a short program that uses it:</p>
+        <pre class="code"><code set:html={hiN(javaStack)} /></pre>
+        <TryIt />
+        <p>Two lines are new. This table shows how to read them aloud:</p>
+        <div class="tbl-wrap"><table class="tbl ra">
+          <thead><tr><th>Code</th><th>Read it as</th><th>What it means</th></tr></thead>
+          <tbody>
+            <tr><td class="nowrap"><code>import java.util.Stack;</code></td><td>"use the Stack class from java.util"</td><td><code>java.util</code> is Java's toolbox of ready-made data structures. Without this line, Java does not know the name <code>Stack</code>.</td></tr>
+            <tr><td class="nowrap"><code>Stack&lt;Integer&gt; stack</code></td><td>"stack is a Stack of Integers"</td><td>The type inside <code>&lt; &gt;</code> says what kind of items the stack holds.</td></tr>
+            <tr><td class="nowrap"><code>= new Stack&lt;&gt;()</code></td><td>"make a new, empty Stack"</td><td>The empty <code>&lt;&gt;</code> copies the type from the left side. There is no capacity: a <code>Stack</code> grows by itself, so it never overflows.</td></tr>
+            <tr><td class="nowrap"><code>System.out.println(stack)</code></td><td>"print the whole stack"</td><td>Prints every item in square brackets, <b>bottom → top</b>, like <code>[10, 20]</code>. That is the same order as our trace tables.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="def">
+          <p class="note-label">Generics: the type in <code>&lt; &gt;</code></p>
+          <p>A class like <code>Stack</code> can hold any type of item. You choose the type in angle brackets when you make one: <code>Stack&lt;Integer&gt;</code> holds whole numbers, and <code>Stack&lt;String&gt;</code> holds strings. This feature is called <b>generics</b>. Java then checks every call for you: <code>stack.push("hi")</code> on a <code>Stack&lt;Integer&gt;</code> is a compile error.</p>
+        </div>
+        <div class="plain" id="why-integer">
+          <p class="note-label">Why <code>Integer</code>, not <code>int</code>?</p>
+          <p>The type inside <code>&lt; &gt;</code> must be a <b>class</b>, and <code>int</code> is not a class (it is a primitive type). <code>Integer</code> is the class version of <code>int</code>. Java converts between the two for you, so <code>stack.push(10)</code> and <code>int x = stack.pop();</code> just work. <code>Stack&lt;int&gt;</code> is a compile error. You will see the same <code>&lt;Integer&gt;</code> again in Queues, Graphs, BFS, and Maps.</p>
+        </div>
+        <p>Now trace the program in a table, the same way as <a href="#trace">Part 3</a>. Try it on paper first, then check:</p>
+        <details class="reveal">
+          <summary>Show the trace and the output</summary>
+          <div class="flow">
+            <p>One row per line that calls the stack. "Printed" is what <code>println</code> shows; a call can return a value that nothing prints.</p>
+            <div class="scroll-x">
+              <table class="tbl">
+                <thead><tr><th>Line</th><th>Call</th><th>Stack after (bottom → top)</th><th>Returned</th><th>Printed</th></tr></thead>
+                <tbody>
+                  <tr><td>6</td><td><code>push(10)</code></td><td>10</td><td>—</td><td></td></tr>
+                  <tr><td>7</td><td><code>push(20)</code></td><td>10, 20</td><td>—</td><td></td></tr>
+                  <tr><td>8</td><td><code>push(30)</code></td><td>10, 20, 30</td><td>—</td><td></td></tr>
+                  <tr><td>9</td><td><code>peek()</code></td><td>10, 20, 30</td><td><b>30</b></td><td>30</td></tr>
+                  <tr><td>10</td><td><code>pop()</code></td><td>10, 20</td><td><b>30</b></td><td>30</td></tr>
+                  <tr><td>11</td><td><code>size()</code></td><td>10, 20</td><td><b>2</b></td><td>2</td></tr>
+                  <tr><td>12</td><td>print the stack</td><td>10, 20</td><td>—</td><td>[10, 20]</td></tr>
+                  <tr><td>13</td><td><code>pop()</code></td><td>10</td><td><b>20</b></td><td>(not printed)</td></tr>
+                  <tr><td>14</td><td><code>isEmpty()</code></td><td>10</td><td><b>false</b></td><td>false</td></tr>
+                  <tr><td>15</td><td><code>pop()</code></td><td>(empty)</td><td><b>10</b></td><td>10</td></tr>
+                  <tr><td>16</td><td><code>isEmpty()</code></td><td>(empty)</td><td><b>true</b></td><td>true</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="small"><b>Output</b> (checked in Java):</p>
+            <pre class="code"><code>{javaStackOut}</code></pre>
+          </div>
+        </details>
+        <h3>The newer choice: <code>ArrayDeque</code></h3>
+        <p><code>Stack</code> dates from the first version of Java, and it has extra methods that break the stack rule (for example, <code>get(0)</code> reads the bottom item). Java's documentation says to use a <b>deque</b> ("deck," a double-ended queue) instead, such as <code>ArrayDeque</code>, which is also usually faster. It has the same <code>push</code>, <code>pop</code>, and <code>peek</code>:</p>
+        <pre class="code"><code set:html={hiN(javaDeque)} /></pre>
+        <TryIt />
+        <div class="trap">
+          <p class="note-label">Exam trap: printing an ArrayDeque</p>
+          <p><code>println</code> shows an <code>ArrayDeque</code> <b>top first</b>: <code>[20, 10]</code>. A <code>Stack</code> with the same items prints <code>[10, 20]</code>. The stack is the same (20 is on top); only the printing order differs. In a trace table, still write the stack bottom → top.</p>
+        </div>
+        <p>The three stacks side by side:</p>
+        <div class="scroll-x">
+          <table class="tbl">
+            <thead><tr><th></th><th>Our <code>ArrayStack</code></th><th>Java's <code>Stack</code></th><th>Java's <code>ArrayDeque</code></th></tr></thead>
+            <tbody>
+              <tr><td>Items kept in</td><td>a fixed-size array</td><td>an array that grows</td><td>an array that grows</td></tr>
+              <tr><td>Can it get full?</td><td>yes (overflow)</td><td>no</td><td>no</td></tr>
+              <tr><td><code>pop()</code> when empty</td><td><code>IllegalStateException</code></td><td><code>EmptyStackException</code></td><td><code>NoSuchElementException</code></td></tr>
+              <tr><td><code>peek()</code> when empty</td><td><code>IllegalStateException</code></td><td><code>EmptyStackException</code></td><td>returns <code>null</code> (no exception)</td></tr>
+              <tr><td><code>println</code> order</td><td>(we did not write one)</td><td>bottom → top</td><td>top → bottom</td></tr>
+              <tr><td>Use it for</td><td>learning what happens inside</td><td>exams and older code</td><td>new programs</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>All three are the same stack <b>ADT</b>: the same LIFO rule and the same methods, kept in different ways. In this course you still write your own, so you can see what happens inside.</p>
+      </div>
       <div class="plain">
-        <p class="note-label">Good to know: Java's ready-made stacks</p>
-        <p>Our <code>ArrayStack</code> is custom-made, but Java also has stack classes of its own: <code>java.util.Stack</code> and the newer <code>ArrayDeque</code>, which Java's documentation recommends. Both have <code>push</code>, <code>pop</code>, and <code>peek</code>. In this course you build your own, so you can see what happens inside.</p>
+        <p class="note-label">Good to know: StackOverflowError</p>
         <p>You may also meet <code>StackOverflowError</code>. That is overflow on Java's own stack of method calls, usually from a recursive method that never stops. You will see it in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson.</p>
       </div>
       <details class="reveal">

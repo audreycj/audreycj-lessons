@@ -191,6 +191,27 @@ const taskAns = String.raw`void enqueue(int value) {
 }`;
 const circPeek = `<div class="illus">${qCircPic()}</div><p class="small">Read the queue from <code>front</code>, going right and wrapping around. The cell after index <code>i</code> is <code>(i + 1) % data.length</code>.</p>`;
 
+const javaQueue = String.raw`import java.util.LinkedList;
+import java.util.Queue;
+
+public class Main {
+  public static void main(String[] args) {
+    Queue<Integer> q = new LinkedList<>();
+    q.offer(7);
+    q.offer(8);
+    q.offer(9);
+    System.out.println(q.peek());
+    System.out.println(q.poll());
+    System.out.println(q.size());
+    System.out.println(q);
+    q.poll();
+    System.out.println(q.poll());
+    System.out.println(q.isEmpty());
+    System.out.println(q.poll());
+  }
+}`;
+const javaQueueOut = ['7', '7', '2', '[8, 9]', '9', 'true', 'null'].join('\n');
+const genericsPeek = '<p class="note-label">Generics: the type in &lt; &gt;</p><p>A class like <code>Stack</code> or <code>Queue</code> can hold any type of item. You choose the type in angle brackets: <code>Queue&lt;Integer&gt;</code> holds whole numbers, <code>Queue&lt;String&gt;</code> holds strings. The type must be a class, so use <code>Integer</code> (the class version of <code>int</code>), not <code>int</code>. Java converts between the two for you. The empty <code>&lt;&gt;</code> after <code>new</code> copies the type from the left side.</p>';
 const quiz = [
   { q: 'A queue follows which rule?', opts: ['Last in, first out', 'First in, first out', 'Smallest first', 'Random order'], a: 1, why: 'A <b>queue</b> is FIFO: the item that has waited longest leaves first, like a canteen line.' },
   { q: 'Enqueue 1, enqueue 2, enqueue 3, then dequeue. What is returned?', opts: ['1', '2', '3', 'nothing'], a: 0, why: '1 joined first, so it is at the front. <code>dequeue()</code> removes and returns <b>1</b>.' },
@@ -199,6 +220,8 @@ const quiz = [
   { q: 'After the last node leaves, why does <code>dequeue()</code> also set <code>rear = null</code>?', opts: ['Java requires it', 'So front and rear agree that the queue is empty, and rear does not keep referring to a node that has left', 'To make the next enqueue work', 'To save the value'], a: 1, why: 'Without it, <code>rear</code> would still refer to the removed node while <code>front</code> says the queue is empty. (The next <code>enqueue</code> would still work here, because <code>isEmpty()</code> checks <code>front</code>, but any code that reads <code>rear</code> would see a node that is no longer in the queue.)' },
   { q: 'Students waiting at the registrar\'s window, served in the order they arrived. Which structure fits?', opts: ['Stack', 'Queue', 'Array', 'Tree'], a: 1, why: 'First come, first served: a <b>queue</b>.' },
   { q: 'Add 1, 2, 3 to a stack and to a queue, then remove one item from each. Which values come out?', opts: ['Stack 1, queue 1', 'Stack 3, queue 1', 'Stack 1, queue 3', 'Stack 3, queue 3'], a: 1, why: 'The stack gives the newest (<b>3</b>); the queue gives the oldest (<b>1</b>).' },
+  { q: 'After <code>Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;(); q.offer(1); q.offer(2); q.offer(3); q.poll();</code> what does <code>System.out.println(q.peek());</code> print?', opts: ['1', '2', '3', 'null'], a: 1, why: '<code>poll()</code> removed 1, the front. Now 2 is at the front, and <code>peek()</code> returns <b>2</b> without removing it.' },
+  { q: 'A <code>Queue&lt;Integer&gt;</code> is empty. What does <code>q.poll()</code> do?', opts: ['Returns null', 'Returns 0', 'Throws IllegalStateException', 'Waits for an item'], a: 0, why: 'Java\'s <code>poll()</code> returns <b>null</b> on an empty queue (our <code>dequeue()</code> throws instead). Check <code>isEmpty()</code> first: <code>int x = q.poll();</code> would crash with a NullPointerException.' },
 ];
 // Peeks back to earlier parts/lessons (chat 23)
 const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>First, make the new node refer to the node that will follow it.</li><li>Then, change the old reference to point to the new node.</li></ol><div class="illus">${llBarsPic()}</div><p class="small">Grab the next bar before you let go.</p>`;
@@ -216,6 +239,7 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
         <li>explain the first-in, first-out (FIFO) rule and name places where it fits;</li>
         <li>trace <code>enqueue</code>, <code>dequeue</code>, and <code>peek</code> in a table, writing the queue from front to rear and the value each call returns;</li>
         <li>say what each <code>LinkedQueue</code> method changes in <code>front</code>, <code>rear</code>, and the links, including why <code>rear</code> is cleared when the queue becomes empty;</li>
+        <li>trace a program that uses Java's own <code>Queue&lt;Integer&gt;</code> with <code>offer</code>, <code>poll</code>, and <code>peek</code>;</li>
         <li>choose a stack, queue, array, or linked list for a situation, and give a reason.</li>
       </ol>
     </div>
@@ -350,15 +374,61 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
           </tbody>
         </table>
       </div>
-      <div class="plain">
-        <p class="note-label">Good to know: Java's ready-made queues</p>
-        <p>Java has no <code>LinkedQueue</code>. It is our own class, named for "a queue kept in a linked list." Java's own <code>Queue</code> is an interface (a list of methods that a class promises to have), and classes such as <code>ArrayDeque</code> and <code>LinkedList</code> have them. Their names differ from ours: <code>offer(x)</code> adds at the rear, <code>poll()</code> removes and returns the front, and <code>peek()</code> looks at it. On an empty queue, <code>poll()</code> and <code>peek()</code> return <code>null</code> instead of throwing an exception. In this course you build your own, so you can see what happens inside.</p>
-      </div>
       <div class="sub">
         <h3>The whole program</h3>
         <p>Here is everything in one runnable file. <code>main</code> does the walkthrough's calls, then a few more:</p>
         <pre class="code"><code set:html={hiN(fullProgram)} /></pre>
         <TryIt />
+      </div>
+      <div class="sub" id="java-queue">
+        <h3>Java's own queue: <code>Queue&lt;Integer&gt;</code></h3>
+        <p>Java has no <code>LinkedQueue</code>; it is our own class, named for "a queue kept in a linked list." Java's own <code>Queue</code> is an <b>interface</b>: a list of methods that a class promises to have. You cannot make an object from an interface (<code>new Queue&lt;&gt;()</code> is a compile error), so you make an object of a class that has those methods, such as <code>LinkedList</code>, and keep the variable's type as <code>Queue</code>:</p>
+        <pre class="code"><code set:html={hiN(javaQueue)} /></pre>
+        <TryIt />
+        <p>The <code>&lt;Integer&gt;</code> works just like <Peek label="Stack<Integer> in the Stacks lesson" title="From the Stacks lesson" html={genericsPeek} />. Java's method names differ from ours, so here is how to read the new lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl ra">
+          <thead><tr><th>Code</th><th>Read it as</th><th>Our <code>LinkedQueue</code></th></tr></thead>
+          <tbody>
+            <tr><td class="nowrap"><code>Queue&lt;Integer&gt; q</code></td><td>"q is a queue of Integers"</td><td><code>LinkedQueue q</code></td></tr>
+            <tr><td class="nowrap"><code>= new LinkedList&lt;&gt;()</code></td><td>"make a new, empty LinkedList to be the queue"</td><td><code>new LinkedQueue()</code></td></tr>
+            <tr><td class="nowrap"><code>q.offer(7)</code></td><td>"add 7 at the rear"</td><td><code>enqueue(7)</code></td></tr>
+            <tr><td class="nowrap"><code>q.poll()</code></td><td>"remove and return the front"</td><td><code>dequeue()</code></td></tr>
+            <tr><td class="nowrap"><code>q.peek()</code></td><td>"look at the front"</td><td><code>peek()</code></td></tr>
+            <tr><td class="nowrap"><code>System.out.println(q)</code></td><td>"print the whole queue," <b>front → rear</b>, like <code>[8, 9]</code></td><td>(we did not write one)</td></tr>
+          </tbody>
+        </table></div>
+        <div class="trap">
+          <p class="note-label">On an empty queue, poll and peek return null</p>
+          <p>Our <code>dequeue()</code> throws an exception on an empty queue. Java's <code>poll()</code> and <code>peek()</code> return <code>null</code> instead, and the program goes on. Careful: <code>int x = q.poll();</code> on an empty queue crashes with a <code>NullPointerException</code>, because <code>null</code> cannot become an <code>int</code>. So check first, the way the <a href={base + '/itc120/bfs/'}>BFS</a> lesson does: <code>while (!q.isEmpty())</code>. (<code>Queue</code> also has <code>add</code>, <code>remove</code>, and <code>element</code>, which throw an exception instead of returning <code>null</code>.)</p>
+        </div>
+        <p>Now trace the program, the same way as <a href="#trace">Part 3</a>. Try it on paper first, then check:</p>
+        <details class="reveal">
+          <summary>Show the trace and the output</summary>
+          <div class="flow">
+            <p>One row per line that calls the queue. "Printed" is what <code>println</code> shows; a call can return a value that nothing prints.</p>
+            <div class="scroll-x">
+              <table class="tbl">
+                <thead><tr><th>Line</th><th>Call</th><th>Queue after (front → rear)</th><th>Returned</th><th>Printed</th></tr></thead>
+                <tbody>
+                  <tr><td>7</td><td><code>offer(7)</code></td><td>7</td><td>—</td><td></td></tr>
+                  <tr><td>8</td><td><code>offer(8)</code></td><td>7, 8</td><td>—</td><td></td></tr>
+                  <tr><td>9</td><td><code>offer(9)</code></td><td>7, 8, 9</td><td>—</td><td></td></tr>
+                  <tr><td>10</td><td><code>peek()</code></td><td>7, 8, 9</td><td><b>7</b></td><td>7</td></tr>
+                  <tr><td>11</td><td><code>poll()</code></td><td>8, 9</td><td><b>7</b></td><td>7</td></tr>
+                  <tr><td>12</td><td><code>size()</code></td><td>8, 9</td><td><b>2</b></td><td>2</td></tr>
+                  <tr><td>13</td><td>print the queue</td><td>8, 9</td><td>—</td><td>[8, 9]</td></tr>
+                  <tr><td>14</td><td><code>poll()</code></td><td>9</td><td><b>8</b></td><td>(not printed)</td></tr>
+                  <tr><td>15</td><td><code>poll()</code></td><td>(empty)</td><td><b>9</b></td><td>9</td></tr>
+                  <tr><td>16</td><td><code>isEmpty()</code></td><td>(empty)</td><td><b>true</b></td><td>true</td></tr>
+                  <tr><td>17</td><td><code>poll()</code></td><td>(empty)</td><td><b>null</b></td><td>null</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="small"><b>Output</b> (checked in Java):</p>
+            <pre class="code"><code>{javaQueueOut}</code></pre>
+          </div>
+        </details>
+        <p>You can also write <code>Queue&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();</code> (with <code>import java.util.ArrayDeque;</code>). The program prints the same output, and Java's documentation says <code>ArrayDeque</code> is usually faster than <code>LinkedList</code> as a queue. In this course you still write your own, so you can see what happens inside.</p>
       </div>
       <details class="reveal">
         <summary>Optional: a queue in an array</summary>

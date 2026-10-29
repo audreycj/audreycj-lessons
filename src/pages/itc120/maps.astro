@@ -95,6 +95,40 @@ const trace = [
   ['map.size()', '2', 'A1 and C3 are left'],
 ];
 
+const threeMaps = String.raw`import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class ThreeMaps {
+  static void addGrades(Map<String, Integer> m) {
+    m.put("Rico", 88);   // same 4 pairs,
+    m.put("Bea", 92);    // same order,
+    m.put("Liza", 85);   // for every map
+    m.put("Dan", 90);
+    m.put("Rico", 91);   // same key: new value, same place
+  }
+
+  public static void main(String[] args) {
+    Map<String, Integer> hash = new HashMap<>();
+    Map<String, Integer> linked = new LinkedHashMap<>();
+    Map<String, Integer> tree = new TreeMap<>();
+    addGrades(hash);
+    addGrades(linked);
+    addGrades(tree);
+    System.out.println("HashMap:       " + hash);
+    System.out.println("LinkedHashMap: " + linked);
+    System.out.println("TreeMap:       " + tree);
+    System.out.println(tree.get("Liza"));
+  }
+}`;
+const threeOut = ['HashMap:       {Liza=85, Dan=90, Rico=91, Bea=92}', 'LinkedHashMap: {Rico=91, Bea=92, Liza=85, Dan=90}', 'TreeMap:       {Bea=92, Dan=90, Liza=85, Rico=91}', '85'].join('\n');
+const threePeek = '<pre class="code"><code>' + threeOut + '</code></pre><p class="small">Same 4 pairs, put in the same order: Rico, Bea, Liza, Dan.</p>';
+const whichMap = [
+  { q: 'The canteen records each student\'s name and the time they lined up, and must call them in the order they arrived. Which map fits?', opts: ['HashMap', 'LinkedHashMap', 'TreeMap'], a: 1, why: '<code>LinkedHashMap</code> keeps the order keys were <b>first added</b>, which is the order of arrival.' },
+  { q: 'The registrar looks up a grade by student ID thousands of times a day and never prints the list in any order. Which map fits?', opts: ['HashMap', 'LinkedHashMap', 'TreeMap'], a: 0, why: 'Only fast lookup matters, so use <code>HashMap</code>, the usual choice. Its order does not matter here.' },
+  { q: 'A teacher wants the class list printed alphabetically by name, with each grade. Which map fits?', opts: ['HashMap', 'LinkedHashMap', 'TreeMap'], a: 2, why: '<code>TreeMap</code> keeps its keys <b>sorted</b>, so looping over it gives the names from A to Z.' },
+];
 const quiz = [
   { q: 'A map stores data as:', opts: ['Key-value pairs', 'Index-value pairs', 'Data-value pairs', 'Hash-index pairs'], a: 0, why: 'Each entry in a map is a <b>key</b> plus the <b>value</b> it points to. You look things up by key, not by index.' },
   { q: 'Which statement about a map is true?', opts: ['Both keys and values must be unique', 'Keys are unique, but values may repeat', 'Values are unique, but keys may repeat', 'Both keys and values may repeat'], a: 1, why: 'Each key appears once (so it can identify one entry). Different keys can share the same value, like two students with the same grade.' },
@@ -123,7 +157,8 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
         <li>predict what <code>put</code>, <code>get</code>, <code>remove</code>, <code>containsKey</code>, and <code>size</code> return on a Java <code>HashMap</code>, including <code>put</code> on a key that is already there;</li>
         <li>explain how <b>hashing</b> lets <code>get</code> check one bucket instead of every entry;</li>
         <li>compute a short String's <b>hashCode</b> and its <b>bucket index</b> (capacity 16) by hand;</li>
-        <li>spot a <b>collision</b> and explain how chaining keeps both keys.</li>
+        <li>spot a <b>collision</b> and explain how chaining keeps both keys;</li>
+        <li>choose between <code>HashMap</code>, <code>LinkedHashMap</code>, and <code>TreeMap</code> by the order you need.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/sets/'}>Sets lesson</a>, a calculator, and scratch paper.</p>
@@ -196,7 +231,7 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
           <tr><td><code>size()</code></td><td>number of pairs</td></tr>
         </tbody>
       </table>
-      <p>Like sets, Java has three main map types: <code>HashMap</code> (no guaranteed order, the usual choice; Part 3 explains the "hash"), <code>LinkedHashMap</code> (keeps the order keys were first added), and <code>TreeMap</code> (sorted by key, built on a <a href={base + '/itc120/red-black-trees/'}>red-black tree</a>).</p>
+      <p>Like sets, Java has three main map types: <code>HashMap</code> (no guaranteed order, the usual choice; Part 3 explains the "hash"), <code>LinkedHashMap</code> (keeps the order keys were first added), and <code>TreeMap</code> (sorted by key, built on a <a href={base + '/itc120/red-black-trees/'}>red-black tree</a>). The end of this part compares them.</p>
       <p>The picture below shows the most important rule of <code>put</code>: when the key is already there, the value is replaced and the map does not grow.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={putReplace()} /><figcaption><code>put</code> on an existing key replaces the value and returns the old one.</figcaption></figure>
       <pre class="code"><code set:html={hi(basics)} /></pre>
@@ -214,7 +249,35 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
           <tr><td class="nowrap"><code>for (String id : grades.keySet())</code></td><td>"for each key id in the map's keys"</td></tr>
         </tbody>
       </table></div>
-      <p class="small muted">Why <code>Integer</code> and not <code>int</code>? The types inside <code>&lt; &gt;</code> must be classes. <code>Integer</code> is the class version of <code>int</code>, and Java converts between the two for you, so <code>put("2025-0012", 89)</code> just works.</p>
+      <p class="small muted">Why <code>Integer</code> and not <code>int</code>? The types inside <code>&lt; &gt;</code> must be classes. <code>Integer</code> is the class version of <code>int</code>, and Java converts between the two for you, so <code>put("2025-0012", 89)</code> just works. (You first met this in the <a href={base + '/itc120/stacks/#why-integer'}>Stacks</a> lesson.)</p>
+      <div class="sub" id="map-kinds">
+        <h3>HashMap, LinkedHashMap, or TreeMap?</h3>
+        <p>All three classes have the same <code>Map</code> methods, so <code>put</code>, <code>get</code>, and <code>remove</code> work the same way in each. They differ in one thing you can see: the <b>order</b> of the keys when you loop over the map or print it. This program puts the same 4 pairs, in the same order, into one map of each kind:</p>
+        <pre class="code"><code set:html={hi(threeMaps)} /></pre>
+        <TryIt cls="ThreeMaps" />
+        <p class="small"><b>Output</b> (checked in Java). Java prints a map as <code>key=value</code> pairs inside curly braces:</p>
+        <pre class="code"><code>{threeOut}</code></pre>
+        <p>Read the three lines one at a time:</p>
+        <ul class="flow">
+          <li><b>HashMap</b> printed Liza, Dan, Rico, Bea: neither the order added nor A to Z. It is <b>bucket order</b>, which <a href="#no-order">Part 6</a> explains.</li>
+          <li><b>LinkedHashMap</b> printed Rico, Bea, Liza, Dan: the order the keys were <b>first added</b>. The second <code>put("Rico", 91)</code> changed Rico's value but not his place.</li>
+          <li><b>TreeMap</b> printed Bea, Dan, Liza, Rico: <b>sorted by key</b>, A to Z.</li>
+        </ul>
+        <p>Here is when to use each one:</p>
+        <div class="scroll-x">
+          <table class="tbl">
+            <thead><tr><th>Class</th><th>Order of keys</th><th>Built with</th><th>Speed of get and put</th><th>Use it when</th></tr></thead>
+            <tbody>
+              <tr><td><code>HashMap</code></td><td>no guaranteed order</td><td>a hash table (Parts 3 to 6)</td><td>fastest: about the same few steps, however big the map</td><td>you only look things up by key, like student ID → grade. The usual choice.</td></tr>
+              <tr><td><code>LinkedHashMap</code></td><td>the order keys were first added</td><td>a hash table + a linked list through the entries</td><td>almost as fast as <code>HashMap</code></td><td>the order of arrival matters, like a sign-up sheet: name → time signed up</td></tr>
+              <tr><td><code>TreeMap</code></td><td>sorted by key</td><td>a <a href={base + '/itc120/red-black-trees/'}>red-black tree</a></td><td>a bit slower: grows with the tree's height (about log n)</td><td>you need the keys sorted, like an alphabetical class list: name → grade</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted">Good to know: a <code>TreeMap</code> sorts String keys by their character codes, so every capital letter comes before every small letter ("Zed" comes before "ana"). Write names the same way, like "Ana" and "Zed", to get A to Z.</p>
+        <p>Which map fits? Three quick situations (for self-study, not for grading):</p>
+        <Quiz id="quiz-whichmap" questions={whichMap} />
+      </div>
     </div>
   </section>
 
@@ -407,7 +470,7 @@ const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two
       <div class="sub" id="no-order">
         <h3>Why a HashMap has no order</h3>
         <p>When you loop over a <code>HashMap</code>'s keys, Java walks its buckets in number order (0, 1, 2, …) and reads each chain. So the keys come out in <b>bucket order</b>, not in the order you added them. That is why the <Peek label="Grades program in Part 2" title="Output from Part 2" html={`<pre class="code"><code>${gradesOut}</code></pre>`} /> printed 2025-0101 before 2025-0012: inside Java's real HashMap, 2025-0101 sits in bucket 1 and 2025-0012 in bucket 2.</p>
-        <p>Need the keys in the order you added them? Use <code>LinkedHashMap</code>. Sorted by key? Use <code>TreeMap</code>.</p>
+        <p>Need the keys in the order you added them? Use <code>LinkedHashMap</code>. Sorted by key? Use <code>TreeMap</code>. Compare the three in <Peek label="the three-maps output from Part 2" title="From Part 2 · HashMap, LinkedHashMap, or TreeMap?" html={threePeek} />.</p>
       </div>
       <p class="small muted">Good to know: Java's <code>HashMap</code> uses chaining. If one chain gets very long (8 or more entries, in a big enough table), Java turns that chain into a small red-black tree, so even a crowded bucket stays quick to search.</p>
     </div>
