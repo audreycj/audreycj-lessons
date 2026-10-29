@@ -245,6 +245,7 @@ const quiz = [
   { q: 'In open addressing, why is a deleted key replaced with a "deleted" mark instead of an empty slot?', opts: ['To save memory', 'So that searches for other keys do not stop early at that slot', 'Because Java does not allow empty slots', 'To keep the keys in sorted order'], a: 1, why: 'A search stops at an <b>empty</b> slot. If a deleted key\'s slot looked empty, a key that probed past it would become unreachable. The mark says "keep looking".' },
   { q: 'A table has m = 10 slots and holds 8 keys. What is its load factor?', opts: ['0.8', '1.25', '8', '2'], a: 0, why: 'Load factor = n / m = 8 / 10 = <b>0.8</b>. For open addressing, that is getting crowded: time to think about rehashing.' },
   { q: 'Why is a prime number (like 7, 11, 101) a good table size for h(k) = k mod m?', opts: ['Primes make the math faster', 'Keys that share a pattern (like prices that all end in 0) still spread over all the slots', 'Java only accepts prime sizes', 'A prime table never has collisions'], a: 1, why: 'With m = 10, k mod 10 only looks at the last digit, so 10, 20, 30, … all collide. A prime m uses the <b>whole</b> key, so patterned keys spread out. Collisions can still happen.' },
+  { q: 'A chaining table holds 1,000 keys, and a bad hash function put all of them in bucket 0. In the worst case, how many keys does a search check?', opts: ['1', 'About 2', 'About 10', 'Up to 1,000'], a: 3, why: 'All 1,000 keys are in one chain, so the search walks it like a linked list: up to <b>1,000</b> checks, as slow as linear search. This is the hash table\'s worst case, n. With a good hash function and a low load factor, the average is about 1 or 2 tries.' },
 ];
 ---
 <Base title="Hashing and Hash Tables · ITC 120" description="Hashing by hand and in Java: hash functions, collisions, separate chaining, linear and quadratic probing, double hashing, load factor and rehashing." course={{ code: course.code, href: base + course.href }} toc>
@@ -262,7 +263,7 @@ const quiz = [
         <li>search a hash table, and explain why a deleted slot gets a mark instead of being emptied;</li>
         <li>work out the <b>load factor</b>, and explain when and how a table is <b>rehashed</b>;</li>
         <li>read and complete a hash table in Java;</li>
-        <li>compare a hash table's speed with linear search, binary search, and a BST, and choose when to use it.</li>
+        <li>compare a hash table's average and worst-case speed with linear search, binary search, and a BST, and choose when to use it.</li>
       </ol>
     </div>
     <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> and <a href={base + '/itc120/linked-lists/'}>Linked lists</a> lessons, the <a href={base + '/itc120/searching/'}>Searching</a> lesson, the <a href={base + '/itc120/maps/'}>Maps</a> lesson (your first look at hashing), and scratch paper.</p>
@@ -623,7 +624,7 @@ const quiz = [
     <div class="flow">
       <p>Here is how finding one key compares, for n keys:</p>
       <div class="tbl-wrap"><table class="tbl">
-        <thead><tr><th>Where the keys are</th><th>Find, usually</th><th>Find, worst case</th><th>Keeps keys in order?</th></tr></thead>
+        <thead><tr><th>Where the keys are</th><th>Find, usually (average case)</th><th>Find, worst case</th><th>Keeps keys in order?</th></tr></thead>
         <tbody>
           <tr><td>Unsorted array (linear search)</td><td>up to n checks</td><td>n</td><td>no</td></tr>
           <tr><td>Sorted array (binary search)</td><td>about log₂ n (20 for a million)</td><td>about log₂ n</td><td>yes</td></tr>
@@ -631,7 +632,7 @@ const quiz = [
           <tr><td><b>Hash table</b></td><td><b>1 or 2 tries</b>, if the load factor is kept low</td><td>n</td><td><b>no</b></td></tr>
         </tbody>
       </table></div>
-      <p>The worst case happens when (almost) every key collides: one long chain, or one long cluster. Remember <Peek label="the prices in a table of 10" title="From Part 2" html={pricesPeek} />. A good hash function, a prime m, and rehashing keep that from happening in practice.</p>
+      <p>Books call the "usually" column the <b>average case</b>: ordinary keys, a good hash function, and a low load factor. The <b>worst case</b> happens when (almost) every key collides: one long chain, or one long cluster. Then a search is as slow as linear search: with 1,000 keys all in one bucket, it may check all 1,000. Remember <Peek label="the prices in a table of 10" title="From Part 2" html={pricesPeek} />. A good hash function, a prime m, and rehashing keep that from happening in practice.</p>
       <p>Notice the last column: a hash table scatters the keys on purpose, so it cannot list them in order, or quickly find the smallest. Here is how to choose:</p>
       <div class="tbl-wrap"><table class="tbl">
         <thead><tr><th>You need to...</th><th>Good choice</th></tr></thead>
@@ -697,7 +698,7 @@ const quiz = [
             <li>(a) 40 mod 5 = 0: slot 0 (17, not it), slot 1 (40): <b>found</b> after 2 tries. (b) 22 mod 5 = 2: slots 2, 3, 4, 0, 1 all hold other keys and none is empty, so the loop tries all 5 slots and returns <b>-1</b>. A full table makes every "not found" search check every slot.</li>
             <li>(a) α = 5 / 5 = <b>1.0</b>: completely full. (b) With mod 11:
               <pre class="code"><code>{slotLine(p11.slots).split('\n').filter((l) => !l.endsWith('-')).join('\n')}</code></pre>
-              Every other slot is empty, and no key collides.</li>
+              All the other slots are empty, and no key collides.</li>
             <li>It <b>crashes</b> while inserting 17: <code>ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5</code>. 17 mod 5 = 2; slots 2, 3, and 4 are taken, so the next try is slot 2 + 3 = 5, which does not exist. Line 8 forgot to wrap around. Fix: <code>int slot = (home + i) % m;</code>.</li>
             <li>(a) <b>Hash table</b>: many lookups by exact key. (b) <b>Not</b> a hash table: it has no order. Use a sorted structure (a BST or <code>TreeMap</code>), or sort the grades. (c) <b>Rehash</b> into a bigger table (about twice the size, a prime), so the load factor drops below 0.5.</li>
           </ol>
@@ -734,7 +735,7 @@ const quiz = [
           <li>Collisions cannot be avoided. Separate chaining keeps a chain per bucket; open addressing tries other slots.</li>
           <li>Try i: linear (h + i) mod m; quadratic (h + i²) mod m; double hashing (h + i × step(k)) mod m.</li>
           <li>Searches follow the insert's path and stop at the key or at an empty slot, so deletes leave a "deleted" mark.</li>
-          <li>Load factor α = n / m. Keep it low, and rehash into a bigger table when it gets high. Then finding a key takes about 1 or 2 tries, but a hash table keeps no order.</li>
+          <li>Load factor α = n / m. Keep it low, and rehash into a bigger table when it gets high. Then finding a key takes about 1 or 2 tries on average; in the worst case (every key collides) it takes up to n. A hash table keeps no order.</li>
         </ol>
       </div>
       <p><b>Where to next:</b> go back to the <a href={base + course.href}>ITC 120 page</a> and redo the self-checks of any lesson you are unsure about. The <a href={base + '/itc120/maps/'}>Maps</a> lesson shows how Java's <code>HashMap</code> turns <b>String</b> keys into numbers first.</p>

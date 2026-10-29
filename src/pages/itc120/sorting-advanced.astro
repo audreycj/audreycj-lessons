@@ -15,6 +15,7 @@ import { SCORES, halvesCode, halvesSteps, noBasePic, mergeOneSteps, mergeTreeSte
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const defBox = (t, b) => `<div class="def"><p class="note-label">${t}</p><p>${b}</p></div>`;
+const halvesPeek = '<pre class="code"><code>' + hiR(halvesCode, [2, 3, 4], [6]) + '</code></pre>';
 const stairsPeek = `<div class="flow">${stairsPic()}<p class="small">Bubble sort and selection sort on 5 values: 4 + 3 + 2 + 1 = 10 comparisons. n values need about n × n / 2.</p></div>`;
 const stableDef = defBox('Stable sort (from Basic sorting)', 'A sort is <b>stable</b> when values that are equal (by what we sort on) keep the order they had before sorting. Example: the list is A to Z, and Ana and Ben both have 85. After sorting by grade, a stable sort keeps Ana before Ben.');
 const voidDef = defBox('void and static (from the Programming refresher)', 'A <code>void</code> method does a job but gives nothing back. <code>static</code> means <code>main</code> can call it directly, without making an object first.');
@@ -239,17 +240,17 @@ const quiz = [
     <p class="kicker">Sorting algorithms · Lesson 2 of 2</p>
     <h1>Advanced Sorting: Merge, Quick, and Heap Sort</h1>
     <KindChips />
-    <p class="lede">Three faster ways to sort big data, the one new tool they need (recursion), and how to choose among them.</p>
+    <p class="lede">Three faster ways to sort big data, a quick review of the tool they need (recursion), and how to choose among them.</p>
     <div class="goals">
       <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>explain <b>divide and conquer</b> and <b>recursion</b> (base case, recursive case, call stack), and trace a short recursive method;</li>
+        <li>explain <b>divide and conquer</b>, and use <b>recursion</b> (base case, recursive case, call stack) to follow the calls of merge sort and quick sort;</li>
         <li>trace merge sort, quick sort, and heap sort by hand on a small array;</li>
         <li>read the three sorts in Java, find common bugs, and complete the merge step;</li>
         <li>compare all six sorts by work (about n × n / 2 versus about n × log n comparisons), extra memory, and stability, and choose one for a situation.</li>
       </ol>
     </div>
-    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/sorting-basic/'}>Basic sorting</a> lesson (swap, pass, comparisons, stability), the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson, the <a href={base + '/itc120/programming-refresher/'}>Programming refresher</a> (methods, loops, <code>&amp;&amp;</code>), and scratch paper.</p>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/sorting-basic/'}>Basic sorting</a> lesson (swap, pass, comparisons, stability), the <a href={base + '/itc120/arrays/'}>Arrays</a> and <a href={base + '/itc120/recursion/'}>Recursion</a> lessons, the <a href={base + '/itc120/programming-refresher/'}>Programming refresher</a> (methods, loops, <code>&amp;&amp;</code>), and scratch paper.</p>
   </header>
 
   <section class="chapter wrap" id="idea">
@@ -285,13 +286,11 @@ const quiz = [
 
   <section class="chapter wrap" id="recursion">
     <div class="chapter-head">
-      <p class="chapter-num">Part 2 · A tool first</p>
+      <p class="chapter-num">Part 2 · A quick review</p>
       <h2>Recursion: a method that calls itself</h2>
     </div>
     <div class="flow">
-      <p>Look at the helpers again. Every helper follows the <b>same rule</b>, only on a smaller pile. In code, that means a method that calls <b>itself</b> with a smaller job. Merge sort and quick sort are written this way, so learn this tool first.</p>
-      <div class="def"><p class="note-label">Recursion</p><p><b>Recursion</b> is when a method calls itself to solve a smaller version of the same problem. Each <b>call</b> (one run of the method) gets its own copy of the parameters.</p></div>
-      <p>Every recursive method has two parts:</p>
+      <p>Look at the helpers again. Every helper follows the <b>same rule</b>, only on a smaller pile. In code, that is <b>recursion</b>, which you learned in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson: a method that calls <b>itself</b> with a smaller job. Merge sort and quick sort are written this way. Here is what you need from that lesson. Every recursive method has two parts:</p>
       <div class="tbl-wrap"><table class="tbl">
         <thead><tr><th>Part</th><th>Meaning</th><th>With the papers</th></tr></thead>
         <tbody>
@@ -299,23 +298,24 @@ const quiz = [
           <tr><td><b class="c-rec">recursive case</b></td><td>the method calls itself on a <b>smaller</b> job</td><td>"Split it; a helper takes each half."</td></tr>
         </tbody>
       </table></div>
-      <p>Here is a tiny recursive method. It prints a number, then calls itself with half of that number, until the number is 0. Green is the base case and blue is the recursive case:</p>
-      <p class="rg-key small"><span class="c-base">■ base case</span> <span class="c-rec">■ recursive case</span></p>
-      <pre class="code"><code set:html={hiR(halvesCode, [2, 3, 4], [6])} /></pre>
-      <p>One small Java fact first: dividing two <code>int</code>s drops the decimal part.</p>
+      <p>Java keeps track of the calls on the <b>call stack</b>: a new call goes on top, and the call under it waits until the new one is done.</p>
+      <p>One small Java fact you will need for <code>mid</code>: dividing two <code>int</code>s drops the decimal part.</p>
       <pre class="code"><code set:html={hi(intDiv)} /></pre>
-      <p>To keep track of the calls, Java uses the <b>call stack</b>:</p>
-      <div class="def"><p class="note-label">Call stack</p><p>The <b>call stack</b> is Java's list of method calls that have started but not finished. A new call goes on <b>top</b>; the call under it <b>waits</b>. When the top call finishes, it leaves, and Java goes back to the call below it, right where it left off. (It works like the stack of plates in the <a href={base + '/itc120/stacks/'}>Stacks</a> lesson.)</p></div>
-      <CodeWalk id="cw-halves" layout="stack" code={halvesCode} steps={halvesSteps()} cap="Walkthrough: printHalves(20)" hint="Use Next to watch the calls pile up on the stack, then leave it." />
-      <div class="trap">
-        <p class="note-label">Mistake: no base case</p>
-        <p><b>Situation:</b> a student leaves out the <code>if</code>:</p>
-        <pre class="code"><code set:html={hi(noBase)} /></pre>
-        <figure class="fig illus-fig"><Fragment set:html={noBasePic()} /><figcaption>0 / 2 is 0, so <code>printHalves(0)</code> calls <code>printHalves(0)</code> forever.</figcaption></figure>
-        <p><b>What goes wrong:</b> every call makes another call, and none of them finishes. The call stack fills up memory, and Java stops the program with a <code>StackOverflowError</code>.</p>
-        <p><b>Fix:</b> always write the base case first, and make sure each recursive call has a <b>smaller</b> job that reaches it.</p>
-      </div>
-      <p class="small muted">Good to know: you met recursion on trees in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson (midterm). This part is a short review with arrays; for this lesson, you only need to follow calls on the stack.</p>
+      <details class="reveal" id="halves"><summary>Need a refresher? Watch a recursive method on the call stack (optional)</summary><div class="flow">
+        <p>Here is a tiny recursive method on numbers. It prints a number, then calls itself with half of that number, until the number is 0. Green is the base case and blue is the recursive case:</p>
+        <p class="rg-key small"><span class="c-base">■ base case</span> <span class="c-rec">■ recursive case</span></p>
+        <pre class="code"><code set:html={hiR(halvesCode, [2, 3, 4], [6])} /></pre>
+        <div class="def"><p class="note-label">Call stack</p><p>The <b>call stack</b> is Java's list of method calls that have started but not finished. A new call goes on <b>top</b>; the call under it <b>waits</b>. When the top call finishes, it leaves, and Java goes back to the call below it, right where it left off. (It works like the stack of plates in the <a href={base + '/itc120/stacks/'}>Stacks</a> lesson.)</p></div>
+        <CodeWalk id="cw-halves" layout="stack" code={halvesCode} steps={halvesSteps()} cap="Walkthrough: printHalves(20)" hint="Use Next to watch the calls pile up on the stack, then leave it." />
+        <div class="trap">
+          <p class="note-label">Mistake: no base case</p>
+          <p><b>Situation:</b> a student leaves out the <code>if</code>:</p>
+          <pre class="code"><code set:html={hi(noBase)} /></pre>
+          <figure class="fig illus-fig"><Fragment set:html={noBasePic()} /><figcaption>0 / 2 is 0, so <code>printHalves(0)</code> calls <code>printHalves(0)</code> forever.</figcaption></figure>
+          <p><b>What goes wrong:</b> every call makes another call, and none of them finishes. The call stack fills up memory, and Java stops the program with a <code>StackOverflowError</code>.</p>
+          <p><b>Fix:</b> always write the base case first, and make sure each recursive call has a <b>smaller</b> job that reaches it.</p>
+        </div>
+      </div></details>
     </div>
   </section>
 
@@ -578,7 +578,7 @@ const quiz = [
         <li><b>Merge sort.</b> Draw the split rows and the merge rows. How many comparisons does the last merge make?</li>
         <li><b>Quick sort.</b> Do the first partition (pivot = last value). Write the array after it, and the pivot's index.</li>
         <li><b>Heap sort.</b> Build the max-heap. Write the array after step 1, and draw it as a tree.</li>
-        <li><b>Recursion.</b> What does <code>printHalves(13)</code> print? How many calls are made in total?</li>
+        <li><b>Recursion.</b> What does <code>printHalves(13)</code> print (<Peek label="the method from Part 2" title="From Part 2" html={halvesPeek} />)? How many calls are made in total?</li>
         <li><b>Which sort?</b> (a) A registrar sorts 30,000 student records by course, and students in the same course must stay in ID order. (b) A small device has almost no free memory but must sort 50,000 sensor readings with guaranteed speed.</li>
       </ol>
       <details class="reveal"><summary>Show the answers</summary><div class="flow">
