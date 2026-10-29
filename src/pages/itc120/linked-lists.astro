@@ -5,7 +5,7 @@ import LinkedLab from '../../components/LinkedLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
-import { llDefPic, llHuntPic, llTrainPic, llWeakPic, llNewPic, llNamesPic, llAccessPic, llTravPic, llCircPic, llNullPic, llBarsPic, llTrainSkipPic, llStreetPic, llRoadsPic, llKindsPic, llFrontCode, llFrontSteps, llSwapCode, llSwapSteps, llAfterCode, llAfterSteps, llBypassCode, llBypassSteps, llStuckCode, llStuckSteps } from '../../lib/illus.js';
+import { llDefPic, llHuntPic, llTrainPic, llWeakPic, llNewPic, llNamesPic, llAccessPic, llTravPic, llCircPic, llNullPic, llBarsPic, llTrainSkipPic, llStreetPic, llRoadsPic, llKindsPic, llFrontCode, llFrontSteps, llSwapCode, llSwapSteps, llAfterCode, llAfterSteps, llBypassCode, llBypassSteps, llStuckCode, llStuckSteps, polvoronMold, classObjPic } from '../../lib/illus.js';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -193,16 +193,21 @@ const quiz = [
       <h2>Nodes and references in Java</h2>
     </div>
     <div class="flow">
-      <p>A <b>class</b> is a blueprint. An <b>object</b> is one real thing built from it. This class describes one node:</p>
+      <p>Before the code, two words you will use in every lesson from now on: <b>class</b> and <b>object</b>. Think of a polvoron mold. You cannot eat the mold; it only decides the shape. Each time you press it, you get one real polvoron, and each one can have its own flavor.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={polvoronMold()} /><figcaption>The mold is like a class. Each polvoron is like an object: the same shape every time, but its own flavor.</figcaption></figure>
+      <div class="def"><p class="note-label">Class and object</p><p>A <b>class</b> is a blueprint: it describes what every object of that kind will have (its <b>fields</b>, the variables inside each object) and what it can do (its <b>methods</b>). An <b>object</b> is one real thing made from the class with <code>new</code>. One class can make many objects, and each object keeps its own values.</p></div>
+      <p>In this lesson, the class is <code>Node</code>, and every node in a list is one object made from it. Here is the class:</p>
       <pre class="code"><code set:html={hiN(node)} /></pre>
       <table class="tbl">
         <thead><tr><th>Line</th><th>Meaning</th></tr></thead>
         <tbody>
-          <tr><td><code>int data;</code></td><td>A <b>field</b> that holds the node's value.</td></tr>
+          <tr><td><code>int data;</code></td><td>A <b>field</b>: a variable inside each node object. It holds that node's value, and every node has its own.</td></tr>
           <tr><td><code>Node next;</code></td><td>A field that holds a <b>reference</b> to another node, or <code>null</code>.</td></tr>
           <tr><td><code>Node(int value)</code></td><td>The <b>constructor</b>: same name as the class, no return type. It runs once, automatically, each time <code>new Node(...)</code> runs.</td></tr>
         </tbody>
       </table>
+      <p>Each <code>new</code> makes one more object from the same blueprint:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={classObjPic()} /><figcaption>One class, two objects. Each node has its own <code>data</code> and its own <code>next</code>.</figcaption></figure>
       <p><code>Node first = new Node(10);</code> does three things: <code>new</code> creates a node in memory, the constructor stores 10 in <code>data</code> and <code>null</code> in <code>next</code>, and <code>=</code> stores a reference to that node in the variable <code>first</code>. (The name <code>first</code> is our choice, not a Java keyword.)</p>
       <figure class="fig illus-fig illus"><Fragment set:html={llNewPic()} /><figcaption>One line, three jobs.</figcaption></figure>
       <div class="def">
@@ -214,7 +219,7 @@ const quiz = [
         <pre class="code"><code set:html={hi(same)} /></pre>
         <figure class="fig illus-fig illus"><Fragment set:html={llNamesPic()} /><figcaption>Same node, two names vs. two separate nodes. The shirt number is the data.</figcaption></figure>
         <p><code>Node b = a;</code> does <b>not</b> make a new node. It gives the same node a second name. Like a classmate with two names, Migs and Miguel: if Migs gets a new shirt number, Miguel has it too, because they are the same person. Compare <code>Node b = new Node(5);</code>, which makes a separate node: changing <code>b.data</code> would not touch <code>a.data</code>.</p>
-        <p>The dot in <code>b.data</code> means "the <code>data</code> field of the node that <code>b</code> refers to."</p>
+        <p>The dot in <code>b.data</code> means "the <code>data</code> field of the node that <code>b</code> refers to." (In the Stacks lesson, objects also have methods, and the dot runs them: <code>s.push(4)</code>.)</p>
       </div>
       <div class="sub">
         <h3>Connecting two nodes</h3>
@@ -273,20 +278,9 @@ const quiz = [
     </div>
   </section>
 
-  <section class="chapter wrap" id="lab">
-    <div class="chapter-head">
-      <p class="chapter-num">Part 4 · Watch it</p>
-      <h2>The linked list lab</h2>
-    </div>
-    <div class="flow">
-      <p>Every operation in this lesson, one line of Java at a time. Each button starts from a short list, so you can replay any of them. Read Parts 5 and 6 below, then come back and try each one.</p>
-      <LinkedLab id="lab-ll" />
-    </div>
-  </section>
-
   <section class="chapter wrap" id="insert">
     <div class="chapter-head">
-      <p class="chapter-num">Part 5 · Operation 3</p>
+      <p class="chapter-num">Part 4 · Operation 3</p>
       <h2>Insertion: change links, not values</h2>
     </div>
     <div class="flow">
@@ -314,7 +308,7 @@ const quiz = [
           <li>First, make the new node refer to the node that will follow it.</li>
           <li>Then, change the old reference to point to the new node.</li>
         </ol>
-        <p>If B is the only thing pointing to C, and you change B first, nothing points to C anymore. The rest of the list is unreachable. Try "Insert: wrong order!" in the lab to see it happen.</p>
+        <p>If B is the only thing pointing to C, and you change B first, nothing points to C anymore. The rest of the list is unreachable. You can watch it happen with "Insert: wrong order!" in the lab (Part 6).</p>
         <figure class="fig illus-fig illus"><Fragment set:html={llBarsPic()} /><figcaption>Grab the next bar before you let go.</figcaption></figure>
       </div>
     </div>
@@ -322,7 +316,7 @@ const quiz = [
 
   <section class="chapter wrap" id="delete">
     <div class="chapter-head">
-      <p class="chapter-num">Part 6 · Operation 4</p>
+      <p class="chapter-num">Part 5 · Operation 4</p>
       <h2>Deletion: link around the node</h2>
     </div>
     <div class="flow">
@@ -368,6 +362,17 @@ const quiz = [
         </table>
         <div class="remember"><p class="note-label">Not always faster</p><p>Linked lists edit faster, once you are there. Arrays reach faster. Pick the one that fits what the program does most.</p></div>
       </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Watch it</p>
+      <h2>The linked list lab</h2>
+    </div>
+    <div class="flow">
+      <p>Now watch every operation from Parts 3 to 5 again, one line of Java at a time. Each button starts from a short list, so you can replay any of them. Try "Insert: wrong order!" to see the mistake from Part 4 happen.</p>
+      <LinkedLab id="lab-ll" />
     </div>
   </section>
 

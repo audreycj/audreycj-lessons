@@ -9,7 +9,7 @@ import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import Peek from '../../components/Peek.astro';
 import TreeBuilder from '../../components/TreeBuilder.astro';
-import { train, phoneFiles, folderTree, pathTree, listNodePic, treeNodePic } from '../../lib/illus.js';
+import { train, phoneFiles, folderTree, pathTree, listNodePic, treeNodePic, classObjPic } from '../../lib/illus.js';
 import { treeNodeCode, treeNodeSteps, buildCode, buildSteps } from '../../lib/walks.js';
 import { node, svgTree } from '../../lib/tree.js';
 import { course } from '../../data/itc120.js';
@@ -18,8 +18,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const listNode = String.raw`class Node {
   int data;
-  Node next;     // one link
+  Node next;       // one link
+
+  Node(int value) {
+    data = value;
+    next = null;
+  }
 }`;
+const objPeek = '<div class="def"><p class="note-label">Class and object</p><p>A <b>class</b> is a blueprint: it describes what every object of that kind will have (its <b>fields</b>, the variables inside each object) and what it can do (its <b>methods</b>). An <b>object</b> is one real thing made from the class with <code>new</code>. One class can make many objects, and each object keeps its own values.</p></div>' + classObjPic();
 const SPEC = 'A(B(D,E(H,I(J)),F),C(G))';
 // For the depth vs. height pair: G gets K, L, M below it, deeper than J, to show that a longer path elsewhere does not count for E.
 const SPEC_DH = 'A(B(D,E(H,I(J)),F),C(G(K(L(M)))))';
@@ -169,7 +175,7 @@ const quiz = [
       </div>
       <div class="sub">
         <h3>A binary-tree node in Java</h3>
-        <p>Each node is an object with one value and two child references. Compare it with <Peek label="the linked-list Node class from Part 1" title="From Part 1: a linked-list node" html={listPeek} />: <code>next</code> became <code>left</code> and <code>right</code>. Step through the class to see what each line means:</p>
+        <p>Each node is an <Peek label="object" title="From the Linked lists lesson" html={objPeek} /> made from a class, with one value and two child references. Compare it with <Peek label="the linked-list Node class from Part 1" title="From Part 1: a linked-list node" html={listPeek} />: <code>next</code> became <code>left</code> and <code>right</code>. Step through the class to see what each line means:</p>
         <CodeWalk id="walk-class" code={treeNodeCode} steps={treeNodeSteps()} cap="Reading the TreeNode class" />
         <p>Here is the difference in pictures, then in a table:</p>
         <div class="two-col">

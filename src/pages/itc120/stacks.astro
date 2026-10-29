@@ -6,7 +6,7 @@ import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
 import Peek from '../../components/Peek.astro';
-import { platesPic, stackWalkCode, stackWalkSteps, stkDefPic, stkRulePic, stkFlowPic, stkLifoPic } from '../../lib/illus.js';
+import { platesPic, stackWalkCode, stackWalkSteps, stkDefPic, stkRulePic, stkFlowPic, stkLifoPic, stackObjPic, classObjPic } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -272,6 +272,10 @@ const quiz = [
         <p class="note-label">Array and index (from the Arrays lesson)</p>
         <p>An <b>array</b> is a fixed number of cells side by side, all holding the same type. Each cell has an <b>index</b>, its position number, starting at 0. An array's <b>length</b> never changes, so the last index is <code>length - 1</code>.</p>
       </div>
+      <div class="def">
+        <p class="note-label">Class and object (from the Linked lists lesson)</p>
+        <p>A <b>class</b> is a blueprint; an <b>object</b> is one real thing made from it with <code>new</code> (<Peek label="see the picture" title="From the Linked lists lesson" html={classObjPic()} />). A <code>Node</code> object only held data. An <code>ArrayStack</code> object holds data in its <b>fields</b> (<code>data</code> and <code>top</code>) <b>and</b> has <b>methods</b> (<code>push</code>, <code>pop</code>, …) that work on that data.</p>
+      </div>
       <p>Java has no class called <code>ArrayStack</code>. It is <b>our own class</b>, written in this lesson; the name just means "a stack that keeps its items in an array." Inside, it is an ordinary array plus one number, <code>top</code>, and the stack rule:</p>
       <figure class="fig illus-fig"><Fragment set:html={stkRulePic()} /><figcaption>Top: an ordinary array lets you use any index. Bottom: the same five cells inside <code>ArrayStack</code>, drawn as a column. 4, 9, 2 are the stack, and <code>top</code> is 2, the index of the top item. The next push goes into cell 3. Cells 0 and 1 are still there, but the stack's methods only ever use the top.</figcaption></figure>
       <p>This also makes a stack fast. Adding or removing at the top never shifts other items (as inserting into the middle of an array does), so <code>push</code> and <code>pop</code> take the same few steps however big the stack gets.</p>
@@ -296,6 +300,9 @@ const quiz = [
         <p class="note-label">Exception and <code>throw</code></p>
         <p>An <b>exception</b> is Java's way of stopping a method when it cannot do its job. The <code>throw</code> statement stops the method at once with an exception object. <code>IllegalStateException</code> is Java's standard exception for "you asked at the wrong time," such as popping an empty stack. If nothing in the program handles it, the program stops, and Java prints the exception's name and message.</p>
       </div>
+      <p>To use a stack, a program makes one object with <code>new</code>, then calls its methods with a dot:</p>
+      <figure class="fig illus-fig"><Fragment set:html={stackObjPic()} /><figcaption>The object <code>s</code> has its own fields and its own methods. <code>s.push(4)</code> runs the <code>push</code> method of <b>this</b> stack, so only <code>s</code> changes.</figcaption></figure>
+      <p>Read <code>s.push(4);</code> aloud as "stack s, push 4." If a program made two stacks, <code>s</code> and <code>t</code>, then <code>t.push(4)</code> would change only <code>t</code>: each object has its own <code>data</code> and <code>top</code>.</p>
       <p>Now <code>push</code>, <code>pop</code>, and <code>peek</code>. Each one first checks for overflow or underflow, then does its job. Follow them on a new stack made with <code>new ArrayStack(3)</code>. The array is drawn as a column, with index 0 at the bottom, so the top is really on top:</p>
       <CodeWalk id="cw-stack" code={stackWalkCode} steps={stackWalkSteps()} cap="Walkthrough: push(4), push(9), pop(), peek(), then overflow" hint="Use Next to go step by step, or tap a line to jump to it." />
       <div class="remember">

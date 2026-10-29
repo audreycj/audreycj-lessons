@@ -6,7 +6,7 @@ import Quiz from '../../components/Quiz.astro';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
 import Peek from '../../components/Peek.astro';
-import { canteenLine, queueWalkCode, queueWalkSteps, qDefPic, qEmptyPic, qFifoPic, qEndsPic, qLoopPic, qVsStackPic, qCircPic, qRearNullPic } from '../../lib/illus.js';
+import { canteenLine, queueWalkCode, queueWalkSteps, qDefPic, qEmptyPic, qFifoPic, qEndsPic, qLoopPic, qVsStackPic, qCircPic, qRearNullPic, stackObjPic } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -266,6 +266,7 @@ const quiz = [
       <p>Why keep <code>rear</code>, and why do items join at the rear and leave at the front, not the other way around? The picture shows both reasons:</p>
       <figure class="fig illus-fig"><Fragment set:html={qEndsPic()} /><figcaption>Top: with only <code>front</code>, every <code>enqueue</code> would walk the whole list first. Middle: <code>rear</code> lets <code>enqueue</code> link the new node in one step. Bottom: removing at the rear would need the node <b>before</b> it, and a singly linked list has no arrows going back. Removing at the front takes one step (<code>front = front.next;</code>), so items leave there.</figcaption></figure>
       <pre class="code"><code set:html={hiN(queueFields)} /></pre>
+      <p><code>LinkedQueue</code> is a class, just like <code>ArrayStack</code> in the Stacks lesson. <code>LinkedQueue q = new LinkedQueue();</code> makes one queue object, and <code>q.enqueue(7)</code> runs <b>that</b> object's <code>enqueue</code> method (<Peek label="like s.push(4)" title="From the Stacks lesson" html={stackObjPic()} />).</p>
       <p>The fields have no starting values in the code, so Java gives them <b>default values</b>: <code>null</code> for references and <code>0</code> for <code>int</code>. A new queue (<code>new LinkedQueue()</code>) starts with <code>front == null</code>, <code>rear == null</code>, and <code>count == 0</code>. <code>isEmpty()</code> is a boolean method: it returns <code>true</code> exactly when <code>front</code> is <code>null</code>.</p>
       <p>Now <code>enqueue</code> and <code>dequeue</code>. Follow them from an empty queue: enqueue 7, enqueue 8, then dequeue twice.</p>
       <CodeWalk id="cw-queue" code={queueWalkCode} steps={queueWalkSteps()} cap="Walkthrough: enqueue(7), enqueue(8), dequeue(), dequeue()" hint="Use Next to go step by step, or tap a line to jump to it." />

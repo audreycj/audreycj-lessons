@@ -4045,3 +4045,82 @@ export function schoolMain() {
   s.text(84, 292, 'only when main calls them.', { font: 'body', size: 12, weight: 700, color: C.soft });
   return s.svg('A program drawn as a school building. The roof sign says class Main: the whole building is the class. Inside are rooms. The left room, larger, is a method: a room for one job. The right room, main, has the front door, and an arrow shows Java enters here first. Other rooms are used only when main calls them.').replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+/* ---------- Class and object (chat 20, whole-site QA step 3) ---------- */
+/** Sketch: one polvoron mold (the class) makes many polvoron (objects), each with its own flavor (its own data). */
+export function polvoronMold() {
+  const s = new Sketch(340, 318, 223);
+  s.text(170, 22, 'One mold, many polvoron', { font: 'body', size: 15, weight: 800 });
+  // the mold: plunger + cup
+  s.round(54, 62, 52, 14, 5, { fill: '#9aa5a6', sw: 1.6 });
+  s.line(80, 76, 80, 112, { sw: 3 });
+  s.rect(48, 112, 64, 52, { fill: '#d9dfe0', sw: 2 });
+  s.ellipse(80, 164, 64, 14, { fill: '#c3cbcc', sw: 1.6 });
+  s.text(80, 194, 'the mold', { font: 'body', size: 13, weight: 800, color: C.orange });
+  s.text(80, 212, 'class Node', { font: 'mono', size: 13, weight: 700, color: C.teal });
+  // three polvoron
+  const pv = [[86, 'ube', '#c9b3e6'], [158, 'pinipig', '#ead39f'], [230, 'plain', '#f6ead0']];
+  pv.forEach(([y, flav, fill], i) => {
+    s.path(`M188 ${y} L176 ${y - 8} L176 ${y + 8} Z`, { fill: '#ffffff', sw: 1.2, single: true });
+    s.path(`M292 ${y} L304 ${y - 8} L304 ${y + 8} Z`, { fill: '#ffffff', sw: 1.2, single: true });
+    s.ellipse(240, y, 108, 40, { fill, sw: 1.8 });
+    s.text(240, y + 5, flav, { font: 'body', size: 13, weight: 800 });
+    s.curve(116, 132, 172, y, i === 1 ? 0 : (i === 0 ? -14 : 14), { stroke: C.orange, sw: 1.8, head: 8 });
+  });
+  s.text(146, 136, 'new', { font: 'mono', size: 12, weight: 700, color: C.orange });
+  s.text(240, 272, 'each one: an object', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.text(170, 300, 'Same shape every time, but each has its own flavor.', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  return s.svg('A polvoron mold on the left is the class, labeled class Node. Orange arrows labeled new lead to three polvoron on the right: ube, pinipig, and plain. Each one is an object. Same shape every time, but each has its own flavor, like each node has its own data.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Clean: class Node (blueprint) -> two objects, each with its own data. */
+export function classObjPic() {
+  let b = `<rect x="20" y="30" width="300" height="104" rx="8" fill="#f3f8fb" stroke="#2f6fa8" stroke-width="2" stroke-dasharray="7 5"/>`;
+  b += sT(34, 52, 'class Node: the blueprint', { size: 13.5, w: 800, fill: '#2f6fa8', anchor: 'start' });
+  b += sT(34, 76, 'int data;', { mono: true, size: 12.5, w: 600, anchor: 'start' });
+  b += sT(34, 96, 'Node next;', { mono: true, size: 12.5, w: 600, anchor: 'start' });
+  b += sT(34, 116, 'Node(int value) { ... }', { mono: true, size: 12.5, w: 600, anchor: 'start' });
+  b += sT(306, 96, 'no real node yet', { size: 12, w: 700, fill: '#6b7778', anchor: 'end' });
+  const obj = (x, val, label, code) => {
+    let o = solidArrow(x + 55, 136, x + 55, 186, '#e8662e', 2.4);
+    o += sT(x + 55, 160, code, { mono: true, size: 12, w: 700, fill: '#b4461a' });
+    o += sT(x + 26, 204, 'data', { size: 11.5, w: 700, fill: '#b4461a' }) + sT(x + 84, 204, 'next', { size: 11.5, w: 700, fill: '#2f6fa8' });
+    o += mapBox(x, 210, 110, 46, '#ffffff', '#1b2a2e', 2.2, 6) + `<line x1="${x + 56}" y1="210" x2="${x + 56}" y2="256" stroke="#1b2a2e" stroke-width="2"/>`;
+    o += sT(x + 28, 239, String(val), { mono: true, size: 16, w: 700 }) + sT(x + 84, 238, 'null', { mono: true, size: 12, w: 600, fill: '#b23a33' });
+    o += sT(x + 55, 278, label, { size: 13, w: 800, fill: '#0b544e' });
+    return o;
+  };
+  b += obj(32, 10, 'object 1', 'new Node(10)') + obj(198, 20, 'object 2', 'new Node(20)');
+  b += sT(170, 306, 'One class, many objects. Each object has its', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 324, 'own data: changing one does not change the other.', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 336, 'Top: a dashed card, class Node, the blueprint: int data; Node next; and the constructor Node(int value). No real node exists yet. Two orange arrows, new Node(10) and new Node(20), each make an object: object 1 has data 10 and next null; object 2 has data 20 and next null. One class, many objects; each object has its own data.', b);
+}
+
+/** Clean: calling a method on an object: s.push(4) presses the push button of the object s. */
+export function stackObjPic() {
+  let b = sT(20, 22, 'ArrayStack s = new ArrayStack(3);', { mono: true, size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+  b += sT(20, 44, 's.push(4);', { mono: true, size: 14, w: 700, fill: '#b4461a', anchor: 'start' });
+  b += mapBox(16, 62, 308, 178, '#e3f1ef', '#0e6b63', 2.4, 10);
+  b += sT(30, 84, 'the object s (an ArrayStack)', { size: 13.5, w: 800, fill: '#0b544e', anchor: 'start' });
+  // fields
+  b += sT(30, 110, 'fields (its data):', { size: 12, w: 800, fill: '#37474a', anchor: 'start' });
+  b += sT(30, 136, 'data', { mono: true, size: 12.5, w: 700, anchor: 'start' });
+  [4, 0, 0].forEach((v, i) => {
+    const x = 70 + i * 36;
+    b += mapBox(x, 118, 36, 30, i === 0 ? '#e8662e' : '#ffffff', '#1b2a2e', 1.8, 0) + sT(x + 18, 139, String(v), { mono: true, size: 13.5, w: 700, fill: i === 0 ? '#fff' : '#9aa5a6' });
+    b += sT(x + 18, 162, String(i), { mono: true, size: 11.5, w: 600, fill: '#0b544e' });
+  });
+  b += sT(30, 192, 'top = 0', { mono: true, size: 13, w: 700, anchor: 'start' });
+  b += sT(30, 214, '(was -1 before the push)', { size: 11.5, w: 700, fill: '#6b7778', anchor: 'start' });
+  // methods as buttons
+  b += sT(250, 110, 'methods (its jobs):', { size: 12, w: 800, fill: '#37474a' });
+  ['push', 'pop', 'peek', 'size'].forEach((m, i) => {
+    const y = 120 + i * 28, hot = i === 0;
+    b += mapBox(214, y, 84, 22, hot ? '#e8662e' : '#ffffff', hot ? '#b4461a' : '#9aa5a6', 1.8, 11) + sT(256, y + 16, m + '()', { mono: true, size: 12, w: 700, fill: hot ? '#fff' : '#37474a' });
+  });
+  b += `<path d="M116 40 L300 40 Q318 40 318 58 L318 131 L310 131" fill="none" stroke="#e8662e" stroke-width="2.2" stroke-linejoin="round"/>` + mapArrow(312, 131, 300, 131, '#e8662e', 2.2);
+  b += sT(170, 266, 's.push(4): go to the object s, and run', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 284, 'its push method with 4. Here the dot', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(170, 302, 'means "this object\'s".', { size: 12.5, w: 700, fill: '#37474a' });
+  return introPic(340, 314, 'Code: ArrayStack s = new ArrayStack(3); then s.push(4);. An arrow from s.push(4) points to the push button of the object s. The object s is a box with fields on the left, its data: the array data holding 4, 0, 0, with 4 in cell 0 just pushed, and top = 0, which was -1 before the push. On the right are its methods as buttons: push, pop, peek, size; push is highlighted. s.push(4) means: go to the object s and run its push method with 4.', b);
+}
