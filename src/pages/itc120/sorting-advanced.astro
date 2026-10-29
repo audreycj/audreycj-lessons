@@ -230,6 +230,8 @@ const quiz = [
   { q: 'Which of the three advanced sorts is stable?', opts: ['Merge sort', 'Quick sort', 'Heap sort', 'All of them'], a: 0, why: 'Merge sort takes from the LEFT half on a tie (<code>&lt;=</code>), so equal values keep their order. Quick sort and heap sort swap values over long distances, which can carry a value past an equal one.' },
   { q: 'About how many comparisons does merge sort need for 1,000,000 values?', opts: ['About 1,000,000', 'About 20,000,000', 'About 500,000,000,000', 'About 1,000,000,000,000'], a: 1, why: '1,000,000 values halve about 20 times (2 to the 20th is about a million), and each level touches every value: about 1,000,000 × 20. Bubble sort needs about 500 billion.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+
 ---
 <Base title="Advanced Sorting · ITC 120" description="Merge sort, quick sort, and heap sort: the recursion they need, how to trace each one by hand, the Java code, how much work they save, and when to use which." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -342,7 +344,7 @@ const quiz = [
         <p>Now the <code>merge</code> method, on the last merge of the five scores. It is long, but it is just the "two piles" steps from above, in code:</p>
         <CodeWalk id="cw-merge" code={mergeCode} steps={mergeWalk()} cap="Walkthrough: merge(arr, 0, 2, 4) on 10, 14, 29 | 13, 37" hint="Use Next to go step by step, or tap a line." />
         <p>Some lines are new. Here is how to read them aloud:</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>int[] temp = new int[high - low + 1];</code></td><td>"Make a new, empty <code>int</code> array called temp, with one slot for each value from low to high." A new <code>int</code> array starts full of 0s.</td></tr>
@@ -511,7 +513,7 @@ const quiz = [
           <tr><td>Stable?</td><td>yes</td><td>no</td><td>no</td></tr>
         </tbody>
       </table></div>
-      <p class="small muted">Good to know: books write this growth as <b>O(n log n)</b> ("order n log n"). Merge sort and heap sort are O(n log n) even in the worst case; quick sort is O(n log n) on average and O(n²) in the worst case. You met O(n²) in Basic sorting.</p>
+      <p class="small muted">Good to know: books write this growth as <b>O(n log n)</b> ("order n log n"). Merge sort and heap sort are O(n log n) even in the worst case; quick sort is O(n log n) on average and O(n²) in the worst case. You met O(n²) in Basic sorting (<Peek label="the staircase" title="From Basic sorting" html={stairsPeek} />).</p>
     </div>
   </section>
 

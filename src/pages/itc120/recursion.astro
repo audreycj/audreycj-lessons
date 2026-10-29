@@ -143,6 +143,8 @@ const fillPost = String.raw`static void postOrder(TreeNode node) {
   System.out.print(______ + " ");      // D
 }`;
 const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><span><i class="k-wait"></i>paused, waiting</span><span><i class="k-ret"></i>ending (returning)</span></p>`;
+// Peeks back to earlier parts/lessons (chat 23)
+
 ---
 <Base title="Recursion and Traversal Code · ITC 120" description="Recursion in plain English: base case, recursive case, the call stack, and the Java code for tree traversals and recursive insert." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -268,7 +270,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
           </tbody>
         </table>
         <p>Some of these lines use Java you may not have read aloud before. This table shows how to read each one:</p>
-        <table class="tbl">
+        <table class="tbl ra">
           <thead><tr><th>Java</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>static void preOrder(TreeNode node)</code></td><td>"a method named preOrder that takes one node." <code>void</code>: it gives back no value (it can still print).</td></tr>
@@ -381,7 +383,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
           <p><span class="mono">10 30 20</span>. <code>postOrder(20)</code> calls <code>postOrder(10)</code>: 10 prints after its empty sides. Then <code>postOrder(30)</code>: 30 prints. Only then does line 5 of <code>postOrder(20)</code> print 20: last.</p>
         </div></details>
       </div>
-      <p class="break-note"><b>Good place to take a break.</b> So far, recursion only <b>printed</b> a tree. Next: recursion that <b>adds</b> a node, using the insert from the insertion lesson.</p>
+      <p class="break-note"><b>Good place to take a break.</b> So far, recursion only <b>printed</b> a tree. Next: recursion that <b>adds</b> a node, using the <Peek label="insert from the insertion lesson" title="From the insertion lesson" html={loopPeek} />.</p>
     </div>
   </section>
 
@@ -405,7 +407,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
       <pre class="code"><code set:html={hiR(insertRecCode, [3, 4, 5], [6, 7, 8, 9, 10])} /></pre>
       <Fragment set:html={rgKey} />
       <p>Two new lines appear in this method. This table shows how to read them aloud:</p>
-      <table class="tbl">
+      <table class="tbl ra">
         <thead><tr><th>Java</th><th>Read it as</th></tr></thead>
         <tbody>
           <tr><td><code>return node;</code></td><td>"end this call and give back this node to the caller."</td></tr>

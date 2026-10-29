@@ -1,4 +1,5 @@
 ---
+import { llBarsPic } from '../../lib/illus.js';
 import Base from '../../layouts/Base.astro';
 import KindChips from '../../components/KindChips.astro';
 import SQLab from '../../components/SQLab.astro';
@@ -135,6 +136,8 @@ const quiz = [
   { q: 'Students waiting at the registrar\'s window, served in the order they arrived. Which structure fits?', opts: ['Stack', 'Queue', 'Array', 'Tree'], a: 1, why: 'First come, first served: a <b>queue</b>.' },
   { q: 'Add 1, 2, 3 to a stack and to a queue, then remove one item from each. Which values come out?', opts: ['Stack 1, queue 1', 'Stack 3, queue 1', 'Stack 1, queue 3', 'Stack 3, queue 3'], a: 1, why: 'The stack gives the newest (<b>3</b>); the queue gives the oldest (<b>1</b>).' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>First, make the new node refer to the node that will follow it.</li><li>Then, change the old reference to point to the new node.</li></ol><div class="illus">${llBarsPic()}</div><p class="small">Grab the next bar before you let go.</p>`;
 ---
 <Base title="Queues · ITC 120" description="Queues (first in, first out): enqueue, dequeue, and peek, traces, real-life uses, a queue in Java using a linked list, and how stacks and queues compare." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -323,7 +326,7 @@ const quiz = [
         <pre class="code"><code set:html={hi(wrongEnq)} /></pre>
         <p><b>What goes wrong:</b> after <code>rear = newNode;</code>, <code>rear</code> already refers to the new node, so <code>rear.next = newNode;</code> makes the new node point to <b>itself</b>. The old last node still has <code>next = null</code>, so the new node was never linked in. With 7 in the queue, <code>enqueue(8)</code> then <code>dequeue()</code> returns 7, and the queue looks empty: 8 is lost.</p>
         <figure class="fig illus-fig"><Fragment set:html={qLoopPic()} /><figcaption>Top: the right order links 7 to 8. Bottom: swapped, 8 points to itself, and 7 still points to <code>null</code>.</figcaption></figure>
-        <p><b>Fix:</b> link first (<code>rear.next = newNode;</code>), then move (<code>rear = newNode;</code>). Same idea as the safe insert order in the Linked lists lesson.</p>
+        <p><b>Fix:</b> link first (<code>rear.next = newNode;</code>), then move (<code>rear = newNode;</code>). Same idea as the <Peek label="safe insert order" title="From the Linked lists lesson" html={safePeek} /> in the Linked lists lesson.</p>
       </div>
     </div>
   </section>

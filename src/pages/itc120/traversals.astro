@@ -44,6 +44,8 @@ const quiz = [
   { q: 'On the walk around the tree, in-order writes a node when you pass its…', opts: ['left side', 'bottom', 'right side'], a: 1, why: 'Pre-order = left side (the first pass), in-order = <b>bottom</b> (the second pass), post-order = right side (the last pass).' },
   { q: 'To delete a folder, everything inside must be deleted first. Which order fits?', opts: ['Pre-order', 'In-order', 'Post-order'], a: 2, why: 'Post-order handles the children (inside) first, then the node (the folder) last.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const walkPeek = `<ul><li><span class="k-pre">Pre-order</span>: write each node when the route passes its <b>left side</b> (the first pass).</li><li><span class="k-in">In-order</span>: write each node when the route passes <b>under</b> it (the second pass).</li><li><span class="k-post">Post-order</span>: write each node when the route passes its <b>right side</b> (the last pass).</li></ul>`;
 ---
 <Base title="Tree Traversals · ITC 120" description="Tree traversals by hand: pre-order, in-order, and post-order, step by step, and why in-order on a BST is sorted." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -200,7 +202,7 @@ const quiz = [
       </table>
       <div class="sub">
         <h3>Check your answer: walk around the tree</h3>
-        <p>Here is a quick way to check an answer on paper. Draw one route that goes around the <b>outside</b> of the whole tree, starting at the root's left side and hugging every node and edge, like the dashed line below. The route passes every node three times, just like A in Part 1. Then:</p>
+        <p>Here is a quick way to check an answer on paper. Draw one route that goes around the <b>outside</b> of the whole tree, starting at the root's left side and hugging every node and edge, like the dashed line below. The route passes every node three times, just like <Peek label="A in Part 1" title="From Part 1" html={tour3} />. Then:</p>
         <ul>
           <li><span class="k-pre">Pre-order</span>: write each node when the route passes its <b>left side</b> (the first pass).</li>
           <li><span class="k-in">In-order</span>: write each node when the route passes <b>under</b> it (the second pass).</li>
@@ -222,7 +224,7 @@ const quiz = [
       <p>These three mistakes come up often on quizzes. For each one, read the situation, look at the picture of the wrong answer, then read the fix.</p>
       <div class="trap flow">
         <p class="note-label">Mistake 1 · <span class="k-pre">pre-order</span>: writing a node every time you pass it</p>
-        <p><b>The situation:</b> a student is asked for the <span class="k-pre">pre-order</span> of the small tree from Part 1. They write a node each time the route reaches it.</p>
+        <p><b>The situation:</b> a student is asked for the <span class="k-pre">pre-order</span> of <Peek label="the small tree from Part 1" title="From Part 1" html={tour3} />. They write a node each time the route reaches it.</p>
         <div class="mk-row">
           <figure class="fig illus-fig"><Fragment set:html={m1} /></figure>
           <div class="mk-ans">
@@ -272,7 +274,7 @@ const quiz = [
       <h2>In-order on a BST is sorted</h2>
     </div>
     <div class="flow">
-      <p>Here is the starting BST from the earlier lessons, with its in-order numbered under the nodes, using the walk from Part 3:</p>
+      <p>Here is the starting BST from the earlier lessons, with its in-order numbered under the nodes, using <Peek label="the walk from Part 3" title="From Part 3" html={walkPeek} />:</p>
       <figure class="fig illus-fig"><Fragment set:html={bstTour} /><figcaption>The numbers 1 to 7 land on 10, 20, 30, 40, 50, 60, 70: smallest to largest.</figcaption></figure>
       <p>Why? Remember <Peek label="the BST rule" title="From the BST lesson" html={bstRule} />. Everything left of 40 is smaller and everything right of it is larger. In-order writes the whole left side first (10, 20, 30), then the node (40), then the right side (50, 60, 70): <b>sorted</b>. The same thing happens inside every subtree.</p>
       <table class="tbl">

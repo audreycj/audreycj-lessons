@@ -1043,3 +1043,8 @@ svg.objbox.mtree-pic { max-width: 26rem; }
   .trlab .tr-presets, .trlab .tr-start { margin-bottom: 0.5rem; }
   .trlab .tr-cap, .avl-lab .lab-cap, .bstlab .bl-cap { margin-top: 0.6rem; }
 }
+
+/* Read-aloud tables (chat 23): wider code column; code breaks only where it must */
+table.tbl.ra td:first-child, table.tbl.ra th:first-child { width: 50%; }
+table.tbl.ra td:first-child code { overflow-wrap: break-word; word-break: normal; }
+@media (min-width: 44rem) { table.tbl.ra td:first-child, table.tbl.ra th:first-child { width: 46%; } }

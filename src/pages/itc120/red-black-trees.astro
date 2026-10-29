@@ -1,4 +1,5 @@
 ---
+import Peek from '../../components/Peek.astro';
 import Base from '../../layouts/Base.astro';
 import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
@@ -57,6 +58,30 @@ const quiz = [
   { q: 'After recoloring, the root has become red. What do you do?', opts: ['Rotate at the root', 'Color the root black', 'Leave it red', 'Start over'], a: 1, why: 'Rule 2: the root is always black. Turning the root black never breaks any other rule (it adds one black to every path equally).' },
   { q: 'Compared with an AVL tree, a red-black tree is:', opts: ['More strictly balanced', 'Less strictly balanced, but usually needs fewer rotations', 'Not a binary search tree', 'Always taller than a plain BST'], a: 1, why: 'AVL keeps heights within 1, so it is usually shorter. Red-black only promises the longest path is at most twice the shortest, so it rotates less often. Both are BSTs.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const procHtml = `<ol class="procedure">
+        <li><b>Insert</b> the value like a normal BST and color it <b>red</b>. (If the tree was empty, it is the root: color it black.)</li>
+        <li><b>Check the parent.</b> If it is black, you are done.</li>
+        <li>If the parent is red, <b>check the uncle</b>.
+          <ul>
+            <li><b>Red uncle:</b> recolor, then repeat step 2 from the grandparent.</li>
+            <li><b>Black uncle:</b> name the shape (line or triangle), rotate, swap colors. Done.</li>
+          </ul>
+        </li>
+        <li>Finally, make sure the <b>root is black</b>.</li>
+      </ol>`;
+const decideHtml = `<table class="tbl decide">
+          <thead><tr><th>Situation</th><th>What to do</th></tr></thead>
+          <tbody>
+            <tr><td><b>Parent is black</b></td><td>Nothing. No rule is broken.</td></tr>
+            <tr><td><b>Parent red, uncle red</b></td><td><b>Recolor:</b> parent and uncle → black, grandparent → red. Then check the grandparent (it is red now, so its parent might also be red). If the grandparent is the root, just make it black.</td></tr>
+            <tr><td><b>Parent red, uncle black</b> (or NIL)</td><td><b>Rotate</b>, using the same shapes as AVL:<br/>
+              <b>Line</b> (LL or RR): 1 rotation at the grandparent, then swap the colors of parent and grandparent.<br/>
+              <b>Triangle</b> (LR or RL): first rotate at the parent to make a line, then do the line fix.</td></tr>
+          </tbody>
+        </table>`;
+const rotLPeek = `<pre class="code"><code>${hi(code4)}</code></pre>`;
+const probPeek = `<ol>${practice.map((p) => `<li>${p.values.join(', ')}</li>`).join('')}</ol>`;
 ---
 <Base title="Red-Black Trees · ITC 120" description="Red-black trees in plain English: the five rules, recoloring, rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -209,16 +234,7 @@ const quiz = [
       <div class="sub">
         <h3>The decision</h3>
         <p>The fix depends on two questions. There are three types of situations:</p>
-        <table class="tbl decide">
-          <thead><tr><th>Situation</th><th>What to do</th></tr></thead>
-          <tbody>
-            <tr><td><b>Parent is black</b></td><td>Nothing. No rule is broken.</td></tr>
-            <tr><td><b>Parent red, uncle red</b></td><td><b>Recolor:</b> parent and uncle → black, grandparent → red. Then check the grandparent (it is red now, so its parent might also be red). If the grandparent is the root, just make it black.</td></tr>
-            <tr><td><b>Parent red, uncle black</b> (or NIL)</td><td><b>Rotate</b>, using the same shapes as AVL:<br/>
-              <b>Line</b> (LL or RR): 1 rotation at the grandparent, then swap the colors of parent and grandparent.<br/>
-              <b>Triangle</b> (LR or RL): first rotate at the parent to make a line, then do the line fix.</td></tr>
-          </tbody>
-        </table>
+        <Fragment set:html={decideHtml} />
         <div class="remember">
           <p class="note-label">How to remember</p>
           <p><b>Red uncle → recolor. Black uncle → rotate.</b></p>
@@ -253,17 +269,7 @@ const quiz = [
     </div>
     <div class="flow">
       <p>This is the full procedure. Use it for every value, in order:</p>
-      <ol class="procedure">
-        <li><b>Insert</b> the value like a normal BST and color it <b>red</b>. (If the tree was empty, it is the root: color it black.)</li>
-        <li><b>Check the parent.</b> If it is black, you are done.</li>
-        <li>If the parent is red, <b>check the uncle</b>.
-          <ul>
-            <li><b>Red uncle:</b> recolor, then repeat step 2 from the grandparent.</li>
-            <li><b>Black uncle:</b> name the shape (line or triangle), rotate, swap colors. Done.</li>
-          </ul>
-        </li>
-        <li>Finally, make sure the <b>root is black</b>.</li>
-      </ol>
+      <Fragment set:html={procHtml} />
 
       <AvlLab id="lab-rb-full" kind="rb" cap="Worked example" hint="This list shows all three situations from the table, with both shapes (a triangle at 25 and a line at 60), including a recolor that moves the problem up the tree (watch 60). Turn on NIL leaves to see why an empty uncle counts as black. Then try your own numbers." custom presets={[
         { label: 'Worked example', values: [5, 45, 25, 10, 35, 75, 70, 90, 60] },
@@ -288,7 +294,7 @@ const quiz = [
       <h2>Try it on paper</h2>
     </div>
     <div class="flow">
-      <p>Do each problem on paper <b>before</b> opening the answer. Afterwards, type the same numbers into the lab in Part 4 to replay it step by step.</p>
+      <p>Do each problem on paper <b>before</b> opening the answer. Afterwards, type the same numbers into <a href="#lab-rb-full">the lab in Part 4</a> to replay it step by step.</p>
       {practice.map((p, i) => (
         <div class="paper flow">
           <p class="note-label">Problem {i + 1}</p>
@@ -354,7 +360,7 @@ const quiz = [
       <h2>Red-black insertion in Java</h2>
     </div>
     <div class="flow">
-      <p>The red-black code is longer than AVL's, because each node needs a link back to its <b>parent</b> (to find the grandparent and uncle). Read it alongside the procedure in Part 4; you will see each step.</p>
+      <p>The red-black code is longer than AVL's, because each node needs a link back to its <b>parent</b> (to find the grandparent and uncle). Read it alongside <Peek label="the procedure in Part 4" title="From Part 4" html={procHtml} />; you will see each step.</p>
 
       <div class="sub">
         <h3>1. The node and a color helper</h3>
@@ -368,7 +374,7 @@ const quiz = [
       <div class="sub">
         <h3>3. The fix: recolor or rotate</h3>
         <pre class="code"><code set:html={hi(code3)} /></pre>
-        <p>Compare with the decision table in Part 3: <code>while (isRed(x.parent))</code> is "red-red problem", <code>isRed(u)</code> is "uncle red", and the <code>else</code> part is "uncle black: rotate". The last line is rule 2.</p>
+        <p>Compare with <Peek label="the decision table in Part 3" title="From Part 3" html={decideHtml} />: <code>while (isRed(x.parent))</code> is "red-red problem", <code>isRed(u)</code> is "uncle red", and the <code>else</code> part is "uncle black: rotate". The last line is rule 2.</p>
       </div>
       <div class="sub">
         <h3>4. Rotation, with parent links</h3>
@@ -393,7 +399,7 @@ const quiz = [
         <p>Do these three things on paper first. They make the code much easier to write.</p>
         <ol class="procedure">
           <li>Insert 30, 20, 10. Before any fix, the tree is a line: 30, then 20 as its left child, then 10 as 20's left child. Draw it, then draw it again after <b>rotate right at 30</b>.</li>
-          <li>Go through <code>rotateLeft</code> in Part 7 line by line, and write the mirror of each line: swap every <code>left</code> and <code>right</code>.</li>
+          <li>Go through <Peek label="rotateLeft in Part 7" title="rotateLeft, from Part 7" html={rotLPeek} /> line by line, and write the mirror of each line: swap every <code>left</code> and <code>right</code>.</li>
           <li>Trace your lines on your drawing. At the end, check every node: does its <code>parent</code> point to the node just above it? Does <code>root</code> point to the top node?</li>
         </ol>
       </div>
@@ -422,7 +428,7 @@ const quiz = [
         <ol class="procedure">
           <li>Find <code>YOUR TASK</code> in the file. Delete the <code>throw</code> statement (both of its lines), then type your method.</li>
           <li>Tap Run. Fix and run again until you see <b>8 of 8 tests passed</b>.</li>
-          <li>Then change the numbers in the last line of <code>main</code> to one of the Part 5 problems, and compare the printed tree with your paper answer.</li>
+          <li>Then change the numbers in the last line of <code>main</code> to one of <Peek label="the Part 5 problems" title="The Part 5 problems" html={probPeek} />, and compare the printed tree with your paper answer.</li>
         </ol>
         <p>The tests print a tree as text: <code>20B(10R,30R)</code> means 20 is black, with 10 (red) on its left and 30 (red) on its right; a <code>-</code> is an empty spot. This table explains each kind of message:</p>
         <table class="tbl">

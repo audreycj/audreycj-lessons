@@ -1,4 +1,5 @@
 ---
+import Peek from '../../components/Peek.astro';
 import Base from '../../layouts/Base.astro';
 import TryIt from '../../components/TryIt.astro';
 import KindChips from '../../components/KindChips.astro';
@@ -6,7 +7,7 @@ import GraphFig from '../../components/GraphFig.astro';
 import MatrixLab from '../../components/MatrixLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import PinScript from '../../components/PinScript.astro';
-import { graphsInIT } from '../../lib/illus.js';
+import { graphsInIT, llDefPic } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { small, smallDir, weighted, withLoop } from '../../data/graphs.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -102,6 +103,8 @@ public class ListGraph {
     // prints: A C D
   }
 }`;
+// Peeks back to earlier parts/lessons (chat 23)
+const llPeek = `<div class="illus">${llDefPic()}</div>`;
 ---
 <Base title="Graphs · ITC 120" description="Graphs in plain English: vertices and edges, directed and weighted graphs, and how to store them in an adjacency matrix or adjacency list." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -256,7 +259,7 @@ public class ListGraph {
         <p class="fig-cap"><code>seats[1][2]</code> is row 1, column 2 (the orange slot). Every other slot still holds 0.</p>
         <pre class="code"><code set:html={hi(twoD)} /></pre>
         <p>Here is how to read each line aloud:</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>int[][] seats = new int[3][4];</code></td><td>"make a grid named seats with 3 rows and 4 columns." Every slot starts at 0. The two pairs of <code>[ ]</code> mean "rows, then columns."</td></tr>
@@ -309,7 +312,7 @@ public class ListGraph {
         <p>An <b>adjacency list</b> gives each vertex its own list of the vertices it has an edge to. The lists are often linked lists, so each one ends with <code>null</code>.</p>
       </div>
       <GraphFig g={smallDir} show={['graph', 'list']} label="The directed graph and its adjacency list" />
-      <p>This should look familiar: each row is a linked list from the linked lists lesson. A's list is <span class="mono">B → D → null</span>, so A has edges to B and D.</p>
+      <p>This should look familiar: each row is a <Peek label="linked list" title="From the Linked lists lesson" html={llPeek} /> from the linked lists lesson. A's list is <span class="mono">B → D → null</span>, so A has edges to B and D.</p>
       <p>For an <b>undirected</b> graph, each edge appears in <b>two</b> lists: A–B puts B in A's list and A in B's list. For a <b>weighted</b> graph, each cell also stores the weight, for example (B, 7).</p>
 
       <div class="trap">
@@ -396,7 +399,7 @@ public class ListGraph {
         <pre class="code"><code set:html={hi(code1)} /></pre>
         <TryIt cls="MatrixGraph" />
         <p>Here is how to read the new lines aloud:</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>static char[] names = &#123;'A', 'B', 'C', 'D'&#125;;</code></td><td>"names is an array of <b>char</b> values, holding A, B, C, D." A <code>char</code> is one character, written in single quotes: <code>'A'</code>. (Double quotes, <code>"A"</code>, make a String.) So <code>names[1]</code> is <code>'B'</code>.</td></tr>
@@ -413,7 +416,7 @@ public class ListGraph {
         <pre class="code"><code set:html={hi(code2)} /></pre>
         <TryIt cls="ListGraph" />
         <p>Here is how to read the new lines aloud:</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>import java.util.ArrayList;</code></td><td>"let this program use Java's ArrayList class." ArrayList is in Java's <code>java.util</code> package, so we must import it first.</td></tr>

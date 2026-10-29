@@ -173,6 +173,9 @@ const quiz = [
   { q: 'Which of the three basic sorts is <b>not</b> stable?', opts: ['Bubble sort', 'Selection sort', 'Insertion sort', 'None of them'], a: 1, why: 'Selection sort swaps the smallest value with a value that may be far away. That long jump can carry a value past an equal one.' },
   { q: 'About how many comparisons does our bubble sort make on 1,000 values?', opts: ['About 1,000', 'About 10,000', 'About 500,000', 'About 1,000,000,000'], a: 2, why: '999 + 998 + … + 1 = <b>499,500</b>, about n × n / 2. Doubling the number of values makes the work about <b>four times</b> bigger.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const onPeek = `<p>Linear search is <b>O(n)</b> ("order n"): the work grows with the number of values. 10 values need up to 10 checks; 1,000 values need up to 1,000.</p>`;
+const boundsPeek = `${boundsPic()}<p class="small">When <code>j</code> is 4, the code reads <code>arr[j + 1]</code>, which is <code>arr[5]</code>. Five values only have indexes 0 to 4.</p>`;
 ---
 <Base title="Basic Sorting · ITC 120" description="Bubble sort, selection sort, and insertion sort: by hand, step by step, and in Java, with how much work each one does and which ones are stable." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -306,7 +309,7 @@ Day 2, period 3</pre>
         <p>The outer loop counts the passes and the inner loop compares the neighbors, just like the <Peek label="nested loop" title="Nested loop (Part 2)" html={defBox('Nested loop', 'A loop inside another loop. The inner loop runs all the way through every time the outer loop goes around once: for each day, every period.')} /> in Part 2. The method is <Peek label="void" title="From the Programming refresher" html={voidPeek} />: it changes the array itself and gives nothing back.</p>
         <CodeWalk id="cw-bubble" code={bubbleCode} steps={bubbleWalk()} cap="Walkthrough: bubbleSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
         <p>Here is how to read the important lines aloud:</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>for (int i = 0; i &lt; n - 1; i++)</code></td><td>"do n - 1 passes." Five values need four passes.</td></tr>
@@ -366,7 +369,7 @@ Day 2, period 3</pre>
         <p>The variable <code>minIndex</code> remembers <b>where</b> the smallest value so far is. The swap happens only once per pass, after the inner loop:</p>
         <CodeWalk id="cw-selection" code={selectionCode} steps={selectionWalk()} cap="Walkthrough: selectionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
         <p>Here is how to read the important lines aloud:</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>int minIndex = i;</code></td><td>"to start, assume the first unsorted value is the smallest."</td></tr>
@@ -421,7 +424,7 @@ Day 2, period 3</pre>
         <p>The shifting uses a <code>while</code> loop with two conditions joined by <Peek label="&&" title="From the Programming refresher" html={andPeek} />:</p>
         <CodeWalk id="cw-insertion" code={insertionCode} steps={insertionWalk()} cap="Walkthrough: insertionSort on 29, 10, 14, 37, 13" hint="Use Next to go step by step, or tap a line to jump to it." />
         <p>Here is how to read the important lines aloud:</p>
-        <div class="tbl-wrap"><table class="tbl">
+        <div class="tbl-wrap"><table class="tbl ra">
           <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
           <tbody>
             <tr><td><code>int key = arr[i];</code></td><td>"take out the value to insert, so its slot can be a gap."</td></tr>
@@ -492,7 +495,7 @@ Day 2, period 3</pre>
         </tbody>
       </table></div>
       <p>Two things stand out. <b>Insertion sort</b> is very fast when the data is already <b>almost sorted</b>, because each key moves only a little. <b>Selection sort</b> always makes the same number of comparisons, but very few swaps, which helps when moving a value is costly (for example, big records).</p>
-      <p class="small muted">Good to know: books describe this growth with short names. All three sorts are <b>O(n²)</b> ("order n squared") in the worst case: the work grows with n × n. Insertion sort (and bubble sort with the early stop) is <b>O(n)</b> in the best case, an already sorted array. You met O(n) in the searching lesson.</p>
+      <p class="small muted">Good to know: books describe this growth with short names. All three sorts are <b>O(n²)</b> ("order n squared") in the worst case: the work grows with n × n. Insertion sort (and bubble sort with the early stop) is <b>O(n)</b> in the best case, an already sorted array. You met <Peek label="O(n)" title="From the Searching lesson" html={onPeek} /> in the searching lesson.</p>
     </div>
   </section>
 
@@ -636,7 +639,7 @@ Day 2, period 3</pre>
         <TryIt />
         <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
           <pre class="code"><code set:html={hiN(answer)} /></pre>
-          <p>Output: <code>true</code>, <code>false</code>, <code>true</code>, <code>true</code>. The loop stops at <code>arr.length - 1</code> because each check also reads the next slot (the same reason as the bubble sort mistake in Part 3). One value, or two equal values, count as sorted.</p>
+          <p>Output: <code>true</code>, <code>false</code>, <code>true</code>, <code>true</code>. The loop stops at <code>arr.length - 1</code> because each check also reads the next slot (the same reason as <Peek label="the bubble sort mistake in Part 3" title="From Part 3" html={boundsPeek} />). One value, or two equal values, count as sorted.</p>
         </div></details>
       </div>
     </div>

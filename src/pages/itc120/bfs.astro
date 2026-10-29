@@ -8,7 +8,7 @@ import Quiz from '../../components/Quiz.astro';
 import StepShow from '../../components/StepShow.astro';
 import Peek from '../../components/Peek.astro';
 import { course } from '../../data/itc120.js';
-import { city, oneWay, islands, smallDir } from '../../data/graphs.js';
+import { city, oneWay, islands, smallDir, weighted } from '../../data/graphs.js';
 import { bfsSteps, svgGraph } from '../../lib/graph.js';
 import { treeVsGraph, bfsWaves, newsWaves, bfsInIT, canteenLine, queueSteps, bfsOrders } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -97,6 +97,10 @@ const quiz = [
   { q: 'You run BFS from vertex A, but vertices X and Y are never visited. What does that tell you?', opts: ['BFS made a mistake', 'There is no path from A to X or Y', 'X and Y are leaves', 'The queue was too small'], a: 1, why: 'BFS visits everything reachable from the start. Anything left over cannot be reached from A. In an undirected graph, that means the graph is not connected.' },
   { q: 'The queue currently holds [C, E] (C at the front). You dequeue C, and C has unseen neighbors F and G. What is the queue now?', opts: ['[F, G, E]', '[E, F, G]', '[G, F, E]', '[C, E, F, G]'], a: 1, why: 'Dequeue removes C from the <b>front</b>. New vertices go to the <b>rear</b>: [E, F, G]. E was waiting longer, so it is visited before F and G.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const cyclePeek = `<div class="illus">${treeVsGraph()}</div><p class="small">A tree has no cycles, so every path down ends. A graph can have cycles, so a search could go around one forever.</p>`;
+const itPeek = `<p>Three places BFS shows up. Friend suggestions come from level 2 (people, with friendships as edges). Network routes count hops (devices, with links as edges). A crawler collects pages level by level (pages, with links as edges).</p>`;
+const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minutes on the edges' })}<p class="small">Travel minutes (made-up numbers): A to C takes 7 + 12 = 19 minutes through B.</p>`;
 ---
 <Base title="Breadth-First Search · ITC 120" description="Breadth-first search (BFS) in plain English: visiting a graph level by level with a queue, shortest paths, and connectivity." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -170,7 +174,7 @@ const quiz = [
       <p>BFS puts every newly found vertex at the <b>rear</b> of the queue. Since all level-1 vertices are found before any level-2 vertex, they are also in line first. So the queue automatically keeps the waves in order: <span class="hl">closer vertices are always visited before farther ones</span>.</p>
       <div class="def">
         <p class="note-label">Seen list</p>
-        <p>A <b>seen list</b> is a checklist of every vertex BFS has already found. A vertex gets its ✓ the moment it joins the queue, and a vertex with a ✓ is never added again. That is what stops BFS from going around a cycle forever (Part 1).</p>
+        <p>A <b>seen list</b> is a checklist of every vertex BFS has already found. A vertex gets its ✓ the moment it joins the queue, and a vertex with a ✓ is never added again. That is what stops BFS from going around a cycle forever (<Peek label="Part 1" title="From Part 1" html={cyclePeek} />).</p>
         <p><b>Seen is not the same as visited.</b> A vertex is <b>seen</b> when it joins the queue, and <b>visited</b> later, when it leaves the front.</p>
       </div>
       <StepShow id="bfs-queue" cap="One queue, step by step" hint="BFS uses only one queue. Tap Next and watch it: a vertex leaves from the front, new ones join at the rear." steps={queueSteps()} />
@@ -237,7 +241,7 @@ const quiz = [
     </div>
     <div class="flow">
       <p>BFS gives you more than a visit order. While it runs, it also answers a very common question: <b>what is the fewest number of steps from the start to each vertex?</b></p>
-      <p>You saw this question in Part 1: the route with the <b>fewest hops</b> between two computers, and "people you may know" (people <b>2 friendships</b> away). Another example: the fewest links you must click to get from one web page to another. When every edge counts the same (an unweighted graph), "fewest steps" means "fewest edges".</p>
+      <p>You saw this question in <Peek label="Part 1" title="From Part 1" html={itPeek} />: the route with the <b>fewest hops</b> between two computers, and "people you may know" (people <b>2 friendships</b> away). Another example: the fewest links you must click to get from one web page to another. When every edge counts the same (an unweighted graph), "fewest steps" means "fewest edges".</p>
       <p>BFS gets this answer for free because of the waves. It reaches every level-1 vertex before any level-2 vertex, and so on, so the first time BFS finds a vertex, it found it the shortest way. That is why a vertex's <b>level</b> is exactly the <b>fewest edges</b> needed to reach it from the start.</p>
       <figure class="fig">
         <p class="fig-cap">Fewest edges from A to G</p>
@@ -257,7 +261,7 @@ const quiz = [
       </div>
       <div class="trap">
         <p class="note-label">Careful</p>
-        <p>"Shortest" here means <b>fewest edges</b>. In a <b>weighted</b> graph, the path with fewer edges is not always the cheapest one (remember the travel-time example in the Graphs lesson). Weighted shortest paths use other algorithms, such as Dijkstra's algorithm.</p>
+        <p>"Shortest" here means <b>fewest edges</b>. In a <b>weighted</b> graph, the path with fewer edges is not always the cheapest one For example, in the <Peek label="travel-time graph" title="From the Graphs lesson" html={travelPeek} /> from the Graphs lesson, A → B → C takes 19 minutes. If there were also a direct A–C road taking 30 minutes, A → C would have fewer edges but take 11 minutes longer. Weighted shortest paths use other algorithms, such as Dijkstra's algorithm.</p>
       </div>
     </div>
   </section>
@@ -352,7 +356,7 @@ const quiz = [
       <pre class="code"><code set:html={hi(code)} /></pre>
       <TryIt cls="BFS" />
       <p>Here is how to read the new lines aloud. The matrix lines (<code>names</code>, <code>adj</code>, <code>addEdge</code>) are the same as in the <a href={base + '/itc120/graphs/#java'}>Graphs lesson, Part 8</a>.</p>
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="tbl ra">
         <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
         <tbody>
           <tr><td class="nowrap"><code>import java.util.Queue;</code></td><td>"let this program use Java's Queue" (and the line above it, LinkedList). Both are in <code>java.util</code>.</td></tr>

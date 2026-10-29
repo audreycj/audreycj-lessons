@@ -1,4 +1,6 @@
 ---
+import { buildBst as buildBstP, svgTree as svgTreeP } from '../../lib/tree.js';
+import Peek from '../../components/Peek.astro';
 import Base from '../../layouts/Base.astro';
 import KindChips from '../../components/KindChips.astro';
 import TreeFig from '../../components/TreeFig.astro';
@@ -119,6 +121,10 @@ const quiz = [
   { q: 'During a right rotation at node z (its left child is y), what happens to y\'s right child?', opts: ['It is deleted', 'It becomes z\'s left child', 'It becomes y\'s left child', 'It becomes the new root'], a: 1, why: 'y moves up and z moves down to y\'s right. y\'s old right child cannot stay (that spot now holds z), so it moves over to become z\'s left child. It still fits the BST rule there.' },
   { q: 'Which traversal of any AVL tree gives the values in sorted order?', opts: ['Pre-order', 'In-order', 'Post-order', 'None; rotations mix up the order'], a: 1, why: 'An AVL tree is still a BST, and rotations never break the BST rule. So in-order (Left, Node, Right) is always sorted.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const bfPeek = `<div class="def"><p class="note-label">Height and balance factor</p><p>The height of a node is the number of edges on the longest path from it down to a leaf. A leaf has height <b>0</b>; an empty spot (null) has height <b>−1</b>.</p><p>Balance factor = height(left) − height(right).</p></div>`;
+const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
+const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
 ---
 <Base title="AVL Trees · ITC 120" description="AVL trees in plain English: balance factors, the four rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -378,7 +384,7 @@ const quiz = [
       <h2>Try it on paper</h2>
     </div>
     <div class="flow">
-      <p>The exam asks you to build an AVL tree and then traverse it. Do each problem on paper <b>before</b> opening the answer. Then check yourself with the lab in Part 5 by typing in the same numbers.</p>
+      <p>The exam asks you to build an AVL tree and then traverse it. Do each problem on paper <b>before</b> opening the answer. Then check yourself with <a href="#lab-full">the lab in Part 5</a> by typing in the same numbers.</p>
       {practice.map((p, i) => (
         <div class="paper flow">
           <p class="note-label">Problem {i + 1}</p>
@@ -421,13 +427,13 @@ const quiz = [
       <div class="sub">
         <h3>2. Three small helpers</h3>
 <pre class="code"><code set:html={hi(code2)} /></pre>
-        <p>These match Part 2 exactly: a leaf is 0, an empty spot is −1, and the balance factor is left minus right.</p>
+        <p>These match <Peek label="Part 2" title="From Part 2" html={bfPeek} /> exactly: a leaf is 0, an empty spot is −1, and the balance factor is left minus right.</p>
       </div>
 
       <div class="sub">
         <h3>3. The two rotations</h3>
 <pre class="code"><code set:html={hi(code3)} /></pre>
-        <p>Compare <code>rotateRight</code> with the right rotation picture in Part 4: <code>z</code> is 40, <code>y</code> is 30, and <code>moved</code> is 35. The method <b>returns the new top</b>, so whoever called it can connect it back to the tree.</p>
+        <p>Compare <code>rotateRight</code> with the <Peek label="right rotation picture in Part 4" title="From Part 4" html={rotPeek} />: <code>z</code> is 40, <code>y</code> is 30, and <code>moved</code> is 35. The method <b>returns the new top</b>, so whoever called it can connect it back to the tree.</p>
       </div>
 
       <div class="sub">

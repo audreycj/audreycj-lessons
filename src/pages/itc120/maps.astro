@@ -105,6 +105,9 @@ const quiz = [
   { q: 'Two different keys land in the same bucket. This is called:', opts: ['A duplicate', 'A collision', 'An overflow', 'A rotation'], a: 1, why: 'A <b>collision</b>. The keys are different, so both are kept: the bucket holds a small chain (linked list) of entries.' },
   { q: 'Why is a HashMap fast at <code>get</code>?', opts: ['It keeps all keys sorted', 'It checks every entry from the start', 'The key\'s hash tells it which bucket to look in, so it only checks that bucket', 'It stores only one entry'], a: 2, why: 'Hashing turns the key into a bucket number, so <code>get</code> jumps straight to one bucket instead of searching the whole map.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const setPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p></div>`;
+const flowPeek = `<div class="illus">${hashFlow()}</div><p class="small">The two steps for the key "CAT".</p>`;
 ---
 <Base title="Maps and Hashing · ITC 120" description="Maps and hashing in plain English: key-value pairs, put, get, remove, how Java computes a String's hashCode, and how HashMap picks a bucket." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -171,7 +174,7 @@ const quiz = [
           <li><b>Values can repeat.</b> Two different students can have the same grade. Two products can have the same price.</li>
         </ol>
       </div>
-      <p>A set from the last lesson is like a map with only keys: it answers "is it there?", while a map answers "is it there, and what is its value?"</p>
+      <p>A <Peek label="set" title="From the Sets lesson" html={setPeek} /> from the last lesson is like a map with only keys: it answers "is it there?", while a map answers "is it there, and what is its value?"</p>
     </div>
   </section>
 
@@ -201,7 +204,7 @@ const quiz = [
       <p class="small"><b>Output</b> (the last two lines can come out in another order; <a href="#no-order">Part 6</a> explains why):</p>
       <pre class="code"><code>{gradesOut}</code></pre>
       <p>Here is how to read the new lines aloud:</p>
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="tbl ra">
         <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
         <tbody>
           <tr><td class="nowrap"><code>Map&lt;String, Integer&gt; grades</code></td><td>"grades is a map from String keys to Integer values"</td></tr>
@@ -279,7 +282,7 @@ const quiz = [
           <p class="formula">h = 0<br />for each character, left to right: <b>h = 31 × h + code</b></p>
           <p>Read it as: "Start with 0. For each character, multiply what you have so far by 31, then add the character's code." When there are no characters left, h is the hash code.</p>
         </div>
-        <figure class="fig illus-fig illus"><Fragment set:html={hornerPic()} /><figcaption>Each row uses the h from the row above. This is the same "CAT" → 66,486 from the Part 3 picture.</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={hornerPic()} /><figcaption>Each row uses the h from the row above. This is the same "CAT" → 66,486 from the <Peek label="Part 3 picture" title="From Part 3" html={flowPeek} />.</figcaption></figure>
         <p><b>Why multiply by 31?</b> If we only added the codes, "DOG" and "GOD" would get the same number, because they have the same letters. Multiplying by 31 before each add makes each character's <b>position</b> matter: "DOG" gives 67,868, but "GOD" gives 70,748. (Java's designers chose 31 because it is an odd prime that mixes the numbers well, and computers can multiply by it quickly.)</p>
         <p class="small muted">Good to know: Java's documentation writes the same rule as one long formula, s[0]·31<sup>n−1</sup> + s[1]·31<sup>n−2</sup> + … + s[n−1], where s[0] is the code of the first character, s[1] the second, and n is the number of characters. The running total gives the same answer in smaller steps.</p>
       </div>

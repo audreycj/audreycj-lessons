@@ -1,4 +1,5 @@
 ---
+import Peek from '../../components/Peek.astro';
 import Base from '../../layouts/Base.astro';
 import KindChips from '../../components/KindChips.astro';
 import LinkedLab from '../../components/LinkedLab.astro';
@@ -135,6 +136,9 @@ const quiz = [
   { q: 'A photo viewer with Next and Previous buttons fits which kind of linked list?', opts: ['Singly', 'Doubly', 'Circular singly', 'None'], a: 1, why: 'Going back needs a <b>prev</b> link in each node: a <b>doubly</b> linked list.' },
   { q: 'A traversal loop <code>while (current != null)</code> on a circular list will…', opts: ['stop at the last node', 'never stop', 'throw an error right away', 'skip the head'], a: 1, why: 'A circular list has no <code>null</code> at the end, so the condition never becomes false. It must stop when it gets back to the starting node.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const arrDefsPeek = `<div class="def"><p class="note-label">Access</p><p>Getting one value using its index. An array does it in one step.</p></div><div class="def"><p class="note-label">Traversal</p><p>Visiting every item in a data structure once, in order, to do something with it: print it, add it up, or compare it.</p></div>`;
+const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>First, make the new node refer to the node that will follow it.</li><li>Then, change the old reference to point to the new node.</li></ol><div class="illus">${llBarsPic()}</div><p class="small">Grab the next bar before you let go.</p>`;
 ---
 <Base title="Linked lists · ITC 120" description="Linked lists in plain English: nodes and references in Java, traversal, insertion, deletion, and singly, doubly, and circular lists." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -242,7 +246,7 @@ const quiz = [
     <div class="flow">
       <div class="def">
         <p class="note-label">Access and traversal</p>
-        <p><b>Access</b> means getting one item. <b>Traversal</b> means visiting every item, one by one, in order. You met both in the Arrays lesson. In a linked list, both start at <code>head</code> and follow the <code>next</code> links.</p>
+        <p><b>Access</b> means getting one item. <b>Traversal</b> means visiting every item, one by one, in order. You met <Peek label="both" title="From the Arrays lesson" html={arrDefsPeek} /> in the Arrays lesson. In a linked list, both start at <code>head</code> and follow the <code>next</code> links.</p>
       </div>
       <figure class="fig illus-fig illus"><Fragment set:html={llTravPic()} /><figcaption>Traversal visits every node, then stops at null.</figcaption></figure>
       <p>This code builds the list 10 → 20 → 30 and prints it. We keep the name <code>twenty</code> for node 20, so later steps can use it without searching.</p>
@@ -371,7 +375,7 @@ const quiz = [
       <h2>The linked list lab</h2>
     </div>
     <div class="flow">
-      <p>Now watch every operation from Parts 3 to 5 again, one line of Java at a time. Each button starts from a short list, so you can replay any of them. Try "Insert: wrong order!" to see the mistake from Part 4 happen.</p>
+      <p>Now watch every operation from Parts 3 to 5 again, one line of Java at a time. Each button starts from a short list, so you can replay any of them. Try "Insert: wrong order!" to see <Peek label="the mistake from Part 4" title="From Part 4" html={safePeek} /> happen.</p>
       <LinkedLab id="lab-ll" />
     </div>
   </section>

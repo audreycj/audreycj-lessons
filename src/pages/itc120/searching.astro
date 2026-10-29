@@ -129,6 +129,8 @@ const quiz = [
   { q: '<code>arr[mid]</code> is <b>smaller</b> than the target. What does binary search do next?', opts: ['high = mid - 1', 'low = mid + 1', 'return -1', 'Check mid again'], a: 1, why: 'The target is bigger, so it can only be to the <b>right</b> of mid: <code>low = mid + 1</code>. Index mid itself is done, so the +1 skips it.' },
   { q: 'Why is binary search a poor fit for a linked list?', opts: ['Linked lists cannot be sorted', 'Reaching the middle node means walking from head, which takes many steps', 'Linked lists have no values', 'Java does not allow it'], a: 1, why: 'Binary search needs to <b>jump</b> to the middle in one step. An array can; a linked list must walk link by link, so the speed advantage is gone.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const unsortedPeek = `${unsortedPic()}<p class="small">The values are not in order, so "20 &lt; 50" does not mean 20 is on the left. The search throws away the half that holds 20.</p>`;
 ---
 <Base title="Linear and Binary Search · ITC 120" description="Linear search and binary search: by hand, step by step, and in Java, with how many checks each one needs." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -200,7 +202,7 @@ const quiz = [
       <p>In Java, it is a loop with an early <code>return</code>. Step through it on a small array in no order, looking for 93:</p>
       <CodeWalk id="cw-linear" code={linearCode} steps={linearWalk()} cap="Walkthrough: linearSearch(arr, 93)" hint="Use Next to go step by step, or tap a line to jump to it." />
       <p>Here is how to read the important lines aloud:</p>
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="tbl ra">
         <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
         <tbody>
           <tr><td><code>static int linearSearch(int[] arr, int target)</code></td><td>"a method that takes an array of ints and the value to find, and gives back an <code>int</code>": the index.</td></tr>
@@ -307,7 +309,7 @@ const quiz = [
       <p>Each step of the by-hand rule becomes one or two lines. Step through it looking for 20, which is <b>not</b> in the array, to see how the method knows when to stop:</p>
       <CodeWalk id="cw-binary" code={binaryCode} steps={binaryWalk()} cap="Walkthrough: binarySearch(arr, 20)" hint="Use Next to go step by step, or tap a line to jump to it." />
       <p>Here is how to read the key lines aloud:</p>
-      <div class="tbl-wrap"><table class="tbl">
+      <div class="tbl-wrap"><table class="tbl ra">
         <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
         <tbody>
           <tr><td><code>while (low &lt;= high)</code></td><td>"while there is at least one index left to check."</td></tr>
@@ -384,7 +386,7 @@ const quiz = [
       <TryIt />
       <p>Two things to notice:</p>
       <ul>
-        <li><code>Arrays.binarySearch</code> also needs a <b>sorted</b> array. On an unsorted array, its answer cannot be trusted (like the unsorted-data mistake in Part 3).</li>
+        <li><code>Arrays.binarySearch</code> also needs a <b>sorted</b> array. On an unsorted array, its answer cannot be trusted (like <Peek label="the unsorted-data mistake in Part 3" title="From Part 3" html={unsortedPeek} />).</li>
         <li>When the target is missing, it gives back a <b>negative</b> number, but not always -1 (here, -3). Check for "less than 0", not "equal to -1".</li>
       </ul>
     </div>

@@ -142,6 +142,8 @@ const quiz = [
   { q: 'A = {1, 2} and B = {1, 2, 3}. Which is true?', opts: ['B ⊆ A', 'A ⊂ B (A is a proper subset of B)', 'A = B', 'The empty set { } is not a subset of A'], a: 1, why: 'Every value of A (1 and 2) is in B, and B also has 3, which A does not. So A ⊆ B and A ≠ B: a <b>proper</b> subset. B ⊆ A is false (3 is missing from A), and { } is a subset of every set.' },
   { q: 'Which Java line checks whether A ⊆ B?', opts: ['a.containsAll(b)', 'b.containsAll(a)', 'a.retainAll(b)', 'a.equals(b)'], a: 1, why: 'A ⊆ B means "B contains all of A", so you ask B: <code>b.containsAll(a)</code>. <code>a.containsAll(b)</code> checks the other direction (B ⊆ A), <code>retainAll</code> changes <code>a</code>, and <code>equals</code> checks A = B.' },
 ];
+// Peeks back to earlier parts/lessons (chat 23)
+const setDefPeek = `<div class="def"><p class="note-label">Set</p><p>A <b>set</b> is an abstract data type (ADT) that stores a collection of values with <b>no duplicates</b> and <b>no fixed order</b>. The main question a set answers is: <i>"Is this value in the collection or not?"</i></p></div>`;
 ---
 <Base title="Sets in Java · ITC 120" description="Sets in plain English: unique, unordered collections; union, intersection, difference, and symmetric difference with Java's Set interface." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -313,7 +315,7 @@ const quiz = [
           <tr><td><code>TreeSet</code></td><td>a red-black tree, through a <code>TreeMap</code> inside</td><td>sorted</td></tr>
         </tbody>
       </table>
-      <p>Wait: Part 1 said a set has no order. The set <b>ADT</b> promises no order, so you can never ask for "item [2]". <code>LinkedHashSet</code> and <code>TreeSet</code> add an order as an extra, only for looping through the values. They still have no index, and they still keep each value once.</p>
+      <p>Wait: <Peek label="Part 1" title="From Part 1" html={setDefPeek} /> said a set has no order. The set <b>ADT</b> promises no order, so you can never ask for "item [2]". <code>LinkedHashSet</code> and <code>TreeSet</code> add an order as an extra, only for looping through the values. They still have no index, and they still keep each value once.</p>
       <p>You will see both parts in one line of code: <code>Set&lt;String&gt; present = new HashSet&lt;&gt;();</code> reads as "present is a <b>Set</b> of Strings, built as a <b>HashSet</b>." The left side (<code>Set</code>) says what you may do with it. The right side (<code>new HashSet&lt;&gt;()</code>) picks how it is built. To get sorted order instead, you would change only the right side, to <code>new TreeSet&lt;&gt;()</code>.</p>
       <p><code>HashSet</code> is the usual choice. Its basic methods are <code>add</code>, <code>contains</code>, <code>remove</code>, and <code>size</code>:</p>
       <pre class="code"><code set:html={hi(basics)} /></pre>
