@@ -949,3 +949,10 @@ svg.objbox.ll-kind { max-width: 20rem; margin: 0.4rem 0; }
 
 /* SQLab with one structure (Stacks or Queues lesson): one full-width column (chat 17) */
 .sqlab.is-stack .sq-grid, .sqlab.is-queue .sq-grid { grid-template-columns: 1fr !important; }
+
+/* 2D array grid (graphs #two-d, chat 20) */
+table.grid2d { border-collapse: collapse; margin: 0.8rem auto 0.3rem; font-family: var(--font-mono); }
+table.grid2d th { font-size: 0.8rem; font-weight: 600; color: var(--teal-ink); padding: 0.2rem 0.45rem; text-align: center; }
+table.grid2d th.g2-corner { font-family: var(--font-body, inherit); font-size: 0.72rem; color: var(--ink-soft); white-space: nowrap; }
+table.grid2d td { width: 2.8rem; height: 2.6rem; text-align: center; border: 2px solid var(--ink); background: var(--card); font-size: 1rem; color: var(--ink); }
+table.grid2d td.hot { background: var(--orange); color: #fff; font-weight: 700; }

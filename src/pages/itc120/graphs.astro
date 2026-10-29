@@ -10,6 +10,11 @@ import { graphsInIT } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { small, smallDir, weighted, withLoop } from '../../data/graphs.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const twoD = String.raw`int[][] seats = new int[3][4];   // 3 rows, 4 columns, all 0
+seats[1][2] = 7;                 // row 1, column 2
+System.out.println(seats[1][2]); // 7
+System.out.println(seats.length);    // 3 (rows)
+System.out.println(seats[0].length); // 4 (columns)`;
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
 
@@ -239,7 +244,30 @@ public class ListGraph {
     </div>
     <div class="flow">
       <p>The circles-and-lines pictures in these lessons are drawn for <b>people</b>: our eyes can follow the lines and see who connects to whom. A computer cannot look at a picture. It needs the same facts written down as <b>data</b> in memory: which vertex has an edge to which.</p>
-      <p>Where each circle sits on the page does not matter. Move the circles around and it is still the same graph, because only the connections count. So the computer stores only the connections. There are two common ways to do it: the <b>adjacency matrix</b> (this part) and the <b>adjacency list</b> (Part 4). Both hold exactly the same graph as the drawing. The matrix uses a 2D array, which you know from the arrays lesson.</p>
+      <p>Where each circle sits on the page does not matter. Move the circles around and it is still the same graph, because only the connections count. So the computer stores only the connections. There are two common ways to do it: the <b>adjacency matrix</b> (this part) and the <b>adjacency list</b> (Part 4). Both hold exactly the same graph as the drawing. The matrix is stored in a <b>2D array</b>, so first, a quick look at one.</p>
+      <div class="sub" id="two-d">
+        <h3>First: a 2D array</h3>
+        <p>In the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson, an array was <b>one row</b> of slots. Some data needs a <b>grid</b>: rows <i>and</i> columns. Think of the seat plan in your classroom. To point to one seat, you say two numbers: its row and its column.</p>
+        <div class="def"><p class="note-label">2D array</p><p>A <b>2D (two-dimensional) array</b> is a grid of slots, all holding the same type. Each slot has <b>two</b> indexes: <b>[row][column]</b>. Both count from 0, like a normal array.</p></div>
+        <table class="grid2d" aria-label="A 2D array named seats with 3 rows and 4 columns. Every slot holds 0 except seats[1][2], row 1, column 2, which holds 7.">
+          <thead><tr><th class="g2-corner">row ↓ / col →</th>{[0, 1, 2, 3].map((c) => <th>{c}</th>)}</tr></thead>
+          <tbody>{[0, 1, 2].map((r) => <tr><th>{r}</th>{[0, 1, 2, 3].map((c) => <td class={r === 1 && c === 2 ? 'hot' : ''}>{r === 1 && c === 2 ? 7 : 0}</td>)}</tr>)}</tbody>
+        </table>
+        <p class="fig-cap"><code>seats[1][2]</code> is row 1, column 2 (the orange slot). Every other slot still holds 0.</p>
+        <pre class="code"><code set:html={hi(twoD)} /></pre>
+        <p>Here is how to read each line aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int[][] seats = new int[3][4];</code></td><td>"make a grid named seats with 3 rows and 4 columns." Every slot starts at 0. The two pairs of <code>[ ]</code> mean "rows, then columns."</td></tr>
+            <tr><td><code>seats[1][2] = 7;</code></td><td>"go to row 1, then to column 2, and store 7 there."</td></tr>
+            <tr><td><code>seats.length</code></td><td>"how many rows": 3.</td></tr>
+            <tr><td><code>seats[0].length</code></td><td>"how many columns in row 0": 4.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="trap"><p class="note-label">Row first, then column</p><p><code>seats[2][1]</code> is a different slot: row 2, column 1. It still holds 0.</p></div>
+        <p>An adjacency matrix is exactly this kind of grid. Its rows are the vertices, its columns are the same vertices again, and each slot answers one question: is there an edge from this row's vertex to this column's vertex?</p>
+      </div>
       <div class="def">
         <p class="note-label">Adjacency matrix</p>
         <p>An <b>adjacency matrix</b> is a 2D array with one row and one column for each vertex. The cell <b>[row][column]</b> is <b>1</b> if there is an edge <b>from</b> the row vertex <b>to</b> the column vertex, and <b>0</b> if there is not.</p>

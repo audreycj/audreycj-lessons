@@ -473,7 +473,7 @@ const quiz = [
         <pre class="code"><code>{trace.map((t) => t[0]).join('\n')}</code></pre>
         <details class="reveal">
           <summary>Show the answer</summary>
-          <div>
+          <div class="tbl-wrap">
             <table class="tbl">
               <thead><tr><th>Call</th><th>Returns</th><th>Why</th></tr></thead>
               <tbody>{trace.map((t) => <tr><td class="mono small">{t[0]}</td><td class="mono">{t[1]}</td><td class="small">{t[2]}</td></tr>)}</tbody>
