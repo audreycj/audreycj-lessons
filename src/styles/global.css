@@ -1035,7 +1035,7 @@ svg.objbox.mtree-pic { max-width: 26rem; }
 .lab-key > .legend { margin-top: 0.4rem; }
 @media (max-width: 43.99rem) {
   /* Back / Next stays on screen while any part of the lab is; it floats above the Contents and back-to-top buttons. */
-  .trlab .tr-nav, .bstlab .bl-nav, .avl-lab .lab-nav, .lllab .ll-nav {
+  .trlab .tr-nav, .bstlab .bl-nav, .avl-lab .lab-nav, .lllab .ll-nav, .solab .so-nav, .srlab .sr-nav, .btn-row.al-nav {
     position: sticky; z-index: 30; bottom: calc(16px + 3.4rem + env(safe-area-inset-bottom, 0px));
     background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 0.45rem;
     box-shadow: 0 6px 18px rgba(27, 42, 46, 0.22); }
