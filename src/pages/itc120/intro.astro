@@ -189,7 +189,7 @@ const quiz = [
         <p>Many algorithms can solve the same problem, and some are much faster. Try it: both players below hunt for the same secret number.</p>
         <GuessGame id="guess" />
         <p><b>Why only 7?</b> Each "too low" or "too high" throws away about half of what is left. In the worst case, the numbers still possible go 100 → 50 → 25 → 12 → 6 → 3 → 1, so by the 7th guess only one number is left. Simple search may need all 100.</p>
-        <p class="small muted">Good to know: binary search only works because the numbers 1 to 100 are <b>in order</b>. "Too low" can rule out the whole lower half only when the values are sorted. The same halving idea powers <a href={base + '/itc120/bst/'}>BST search</a> later in this course.</p>
+        <p class="small muted">Good to know: binary search only works because the numbers 1 to 100 are <b>in order</b>. "Too low" can rule out the whole lower half only when the values are sorted. You will write it in Java in the <a href={base + '/itc120/searching/'}>Searching</a> lesson, and the same halving idea powers <a href={base + '/itc120/bst/'}>BST search</a>.</p>
         <p>Both algorithms solve the same problem, but one is far faster. That is the whole point of this course: <b>data structures + algorithms = programs that run fast and use memory wisely.</b></p>
       </div>
       <div class="sub">

@@ -1,0 +1,73 @@
+---
+// Search lab: linear or binary search on one sorted array, one check per step (tap = run).
+interface Props { id: string; }
+const { id } = Astro.props;
+---
+<figure class="fig srlab" id={id}>
+  <p class="fig-cap">Search lab</p>
+  <p class="fig-hint">Type a number to look for, then tap a search. Use Next step to watch every check. Try a number that is not in the list too.</p>
+  <div class="sr-ctl">
+    <label class="sr-lab">Look for <input type="text" inputmode="numeric" class="sr-t" value="71" autocomplete="off" aria-label="Number to look for" /></label>
+    <div class="btn-row sr-modes" role="group" aria-label="Search">
+      <button type="button" class="btn" data-mode="linear" aria-pressed="false">Linear search</button>
+      <button type="button" class="btn" data-mode="binary" aria-pressed="false">Binary search</button>
+    </div>
+  </div>
+  <p class="sr-try small">Quick tries: <button type="button" class="sr-chip" data-t="71">71</button> <button type="button" class="sr-chip" data-t="4">4 (first)</button> <button type="button" class="sr-chip" data-t="88">88 (last)</button> <button type="button" class="sr-chip" data-t="20">20 (not there)</button></p>
+  <p class="sr-err small" aria-live="polite"></p>
+  <div class="sr-pic"></div>
+  <p class="sr-say" aria-live="polite"></p>
+  <p class="sr-cmp small"></p>
+  <div class="btn-row sr-nav">
+    <button type="button" class="btn" data-go="back">← Back</button>
+    <span class="sr-count mono small">Step 1 of 1</span>
+    <button type="button" class="btn primary" data-go="next">Next step →</button>
+  </div>
+  <div class="legend">
+    <span><i class="sr-l-cur"></i> checking now</span>
+    <span><i class="sr-l-chk"></i> checked, not it</span>
+    <span><i class="sr-l-out"></i> ruled out</span>
+    <span><i class="sr-l-found"></i> found</span>
+  </div>
+</figure>
+
+<script>
+  import { BIN, linearSteps, binarySteps, searchPic } from '../lib/search.js';
+  document.querySelectorAll<HTMLElement>('.srlab').forEach((root) => {
+    const q = <T extends Element>(s: string) => root.querySelector(s) as T;
+    const input = q<HTMLInputElement>('.sr-t'), pic = q<HTMLElement>('.sr-pic'), say = q<HTMLElement>('.sr-say');
+    const cmp = q<HTMLElement>('.sr-cmp'), err = q<HTMLElement>('.sr-err'), count = q<HTMLElement>('.sr-count');
+    const back = q<HTMLButtonElement>('[data-go="back"]'), next = q<HTMLButtonElement>('[data-go="next"]');
+    const modes = [...root.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+    let steps: any[] = [], k = 0, mode = '', target = 71;
+    const checksFor = (m: string, t: number) => { const s = m === 'linear' ? linearSteps(BIN, t) : binarySteps(BIN, t); return s[s.length - 1].checks; };
+    function show() {
+      if (!steps.length) {
+        pic.innerHTML = searchPic(BIN, { target, alt: 'The sorted array of 12 values.' });
+        say.innerHTML = 'Tap <b>Linear search</b> or <b>Binary search</b> to start.';
+        count.textContent = 'Step 0 of 0'; cmp.textContent = ''; back.disabled = true; next.disabled = true; return;
+      }
+      const st = steps[k];
+      pic.innerHTML = searchPic(BIN, { target, checks: st.checks, kinds: st.kinds, ptr: st.ptr, note: st.note, noteFill: st.noteFill, alt: st.say.replace(/<[^>]+>/g, '') });
+      say.innerHTML = st.say;
+      count.textContent = `Step ${k + 1} of ${steps.length}`;
+      back.disabled = k === 0; next.disabled = k === steps.length - 1;
+      cmp.innerHTML = k === steps.length - 1 ? `For ${target}: linear search needs <b>${checksFor('linear', target)}</b> check${checksFor('linear', target) === 1 ? '' : 's'}; binary search needs <b>${checksFor('binary', target)}</b>.` : '';
+    }
+    function run(m: string) {
+      const t = Number(input.value.trim());
+      if (input.value.trim() === '' || !Number.isInteger(t) || Math.abs(t) > 9999) { err.textContent = 'Type a whole number, like 71.'; return; }
+      err.textContent = ''; target = t; mode = m; k = 0;
+      steps = m === 'linear' ? linearSteps(BIN, t) : binarySteps(BIN, t);
+      modes.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+      show();
+    }
+    modes.forEach((b) => b.addEventListener('click', () => run(b.dataset.mode!)));
+    root.querySelectorAll<HTMLButtonElement>('.sr-chip').forEach((c) => c.addEventListener('click', () => { input.value = c.dataset.t!; run(mode || 'linear'); }));
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(mode || 'linear'); });
+    input.addEventListener('input', () => { if (mode) run(mode); });
+    back.addEventListener('click', () => { if (k > 0) { k--; show(); } });
+    next.addEventListener('click', () => { if (k < steps.length - 1) { k++; show(); } });
+    show();
+  });
+</script>

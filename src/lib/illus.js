@@ -4124,3 +4124,45 @@ export function stackObjPic() {
   b += sT(170, 302, 'means "this object\'s".', { size: 12.5, w: 700, fill: '#37474a' });
   return introPic(340, 314, 'Code: ArrayStack s = new ArrayStack(3); then s.push(4);. An arrow from s.push(4) points to the push button of the object s. The object s is a box with fields on the left, its data: the array data holding 4, 0, 0, with 4 in cell 0 just pushed, and top = 0, which was -1 before the push. On the right are its methods as buttons: push, pop, peek, size; push is highlighted. s.push(4) means: go to the object s and run its push method with 4.', b);
 }
+
+
+/* ---------- Searching lesson (chat 20) ---------- */
+/** Sketch: finding Mia's form in an unsorted pile (one by one) vs in an A-to-Z class list (open the middle). */
+export function searchHook() {
+  const s = new Sketch(340, 470, 311);
+  s.text(170, 22, 'Where is Mia?', { font: 'body', size: 16, weight: 800 });
+  // panel 1: unsorted forms
+  s.round(8, 36, 324, 186, 10, { fill: '#fffdf5', sw: 1.6 });
+  s.text(20, 60, '1. A pile of forms, in no order', { font: 'body', size: 13.5, weight: 800, color: C.orange, anchor: 'start' });
+  const names = ['Cris', 'Paz', 'Ben', 'Mia', 'Ana', 'Joy'];
+  names.forEach((nm, i) => {
+    const x = 18 + i * 52, y = 80, hit = i === 3, done = i < 3;
+    s.rect(x, y, 44, 56, { fill: hit ? '#dff0e3' : '#ffffff', sw: 1.6 });
+    s.line(x + 6, y + 36, x + 38, y + 36, { sw: 1, stroke: '#9aa5a6', single: true }); s.line(x + 6, y + 44, x + 32, y + 44, { sw: 1, stroke: '#9aa5a6', single: true });
+    s.text(x + 22, y + 24, nm, { font: 'body', size: 12.5, weight: 800 });
+    if (i < 4) { s.circle(x + 22, y + 76, 20, { fill: hit ? '#2e7d4f' : C.orange, sw: 1.2 }); s.text(x + 22, y + 81, String(i + 1), { font: 'body', size: 12, weight: 800, color: '#ffffff' }); }
+    if (done) s.text(x + 22, y - 6, '✗', { font: 'body', size: 13, weight: 800, color: C.red });
+    if (hit) s.text(x + 22, y - 6, '✓', { font: 'body', size: 14, weight: 800, color: '#2e7d4f' });
+  });
+  s.text(170, 192, 'Check one form at a time until you find her.', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(170, 210, 'That is linear search.', { font: 'body', size: 12.5, weight: 800, color: C.orange });
+  // panel 2: sorted class list
+  s.round(8, 236, 324, 226, 10, { fill: '#fffdf5', sw: 1.6 });
+  s.text(20, 260, '2. The class list, A to Z', { font: 'body', size: 13.5, weight: 800, color: C.teal, anchor: 'start' });
+  const list = ['Ana', 'Ben', 'Cris', 'Dan', 'Eva', 'Joy', 'Kim', 'Liza', 'Mia', 'Noel', 'Paz'];
+  s.rect(26, 270, 104, 182, { fill: '#ffffff', sw: 1.6 });
+  list.forEach((nm, i) => {
+    const y = 286 + i * 15.6, gone = i <= 5;
+    if (i === 5) s.rect(30, y - 11, 96, 15, { fill: C.orangeWash, sw: 0.8, single: true });
+    if (i === 8) s.rect(30, y - 11, 96, 15, { fill: '#dff0e3', sw: 0.8, single: true });
+    s.text(40, y, nm, { font: 'body', size: 11.5, weight: i === 5 || i === 8 ? 800 : 700, color: gone && i !== 5 ? '#9aa5a6' : C.ink, anchor: 'start' });
+  });
+  s.line(30, 274, 126, 346, { sw: 1.2, stroke: '#9aa5a6', single: true });
+  s.arrow(186, 364, 132, 364, { sw: 2, stroke: C.orange, head: 8 });
+  s.text(192, 352, 'Open the middle: Joy.', { font: 'body', size: 12.5, weight: 800, color: C.orange, anchor: 'start' });
+  s.text(192, 370, 'Mia comes after Joy,', { font: 'body', size: 12, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(192, 386, 'so the top half is out.', { font: 'body', size: 12, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(192, 414, 'Repeat on what is left.', { font: 'body', size: 12, weight: 700, color: C.soft, anchor: 'start' });
+  s.text(192, 440, 'That is binary search.', { font: 'body', size: 12.5, weight: 800, color: C.teal, anchor: 'start' });
+  return s.svg('Two ways to find Mia. 1: a pile of forms in no order: Cris, Paz, Ben, Mia, Ana, Joy. You check them one at a time: Cris no, Paz no, Ben no, Mia yes on the 4th check. That is linear search. 2: the class list in A to Z order. Open the middle: Joy. Mia comes after Joy, so the top half, Ana to Joy, is crossed out. Repeat on what is left. That is binary search.').replace(/(\d+\.\d)\d+/g, '$1');
+}

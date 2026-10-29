@@ -969,3 +969,23 @@ table.grid2d td.hot { background: var(--orange); color: #fff; font-weight: 700; 
 li > * + :is(pre, .scroll-x, .tbl-wrap, table, figure, .fig), li > :is(pre, .scroll-x, .tbl-wrap, table, figure, .fig) + * { margin-top: 0.75rem; }
 :not(.flow):not(.sub) > * + .console { margin-top: 0.75rem; }
 .fig > :is(.gfig, .tree-fig, table, .tbl-wrap, .scroll-x, svg) + *, .fig > * + :is(table, .tbl-wrap, .scroll-x) { margin-top: 0.75rem; }
+
+/* Search lab (chat 20) */
+.srlab .sr-ctl { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; }
+.srlab .sr-lab { font-weight: 800; display: flex; gap: 0.5rem; align-items: center; }
+.srlab .sr-t { width: 5rem; font: inherit; font-family: var(--font-mono); padding: 0.45rem 0.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--card); color: var(--ink); }
+.srlab .sr-modes .btn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.srlab .sr-try { margin-top: 0.6rem; color: var(--ink-soft); }
+.srlab .sr-chip { font: inherit; font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 999px; padding: 0.15rem 0.6rem; margin: 0.15rem 0.1rem; cursor: pointer; appearance: none; }
+.srlab .sr-err { color: var(--red-pen); min-height: 1.3em; margin-top: 0.3rem; }
+.srlab .sr-pic svg { display: block; width: 100%; max-width: 26rem; height: auto; margin: 0 auto; }
+.srlab .sr-say { min-height: 4.8em; margin-top: 0.4rem; }
+.srlab .sr-cmp { min-height: 2.8em; color: var(--teal-ink); margin-top: 0.3rem; }
+.srlab .sr-nav { align-items: center; justify-content: center; gap: 0.6rem; margin-top: 0.5rem; flex-wrap: nowrap; }
+.srlab .sr-nav .btn { white-space: nowrap; }
+.srlab .legend i { display: inline-block; width: 0.9rem; height: 0.9rem; border: 2px solid var(--ink); vertical-align: -2px; margin-right: 0.25rem; }
+.srlab .legend .sr-l-cur { background: #e8662e; border-color: #b4461a; }
+.srlab .legend .sr-l-chk { background: #d7ece9; border-color: #0e6b63; }
+.srlab .legend .sr-l-out { background: #eef2f2; border: 2px dashed #9aa8aa; }
+.srlab .legend .sr-l-found { background: #2e7d4f; border-color: #1f5a38; }
+svg.objbox.search-pic { max-width: 26rem; }

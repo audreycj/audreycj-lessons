@@ -1,0 +1,488 @@
+---
+import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import StepShow from '../../components/StepShow.astro';
+import SearchLab from '../../components/SearchLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import TryIt from '../../components/TryIt.astro';
+import Peek from '../../components/Peek.astro';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+import { searchHook } from '../../lib/illus.js';
+import { linearCode, linearWalk, binaryCode, binaryWalk, binaryHand, halvingPic, earlyReturnPic, unsortedPic, jumpPic } from '../../lib/search.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const defBox = (t, b) => `<div class="def"><p class="note-label">${t}</p><p>${b}</p></div>`;
+const guessPeek = defBox('The guessing game (from the Introduction)', 'Guess a secret number from 1 to 100. After each guess you hear "too low" or "too high". Guessing the <b>middle</b> each time throws away half of what is left, so you never need more than 7 guesses. Guessing 1, 2, 3, … could take 100.');
+const intDivPeek = defBox('Dividing two ints (from the Programming refresher)', 'When both numbers are <code>int</code>s, <code>/</code> drops the decimal part: <code>7 / 2</code> gives 3, and <code>11 / 2</code> gives 5.');
+const accessPeek = defBox('Access (from the Arrays lesson)', 'An array reaches any slot in <b>one step</b>, because its slots sit side by side and Java can compute where slot <code>i</code> is. A linked list must walk from <code>head</code>, one link at a time.');
+
+const badLinear = String.raw`for (int i = 0; i < arr.length; i++) {
+  if (arr[i] == target) {
+    return i;
+  } else {
+    return -1;        // gives up too early!
+  }
+}
+return -1;`;
+const badLoop = String.raw`while (low < high) {        // should be <=
+  int mid = (low + high) / 2;
+  ...
+}`;
+const badMove = String.raw`} else if (arr[mid] < target) {
+  low = mid;                  // should be mid + 1
+}`;
+const full = String.raw`public class Main {
+  static int linearSearch(int[] arr, int target) {
+    for (int i = 0; i < arr.length; i++) {
+      if (arr[i] == target) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  static int binarySearch(int[] arr, int target) {
+    int low = 0;
+    int high = arr.length - 1;
+    while (low <= high) {
+      int mid = (low + high) / 2;
+      if (arr[mid] == target) {
+        return mid;
+      } else if (arr[mid] < target) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+    return -1;
+  }
+
+  public static void main(String[] args) {
+    int[] pile = {42, 17, 8, 93, 25, 61};
+    System.out.println(linearSearch(pile, 93));   // 3
+    System.out.println(linearSearch(pile, 50));   // -1
+
+    int[] sorted = {4, 9, 15, 21, 27, 34, 42, 56, 63, 71, 80, 88};
+    System.out.println(binarySearch(sorted, 71)); // 9
+    System.out.println(binarySearch(sorted, 20)); // -1
+  }
+}`;
+const builtIn = String.raw`import java.util.Arrays;
+
+public class Main {
+  public static void main(String[] args) {
+    int[] arr = {56, 4, 88, 21, 71, 9};
+    Arrays.sort(arr);                                 // put it in order first
+    System.out.println(Arrays.toString(arr));         // [4, 9, 21, 56, 71, 88]
+    System.out.println(Arrays.binarySearch(arr, 71)); // 4
+    System.out.println(Arrays.binarySearch(arr, 20)); // -3 (negative: not found)
+  }
+}`;
+const bugTask = String.raw`int[] arr = {4, 9, 15};
+int low = 0, high = 2;
+while (low < high) {
+  int mid = (low + high) / 2;
+  if (arr[mid] == 15) {
+    System.out.println("found at " + mid);
+    break;
+  } else if (arr[mid] < 15) {
+    low = mid + 1;
+  } else {
+    high = mid - 1;
+  }
+}`;
+const starter = String.raw`public class Main {
+  static int countOf(int[] arr, int target) {
+    int count = 0;
+    // YOUR CODE: look at every value in arr,
+    // and add 1 to count when it equals target.
+
+    return count;
+  }
+
+  public static void main(String[] args) {
+    int[] votes = {3, 1, 3, 2, 3, 1};
+    System.out.println(countOf(votes, 3));   // expected: 3
+    System.out.println(countOf(votes, 2));   // expected: 1
+    System.out.println(countOf(votes, 5));   // expected: 0
+  }
+}`;
+const answer = String.raw`static int countOf(int[] arr, int target) {
+  int count = 0;
+  for (int i = 0; i < arr.length; i++) {
+    if (arr[i] == target) {
+      count++;
+    }
+  }
+  return count;
+}`;
+
+const quiz = [
+  { q: 'In this lesson, what do <code>linearSearch</code> and <code>binarySearch</code> give back when the target is <b>not</b> in the array?', opts: ['0', '-1', 'The last index', 'null'], a: 1, why: 'No array has an index of -1, so <b>-1</b> can never be mistaken for a real position. 0 would be wrong: it is the first slot.' },
+  { q: 'Linear search on an array of 50 values. The target is not there. How many checks?', opts: ['1', '25', '50', '6'], a: 2, why: 'Linear search has to look at <b>every</b> value before it can say "not found": 50 checks.' },
+  { q: 'Which search only works when the values are sorted?', opts: ['Linear search', 'Binary search', 'Both', 'Neither'], a: 1, why: '<b>Binary search</b> throws away half because it knows all smaller values are on the left. On unsorted data, that guess is wrong. Linear search works on any order.' },
+  { q: 'In <code>{4, 9, 15, 21, 27, 34, 42, 56, 63, 71, 80, 88}</code>, which index does binary search check first?', opts: ['0', '5', '6', '11'], a: 1, why: '<code>mid = (0 + 11) / 2</code>. With ints, 11 / 2 is 5 (the decimal part is dropped). <code>arr[5]</code> is 34.' },
+  { q: 'low is 3 and high is 4. What is mid?', opts: ['3', '3.5', '4', '7'], a: 0, why: '(3 + 4) / 2 = 7 / 2 = <b>3</b> with ints: the .5 is dropped, so mid rounds down.' },
+  { q: 'About how many checks does binary search need, at most, for 1,000,000 sorted values?', opts: ['About 20', 'About 1,000', 'About 500,000', '1,000,000'], a: 0, why: 'Each check halves what is left. Halving 1,000,000 about 20 times gets you down to 1, so at most <b>20 checks</b>.' },
+  { q: '<code>arr[mid]</code> is <b>smaller</b> than the target. What does binary search do next?', opts: ['high = mid - 1', 'low = mid + 1', 'return -1', 'Check mid again'], a: 1, why: 'The target is bigger, so it can only be to the <b>right</b> of mid: <code>low = mid + 1</code>. Index mid itself is done, so the +1 skips it.' },
+  { q: 'Why is binary search a poor fit for a linked list?', opts: ['Linked lists cannot be sorted', 'Reaching the middle node means walking from head, which takes many steps', 'Linked lists have no values', 'Java does not allow it'], a: 1, why: 'Binary search needs to <b>jump</b> to the middle in one step. An array can; a linked list must walk link by link, so the speed advantage is gone.' },
+];
+---
+<Base title="Linear and Binary Search · ITC 120" description="Linear search and binary search: by hand, step by step, and in Java, with how many checks each one needs." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Midterm › Searching</p>
+    <p class="kicker">Searching algorithms · Lesson 1 of 1</p>
+    <h1>Linear and Binary Search</h1>
+    <KindChips />
+    <p class="lede">Two ways to find one value among many: check one by one, or keep cutting the list in half.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>explain what a search algorithm does, and what <b>target</b>, <b>found</b>, and <b>-1</b> mean;</li>
+        <li>trace linear search and binary search by hand, writing every check in a table;</li>
+        <li>read, fix, and complete linear and binary search in Java;</li>
+        <li>compare how many checks each one needs, and choose the right one for a situation.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson (index, traversal), the <a href={base + '/itc120/programming-refresher/'}>Programming refresher</a> (loops, <code>else if</code>, methods), and scratch paper.</p>
+  </header>
+
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The idea</p>
+      <h2>Finding one thing among many</h2>
+    </div>
+    <div class="flow">
+      <p>Every day, programs find one thing among thousands: your record in the enrollment system, a name in your phone's contacts, a product from its barcode. The steps a program follows to find it are called a <b>search algorithm</b>.</p>
+      <p>Picture two ways to find a classmate named Mia:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={searchHook()} /><figcaption>A pile in no order must be checked one by one. A list in A-to-Z order lets you open the middle and throw away half.</figcaption></figure>
+      <div class="def"><p class="note-label">Search algorithm</p><p>A <b>search algorithm</b> is an algorithm (a step-by-step process) for finding <b>where</b> a value is in a collection of data, or for finding out that it is <b>not there</b>.</p></div>
+      <p>Here are the words that come with searching:</p>
+      <table class="tbl">
+        <thead><tr><th>Word</th><th>Meaning</th><th>With Mia</th></tr></thead>
+        <tbody>
+          <tr><td><b>target</b></td><td>the value we are looking for</td><td>Mia</td></tr>
+          <tr><td><b>check</b></td><td>looking at one value and comparing it with the target</td><td>reading one form</td></tr>
+          <tr><td><b>found</b></td><td>the target is there; the search gives back its index (its position)</td><td>"Mia is the 4th form"</td></tr>
+          <tr><td><b>not found</b></td><td>the target is not there; our searches give back <b>-1</b></td><td>"no form for Mia"</td></tr>
+        </tbody>
+      </table>
+      <p>Why -1? It can never be a real index (indexes start at 0), so nobody can mistake it for a position.</p>
+      <p>This lesson teaches the two basic searches. <b>Linear search</b> checks one value after another, like the pile. <b>Binary search</b> keeps checking the middle and throwing away half, like the class list. You already played binary search: it is <Peek label="the guessing game from the Introduction" title="From the Introduction" html={guessPeek} />.</p>
+      <div class="remember">
+        <p class="note-label">Where you see searching in IT</p>
+        <ul>
+          <li><b>Ctrl+F</b> in a document or web page: it reads the text from the start, like linear search.</li>
+          <li><b>Contacts on your phone</b> are kept in A-to-Z order, so a program can find a name quickly.</li>
+          <li>A <b>registrar or library system</b> looking up a student number or a book's call number.</li>
+        </ul>
+        <p class="small muted">These illustrate the two ideas. Big systems often use the faster structures you will meet later, such as binary search trees.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="linear">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Search 1</p>
+      <h2>Linear search: one by one</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Linear search</p><p><b>Linear search</b> (also called <b>sequential search</b>) checks the values one at a time, from the first to the last, until it finds the target or runs out of values. It works on <b>any</b> list, sorted or not.</p></div>
+      <p>By hand, it follows four steps:</p>
+      <ol>
+        <li>Start at index 0.</li>
+        <li>Check the value there. If it equals the target: <b>found</b>. Give back this index and stop.</li>
+        <li>If not, move to the next index and go back to step 2.</li>
+        <li>If there are no values left: <b>not found</b>. Give back -1.</li>
+      </ol>
+      <p>In Java, it is a loop with an early <code>return</code>. Step through it on a small array in no order, looking for 93:</p>
+      <CodeWalk id="cw-linear" code={linearCode} steps={linearWalk()} cap="Walkthrough: linearSearch(arr, 93)" hint="Use Next to go step by step, or tap a line to jump to it." />
+      <p>Here is how to read the important lines aloud:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+        <tbody>
+          <tr><td><code>static int linearSearch(int[] arr, int target)</code></td><td>"a method that takes an array of ints and the value to find, and gives back an <code>int</code>": the index.</td></tr>
+          <tr><td><code>return i;</code></td><td>"give back this index now." The loop and the method stop right here.</td></tr>
+          <tr><td><code>return -1;</code></td><td>"give back -1." Java only reaches this line if the loop ended without finding the target.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="sub">
+        <h3>How many checks?</h3>
+        <p>It depends on where the target is. These two words describe the extremes:</p>
+        <table class="tbl">
+          <thead><tr><th>Case</th><th>When it happens</th><th>Checks, for n values</th></tr></thead>
+          <tbody>
+            <tr><td><b>Best case</b></td><td>the target is the first value</td><td>1</td></tr>
+            <tr><td><b>Worst case</b></td><td>the target is the last value, or not there at all</td><td>n (every value)</td></tr>
+          </tbody>
+        </table>
+        <p>For 6 values, that is at most 6 checks. For 1,000,000 values, it could be 1,000,000.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake: giving up after the first check</p>
+        <p><b>Situation:</b> a student puts <code>return -1;</code> in an <code>else</code> inside the loop:</p>
+        <pre class="code"><code set:html={hi(badLinear)} /></pre>
+        <figure class="fig illus-fig"><Fragment set:html={earlyReturnPic()} /><figcaption>The first check says "no", and the <code>else</code> returns -1 at once. 17, 8, 93, 25, and 61 are never checked.</figcaption></figure>
+        <p><b>What goes wrong:</b> one "no" does not mean "not found". The method stops at index 0 every time, so it only works when the target happens to be first.</p>
+        <p><b>Fix:</b> remove the <code>else</code>. Only return -1 <b>after</b> the loop, when every value has said "no".</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="binary">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Search 2</p>
+      <h2>Binary search by hand</h2>
+    </div>
+    <div class="flow">
+      <p>Linear search never uses the order of the values. When the values are <b>sorted</b> (in order, smallest to largest), one check can tell us much more: if the middle value is too small, everything to its left is too small too.</p>
+      <div class="def"><p class="note-label">Binary search</p><p><b>Binary search</b> finds a target in a <b>sorted</b> list. It checks the <b>middle</b> value. If that is the target, it is done. If the target is smaller, it throws away the right half; if the target is larger, it throws away the left half. It repeats on the half that is left until it finds the target or nothing is left. ("Binary" means "in two": each check splits the list in two.)</p></div>
+      <p>Three numbers keep track of the part that is still possible:</p>
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>low</code></td><td>the first index that is still possible (starts at 0)</td></tr>
+          <tr><td><code>high</code></td><td>the last index that is still possible (starts at the last index)</td></tr>
+          <tr><td><code>mid</code></td><td>the middle index: <code>(low + high) / 2</code>, rounded down</td></tr>
+        </tbody>
+      </table>
+      <p>"Rounded down" is just how Java <Peek label="divides two ints" title="From the Programming refresher" html={intDivPeek} />: <code>(0 + 11) / 2</code> is 5, not 5.5.</p>
+      <div class="plain">
+        <p class="note-label">Course convention</p>
+        <p>In this course, <code>mid</code> always rounds <b>down</b>, as Java does. A few books round up instead; that changes which values are checked, so use rounding down on our quizzes and exams.</p>
+      </div>
+      <p>The steps, by hand:</p>
+      <ol>
+        <li>Set <code>low</code> = 0 and <code>high</code> = the last index.</li>
+        <li>While <code>low</code> ≤ <code>high</code>: find <code>mid</code> and check the value there.
+          <ul>
+            <li>Equal to the target: <b>found</b>. Give back <code>mid</code>.</li>
+            <li>Smaller than the target: the target is to the right. Set <code>low</code> = <code>mid</code> + 1.</li>
+            <li>Bigger than the target: the target is to the left. Set <code>high</code> = <code>mid</code> - 1.</li>
+          </ul>
+        </li>
+        <li>If <code>low</code> passes <code>high</code>, nothing is left: <b>not found</b>. Give back -1.</li>
+      </ol>
+      <StepShow id="show-bin71" cap="Binary search for 71, by hand" steps={binaryHand()} />
+      <p>On paper (and on exams), write one row per check:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>low</th><th>high</th><th>mid</th><th>arr[mid]</th><th>Then</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>11</td><td>5</td><td>34</td><td>34 &lt; 71: low = 6</td></tr>
+          <tr><td>6</td><td>11</td><td>8</td><td>63</td><td>63 &lt; 71: low = 9</td></tr>
+          <tr><td>9</td><td>11</td><td>10</td><td>80</td><td>80 &gt; 71: high = 9</td></tr>
+          <tr><td>9</td><td>9</td><td>9</td><td>71</td><td>found: return 9</td></tr>
+        </tbody>
+      </table></div>
+      <p>4 checks. Linear search would have needed 10 (indexes 0 to 9).</p>
+      <div class="trap">
+        <p class="note-label">Mistake: binary search on unsorted data</p>
+        <p><b>Situation:</b> a student runs binary search on <code>{'{'}30, 10, 50, 20, 40{'}'}</code>, looking for 20.</p>
+        <figure class="fig illus-fig"><Fragment set:html={unsortedPic()} /><figcaption>The values are not in order, so "20 &lt; 50" does not mean 20 is on the left. The search throws away the half that holds 20.</figcaption></figure>
+        <p><b>What goes wrong:</b> binary search trusts the order. Without it, throwing away half can throw away the target, so the answer is wrong (-1) even though 20 is there.</p>
+        <p><b>Fix:</b> sort the values first, or use linear search.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Try it</p>
+      <h2>The search lab</h2>
+    </div>
+    <div class="flow">
+      <p>Run both searches on the same sorted array and count the checks. Try 71, then 4 (the first value: which search wins now?), then 88, then a number that is not there.</p>
+      <SearchLab id="lab-search" />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · In code</p>
+      <h2>Binary search in Java</h2>
+    </div>
+    <div class="flow">
+      <p>Each step of the by-hand rule becomes one or two lines. Step through it looking for 20, which is <b>not</b> in the array, to see how the method knows when to stop:</p>
+      <CodeWalk id="cw-binary" code={binaryCode} steps={binaryWalk()} cap="Walkthrough: binarySearch(arr, 20)" hint="Use Next to go step by step, or tap a line to jump to it." />
+      <p>Here is how to read the key lines aloud:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+        <tbody>
+          <tr><td><code>while (low &lt;= high)</code></td><td>"while there is at least one index left to check."</td></tr>
+          <tr><td><code>int mid = (low + high) / 2;</code></td><td>"the middle index, rounded down."</td></tr>
+          <tr><td><code>low = mid + 1;</code></td><td>"the target is to the right of mid; mid itself is already checked."</td></tr>
+          <tr><td><code>high = mid - 1;</code></td><td>"the target is to the left of mid."</td></tr>
+        </tbody>
+      </table></div>
+      <div class="sub">
+        <h3>Both searches in one program</h3>
+        <p>Here is everything in one runnable file. Run it and match each output line to its comment:</p>
+        <pre class="code"><code set:html={hiN(full)} /></pre>
+        <TryIt />
+      </div>
+      <div class="trap">
+        <p class="note-label">Two common bugs in binary search</p>
+        <ol class="flow">
+          <li><b><code>&lt;</code> instead of <code>&lt;=</code>.</b>
+            <pre class="code"><code set:html={hi(badLoop)} /></pre>
+            When only one index is left, <code>low</code> equals <code>high</code>, and <code>low &lt; high</code> is false, so that last value is never checked. Searching for 15 in <code>{'{'}4, 9, 15{'}'}</code> returns -1 even though 15 is there.</li>
+          <li><b><code>low = mid</code> instead of <code>low = mid + 1</code>.</b>
+            <pre class="code"><code set:html={hi(badMove)} /></pre>
+            With <code>{'{'}4, 9{'}'}</code> and target 9: <code>mid</code> = 0, 4 &lt; 9, so <code>low</code> = 0 again. Nothing changes, and the loop runs <b>forever</b>. The +1 (and -1) make the part that is left smaller every time.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="compare">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Why this matters</p>
+      <h2>Which search is faster?</h2>
+    </div>
+    <div class="flow">
+      <p>Count the checks in the worst case (the target is not there):</p>
+      <table class="tbl">
+        <thead><tr><th>Number of values</th><th>Linear search</th><th>Binary search</th></tr></thead>
+        <tbody>
+          <tr><td>10</td><td>10 checks</td><td>4 checks</td></tr>
+          <tr><td>100</td><td>100 checks</td><td>7 checks</td></tr>
+          <tr><td>1,000</td><td>1,000 checks</td><td>10 checks</td></tr>
+          <tr><td>1,000,000</td><td>1,000,000 checks</td><td>20 checks</td></tr>
+        </tbody>
+      </table>
+      <figure class="fig illus-fig illus"><Fragment set:html={halvingPic()} /><figcaption>Each check throws away half. That is why the binary column grows so slowly.</figcaption></figure>
+      <p>Look at the binary column: every time the number of values doubles, binary search needs only <b>one more</b> check. Linear search needs twice as many.</p>
+      <p>So is binary search always better? No. It has two conditions:</p>
+      <ol>
+        <li><b>The values must be sorted.</b> Sorting takes work too (that is what the sorting lessons are about). If a list is searched only once, sorting it first can cost more than a simple linear search.</li>
+        <li><b>It needs to jump to the middle in one step</b>, which an array can do but a linked list cannot (see <Peek label="access" title="From the Arrays lesson" html={accessPeek} />).</li>
+      </ol>
+      <figure class="fig illus-fig illus"><Fragment set:html={jumpPic()} /><figcaption>In an array, the middle is one step away. In a linked list, you must walk there.</figcaption></figure>
+      <p>Here is how to choose:</p>
+      <table class="tbl">
+        <thead><tr><th>Situation</th><th>Better choice</th></tr></thead>
+        <tbody>
+          <tr><td>A short list, or a list in no order that you search once</td><td>Linear search</td></tr>
+          <tr><td>A linked list</td><td>Linear search</td></tr>
+          <tr><td>A big sorted array that is searched many times (student numbers, a price list)</td><td>Binary search</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted">Good to know: books describe this growth with short names. Linear search is <b>O(n)</b> ("order n": the work grows with the number of values). Binary search is <b>O(log n)</b> ("order log n": the work grows with how many times you can halve n). You will see these names again when the course analyzes algorithms.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="builtin">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Java's own tools</p>
+      <h2>Searching with Java's <code>Arrays</code></h2>
+    </div>
+    <div class="flow">
+      <p>In real programs, you rarely write binary search yourself: Java already has it. <code>Arrays.sort</code> puts an array in order, and <code>Arrays.binarySearch</code> searches it. Both live in <code>java.util.Arrays</code>, so the file starts with an <code>import</code> line that tells Java where to find them.</p>
+      <pre class="code"><code set:html={hiN(builtIn)} /></pre>
+      <TryIt />
+      <p>Two things to notice:</p>
+      <ul>
+        <li><code>Arrays.binarySearch</code> also needs a <b>sorted</b> array. On an unsorted array, its answer cannot be trusted (like the unsorted-data mistake in Part 3).</li>
+        <li>When the target is missing, it gives back a <b>negative</b> number, but not always -1 (here, -3). Check for "less than 0", not "equal to -1".</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Your turn</p>
+      <h2>Practice</h2>
+    </div>
+    <div class="flow">
+      <div class="paper flow">
+        <p class="note-label">On paper</p>
+        <ol class="flow">
+          <li>Linear search on <code>{'{'}12, 5, 30, 7, 19{'}'}</code>. (a) Looking for 7: what does it return, and after how many checks? (b) Looking for 40?</li>
+          <li>Binary search on <code>{'{'}2, 6, 11, 17, 23, 29, 35, 40, 48, 52{'}'}</code> (indexes 0 to 9). Fill in a low / high / mid / arr[mid] / Then table for (a) target 11 and (b) target 50. The first row of (a) is done for you:
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>low</th><th>high</th><th>mid</th><th>arr[mid]</th><th>Then</th></tr></thead>
+              <tbody><tr><td>0</td><td>9</td><td>4</td><td>23</td><td>23 &gt; 11: high = 3</td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></tbody>
+            </table></div>
+          </li>
+          <li>Spot the bug. This code should print "found at 2". What does it print, and which line is wrong?
+            <pre class="code"><code set:html={hiN(bugTask)} /></pre>
+          </li>
+          <li>Linear or binary? (a) 30 names in sign-up order, searched once. (b) 50,000 student numbers kept sorted, searched all day by the registrar. (c) A linked list of songs in a playlist.</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <p class="small muted">For self-study, not for grading. All answers were checked by running the code in Java.</p>
+          <ol class="flow">
+            <li>(a) Returns <b>3</b> after <b>4</b> checks (12, 5, 30, 7). (b) Returns <b>-1</b> after <b>5</b> checks: every value had to be checked.</li>
+            <li>(a) Target 11:
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>low</th><th>high</th><th>mid</th><th>arr[mid]</th><th>Then</th></tr></thead>
+                <tbody>
+                  <tr><td>0</td><td>9</td><td>4</td><td>23</td><td>23 &gt; 11: high = 3</td></tr>
+                  <tr><td>0</td><td>3</td><td>1</td><td>6</td><td>6 &lt; 11: low = 2</td></tr>
+                  <tr><td>2</td><td>3</td><td>2</td><td>11</td><td>found: return 2</td></tr>
+                </tbody>
+              </table></div>
+              (b) Target 50:
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>low</th><th>high</th><th>mid</th><th>arr[mid]</th><th>Then</th></tr></thead>
+                <tbody>
+                  <tr><td>0</td><td>9</td><td>4</td><td>23</td><td>23 &lt; 50: low = 5</td></tr>
+                  <tr><td>5</td><td>9</td><td>7</td><td>40</td><td>40 &lt; 50: low = 8</td></tr>
+                  <tr><td>8</td><td>9</td><td>8</td><td>48</td><td>48 &lt; 50: low = 9</td></tr>
+                  <tr><td>9</td><td>9</td><td>9</td><td>52</td><td>52 &gt; 50: high = 8</td></tr>
+                  <tr><td>9</td><td>8</td><td>—</td><td>—</td><td>low &gt; high: return -1</td></tr>
+                </tbody>
+              </table></div>
+            </li>
+            <li>It prints <b>nothing</b>. Line 3 should be <code>while (low &lt;= high)</code>. After the first check, <code>low</code> becomes 2 and <code>high</code> is 2: one value is left, but <code>2 &lt; 2</code> is false, so 15 is never checked.</li>
+            <li>(a) <b>Linear</b>: short, in no order, searched once. (b) <b>Binary</b>: big, sorted, searched many times. (c) <b>Linear</b>: a linked list cannot jump to its middle.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Your coding task: count the votes</p>
+        <p>In a class election, each vote is a candidate's number. Finish <code>countOf</code> so it returns how many times <code>target</code> appears in the array. It is linear search that keeps going after a match, and counts. Write about 5 lines where it says YOUR CODE, then run it: the three printed numbers must match the comments.</p>
+        <pre class="code"><code set:html={hiN(starter)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(answer)} /></pre>
+          <p>Output: <code>3</code>, <code>1</code>, <code>0</code>. There is no early <code>return</code> here: to count every match, the loop must visit every value.</p>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 9 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-search" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>A search gives back the target's index, or -1 when it is not there.</li>
+          <li>Linear search checks one value after another. It works on any order, but may need every value (n checks).</li>
+          <li>Binary search checks the middle and throws away half. It needs <b>sorted</b> data and an array, and needs only about 20 checks for 1,000,000 values.</li>
+          <li>In Java: <code>while (low &lt;= high)</code>, <code>mid = (low + high) / 2</code>, then <code>low = mid + 1</code> or <code>high = mid - 1</code>.</li>
+          <li>Java's <code>Arrays.binarySearch</code> does it for you, on a sorted array.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/trees/'}>Trees and binary trees</a>. Later, a binary search <b>tree</b> uses the same halving idea, without needing a sorted array.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. Bhargava, <i>Grokking Algorithms</i>. Manning, 2016, Chapter 1 (binary search).</li>
+          <li>R. Sedgewick and K. Wayne, <i>Algorithms</i>, 4th ed. Addison-Wesley, 2011, Section 1.1 (binary search). <a href="https://algs4.cs.princeton.edu/11model/">algs4.cs.princeton.edu</a></li>
+          <li>Programiz, "Linear Search" and "Binary Search." <a href="https://www.programiz.com/dsa/linear-search">programiz.com/dsa</a></li>
+          <li>Oracle, "Class Arrays," Java SE 21 API (sort, binarySearch). <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Arrays.html">docs.oracle.com</a></li>
+          <li>ITC 120 Course Syllabus (Search Algorithms), Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
