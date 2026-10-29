@@ -5,7 +5,7 @@ import LinkedLab from '../../components/LinkedLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import { course } from '../../data/itc120.js';
 import { hi, hiN } from '../../lib/code.js';
-import { llDefPic, llHuntPic, llBrigadePic, llWeakPic, llNewPic, llDrivePic, llWalkPic, llNullPic, llBarsPic, llSkipPic, llStreetPic, llRoadsPic, llKindsPic, llFrontCode, llFrontSteps, llSwapCode, llSwapSteps, llAfterCode, llAfterSteps, llBypassCode, llBypassSteps, llStuckCode, llStuckSteps } from '../../lib/illus.js';
+import { llDefPic, llHuntPic, llTrainPic, llWeakPic, llNewPic, llNamesPic, llAccessPic, llTravPic, llCircPic, llNullPic, llBarsPic, llTrainSkipPic, llStreetPic, llRoadsPic, llKindsPic, llFrontCode, llFrontSteps, llSwapCode, llSwapSteps, llAfterCode, llAfterSteps, llBypassCode, llBypassSteps, llStuckCode, llStuckSteps } from '../../lib/illus.js';
 import CodeWalk from '../../components/CodeWalk.astro';
 import TryIt from '../../components/TryIt.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -174,7 +174,7 @@ const quiz = [
         <figure class="fig illus-fig illus"><Fragment set:html={llHuntPic()} /><figcaption>Follow the clues in order. You cannot skip to clue 4.</figcaption></figure>
       </div>
       <p>Here is the same sequence, organized two ways:</p>
-      <figure class="fig illus-fig illus"><Fragment set:html={llBrigadePic()} /><figcaption>A seat plan jumps straight to a seat. A text brigade passes the message along.</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={llTrainPic()} /><figcaption>A seat plan jumps straight to a seat. A train is walked car by car.</figcaption></figure>
       <table class="tbl">
         <thead><tr><th>Array</th><th>Linked list</th></tr></thead>
         <tbody>
@@ -212,14 +212,14 @@ const quiz = [
       <div class="sub">
         <h3>Assignment copies the reference, not the node</h3>
         <pre class="code"><code set:html={hi(same)} /></pre>
-        <figure class="fig illus-fig illus"><Fragment set:html={llDrivePic()} /><figcaption><code>Node b = a;</code> copies the link, not the file.</figcaption></figure>
-        <p><code>Node b = a;</code> does <b>not</b> make a new node. It gives the same node a second name. Like two people with the same Google Drive link: if one edits the file, the other sees the change. Compare <code>Node b = new Node(5);</code>, which makes a separate node: changing <code>b.data</code> would not touch <code>a.data</code>.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={llNamesPic()} /><figcaption>Same node, two names vs. two separate nodes. The shirt number is the data.</figcaption></figure>
+        <p><code>Node b = a;</code> does <b>not</b> make a new node. It gives the same node a second name. Like a classmate with two names, Migs and Miguel: if Migs gets a new shirt number, Miguel has it too, because they are the same person. Compare <code>Node b = new Node(5);</code>, which makes a separate node: changing <code>b.data</code> would not touch <code>a.data</code>.</p>
         <p>The dot in <code>b.data</code> means "the <code>data</code> field of the node that <code>b</code> refers to."</p>
       </div>
       <div class="sub">
         <h3>Connecting two nodes</h3>
         <pre class="code"><code set:html={hi(link)} /></pre>
-        <div class="mini-ll" aria-label="ten refers to node 10, which points to node 20, which points to null"><b>10</b>→<b>20</b>→<i>null</i></div>
+        <div class="mini-ll" style="margin-block:1.6rem" aria-label="ten refers to node 10, which points to node 20, which points to null"><b>10</b>→<b>20</b>→<i>null</i></div>
         <p><code>ten.next</code> now stores a reference to node 20, not the number 20. The number is <code>ten.next.data</code>.</p>
       </div>
       <div class="trap">
@@ -239,7 +239,7 @@ const quiz = [
         <p class="note-label">Access and traversal</p>
         <p><b>Access</b> means getting one item. <b>Traversal</b> means visiting every item, one by one, in order. You met both in the Arrays lesson. In a linked list, both start at <code>head</code> and follow the <code>next</code> links.</p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={llWalkPic()} /><figcaption>Access stops early. Traversal goes all the way to null.</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={llTravPic()} /><figcaption>Traversal visits every node, then stops at null.</figcaption></figure>
       <p>This code builds the list 10 → 20 → 30 and prints it. We keep the name <code>twenty</code> for node 20, so later steps can use it without searching.</p>
       <pre class="code"><code set:html={hi(build)} /></pre>
       <p>Here is <code>printList</code>:</p>
@@ -268,7 +268,8 @@ const quiz = [
         <p>In <code>current != null</code>, <code>null</code> is a <b>reference value</b>: "no node." In <code>System.out.println("null")</code>, it is just <b>text</b> in quotation marks that the program prints.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={llNullPic()} /><figcaption>Same word, two jobs.</figcaption></figure>
       </div>
-      <p><b>Access</b> is the same walk, stopped early: to get the third node, start at <code>head</code> and follow two links. An array reaches <code>arr[2]</code> in one step. A linked list walks.</p>
+      \1
+      <figure class="fig illus-fig illus"><Fragment set:html={llAccessPic()} /><figcaption>Access stops at the node it needs.</figcaption></figure>
     </div>
   </section>
 
@@ -327,7 +328,7 @@ const quiz = [
     <div class="flow">
       <div class="sub">
         <h3>Delete the node after another one</h3>
-        <figure class="fig illus-fig illus"><Fragment set:html={llSkipPic()} /><figcaption>Deleting is like a text brigade skipping someone.</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={llTrainSkipPic()} /><figcaption>Deleting is like unhooking a train car.</figcaption></figure>
         <p>Start with 10 → 20 → 25 → 30. To delete 25, we need a reference to the node <b>before</b> it, because a singly linked list cannot go backward. <code>previous</code> refers to node 20:</p>
         <CodeWalk id="cw-ll-bypass" code={llBypassCode} steps={llBypassSteps()} cap="Walkthrough: delete the node after 20" hint="Use Next to go step by step, or tap a line to jump to it." />
         <p>Read it piece by piece: <code>previous.next</code> is node 25. <code>previous.next.next</code> is node 25's next, which is node 30. Storing that in <code>previous.next</code> makes 20 point to 30. Node 25 is no longer reachable from <code>head</code>, so it is no longer in the list. Nothing else moves.</p>
@@ -402,6 +403,7 @@ const quiz = [
       <div class="trap">
         <p class="note-label">Circular is not a third number of links</p>
         <p>"Circular" describes the <b>loop</b>, not how many links each node has. A circular list can be singly or doubly linked. A playlist on repeat with Next and Previous is <b>circular doubly linked</b>.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={llCircPic()} /><figcaption>Circular singly and circular doubly: both loop back.</figcaption></figure>
       </div>
     </div>
   </section>

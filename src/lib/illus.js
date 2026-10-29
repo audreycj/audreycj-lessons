@@ -2745,7 +2745,7 @@ const rDefs = '<defs>' + [['k', '#1b2a2e'], ['r', '#b23a33'], ['o', '#e8662e'], 
 const rC = { k: '#1b2a2e', r: '#b23a33', o: '#e8662e', t: '#0e6b63' };
 const R = { D: 36, N: 20, H: 40 };
 const rW = R.D + R.N;
-const rSlot = (i) => 10 + i * 82;
+const rSlot = (i) => 10 + i * 94;
 const rDot = (x) => x + R.D + R.N / 2;
 const rArrow = (d, c = 'k', w = 2.2, dash) => `<path d="${d}" fill="none" stroke="${rC[c]}" stroke-width="${w}"${dash ? ' stroke-dasharray="5 4"' : ''} marker-end="url(#rm-${c})"/>`;
 const rBox = (x, y, v, o = {}) => {
@@ -2762,26 +2762,6 @@ const rVars = (x, y, names) => names.map(([n, fill], i) => sT(x + R.D / 2, y - 2
 const rPic = (w, h, label, body, cls = 'intro-pic') => `<svg class="objbox ${cls}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">${rDefs}${body}</svg>`;
 const HEAD = '#0b544e', NEW = '#b4461a';
 
-/** Part 1: a linked list, then one node up close. */
-export function llDefPic() {
-  let b = `<rect x="8" y="8" width="324" height="160" rx="10" fill="#fff" stroke="#c9d6d4" stroke-width="1.5"/>`;
-  b += sT(22, 34, 'A linked list', { size: 15, w: 800, fill: HEAD, anchor: 'start' });
-  const y = 86, xs = [22, 104, 186];
-  b += rVars(xs[0], y, [['head', HEAD]]);
-  ['A', 'B', 'C'].forEach((v, i) => { b += rBox(xs[i], y, v, { fill: v === 'B' ? '#fbdccc' : undefined }); if (i < 2) b += rLink(xs[i], xs[i + 1], y); });
-  b += rArrow(`M${rDot(xs[2])} ${y + 20} H${rDot(xs[2]) + 30}`) + sT(rDot(xs[2]) + 36, y + 25, 'null', { mono: true, size: 13, w: 600, fill: '#4f5f62', anchor: 'start' });
-  b += sT(22, 152, 'head: the first node.   null: the end.', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
-  b += `<rect x="8" y="180" width="324" height="170" rx="10" fill="#fdf1ea" stroke="#f0c2a8" stroke-width="1.5"/>`;
-  b += sT(22, 206, 'One node, up close (B)', { size: 15, w: 800, fill: NEW, anchor: 'start' });
-  const bx = 60, by = 226;
-  b += `<rect x="${bx}" y="${by}" width="110" height="52" fill="#fff" stroke="#1b2a2e" stroke-width="2.4"/><rect x="${bx + 110}" y="${by}" width="70" height="52" fill="#fff" stroke="#1b2a2e" stroke-width="2.4"/>`;
-  b += sT(bx + 55, by + 34, 'B', { mono: true, size: 22, w: 700 }) + `<circle cx="${bx + 145}" cy="${by + 26}" r="4.5" fill="#1b2a2e"/>`;
-  b += rArrow(`M${bx + 145} ${by + 26} H${bx + 222}`) + sT(bx + 236, by + 31, 'C', { mono: true, size: 16, w: 700, fill: '#9aa8aa' });
-  b += sT(bx + 55, by + 78, 'data', { mono: true, size: 14, w: 700, fill: HEAD }) + sT(bx + 55, by + 96, 'the value', { size: 12.5, w: 700, fill: '#37474a' });
-  b += sT(bx + 145, by + 78, 'next', { mono: true, size: 14, w: 700, fill: HEAD }) + sT(bx + 145, by + 96, 'where to find', { size: 12.5, w: 700, fill: '#37474a' });
-  b += sT(bx + 145, by + 112, 'the next node', { size: 12.5, w: 700, fill: '#37474a' });
-  return rPic(340, 358, 'Top: a linked list. head refers to the first node, A. A points to B, B points to C, and C points to null, the end. Bottom: node B up close. It has two parts: data, the value B, and next, which tells where to find the next node, C.', b);
-}
 
 export const llFrontCode = String.raw`Node newNode = new Node(5);
 newNode.next = head;   // step 1
@@ -2796,7 +2776,7 @@ export function llFrontSteps() {
     if (st.link) b += rLink(X[0], X[1], y, 'o', { w: 3 }); else b += rNullDown(X[0], y);
     [10, 20, 30].forEach((v, i) => { b += rBox(X[i + 1], y, String(v)); if (i < 2) b += rLink(X[i + 1], X[i + 2], y); });
     b += rNullDown(X[3], y);
-    return rPic(340, 150, alt, b);
+    return rPic(384, 150, alt, b);
   };
   const H = ['head', HEAD], N = ['newNode', NEW];
   return [
@@ -2823,48 +2803,7 @@ const sTitle = (s, y, t, color) => s.text(14, y, t, { font: 'body', size: 14, we
 const sSay = (s, y, t, color = C.soft) => s.text(14, y, t, { font: 'body', size: 12.5, weight: 700, anchor: 'start', color });
 const shrink = (svg) => svg.replace(/(\d+\.\d)\d+/g, '$1');
 
-/** Part 1: seat plan (array) vs text brigade (linked list). */
-export function llBrigadePic() {
-  const s = new Sketch(340, 426, 311);
-  sTitle(s, 22, 'Seat plan: like an array', C.teal);
-  ['Ana', 'Ben', 'Cris', 'Dan'].forEach((n, i) => {
-    const x = 52 + i * 78;
-    s.round(x - 11, 34, 22, 20, 5, { fill: C.butter, sw: 1.3 }); s.text(x, 49, String(i), { font: 'body', size: 13, weight: 800 });
-    kid(s, x, 74, [C.teal, C.orange, C.amber, '#2f6fa8'][i]);
-    s.rect(x - 20, 116, 40, 8, { fill: '#c98a4b', sw: 1.4 }); s.line(x - 16, 124, x - 16, 140, { sw: 1.6 }); s.line(x + 16, 124, x + 16, 140, { sw: 1.6 });
-    s.text(x, 158, n, { font: 'body', size: 13, weight: 800 });
-  });
-  sSay(s, 184, 'Seat 2? Walk straight to it. One step.');
-  s.line(14, 202, 326, 202, { stroke: '#dfe6e4', sw: 1.4, single: true });
-  sTitle(s, 228, 'Text brigade: like a linked list', C.orange);
-  sSay(s, 248, 'The teacher only texts Ana (the head).');
-  const K = [['Ana', C.teal, 'next: Ben'], ['Ben', C.orange, 'next: Cris'], ['Cris', C.amber, 'next: Dan'], ['Dan', '#2f6fa8', 'no next']];
-  K.forEach(([n, col, t], i) => { const x = 44 + i * 84; kid(s, x, 290, col, { name: n }); note(s, x - 38, 364, 76, t, i === 3 ? C.pink : C.butter); });
-  for (let i = 0; i < 3; i++) s.arrow(64 + i * 84, 312, 108 + i * 84, 312, { stroke: C.orange, sw: 2.2, single: true, dash: '6 5' });
-  sSay(s, 414, 'To reach Cris: Ana, then Ben, then Cris. No skipping.');
-  return shrink(s.svg('Top: a seat plan, like an array. Ana, Ben, Cris, and Dan sit on chairs numbered 0 to 3. Seat 2? Walk straight to it, one step. Bottom: a text brigade, like a linked list. The teacher only texts Ana, the head. Ana\'s note says next: Ben; Ben\'s says next: Cris; Cris\'s says next: Dan; Dan has no next. Dashed arrows go Ana to Ben to Cris to Dan.', 'll-pic'));
-}
 
-/** Part 6: Cris leaves the text brigade; only Ben's note changes. */
-export function llSkipPic() {
-  const s = new Sketch(340, 262, 412);
-  sTitle(s, 22, 'Cris transfers to another section', C.orange);
-  kid(s, 36, 92, C.teal, { name: 'Ana' });
-  kid(s, 122, 92, C.orange, { name: 'Ben' });
-  kid(s, 214, 92, C.amber, { name: 'Cris', ghost: true });
-  kid(s, 302, 92, '#2f6fa8', { name: 'Dan' });
-  s.arrow(54, 112, 104, 112, { sw: 2, single: true });
-  s.arrow(232, 112, 284, 112, { sw: 1.6, single: true, stroke: '#9aa8aa', dash: '5 4' });
-  s.curve(136, 64, 292, 64, -34, { stroke: C.orange, sw: 2.6, single: true });
-  s.text(214, 40, 'Ben now texts Dan', { font: 'body', size: 12.5, weight: 800, color: C.orange });
-  s.round(60, 176, 130, 26, 6, { fill: C.butter, sw: 1.3 });
-  s.text(88, 194, 'next:', { font: 'body', size: 12, weight: 800 }); s.text(124, 194, 'Cris', { font: 'body', size: 12, weight: 800, color: C.red });
-  s.line(108, 189, 140, 189, { stroke: C.red, sw: 1.8, single: true }); s.text(166, 194, 'Dan', { font: 'body', size: 12, weight: 800, color: C.teal });
-  s.line(122, 160, 122, 176, { sw: 1.4, single: true });
-  sSay(s, 230, 'Only Ben\'s note changes. Nobody else moves.');
-  sSay(s, 250, 'Cris is out of the brigade: nobody texts Cris now.');
-  return shrink(s.svg('Cris transfers to another section. Ana texts Ben. Ben\'s note changes from next: Cris to next: Dan, so Ben now texts Dan, skipping Cris, who is drawn faded. Only Ben\'s note changes; nobody else moves. Nobody texts Cris now.', 'll-pic'));
-}
 
 /** Safe insert order: monkey bars. */
 export function llBarsPic() {
@@ -2893,37 +2832,11 @@ export function llBarsPic() {
   s.text(254, 110, '!', { font: 'body', size: 22, weight: 800, color: C.red });
   s.line(186, 228, 322, 228, { sw: 2, stroke: '#9b7b55' });
   s.text(254, 246, 'Nothing to hold: you fall.', { font: 'body', size: 12, weight: 800, color: C.red });
-  sSay(s, 282, 'Inserting X between B and C: first X → C (grab),');
-  sSay(s, 302, 'then B → X (let go). Never let go first.');
-  return shrink(s.svg('Monkey bars. Left, correct: a child grabs the next bar first, then lets go of the old one, and stays safe. Right, wrong: a child lets go first and falls, with nothing to hold. Inserting X between B and C: first X points to C (grab), then B points to X (let go). Never let go first.', 'll-pic'));
+  sSay(s, 282, 'Insert 25 between 20 and 30: first 25 → 30 (grab),');
+  sSay(s, 302, 'then 20 → 25 (let go). Never let go first.');
+  return shrink(s.svg('Monkey bars. Left, correct: a child grabs the next bar first, then lets go of the old one, and stays safe. Right, wrong: a child lets go first and falls, with nothing to hold. Inserting 25 between 20 and 30: first 25 points to 30 (grab), then 20 points to 25 (let go). Never let go first.', 'll-pic'));
 }
 
-/** The real cost: house numbers vs directions. */
-export function llStreetPic() {
-  const s = new Sketch(340, 364, 634);
-  const house = (x, y, roof, label) => {
-    s.path(`M${x - 4} ${y + 20} L${x + 22} ${y} L${x + 48} ${y + 20} Z`, { fill: roof, sw: 1.5 });
-    s.rect(x, y + 20, 44, 34, { fill: '#fff', sw: 1.5 });
-    s.rect(x + 16, y + 34, 12, 20, { fill: '#c98a4b', sw: 1.2 });
-    if (label) { s.round(x + 8, y + 22, 28, 12, 3, { fill: C.butter, sw: 1 }); s.text(x + 22, y + 32, label, { font: 'body', size: 10, weight: 800 }); }
-  };
-  sTitle(s, 22, 'With house numbers: like an array', C.teal);
-  [['1', 14], ['2', 70], ['3', 126]].forEach(([n, x]) => house(x, 78, C.pink, n));
-  s.text(204, 120, '…', { font: 'body', size: 20, weight: 800 });
-  house(262, 78, C.orange, '500');
-  s.rect(8, 134, 324, 12, { fill: '#cfd8d6', sw: 1, stroke: '#9aa8aa' });
-  s.curve(36, 70, 282, 70, -36, { stroke: C.teal, sw: 2.6, single: true });
-  s.text(160, 46, 'go straight to #500', { font: 'body', size: 12.5, weight: 800, color: C.teal });
-  sSay(s, 170, 'One trip, no matter how long the street is.');
-  s.line(14, 186, 326, 186, { stroke: '#dfe6e4', sw: 1.4, single: true });
-  sTitle(s, 210, 'With directions only: like a linked list', C.orange);
-  [14, 76, 138, 200].forEach((x, i) => { house(x, 246, C.sky); if (i < 3) { s.curve(x + 36, 244, x + 72, 244, -16, { stroke: C.orange, sw: 2, single: true }); } });
-  s.text(276, 290, '… #500', { font: 'body', size: 14, weight: 800 });
-  [1, 2, 3].forEach((n, i) => s.text(68 + i * 62, 228, String(n), { font: 'body', size: 11.5, weight: 800, color: C.orange }));
-  s.rect(8, 302, 324, 12, { fill: '#cfd8d6', sw: 1, stroke: '#9aa8aa' });
-  sSay(s, 334, 'Each house only says which house is next.'); sSay(s, 352, 'You must ask at every house on the way.');
-  return shrink(s.svg('Top: houses with numbers, like an array: 1, 2, 3, then house 500. You can go straight to number 500 in one trip, no matter how long the street is. Bottom: houses with directions only, like a linked list: each house only says which house is next, so you ask at every house, 1, 2, 3, and so on, until you reach number 500.', 'll-pic'));
-}
 
 /** The three kinds: one-way street, two-way street, loop route. */
 export function llRoadsPic() {
@@ -2952,26 +2865,6 @@ export function llRoadsPic() {
   return shrink(s.svg('Three kinds of linked list as roads. Singly: a one-way street, forward only; to go back, start over from the head. Doubly: a two-way street, next and back, like a photo viewer. Circular: a loop route that comes back to the start; it has no end, so a loop needs a rule for when to stop.', 'll-pic'));
 }
 
-/** Assignment copies the reference: two links, one file. */
-export function llDrivePic() {
-  const s = new Sketch(340, 232, 856);
-  sTitle(s, 22, 'Node b = a;  two links, one file', C.teal);
-  const phone = (x, y, nm, col) => {
-    s.round(x, y, 50, 80, 8, { fill: C.ink, sw: 1.4 }); s.rect(x + 5, y + 10, 40, 58, { fill: '#fff', sw: 1 });
-    s.text(x + 25, y + 34, 'link', { font: 'body', size: 10.5, weight: 800, color: '#2f6fa8' }); s.line(x + 10, y + 40, x + 40, y + 40, { stroke: '#2f6fa8', sw: 1.2, single: true });
-    s.round(x - 2, y + 86, 54, 22, 5, { fill: col, sw: 1.2 }); s.text(x + 25, y + 101, nm, { font: 'mono', size: 13, weight: 700 });
-  };
-  phone(24, 50, 'a', C.tealWash); phone(104, 50, 'b', C.tealWash);
-  s.rect(220, 50, 92, 112, { fill: '#fff', sw: 1.6 }); s.path('M290 50 L312 72 L290 72 Z', { fill: C.sky, sw: 1.2 });
-  s.text(256, 74, 'Quiz', { font: 'body', size: 12, weight: 800 });
-  [94, 108, 122, 136].forEach((y) => s.line(232, y, 300, y, { stroke: '#9aa8aa', sw: 1.4, single: true }));
-  s.text(266, 154, '9', { font: 'mono', size: 16, weight: 700, color: C.orange });
-  s.curve(50, 46, 216, 62, -24, { stroke: C.orange, sw: 2.4, single: true });
-  s.arrow(158, 96, 214, 104, { stroke: C.orange, sw: 2.4, single: true });
-  sSay(s, 200, 'Edit through b, and a sees it too: same file.');
-  sSay(s, 220, 'new Node(5) would be a second, separate file.');
-  return shrink(s.svg('Node b = a: two phones, a and b, hold links to the same single file. Edit through b and a sees it too, because it is the same file. new Node(5) would make a second, separate file.', 'll-pic'));
-}
 
 /* ---- Roomy box pictures (arrays style) ---- */
 const aCell = (x, y, v, o = {}) => `<rect x="${x}" y="${y}" width="54" height="40" fill="${o.fill ?? '#fff'}" stroke="${o.dash ? '#9aa8aa' : '#1b2a2e'}" stroke-width="2.2"${o.dash ? ' stroke-dasharray="5 4"' : ''}/>` + (v === '' ? '' : sT(x + 27, y + 26, v, { mono: true, size: 16, w: 700 }));
@@ -2992,46 +2885,8 @@ export function llWeakPic() {
   return rPic(340, 242, 'Insert 25 at index 2 of an array. Before: 10, 20, 30, 40, and an empty slot. After: 10, 20, 25, 30, 40. 40 moved first, then 30. More values after the gap means more moves.', b);
 }
 
-/** Part 2: Node first = new Node(10); one row per job. */
-export function llNewPic() {
-  let b = sT(170, 24, 'Node first = new Node(10);', { mono: true, size: 15, w: 700 });
-  const node = (y, d, n) => `<rect x="196" y="${y}" width="70" height="44" fill="#fff" stroke="#1b2a2e" stroke-width="2.2"/><rect x="266" y="${y}" width="60" height="44" fill="#fff" stroke="#1b2a2e" stroke-width="2.2"/>` +
-    sT(231, y - 6, 'data', { size: 11.5, w: 800, fill: '#4f5f62' }) + sT(296, y - 6, 'next', { size: 11.5, w: 800, fill: '#4f5f62' }) +
-    (d ? sT(231, y + 29, d, { mono: true, size: 17, w: 700 }) : '') + (n ? sT(296, y + 28, n, { mono: true, size: 13, w: 700, fill: '#4f5f62' }) : '');
-  const lab = (y, a, l1, l2) => sT(14, y, a, { size: 14, w: 800, fill: '#b4461a', anchor: 'start' }) + sT(14, y + 19, l1, { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' }) + sT(14, y + 36, l2, { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
-  b += panel(42, 84, '#fff', '#dfe6e4') + lab(70, '1. new', 'makes an empty', 'node in memory') + node(66, '', '');
-  b += panel(136, 84, '#fff', '#dfe6e4') + lab(164, '2. constructor', 'stores 10 in data,', 'null in next') + node(160, '10', 'null');
-  b += panel(230, 84, '#fdf1ea', '#f0c2a8') + lab(258, '3. =', 'stores the', 'reference') + node(254, '10', 'null');
-  b += `<rect x="118" y="262" width="54" height="28" rx="6" fill="#d7ece9" stroke="#0e6b63" stroke-width="2"/>` + sT(145, 281, 'first', { mono: true, size: 13.5, w: 700, fill: '#0b544e' }) + rArrow('M173 276 H192', 'o', 2.6);
-  return rPic(340, 322, 'Node first = new Node(10), one job per row. 1: new makes an empty node in memory. 2: the constructor stores 10 in data and null in next. 3: the equals sign stores a reference to the node in first, drawn as an arrow from first to the node.', b);
-}
 
-/** Part 3: access stops early; traversal goes to null. */
-export function llWalkPic() {
-  const X = [0, 1, 2].map(rSlot);
-  const hop = (x1, x2, y, n, c) => rArrow(`M${x1} ${y - 4} Q ${(x1 + x2) / 2} ${y - 30}, ${x2} ${y - 6}`, c, 2.4) + `<circle cx="${(x1 + x2) / 2}" cy="${y - 21}" r="9" fill="${rC[c]}"/>` + sT((x1 + x2) / 2, y - 17, n, { size: 11.5, w: 800, fill: '#fff' });
-  const row = (y, fills) => { let s = rVars(X[0], y, [['head', HEAD]]); [10, 20, 30].forEach((v, i) => { s += rBox(X[i], y, String(v), { fill: fills[i], ink: fills[i] === '#e8662e' ? '#fff' : undefined }); if (i < 2) s += rLink(X[i], X[i + 1], y); }); return s + rArrow(`M${rDot(X[2])} ${y + 20} H${rDot(X[2]) + 30}`) + sT(rDot(X[2]) + 36, y + 25, 'null', { mono: true, size: 13, w: 600, fill: '#4f5f62', anchor: 'start' }); };
-  let b = panel(8, 140, '#fdf1ea', '#f0c2a8') + sT(22, 32, 'Access: get the 3rd node', { size: 14, w: 800, fill: '#b4461a', anchor: 'start' });
-  b += row(84, [undefined, undefined, '#e8662e']);
-  b += hop(X[0] + 52, X[1] + 16, 84, '1', 'o') + hop(X[1] + 52, X[2] + 16, 84, '2', 'o');
-  b += sT(22, 140, '2 hops from head, then stop.', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
-  b += panel(160, 140, '#eef6f4', '#c9d6d4') + sT(22, 184, 'Traversal: visit every node', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
-  b += row(236, ['#d7ece9', '#d7ece9', '#d7ece9']);
-  b += hop(X[0] + 52, X[1] + 16, 236, '1', 't') + hop(X[1] + 52, X[2] + 16, 236, '2', 't') + hop(X[2] + 52, rDot(X[2]) + 40, 236, '3', 't');
-  b += sT(22, 292, 'Keep hopping until null.', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
-  return rPic(340, 308, 'Access: to get the 3rd node, start at head and hop twice, 10 to 20 to 30, then stop. Traversal: visit every node, hopping 10 to 20 to 30 to null, and stop at null.', b);
-}
 
-/** Part 3: null as a reference value vs printed text. */
-export function llNullPic() {
-  let b = panel(8, 116, '#eef6f4', '#c9d6d4') + sT(22, 32, 'In  current != null', { size: 14, w: 800, fill: '#0b544e', anchor: 'start' });
-  b += sT(78, 62, 'current', { mono: true, size: 13.5, w: 700, fill: '#0b544e' }) + `<rect x="34" y="70" width="88" height="40" rx="6" fill="#fff" stroke="#0e6b63" stroke-width="2.2"/>` + sT(78, 96, 'null', { mono: true, size: 15, w: 700, fill: '#4f5f62' });
-  b += sT(146, 82, 'a reference value:', { size: 13, w: 800, fill: '#0b544e', anchor: 'start' }) + sT(146, 101, 'current refers to no node', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
-  b += panel(136, 116, '#fdf1ea', '#f0c2a8') + sT(22, 160, 'In  System.out.println("null")', { size: 14, w: 800, fill: '#b4461a', anchor: 'start' });
-  b += `<rect x="24" y="178" width="132" height="44" rx="6" fill="#1b2a2e"/>` + sT(36, 206, '30 ->', { mono: true, size: 14, w: 700, fill: '#f8dc95', anchor: 'start' }) + sT(94, 206, 'null', { mono: true, size: 14, w: 700, fill: '#f8dc95', anchor: 'start' }) + `<rect x="89" y="188" width="44" height="26" rx="4" fill="none" stroke="#e8662e" stroke-width="2.2"/>`;
-  b += sT(172, 196, 'just text:', { size: 13, w: 800, fill: '#b4461a', anchor: 'start' }) + sT(172, 215, 'four printed letters', { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
-  return rPic(340, 260, 'Top: in current != null, null is a reference value: the variable current holds null, so it refers to no node. Bottom: in System.out.println of "null", null is just text: the output 30 arrow null shows four printed letters.', b);
-}
 
 /** Part 7: the three kinds as node pictures, one panel each. */
 export function llKindsPic() {
@@ -3078,7 +2933,7 @@ export function llSwapSteps() {
     [10, 20, 30].forEach((v, i) => { b += rBox(X[i + 1], y, String(v), { lost: st.lost }); if (i < 2) b += rLink(X[i + 1], X[i + 2], y, st.lost ? 'r' : 'k', { dash: st.lost }); });
     b += rNullDown(X[3], y, st.lost ? 'r' : 'k');
     if (st.lost) b += sT(X[2] + 28, y + 70, 'lost: nothing refers to 10', { size: 13, w: 800, fill: rC.r });
-    return rPic(340, 160, alt, b);
+    return rPic(384, 160, alt, b);
   };
   const H = ['head', HEAD], N = ['newNode', NEW];
   return [
@@ -3104,7 +2959,7 @@ export function llAfterSteps() {
       if (step === 1) b += rArrow(`M${rDot(X[2])} ${ly + 20} H${rDot(X[2]) + 30}`) + sT(rDot(X[2]) + 36, ly + 25, 'null', { mono: true, size: 13, w: 600, fill: '#4f5f62', anchor: 'start' });
       else b += rArrow(`M${rDot(X[2])} ${ly + 20} C ${rDot(X[2]) + 22} ${ly + 20}, ${X[3] + 10} ${ly - 10}, ${X[3] + 16} ${y + R.H + 3}`, step === 2 ? 'o' : 'k', step === 2 ? 3 : 2.2);
     }
-    return rPic(340, 206, alt, b);
+    return rPic(384, 206, alt, b);
   };
   return [
     { lines: [1], pic: pic(0, 'The list 10, 20, 30. head refers to 10 and current refers to 20.'), vars: [['current', '→ 20']], say: 'Start with <b>10 → 20 → 30</b>. We already have <code>current</code> on node 20, so no search is needed.' },
@@ -3133,7 +2988,7 @@ export function llBypassSteps() {
       b += sT(X[2] + 28, ly + R.H + 20, 'out of the list', { size: 13, w: 800, fill: rC.r });
       b += rLink(X[1], X[3], y, 'o', { w: 3 });
     }
-    return rPic(340, step === 2 ? 210 : 150, alt, b);
+    return rPic(384, step === 2 ? 210 : 150, alt, b);
   };
   return [
     { lines: [1], pic: pic(0, 'The list 10, 20, 25, 30. previous refers to 20.'), vars: [['previous', '→ 20']], say: 'Start with <b>10 → 20 → 25 → 30</b>. To delete 25, we need the node <b>before</b> it: <code>previous</code> is on 20.' },
@@ -3155,7 +3010,7 @@ export function llStuckSteps() {
     b += rArrow(`M${rDot(X[2])} ${y + 20} H${rDot(X[2]) + 30}`) + sT(rDot(X[2]) + 36, y + 25, 'null', { mono: true, size: 13, w: 600, fill: '#4f5f62', anchor: 'start' });
     b += `<rect x="10" y="146" width="320" height="40" rx="6" fill="#1b2a2e"/>` + sT(22, 171, out || ' ', { mono: true, size: 14, w: 700, fill: '#f8dc95', anchor: 'start' });
     b += sT(14, 139, 'Output', { size: 11.5, w: 800, fill: '#4f5f62', anchor: 'start' });
-    return rPic(340, 196, alt, b);
+    return rPic(384, 196, alt, b);
   };
   return [
     { lines: [1], pic: pic('', 'current and head both refer to node 10. No output yet.'), vars: [['current', '→ 10']], say: '<code>current</code> starts at node 10, like before.' },
@@ -3191,4 +3046,219 @@ export function llHuntPic() {
   s.text(14, 304, 'Each clue says where the next one is: like next.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
   s.text(14, 324, '"The end!" means no more clues: like null.', { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
   return s.svg('A treasure hunt at school. Clue 1 at the flagpole says: next, canteen. Clue 2 at the canteen says: next, mango tree. Clue 3 under the mango tree says: next, library. Clue 4 at the library says: the end, beside a treasure chest. Dashed arrows go from clue to clue. Clue 1 is where you start, like head; each clue says where the next one is, like next; the end means no more clues, like null.', 'll-pic').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/* ---- Linked lists (round 6): her feedback of Oct 29 ---- */
+const tsp = (parts, x, y, o = {}) => `<text x="${x}" y="${y}" font-family="Nunito, system-ui, sans-serif" font-size="${o.size ?? 13}" font-weight="700" fill="#37474a" text-anchor="${o.anchor ?? 'start'}">` +
+  parts.map(([t, c, mono]) => c ? `<tspan fill="${c}" font-weight="800"${mono ? ' font-family="&quot;IBM Plex Mono&quot;, monospace"' : ''}>${t}</tspan>` : `<tspan>${t}</tspan>`).join('') + '</text>';
+const COL = { head: '#0e6b63', nul: '#b23a33', data: '#b4461a', next: '#2f6fa8' };
+
+/** Part 1: a linked list, then one node up close (colored terms). */
+export function llDefPic() {
+  let b = panel(8, 168, '#fff', '#c9d6d4') + sT(22, 34, 'A linked list', { size: 15, w: 800, fill: HEAD, anchor: 'start' });
+  const y = 88, xs = [22, 112, 202];
+  b += rVars(xs[0], y, [['head', COL.head]]);
+  ['A', 'B', 'C'].forEach((v, i) => { b += rBox(xs[i], y, v, { fill: v === 'B' ? '#fbdccc' : undefined }); if (i < 2) b += rLink(xs[i], xs[i + 1], y); });
+  b += rArrow(`M${rDot(xs[2])} ${y + 20} H${rDot(xs[2]) + 34}`, 'r') + sT(rDot(xs[2]) + 40, y + 25, 'null', { mono: true, size: 14, w: 700, fill: COL.nul, anchor: 'start' });
+  b += tsp([['head', COL.head, 1], [' refers to the first node.']], 22, 150) + tsp([['null', COL.nul, 1], [' means no next node: the end.']], 22, 168);
+  b += panel(188, 176, '#fdf1ea', '#f0c2a8') + sT(22, 214, 'One node, up close (B)', { size: 15, w: 800, fill: NEW, anchor: 'start' });
+  const bx = 56, by = 234;
+  b += `<rect x="${bx}" y="${by}" width="110" height="52" fill="#fbdccc" stroke="#1b2a2e" stroke-width="2.4"/><rect x="${bx + 110}" y="${by}" width="70" height="52" fill="#d6e6f2" stroke="#1b2a2e" stroke-width="2.4"/>`;
+  b += sT(bx + 55, by + 34, 'B', { mono: true, size: 22, w: 700 }) + `<circle cx="${bx + 145}" cy="${by + 26}" r="4.5" fill="#1b2a2e"/>`;
+  b += rArrow(`M${bx + 145} ${by + 26} H${bx + 230}`) + sT(bx + 244, by + 31, 'C', { mono: true, size: 16, w: 700, fill: '#9aa8aa' });
+  b += sT(bx + 55, by + 76, 'data', { mono: true, size: 15, w: 700, fill: COL.data }) + sT(bx + 55, by + 95, 'the value', { size: 12.5, w: 700, fill: '#37474a' });
+  b += sT(bx + 145, by + 76, 'next', { mono: true, size: 15, w: 700, fill: COL.next }) + sT(bx + 145, by + 95, 'where to find', { size: 12.5, w: 700, fill: '#37474a' }) + sT(bx + 145, by + 111, 'the next node', { size: 12.5, w: 700, fill: '#37474a' });
+  return rPic(340, 372, 'Top: a linked list. head refers to the first node, A. A points to B, B points to C, and C points to null, which means no next node: the end. Bottom: node B up close. It has two parts: data, the value B, and next, which tells where to find the next node, C.', b);
+}
+
+/** Part 1: seat plan (array) vs a train (linked list). */
+export function llTrainPic() {
+  const s = new Sketch(340, 436, 912);
+  sTitle(s, 22, 'Seat plan: like an array', C.teal);
+  ['Ana', 'Ben', 'Cris', 'Dan'].forEach((n, i) => {
+    const x = 52 + i * 78;
+    s.round(x - 11, 34, 22, 20, 5, { fill: C.butter, sw: 1.3 }); s.text(x, 49, String(i), { font: 'body', size: 13, weight: 800 });
+    kid(s, x, 74, [C.teal, C.orange, C.amber, '#2f6fa8'][i]);
+    s.rect(x - 20, 116, 40, 8, { fill: '#c98a4b', sw: 1.4 }); s.line(x - 16, 124, x - 16, 140, { sw: 1.6 }); s.line(x + 16, 124, x + 16, 140, { sw: 1.6 });
+    s.text(x, 158, n, { font: 'body', size: 13, weight: 800 });
+  });
+  sSay(s, 186, 'Seat 2? Walk straight to it. One step.');
+  s.line(14, 212, 326, 212, { stroke: '#dfe6e4', sw: 1.4, single: true });
+  sTitle(s, 244, 'A train: like a linked list', C.orange);
+  const y = 280;
+  // engine
+  s.rect(12, y + 10, 62, 40, { fill: C.teal, sw: 1.8 }); s.rect(46, y - 10, 28, 22, { fill: C.teal, sw: 1.6 }); s.rect(52, y - 4, 16, 12, { fill: C.sky, sw: 1.2 });
+  s.rect(20, y - 2, 10, 14, { fill: '#555', sw: 1.2 });
+  [26, 60].forEach((cx) => s.circle(cx, y + 54, 14, { fill: '#555', sw: 1.4 }));
+  s.text(43, y + 82, 'engine', { font: 'body', size: 12, weight: 800, color: C.teal });
+  const cars = [[94, C.butter, 'car 1'], [178, C.pink, 'car 2'], [262, C.sky, 'car 3']];
+  cars.forEach(([x, fill, nm]) => {
+    s.rect(x, y + 6, 62, 44, { fill, sw: 1.8 });
+    [x + 8, x + 34].forEach((wx) => s.rect(wx, y + 14, 20, 14, { fill: '#fff', sw: 1.2 }));
+    [x + 14, x + 48].forEach((cx) => s.circle(cx, y + 54, 14, { fill: '#555', sw: 1.4 }));
+    s.text(x + 31, y + 82, nm, { font: 'body', size: 12, weight: 800 });
+  });
+  [[74, 94], [156, 178], [240, 262]].forEach(([a, b2]) => { s.line(a, y + 38, b2, y + 38, { stroke: C.orange, sw: 3, single: true }); s.circle(b2 - 3, y + 38, 6, { fill: C.orange, sw: 1 }); });
+  s.line(324, y + 38, 334, y + 38, { stroke: C.red, sw: 3, single: true }); s.path(`M334 ${y + 38} q4 0 4 6 q0 6 -5 6`, { stroke: C.red, sw: 2.4, single: true });
+  s.text(304, y - 12, 'empty hook', { font: 'body', size: 11.5, weight: 800, color: C.red });
+  s.text(170, y - 12, 'hooks', { font: 'body', size: 11.5, weight: 800, color: C.orange });
+  sSay(s, 384, 'The engine is like head. Each hook is like next.');
+  sSay(s, 403, 'The empty hook at the end is like null.');
+  sSay(s, 422, 'To reach car 3, go car by car.');
+  return shrink(s.svg('Top: a seat plan, like an array. Ana, Ben, Cris, and Dan sit on chairs numbered 0 to 3; to reach seat 2, walk straight to it. Bottom: a train, like a linked list: an engine pulling car 1, car 2, and car 3, each hooked only to the next car. The engine is like head, each hook is like next, and the last car\'s empty hook is like null. To reach car 3, go car by car.', 'll-pic'));
+}
+
+/** Part 6: unhook car 2; car 1 is hooked to car 3. */
+export function llTrainSkipPic() {
+  const s = new Sketch(340, 256, 1013);
+  sTitle(s, 22, 'Take car 2 out of the train', C.orange);
+  const y = 110;
+  const car = (x, yy, fill, nm, ghost) => {
+    const o = ghost ? { stroke: '#9aa8aa', dash: '5 4', single: true } : {};
+    s.rect(x, yy, 62, 44, { fill: ghost ? '#f3f3f1' : fill, sw: 1.8, ...o });
+    [x + 8, x + 34].forEach((wx) => s.rect(wx, yy + 8, 20, 14, { fill: '#fff', sw: 1.2, ...o }));
+    [x + 14, x + 48].forEach((cx) => s.circle(cx, yy + 48, 14, { fill: ghost ? '#ddd' : '#555', sw: 1.4, ...o }));
+    s.text(x + 31, yy + 76, nm, { font: 'body', size: 12, weight: 800, color: ghost ? '#9aa8aa' : C.ink });
+  };
+  car(20, y, C.butter, 'car 1'); car(139, y - 60, C.pink, 'car 2 (out)', true); car(258, y, C.sky, 'car 3');
+  s.path(`M82 ${y + 32} Q170 ${y + 70} 258 ${y + 32}`, { stroke: C.orange, sw: 3, single: true });
+  s.circle(255, y + 32, 6, { fill: C.orange, sw: 1 });
+  s.text(170, y + 92, 'new hook: car 1 → car 3', { font: 'body', size: 12.5, weight: 800, color: C.orange });
+  sSay(s, 226, 'Only car 1\'s hook changes.'); sSay(s, 244, 'Car 2 is no longer in the train.');
+  return shrink(s.svg('Take car 2 out of the train. Car 2 is lifted out, drawn faded. Car 1 now hooks straight to car 3. Only car 1\'s hook changes, and car 2 is no longer in the train.', 'll-pic'));
+}
+
+/** Part 2: Node b = a vs new Node: one person with two names vs twins. */
+export function llNamesPic() {
+  const s = new Sketch(340, 290, 1114);
+  s.round(6, 6, 160, 278, 10, { fill: '#eef6f4', sw: 1.2, stroke: '#c9d6d4' });
+  s.round(174, 6, 160, 278, 10, { fill: '#fdf1ea', sw: 1.2, stroke: '#f0c2a8' });
+  s.text(86, 30, 'Node b = a;', { font: 'mono', size: 13, weight: 700 });
+  s.text(254, 30, 'Node b = new Node(5);', { font: 'mono', size: 11.5, weight: 700 });
+  const tag = (x, y, t) => { s.round(x - 16, y - 16, 32, 24, 5, { fill: C.tealWash, sw: 1.4, stroke: C.teal }); s.text(x, y + 1, t, { font: 'mono', size: 14, weight: 700, color: C.teal }); };
+  const person = (x, y, shirt, num) => { kid(s, x, y, shirt); s.text(x, y + 38, num, { font: 'body', size: 13, weight: 800, color: '#fff' }); };
+  tag(56, 66, 'a'); tag(116, 66, 'b'); person(86, 128, C.orange, '9');
+  s.arrow(60, 74, 76, 108, { stroke: C.orange, sw: 2.2, single: true }); s.arrow(112, 74, 96, 108, { stroke: C.orange, sw: 2.2, single: true });
+  s.text(86, 204, 'one person,', { font: 'body', size: 12.5, weight: 800, color: C.teal }); s.text(86, 220, 'two names', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  s.text(86, 250, 'b.data = 9', { font: 'mono', size: 12, weight: 700 }); s.text(86, 268, 'a.data is 9 too', { font: 'body', size: 12, weight: 800, color: C.orange });
+  tag(214, 66, 'a'); tag(294, 66, 'b'); person(214, 128, C.teal, '5'); person(294, 128, C.orange, '9');
+  s.arrow(214, 76, 214, 108, { stroke: C.orange, sw: 2.2, single: true }); s.arrow(294, 76, 294, 108, { stroke: C.orange, sw: 2.2, single: true });
+  s.text(254, 204, 'two people,', { font: 'body', size: 12.5, weight: 800, color: C.orange }); s.text(254, 220, 'one name each', { font: 'body', size: 12.5, weight: 800, color: C.orange });
+  s.text(254, 250, 'b.data = 9', { font: 'mono', size: 12, weight: 700 }); s.text(254, 268, 'a.data stays 5', { font: 'body', size: 12, weight: 800, color: C.teal });
+  return shrink(s.svg('Left, Node b = a: the name tags a and b both point to one person, whose shirt number is the data. After b.data = 9, a.data is 9 too, because it is one person with two names. Right, Node b = new Node(5): a and b point to two different people. After b.data = 9, a.data stays 5.', 'll-pic'));
+}
+
+/** Part 3: access the 3rd node. */
+export function llAccessPic() {
+  const X = [22, 118, 214], y = 96;
+  let b = sT(170, 22, 'Access: get the 3rd node', { size: 15, w: 800, fill: NEW });
+  b += rVars(X[0], y, [['head', HEAD]]);
+  [10, 20, 30].forEach((v, i) => { b += rBox(X[i], y, String(v), { fill: i === 2 ? '#e8662e' : undefined, ink: i === 2 ? '#fff' : undefined }); if (i < 2) b += rLink(X[i], X[i + 1], y); });
+  b += rArrow(`M${rDot(X[2])} ${y + 20} H${rDot(X[2]) + 34}`) + sT(rDot(X[2]) + 40, y + 25, 'null', { mono: true, size: 13, w: 600, fill: '#4f5f62', anchor: 'start' });
+  ['1st', '2nd', '3rd'].forEach((t, i) => { b += sT(X[i] + 28, y + 62, t, { size: 13, w: 800, fill: i === 2 ? NEW : '#37474a' }); });
+  const hop = (x1, x2, t) => rArrow(`M${x1} ${y - 4} Q ${(x1 + x2) / 2} ${y - 40}, ${x2} ${y - 6}`, 'o', 2.4) + sT((x1 + x2) / 2, y - 30, t, { size: 12, w: 800, fill: NEW });
+  b += hop(X[0] + 40, X[1] + 18, 'hop 1') + hop(X[1] + 40, X[2] + 18, 'hop 2');
+  b += sT(170, y + 100, 'Start at head (the 1st node). 2 hops later: the 3rd. Stop.', { size: 12.5, w: 700, fill: '#37474a' });
+  return rPic(340, 210, 'Access: to get the 3rd node of 10, 20, 30, start at head on the 1st node, 10. Hop 1 reaches the 2nd node, 20. Hop 2 reaches the 3rd node, 30. Stop there.', b);
+}
+
+/** Part 3: traversal visits every node, then stops at null. */
+export function llTravPic() {
+  const X = [22, 118, 214], y = 74;
+  let b = sT(170, 22, 'Traversal: visit every node', { size: 15, w: 800, fill: HEAD });
+  b += rVars(X[0], y, [['head', HEAD]]);
+  [10, 20, 30].forEach((v, i) => { b += rBox(X[i], y, String(v), { fill: '#d7ece9' }); if (i < 2) b += rLink(X[i], X[i + 1], y); });
+  b += rArrow(`M${rDot(X[2])} ${y + 20} H${rDot(X[2]) + 34}`) + sT(rDot(X[2]) + 40, y + 25, 'null', { mono: true, size: 13, w: 600, fill: '#4f5f62', anchor: 'start' });
+  ['print 10', 'print 20', 'print 30'].forEach((t, i) => { b += `<rect x="${X[i] - 4}" y="${y + 52}" width="64" height="24" rx="12" fill="#d7ece9"/>` + sT(X[i] + 28, y + 69, t, { size: 12, w: 800, fill: HEAD }); });
+  b += `<rect x="${rDot(X[2]) + 26}" y="${y + 52}" width="52" height="24" rx="12" fill="#f6d6d0"/>` + sT(rDot(X[2]) + 52, y + 69, 'stop', { size: 12, w: 800, fill: '#b23a33' });
+  b += sT(170, y + 112, 'Visit a node, follow next, repeat. Stop at null.', { size: 12.5, w: 700, fill: '#37474a' });
+  return rPic(340, 198, 'Traversal: start at head and visit every node of 10, 20, 30: print 10, print 20, print 30. After 30 comes null, so stop.', b);
+}
+
+/** Part 3: null as a reference value vs printed text. */
+export function llNullPic() {
+  const X = [16, 96, 176], y = 92;
+  let b = panel(8, 180, '#eef6f4', '#c9d6d4') + sT(22, 32, 'null as a value:  current != null', { size: 14, w: 800, fill: HEAD, anchor: 'start' });
+  [10, 20, 30].forEach((v, i) => { b += rBox(X[i], y, String(v)); if (i < 2) b += rLink(X[i], X[i + 1], y); });
+  b += rArrow(`M${rDot(X[2])} ${y + 20} H${X[2] + 80}`) + `<rect x="${X[2] + 84}" y="${y}" width="${R.D + R.N}" height="${R.H}" rx="4" fill="none" stroke="#9aa8aa" stroke-width="2" stroke-dasharray="5 4"/>`;
+  b += sT(X[2] + 112, y + 25, 'none', { size: 12, w: 800, fill: '#9aa8aa' });
+  b += sT(X[2] + 112, y - 26, 'current', { mono: true, size: 13.5, w: 700, fill: NEW }) + rArrow(`M${X[2] + 112} ${y - 21} V${y - 3}`, 'o', 2);
+  b += tsp([['After 30, ', 0], ['current', NEW, 1], [' is ', 0], ['null', COL.nul, 1], [': it refers to no node.', 0]], 22, 160, { size: 12.5 });
+  b += tsp([['So ', 0], ['current != null', HEAD, 1], [' is false, and the loop stops.', 0]], 22, 178, { size: 12.5 });
+  b += panel(200, 140, '#fdf1ea', '#f0c2a8') + sT(22, 224, 'null as text:  println("null")', { size: 14, w: 800, fill: NEW, anchor: 'start' });
+  b += `<rect x="22" y="240" width="296" height="40" rx="6" fill="#1b2a2e"/>` + sT(36, 266, '10 -> 20 -> 30 -> ', { mono: true, size: 14, w: 700, fill: '#f8dc95', anchor: 'start' }) + sT(212, 266, 'null', { mono: true, size: 14, w: 700, fill: '#f8dc95', anchor: 'start' }) + `<rect x="206" y="249" width="46" height="24" rx="4" fill="none" stroke="#e8662e" stroke-width="2.2"/>`;
+  b += tsp([['After the loop, the program just types the', 0]], 22, 306, { size: 12.5 }) + tsp([['four letters ', 0], ['n u l l', NEW, 1], [' to show where the list ends.', 0]], 22, 324, { size: 12.5 });
+  return rPic(340, 348, 'Top: null as a value. The list 10, 20, 30; after 30 there is no node, drawn as a dashed empty box, and current points there: current is null, it refers to no node, so current != null is false and the loop stops. Bottom: null as text. The output 10 -> 20 -> 30 -> null; after the loop, the program just types the four letters n u l l to show where the list ends.', b);
+}
+
+/** Part 2: Node first = new Node(10); three numbered steps. */
+export function llNewPic() {
+  let b = sT(170, 24, 'Node first = new Node(10);', { mono: true, size: 15, w: 700 });
+  const NX = 206;
+  const node = (y, d, n) => `<rect x="${NX}" y="${y}" width="64" height="44" fill="#fbdccc" stroke="#1b2a2e" stroke-width="2.2"/><rect x="${NX + 64}" y="${y}" width="56" height="44" fill="#d6e6f2" stroke="#1b2a2e" stroke-width="2.2"/>` +
+    sT(NX + 32, y - 6, 'data', { size: 11.5, w: 800, fill: COL.data }) + sT(NX + 92, y - 6, 'next', { size: 11.5, w: 800, fill: COL.next }) +
+    (d ? sT(NX + 32, y + 29, d, { mono: true, size: 17, w: 700 }) : '') + (n ? sT(NX + 92, y + 28, n, { mono: true, size: 13, w: 700, fill: COL.nul }) : '');
+  const step = (y, n, title, l1, l2, fill, line) => panel(y, 84, fill, line) + `<circle cx="32" cy="${y + 26}" r="13" fill="#e8662e"/>` + sT(32, y + 31, n, { size: 14, w: 800, fill: '#fff' }) +
+    sT(52, y + 31, title, { size: 14, w: 800, fill: NEW, anchor: 'start' }) + sT(22, y + 56, l1, { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' }) + sT(22, y + 73, l2, { size: 12.5, w: 700, fill: '#37474a', anchor: 'start' });
+  const down = (y) => rArrow(`M170 ${y} V${y + 20}`, 'o', 2.6);
+  b += step(40, '1', 'new', 'makes an empty', 'node in memory', '#fff', '#dfe6e4') + node(64, '', '');
+  b += down(126);
+  b += step(150, '2', 'constructor', 'stores 10 in data,', 'null in next', '#fff', '#dfe6e4') + node(174, '10', 'null');
+  b += down(236);
+  b += step(260, '3', '=', 'stores the', 'reference in first', '#fdf1ea', '#f0c2a8') + node(284, '10', 'null');
+  b += `<rect x="118" y="292" width="52" height="28" rx="6" fill="#d7ece9" stroke="#0e6b63" stroke-width="2"/>` + sT(144, 311, 'first', { mono: true, size: 13.5, w: 700, fill: HEAD }) + rArrow(`M171 306 H${NX - 3}`, 'o', 2.6);
+  return rPic(340, 352, 'Node first = new Node(10), in three numbered steps with arrows between them. Step 1: new makes an empty node in memory. Step 2: the constructor stores 10 in data and null in next. Step 3: the equals sign stores the reference in first, drawn as an arrow from first to the node.', b);
+}
+
+/** Part 7 trap: circular describes the loop, not the number of links. */
+export function llCircPic() {
+  const X = [40, 136, 232];
+  let b = panel(8, 150, '#fff', '#dfe6e4') + sT(22, 32, 'Circular singly: next only', { size: 14, w: 800, fill: '#2f6fa8', anchor: 'start' });
+  let y = 56;
+  ['A', 'B', 'C'].forEach((v, i) => { b += rBox(X[i], y, v); if (i < 2) b += rLink(X[i], X[i + 1], y); });
+  b += rArrow(`M${rDot(X[2])} ${y + 20} H${rDot(X[2]) + 30} V${y + 74} H${X[0] + 18} V${y + 44}`, 'o', 2.6);
+  b += sT(170, y + 92, 'C → back to A', { size: 12.5, w: 800, fill: NEW });
+  b += panel(170, 196, '#fff', '#dfe6e4') + sT(22, 194, 'Circular doubly: prev and next', { size: 14, w: 800, fill: '#2f6fa8', anchor: 'start' });
+  y = 254;
+  const D = [40, 136, 232];
+  b += `<marker id="rm-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f6fa8"/></marker>`;
+  ['A', 'B', 'C'].forEach((v, i) => {
+    const x = D[i];
+    b += `<rect x="${x}" y="${y}" width="18" height="40" fill="#d6e6f2" stroke="#1b2a2e" stroke-width="2.2"/><rect x="${x + 18}" y="${y}" width="32" height="40" fill="#fff" stroke="#1b2a2e" stroke-width="2.2"/><rect x="${x + 50}" y="${y}" width="18" height="40" fill="#fff" stroke="#1b2a2e" stroke-width="2.2"/>` + sT(x + 34, y + 26, v, { mono: true, size: 16, w: 700 }) +
+      `<circle cx="${x + 9}" cy="${y + 28}" r="3.4" fill="#2f6fa8"/><circle cx="${x + 59}" cy="${y + 12}" r="3.4" fill="#1b2a2e"/>`;
+  });
+  for (let i = 0; i < 2; i++) b += rArrow(`M${D[i] + 59} ${y + 12} H${D[i + 1] - 2}`) + `<path d="M${D[i + 1] + 9} ${y + 28} H${D[i] + 70}" fill="none" stroke="#2f6fa8" stroke-width="2.2" marker-end="url(#rm-b)"/>`;
+  b += rArrow(`M${D[2] + 59} ${y + 12} H${D[2] + 84} V${y + 66} H${D[0] + 26} V${y + 44}`, 'o', 2.4);
+  b += `<path d="M${D[0] + 9} ${y + 28} H${D[0] - 18} V${y - 30} H${D[2] + 52} V${y - 4}" fill="none" stroke="#2f6fa8" stroke-width="2.4" marker-end="url(#rm-b)"/>`;
+  b += sT(170, y - 36, 'A.prev → back to C', { size: 12.5, w: 800, fill: '#2f6fa8' });
+  b += sT(170, y + 84, 'C.next → back to A', { size: 12.5, w: 800, fill: NEW });
+  b += sT(170, 392, 'Both loop back, so both are circular.', { size: 13, w: 800, fill: '#37474a' });
+  return rPic(340, 404, 'Circular singly: A to B to C, and C\'s next goes back to A; each node has next only. Circular doubly: each node has prev and next; C\'s next goes back to A, and A\'s prev goes back to C. Both loop back, so both are circular.', b);
+}
+
+/** The real cost: house numbers vs directions (more room around the divider). */
+export function llStreetPic() {
+  const s = new Sketch(340, 392, 634);
+  const house = (x, y, roof, label) => {
+    s.path(`M${x - 4} ${y + 20} L${x + 22} ${y} L${x + 48} ${y + 20} Z`, { fill: roof, sw: 1.5 });
+    s.rect(x, y + 20, 44, 34, { fill: '#fff', sw: 1.5 });
+    s.rect(x + 16, y + 34, 12, 20, { fill: '#c98a4b', sw: 1.2 });
+    if (label) { s.round(x + 8, y + 22, 28, 12, 3, { fill: C.butter, sw: 1 }); s.text(x + 22, y + 32, label, { font: 'body', size: 10, weight: 800 }); }
+  };
+  sTitle(s, 22, 'With house numbers: like an array', C.teal);
+  [['1', 14], ['2', 70], ['3', 126]].forEach(([n, x]) => house(x, 78, C.pink, n));
+  s.text(204, 120, '…', { font: 'body', size: 20, weight: 800 });
+  house(262, 78, C.orange, '500');
+  s.rect(8, 134, 324, 12, { fill: '#cfd8d6', sw: 1, stroke: '#9aa8aa' });
+  s.curve(36, 70, 282, 70, -36, { stroke: C.teal, sw: 2.6, single: true });
+  s.text(160, 46, 'go straight to #500', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  sSay(s, 172, 'One trip, no matter how long the street is.');
+  s.line(14, 198, 326, 198, { stroke: '#dfe6e4', sw: 1.4, single: true });
+  sTitle(s, 232, 'With directions only: like a linked list', C.orange);
+  [14, 76, 138, 200].forEach((x, i) => { house(x, 274, C.sky); if (i < 3) s.curve(x + 36, 272, x + 72, 272, -16, { stroke: C.orange, sw: 2, single: true }); });
+  s.text(276, 318, '… #500', { font: 'body', size: 14, weight: 800 });
+  [1, 2, 3].forEach((n, i) => s.text(68 + i * 62, 256, String(n), { font: 'body', size: 11.5, weight: 800, color: C.orange }));
+  s.rect(8, 330, 324, 12, { fill: '#cfd8d6', sw: 1, stroke: '#9aa8aa' });
+  sSay(s, 364, 'Each house only says which house is next.'); sSay(s, 382, 'You must ask at every house on the way.');
+  return shrink(s.svg('Top: houses with numbers, like an array: 1, 2, 3, then house 500. You can go straight to number 500 in one trip, no matter how long the street is. Bottom: houses with directions only, like a linked list: each house only says which house is next, so you ask at every house, 1, 2, 3, and so on, until you reach number 500.', 'll-pic'));
 }

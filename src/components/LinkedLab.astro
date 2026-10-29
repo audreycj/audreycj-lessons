@@ -64,7 +64,7 @@ const { id } = Astro.props;
 
 <script>
   import { reserve } from '../lib/stable.js';
-  type St = { nodes: Record<string, { v: number; next: string | null }>; head: string | null; vars: Record<string, string | null> };
+  type St = { nodes: Record<string, { v: number; next: string | null; hx?: number }>; head: string | null; vars: Record<string, string | null> };
   type Step = { st: St; cap: string; code: string; cur?: string[]; nw?: string[]; chg?: string[]; out?: string; hot?: string[] };
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const copy = (s: St): St => JSON.parse(JSON.stringify(s));
@@ -94,7 +94,7 @@ const { id } = Astro.props;
     } else if (name === 'front') {
       st = chain([10, 20, 30]);
       push('Insert <b>5</b> at the beginning of 10 → 20 → 30.', '');
-      st.nodes.n5 = { v: 5, next: null }; st.vars.newNode = 'n5';
+      st.nodes.n5 = { v: 5, next: null, hx: 0 }; st.vars.newNode = 'n5';
       push('Create the new node. Its next is null for now, and it is not connected to the list yet.', 'Node newNode = new Node(5);', { nw: ['n5'], hot: ['newNode'] });
       st.nodes.n5.next = st.head;
       push('<b>Step 1:</b> the new node refers to the old first node (10).', 'newNode.next = head;', { nw: ['n5'], chg: ['n5'] });
@@ -103,7 +103,7 @@ const { id } = Astro.props;
     } else if (name === 'after' || name === 'wrong') {
       st = chain([10, 20, 30]); st.vars.current = 'n20';
       push('Insert <b>25</b> after the node holding 20. <code>current</code> already refers to node 20, so no search is needed.', '', { cur: ['n20'] });
-      st.nodes.n25 = { v: 25, next: null }; st.vars.newNode = 'n25';
+      st.nodes.n25 = { v: 25, next: null, hx: 1.5 }; st.vars.newNode = 'n25';
       push('Create the new node 25.', 'Node newNode = new Node(25);', { nw: ['n25'], hot: ['newNode'] });
       if (name === 'after') {
         st.nodes.n25.next = st.nodes.n20.next;
@@ -139,10 +139,10 @@ const { id } = Astro.props;
     const pos: Record<string, { x: number; y: number; row: number }> = {};
     order.forEach((k, i) => (pos[k] = { x: X0 + i * GAP, y: Y1, row: 1 }));
     others.forEach((k, i) => {
-      const t = st.nodes[k].next; const tx = t && pos[t] ? pos[t].x : null;
-      pos[k] = { x: tx != null ? Math.max(X0, tx - GAP / 2) : X0 + (order.length + i) * GAP, y: Y2, row: 2 };
+      const t = st.nodes[k].next; const tx = t && pos[t] ? pos[t].x : null; const hx = st.nodes[k].hx;
+      pos[k] = { x: hx != null ? X0 + hx * GAP : tx != null ? Math.max(X0, tx - GAP / 2) : X0 + (order.length + i) * GAP, y: Y2, row: 2 };
     });
-    const maxX = Math.max(...Object.values(pos).map((p) => p.x), 0) + W + 70;
+    const maxX = Math.max(...Object.values(pos).map((p) => p.x), 0) + W + 92;
     const width = Math.max(480, maxX);
     const lost = (k: string) => !seen.has(k) && !Object.values(st.vars).includes(k);
     let svg = `<svg viewBox="0 0 ${width} 225" style="min-width:${Math.round(width * 0.66)}px" role="img" aria-label="Linked list diagram"><defs><marker id="llah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1b2a2e"/></marker><marker id="llah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e8662e"/></marker><marker id="llah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b23a33"/></marker></defs>`;
@@ -154,7 +154,7 @@ const { id } = Astro.props;
       const cls = `lk ${chg ? 'chg' : ''} ${ls ? 'lost' : ''}`;
       const mk = chg ? 'llah2' : ls ? 'llah3' : 'llah';
       svg += `<circle class="dot" cx="${sx}" cy="${sy}" r="3.5"/>`;
-      if (!n.next) { svg += `<path class="${cls}" d="M${sx} ${sy} H${sx + 22}" marker-end="url(#${mk})"/><text class="nul" x="${sx + 27}" y="${sy}">null</text>`; continue; }
+      if (!n.next) { svg += `<path class="${cls}" d="M${sx} ${sy} H${sx + 44}" marker-end="url(#${mk})"/><text class="nul" x="${sx + 50}" y="${sy}">null</text>`; continue; }
       const q = pos[n.next];
       if (n.next === k) { svg += `<path class="${cls}" d="M${sx} ${sy} C ${sx + 40} ${sy - 55}, ${p.x - 30} ${sy - 55}, ${p.x - 2} ${sy - 4}" marker-end="url(#${mk})"/>`; continue; }
       if (q.row === p.row && q.x > p.x) svg += `<path class="${cls}" d="M${sx} ${sy} H${q.x - 3}" marker-end="url(#${mk})"/>`;
