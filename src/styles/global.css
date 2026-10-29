@@ -1026,3 +1026,20 @@ svg.objbox.sort-pic { max-width: 26rem; }
 svg.objbox.adv-pic { max-width: 26rem; }
 svg.objbox.stack-pic { max-width: 24rem; }
 svg.objbox.mtree-pic { max-width: 26rem; }
+
+/* ---------- Step labs on phones (QA #148, chat 23) ---------- */
+.lab-key { margin-top: 0.7rem; font-size: 0.8rem; color: var(--ink-soft); }
+.lab-key > summary { cursor: pointer; font-weight: 800; width: max-content; }
+.lab-key > .legend { margin-top: 0.4rem; }
+@media (max-width: 43.99rem) {
+  /* Back / Next stays on screen while any part of the lab is; it floats above the Contents and back-to-top buttons. */
+  .trlab .tr-nav, .bstlab .bl-nav, .avl-lab .lab-nav, .lllab .ll-nav {
+    position: sticky; z-index: 30; bottom: calc(16px + 3.4rem + env(safe-area-inset-bottom, 0px));
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 0.45rem;
+    box-shadow: 0 6px 18px rgba(27, 42, 46, 0.22); }
+  /* Queue/stack beside the visited order instead of under it. */
+  .trlab .tr-info { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 0.6rem; }
+  .trlab-dfs .tr-info { grid-template-columns: auto minmax(0, 1fr); }
+  .trlab .tr-presets, .trlab .tr-start { margin-bottom: 0.5rem; }
+  .trlab .tr-cap, .avl-lab .lab-cap, .bstlab .bl-cap { margin-top: 0.6rem; }
+}

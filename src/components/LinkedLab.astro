@@ -24,12 +24,13 @@ const { id } = Astro.props;
     <button type="button" class="btn" data-go="back">← Back</button>
     <button type="button" class="btn primary" data-go="next">Next step →</button>
   </div>
+  <details class="lab-key" open><summary>Color key</summary>
   <div class="legend">
     <span><i class="l-cur2"></i> node being changed or visited</span>
     <span><i class="l-new"></i> new node</span>
     <span><i style="border-color:var(--orange)"></i> orange arrow = just changed</span>
     <span><i style="border-color:var(--red-pen);border-style:dashed"></i> unreachable from head</span>
-  </div>
+  </div></details>
 </figure>
 
 <style is:global>

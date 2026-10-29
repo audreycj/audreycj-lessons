@@ -43,6 +43,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <script>
     import { growOnly } from '../lib/stable.js';
     document.querySelectorAll<HTMLElement>('[data-grow]').forEach(growOnly);
+    // QA #148: step labs' color keys start folded on phones (the lab hint already names the colors).
+    if (matchMedia('(max-width: 43.99rem)').matches) document.querySelectorAll<HTMLDetailsElement>('details.lab-key').forEach((d) => { d.open = false; });
 
     // Copy button on every code block (Oct 28). Copies the code only: no line numbers, one line per line.
     const codeText = (pre: HTMLElement) => {

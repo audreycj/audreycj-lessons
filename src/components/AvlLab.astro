@@ -39,6 +39,7 @@ const config = JSON.stringify({ presets, custom, kind });
     <button type="button" class="btn primary" data-go="next">Next step →</button>
     <button type="button" class="btn" data-go="reset">Start over</button>
   </div>
+  <details class="lab-key" open><summary>Color key</summary>
   {kind === 'avl' ? (
     <div class="legend">
       <span><i class="l-new"></i> new value</span>
@@ -56,7 +57,7 @@ const config = JSON.stringify({ presets, custom, kind });
       <span><i class="l-h-uncle"></i> uncle / grandparent</span>
       <label class="nil-toggle"><input type="checkbox" class="lab-nil" /> show NIL leaves <i class="l-nil"></i></label>
     </div>
-  )}
+  )}</details>
 </figure>
 
 <style is:global>
@@ -74,6 +75,7 @@ const config = JSON.stringify({ presets, custom, kind });
     background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 20px 20px; }
   .avl-lab .lab-tag { position: absolute; top: 0.5rem; left: 0.5rem; background: var(--card); }
   .avl-lab .lab-tag:empty { display: none; }
+  .avl-lab .lab-svg { display: grid; align-items: center; }
   .avl-lab .lab-cap { min-height: 5.2em; margin-top: 0.8rem; }
   .avl-lab .lab-nav { margin-top: 0.6rem; }
   .avl-lab .lab-nav .primary { flex: 1 1 auto; }
@@ -98,7 +100,7 @@ const config = JSON.stringify({ presets, custom, kind });
     const next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
 
     const nil = fig.querySelector<HTMLInputElement>('.lab-nil');
-    nil?.addEventListener('change', () => paint(false));
+    nil?.addEventListener('change', () => { fitSvg(); paint(false); });
     let steps: any[] = [], values: number[] = [], at = 0, W = 0, H = 0, shown: Record<string, { x: number; y: number }> = {}, anim = 0;
 
     function load(vals: number[]) {
@@ -113,7 +115,12 @@ const config = JSON.stringify({ presets, custom, kind });
       W = 0; H = 0;
       steps.forEach((s) => { if (s.snap.tree) { const L = layout(s.snap.tree); W = Math.max(W, L.w); H = Math.max(H, L.h); } });
       seqEl.innerHTML = vals.map((v) => `<li>${v}</li>`).join('');
-      shown = {}; at = 0; reserve(capEl as HTMLElement, steps.map((s) => s.snap.caption)); paint(false);
+      shown = {}; at = 0; reserve(capEl as HTMLElement, steps.map((s) => s.snap.caption)); fitSvg(); paint(false);
+    }
+    // QA #148: reserve the tree box at its full size from step 1, so the lab never grows while tapping Next.
+    function fitSvg() {
+      const last = [...steps].reverse().find((s) => s.snap.tree);
+      if (last) reserve(svgBox, [svgTree(last.snap.tree, { marks: {}, showBf: true, showNil: !!(nil && nil.checked), minW: W, minH: H })]);
     }
 
     function targetPos(tree: any) {

@@ -17,10 +17,10 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
   {pickStart && <div class="tr-start small"><span>Start at:</span> <span class="tr-start-btns"></span></div>}
   <div class="tr-grid">
     <div class="tr-svg"></div>
-    <div class="tr-side">
+    <div class="tr-info">
       <div class="tr-ds">
         <p class="tr-label">{dsName} {mode === 'bfs' ? <span class="muted">(first in, first out)</span> : <span class="muted">(last in, first out)</span>}</p>
-        <div class="tr-box" aria-live="polite" data-grow></div>
+        <div class="tr-box" aria-live="polite"></div>
       </div>
       <div>
         <p class="tr-label">Visited order</p>
@@ -34,6 +34,7 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
     <button type="button" class="btn primary" data-go="next">Next step →</button>
     <button type="button" class="btn" data-go="reset">Start over</button>
   </div>
+  <details class="lab-key" open><summary>Color key</summary>
   <div class="legend">
     <span><i class="l-cur"></i> current</span>
     <span><i class="l-wait"></i> {mode === 'bfs' ? 'seen, waiting in queue' : 'on the stack'}</span>
@@ -41,7 +42,7 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
     {mode === 'bfs' && <span><i style="border-color:var(--amber);border-style:dashed"></i> edges being checked</span>}
     <span><i style="border-color:var(--teal);border-width:4px"></i> edges used</span>
     {mode === 'bfs' && <span class="mono">L1, L2… = level (steps from start)</span>}
-  </div>
+  </div></details>
 </figure>
 
 <style is:global>
@@ -54,7 +55,7 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
   @media (min-width: 44rem) { .trlab .tr-grid { grid-template-columns: 1.4fr 1fr; align-items: center; } }
   .trlab .tr-svg { background: var(--paper); border-radius: 8px; padding: 0.4rem;
     background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 20px 20px; }
-  .trlab .tr-side { display: grid; gap: 0.8rem; }
+  .trlab .tr-info { display: grid; gap: 0.8rem; }
   .trlab .tr-label { font-weight: 800; font-size: var(--step--1); margin-bottom: 0.3rem; }
   .trlab .tr-box { min-height: 3rem; display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; padding: 0.4rem; border: 2px solid var(--ink); border-radius: 6px; background: var(--card); }
   .trlab-dfs .tr-box { flex-direction: column-reverse; align-items: stretch; flex-wrap: nowrap; min-height: 4rem; border-top-style: dashed; max-width: 9rem; }
@@ -90,19 +91,25 @@ const dsName = mode === 'bfs' ? 'Queue' : 'Stack';
       steps = (mode === 'bfs' ? bfsSteps(g, start) : dfsSteps(g, start)).steps;
       at = 0;
       reserve(cap, steps.map((s: any) => s.caption));
+      reserve(box, steps.map(boxHtml)); reserve(ord, steps.map(ordHtml));
       if (startBtns) {
         startBtns.innerHTML = ids(g).map((n: string) => `<button type="button" data-s="${n}" aria-pressed="${n === start}">${n}</button>`).join('');
       }
       paint();
     }
+    // Queue/stack and visited-order HTML for one step. Used to paint AND to reserve the tallest size up front (QA #148: no growing).
+    function boxHtml(st: any) {
+      if (!st.ds.length) return `<span class="tr-empty">empty</span>`;
+      if (mode === 'bfs') return st.ds.map((x: string, i: number) => `<span class="tr-item">${x}${i === 0 ? '<small>front</small>' : i === st.ds.length - 1 ? '<small>rear</small>' : ''}</span>`).join('');
+      return st.ds.map((x: string, i: number) => `<span class="tr-item">${x}${i === st.ds.length - 1 ? '<small>← top</small>' : ''}</span>`).join('');
+    }
+    function ordHtml(st: any) { return st.order.map((x: string) => `<li>${x}</li>`).join(''); }
     function paint() {
       const st = steps[at];
       const o = stepMarks(g, st, mode);
       svgBox.innerHTML = svgGraph(g, { ...o, label: (mode === 'bfs' ? 'BFS' : 'DFS') + ' step ' + (at + 1), w: g.w, h: g.h });
-      if (!st.ds.length) box.innerHTML = `<span class="tr-empty">empty</span>`;
-      else if (mode === 'bfs') box.innerHTML = st.ds.map((x: string, i: number) => `<span class="tr-item">${x}${i === 0 ? '<small>front</small>' : i === st.ds.length - 1 ? '<small>rear</small>' : ''}</span>`).join('');
-      else box.innerHTML = st.ds.map((x: string, i: number) => `<span class="tr-item">${x}${i === st.ds.length - 1 ? '<small>← top</small>' : ''}</span>`).join('');
-      ord.innerHTML = st.order.map((x: string) => `<li>${x}</li>`).join('');
+      box.innerHTML = boxHtml(st);
+      ord.innerHTML = ordHtml(st);
       cap.innerHTML = st.caption;
       back.disabled = at === 0;
       next.disabled = at === steps.length - 1;

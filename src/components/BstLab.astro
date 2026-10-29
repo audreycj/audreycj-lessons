@@ -48,7 +48,7 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
     <button type="button" class="btn primary" data-go="next">Next step →</button>
     <button type="button" class="btn" data-go="reset">Start over</button>
   </div>
-  <div class="legend" set:html={legend || ''} />
+  {legend && <details class="lab-key" open><summary>Color key</summary><div class="legend" set:html={legend} /></details>}
 </figure>
 
 <style is:global>
