@@ -7,11 +7,10 @@
 
 const reserved = new Map();
 
-// On phones, step labs float their Back / Next buttons (global.css), so their TEXT areas no longer need to keep
-// the height of the longest step: they fit their content (no big white gaps). Picture boxes stay reserved,
-// so the picture itself never jumps. Wider screens keep every reservation. (Chat 25, her request.)
+// On phones, step labs float their Back / Next buttons (global.css), so their EXTRA OUTPUT boxes (under the explanation)
+// fit their content. Picture boxes and explanation captions stay reserved (her rule). Wider screens keep every reservation. (Chat 25, her request.)
 const PHONE = '(max-width: 43.99rem)';
-const LOOSE_ON_PHONE = '.tr-cap, .tr-order, .bl-cap, .bl-extra, .avl-lab .lab-cap, .ll-cap, .ll-out, .al-cap';
+const LOOSE_ON_PHONE = '.tr-order, .bl-extra, .ll-out'; // extra output boxes only; pictures and explanation captions stay reserved
 const looseOnPhone = (el) => matchMedia(PHONE).matches && el.matches(LOOSE_ON_PHONE);
 
 export function reserve(el, htmls) {
