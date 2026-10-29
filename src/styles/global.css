@@ -1024,6 +1024,8 @@ svg.objbox.sort-pic { max-width: 26rem; }
 .adlab .so-say { min-height: 8.5em; }
 .adlab .so-cmp { min-height: 13em; }
 svg.objbox.adv-pic { max-width: 26rem; }
+/* Same fix as hashing (chat 25): the 13rem step-picture height cap shrank the merge tree and heap pictures on phones. */
+.cw-pic svg.adv-pic { max-height: 28rem; }
 svg.objbox.stack-pic { max-width: 24rem; }
 svg.objbox.mtree-pic { max-width: 26rem; }
 

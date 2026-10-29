@@ -112,8 +112,10 @@ export function mergePic(st) {
   if (st.halves) {
     const [lo, mid, hi] = st.halves, yb = y - 8;
     const br = (a, z, col, label) => `<path d="M${x0 + a * w + 3} ${yb + 5} V${yb} H${x0 + (z + 1) * w - 3} V${yb + 5}" fill="none" stroke="${col}" stroke-width="2.4"/>` + T((x0 + a * w + x0 + (z + 1) * w) / 2, yb - 5, label, { size: 11.5, w: 800, fill: col });
-    b += br(lo, mid, '#0e6b63', 'left half');
-    if (hi > mid) b += br(mid + 1, hi, '#2f6fa8', 'right half');
+    // A one-box half is too narrow for "left half" / "right half" (the labels collided on 8 values): use the short word.
+    const fit = (cells, long, short) => (cells * w >= long.length * 6.4 + 6 ? long : short);
+    b += br(lo, mid, '#0e6b63', fit(mid - lo + 1, 'left half', 'left'));
+    if (hi > mid) b += br(mid + 1, hi, '#2f6fa8', fit(hi - mid, 'right half', 'right'));
   }
   const at = {};
   for (const [nm, i] of Object.entries(st.ptr || {})) if (i != null) (at[i] = at[i] || []).push(nm);
