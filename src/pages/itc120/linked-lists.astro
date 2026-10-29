@@ -127,6 +127,59 @@ prev.next = prev.next.next;`;
 const bug = String.raw`current.next = newNode;
 newNode.next = current.next;`;
 
+const taskCode = String.raw`class Node {
+  int data;
+  Node next;
+  Node(int value) {
+    data = value;
+    next = null;
+  }
+}
+
+public class Main {
+  // Adds a new node with this value at the END. Returns the head.
+  static Node addLast(Node head, int value) {
+    Node newNode = new Node(value);
+    // YOUR CODE:
+    // 1. If the list is empty, the new node is the whole list.
+    // 2. Otherwise, walk to the last node (its next is null)
+    //    and make it refer to the new node.
+
+    return head;
+  }
+
+  static void printList(Node start) {
+    Node current = start;
+    while (current != null) {
+      System.out.print(current.data + " -> ");
+      current = current.next;
+    }
+    System.out.println("null");
+  }
+
+  public static void main(String[] args) {
+    Node head = null;              // an empty list
+    head = addLast(head, 10);
+    printList(head);               // expected: 10 -> null
+    head = addLast(head, 20);
+    printList(head);               // expected: 10 -> 20 -> null
+    head = addLast(head, 30);
+    printList(head);               // expected: 10 -> 20 -> 30 -> null
+  }
+}`;
+const taskAns = String.raw`static Node addLast(Node head, int value) {
+  Node newNode = new Node(value);
+  if (head == null) {
+    return newNode;
+  }
+  Node current = head;
+  while (current.next != null) {
+    current = current.next;
+  }
+  current.next = newNode;
+  return head;
+}`;
+
 const quiz = [
   { q: 'What does each node in a singly linked list store?', opts: ['Only its value', 'Its value and its index', 'Its value and a reference to the next node', 'A copy of the whole list'], a: 2, why: 'A node holds <b>data</b> and <b>next</b>. It has no index: it only knows which node comes next.' },
   { q: 'To reach the 4th node, a linked list must…', opts: ['jump straight to index 3', 'start at head and follow 3 links', 'start at the last node', 'shift the other nodes'], a: 1, why: 'There are no indexes. Start at <code>head</code> and follow <code>next</code> three times.' },
@@ -420,10 +473,10 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
   <section class="chapter wrap" id="practice">
     <div class="chapter-head">
       <p class="chapter-num">Part 8 · Your turn</p>
-      <h2>Practice on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
-      <p>Draw boxes and arrows for every problem. That is what you will do on the exam. The first two sets are the same as the "Check your understanding" items in the module (Sections 3 and 4), so you may have done them already. The third set is new.</p>
+      <p>Draw boxes and arrows for every problem. That is what you will do on the exam. The first two sets are the same as the "Check your understanding" items in the module (Sections 3 and 4), so you may have done them already. The third set is new. The last box is a short coding task you can do on a phone.</p>
       <div class="paper flow">
         <p class="note-label">Nodes and references</p>
         <ol>
@@ -471,6 +524,18 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
             <li>head → 3 → 7 → <b>10</b> → 14 → null. Lines 2-3 insert 3 at the beginning (new node first, then <code>head</code>). Line 5, <code>b.next = head.next.next;</code>, connects the new node first: <code>head.next</code> is 7, so <code>head.next.next</code> is 14. Then line 6 makes 7 refer to 10.</li>
             <li>head → 4 → 6 → null. The first line drops node 2. <code>prev</code> refers to 6, and <code>prev.next.next</code> is 8's next, which is <code>null</code>, so 6 now ends the list. Nodes <b>2</b> and <b>8</b> are no longer reachable from head. (This works because <code>prev.next</code> is not null.)</li>
           </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Your coding task: add to the end</p>
+        <p>Part 4 inserted at the beginning and after a given node. Now add a node at the <b>end</b>, like a new student joining the end of a line. Finish <code>addLast</code> in about 6 lines where it says YOUR CODE: handle the empty list first, then walk to the last node. Run it: the three printed lists must match the comments.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output: <code>10 -&gt; null</code>, then <code>10 -&gt; 20 -&gt; null</code>, then <code>10 -&gt; 20 -&gt; 30 -&gt; null</code>.</p>
+          <p>The loop checks <code>current.next != null</code>, not <code>current != null</code> like <code>printList</code>. It must stop <b>on</b> the last node, so the next line can change that node's <code>next</code>. With <code>current != null</code>, the loop walks off the end, <code>current</code> becomes <code>null</code>, and <code>current.next = newNode;</code> throws a NullPointerException.</p>
+          <p>The empty-list check comes first for the same reason: when <code>head</code> is <code>null</code>, there is no node to walk from. That is also why <code>addLast</code> returns the head. The head changes only when the list was empty, and <code>main</code> saves it with <code>head = addLast(head, ...)</code>.</p>
         </div></details>
       </div>
     </div>

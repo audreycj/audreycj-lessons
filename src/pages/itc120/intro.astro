@@ -41,6 +41,35 @@ const classify = [
   { q: 'The folder structure on your computer\'s desktop.', opts: ['Linear: array', 'Linear: queue', 'Non-linear: tree', 'Non-linear: graph'], a: 2, why: 'Folders inside folders inside folders: a <b>tree</b>.' },
   { q: 'Your Facebook friends, where anyone can be friends with anyone.', opts: ['Linear: linked list', 'Non-linear: tree', 'Non-linear: graph', 'Linear: array'], a: 2, why: 'There is no single top, and connections can go in any direction: a <b>graph</b>.' },
 ];
+const taskCode = String.raw`public class Main {
+  // The algorithm, step by step:
+  // 1. If the score is below 0 or above 100, the answer is "Invalid".
+  // 2. Otherwise, if the score is 75 or higher, the answer is "Passed".
+  // 3. Otherwise, the answer is "Failed".
+  static String result(int score) {
+    // YOUR CODE: turn steps 1 to 3 into Java.
+
+    return "";
+  }
+
+  public static void main(String[] args) {
+    System.out.println(result(88));    // expected: Passed
+    System.out.println(result(75));    // expected: Passed
+    System.out.println(result(74));    // expected: Failed
+    System.out.println(result(-5));    // expected: Invalid
+    System.out.println(result(101));   // expected: Invalid
+  }
+}`;
+const taskAns = String.raw`static String result(int score) {
+  if (score < 0 || score > 100) {
+    return "Invalid";
+  } else if (score >= 75) {
+    return "Passed";
+  } else {
+    return "Failed";
+  }
+}`;
+
 const quiz = [
   { q: 'What is a data structure?', opts: ['Raw facts like names and numbers', 'A specific way of storing and arranging data so it can be accessed, searched, and updated efficiently', 'A programming language', 'A list of steps to solve a problem'], a: 1, why: 'Data is the raw facts; a <b>data structure</b> is how we organize them. The last option describes an algorithm.' },
   { q: 'Which of these are all <b>linear</b> data structures?', opts: ['Array, stack, queue, linked list', 'Tree, graph, array', 'Stack, tree, queue', 'Graph, linked list, tree'], a: 0, why: 'Linear structures arrange items one after another. Trees and graphs branch out, so they are non-linear.' },
@@ -213,6 +242,16 @@ const quiz = [
           <TryIt />
           <p class="small muted">In the online compiler, type the two numbers in the input area when the program asks. With 4 and 5, it prints 9.</p>
         </div></details>
+        <div class="paper flow">
+          <p class="note-label">Your coding task: from steps to Java</p>
+          <p>Now turn an algorithm into a program yourself. The comments at the top list three steps that decide a student's result. Each step is exact (definiteness): "75 or higher" leaves no doubt. Finish <code>result</code> by writing one Java check for each step, about 7 lines, where it says YOUR CODE. Then run it: the five printed words must match the comments. You need <code>if</code>, <code>else if</code>, <code>||</code>, and <code>return</code>, from blocks 3 and 5 of the <a href={base + '/itc120/programming-refresher/'}>Programming refresher</a>.</p>
+          <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+          <TryIt />
+          <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+            <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+            <p>Output: <code>Passed</code>, <code>Passed</code>, <code>Failed</code>, <code>Invalid</code>, <code>Invalid</code>. Step 1 must be checked first: if <code>score &gt;= 75</code> came first, 101 would print Passed. The test with 75 checks the exact edge of the rule: <code>score &gt; 75</code> would wrongly print Failed for it. Trying the edges like this is the "test" step of programming.</p>
+          </div></details>
+        </div>
       </div>
       <div class="sub" id="ds-or-algo">
         <h3>Data structure, algorithm, or both?</h3>

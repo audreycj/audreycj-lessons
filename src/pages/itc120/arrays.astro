@@ -89,6 +89,61 @@ const practice = String.raw`public class Main {
   }
 }`;
 
+const taskCode = String.raw`public class Main {
+  // Removes the first copy of target. Returns the new size.
+  static int removeValue(int[] arr, int size, int target) {
+    int k = indexOf(arr, size, target);
+    // YOUR CODE:
+    // 1. If target is not there (k is -1), return size unchanged.
+    // 2. Shift every value after index k one slot left.
+    // 3. Return the new size.
+
+    return size;
+  }
+
+  // Finished for you: the index of target, or -1 if it is not there.
+  static int indexOf(int[] arr, int size, int target) {
+    for (int i = 0; i < size; i++) {
+      if (arr[i] == target) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  // Finished for you: prints only the counted values.
+  static void show(int[] arr, int size) {
+    for (int i = 0; i < size; i++) {
+      System.out.print(arr[i] + " ");
+    }
+    System.out.println();
+  }
+
+  public static void main(String[] args) {
+    int[] arr = {10, 25, 30, 40, 0};   // capacity 5
+    int size = 4;                      // 4 values are counted
+
+    size = removeValue(arr, size, 25);
+    show(arr, size);                   // expected: 10 30 40
+    size = removeValue(arr, size, 99);
+    show(arr, size);                   // expected: 10 30 40
+    size = removeValue(arr, size, 40);
+    show(arr, size);                   // expected: 10 30
+    size = removeValue(arr, size, 10);
+    show(arr, size);                   // expected: 30
+  }
+}`;
+const taskAns = String.raw`static int removeValue(int[] arr, int size, int target) {
+  int k = indexOf(arr, size, target);
+  if (k == -1) {
+    return size;
+  }
+  for (int i = k; i < size - 1; i++) {
+    arr[i] = arr[i + 1];
+  }
+  return size - 1;
+}`;
+
 const quiz = [
   { q: 'Given <code>int[] marks = {75, 80, 93, 68, 88};</code>, what is <code>marks[3]</code>?', opts: ['93', '68', '88', 'an error'], a: 1, why: 'Indexes start at 0: marks[0] = 75, marks[1] = 80, marks[2] = 93, <b>marks[3] = 68</b>.' },
   { q: 'An array has length 5. What happens with <code>arr[5]</code>?', opts: ['It gives the last value', 'It gives 0', 'The program stops with an ArrayIndexOutOfBoundsException', 'It adds a new slot'], a: 2, why: 'The indexes are 0 to 4. Index 5 does not exist, so Java throws an <b>ArrayIndexOutOfBoundsException</b>.' },
@@ -367,6 +422,16 @@ Items to restock: 2</code></pre>
           <pre class="code"><code set:html={hi(practice)} /></pre>
           <TryIt />
           <p>Output: 78, 85, 91, 74, 88 (one per line), then <code>Highest: 91</code>, then 78, 85, 91, 88, then <code>Passing: 4</code>.</p>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Your coding task: remove a value</p>
+        <p>This task joins Part 3 and Part 4: find a value, then delete it, like crossing a sold-out item off a canteen list. Finish <code>removeValue</code> so it removes the first copy of <code>target</code> and returns the new size. <code>indexOf</code> is finished for you and finds the index. Write about 5 lines where it says YOUR CODE, then run it: the four printed lines must match the comments.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output: <code>10 30 40</code>, <code>10 30 40</code>, <code>10 30</code>, <code>30</code>. The loop stops before <code>size - 1</code> because each step reads the next slot, <code>arr[i + 1]</code>, the same as the deletion code in Part 4. Removing 99 changes nothing, since it is not there. Removing the last value (40) shifts nothing: only the size drops. You will write a method like <code>indexOf</code> yourself in the <a href={base + '/itc120/searching/'}>Searching</a> lesson (linear search).</p>
         </div></details>
       </div>
     </div>
