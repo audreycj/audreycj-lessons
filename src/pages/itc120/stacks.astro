@@ -1,0 +1,451 @@
+---
+import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
+import SQLab from '../../components/SQLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import TryIt from '../../components/TryIt.astro';
+import { platesPic, stackWalkCode, stackWalkSteps } from '../../lib/illus.js';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const stackFields = String.raw`class ArrayStack {
+  int[] data;    // cells that hold the stack items
+  int top;       // index of the top item; -1 means empty
+
+  ArrayStack(int capacity) {
+    data = new int[capacity];
+    top = -1;
+  }
+  boolean isEmpty() {
+    return top == -1;
+  }
+  boolean isFull() {
+    return top == data.length - 1;
+  }
+  int size() {
+    return top + 1;
+  }
+  // ... push, pop, and peek below
+}`;
+const fullProgram = String.raw`public class Main {
+  public static void main(String[] args) {
+    ArrayStack s = new ArrayStack(3);
+    s.push(4);
+    s.push(9);
+    System.out.println(s.pop());     // 9
+    System.out.println(s.peek());    // 4
+    s.push(2);
+    s.push(7);
+    System.out.println(s.size());    // 3
+    System.out.println(s.isFull());  // true
+  }
+}
+
+class ArrayStack {
+  int[] data;    // cells that hold the stack items
+  int top;       // index of the top item; -1 means empty
+
+  ArrayStack(int capacity) {
+    data = new int[capacity];
+    top = -1;
+  }
+  boolean isEmpty() {
+    return top == -1;
+  }
+  boolean isFull() {
+    return top == data.length - 1;
+  }
+  int size() {
+    return top + 1;
+  }
+  void push(int value) {
+    if (isFull()) {
+      throw new IllegalStateException("Stack overflow: full.");
+    }
+    top++;
+    data[top] = value;
+  }
+  int pop() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Stack underflow: empty.");
+    }
+    int value = data[top];
+    top--;
+    return value;
+  }
+  int peek() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Stack underflow: empty.");
+    }
+    return data[top];
+  }
+}`;
+const linkedStack = String.raw`class LinkedStack {
+  Node top;   // the first node is the top; null means empty
+
+  void push(int value) {
+    Node newNode = new Node(value);
+    newNode.next = top;   // step 1: the new node points to the old top
+    top = newNode;        // step 2: top moves to the new node
+  }
+  int pop() {
+    if (top == null) {
+      throw new IllegalStateException("Stack underflow: empty.");
+    }
+    int value = top.data;
+    top = top.next;       // delete the first node
+    return value;
+  }
+}`;
+const wrongPush = String.raw`data[top] = value;   // stores first...
+top++;               // ...then moves`;
+const s1 = String.raw`ArrayStack s = new ArrayStack(3);
+s.push(4);
+s.push(9);
+System.out.println(s.pop());
+s.push(2);
+System.out.println(s.peek());
+System.out.println(s.size());
+System.out.println(s.isFull());`;
+const n1 = String.raw`ArrayStack s = new ArrayStack(4);
+s.push(5);
+s.push(8);
+s.pop();
+s.push(3);
+s.push(6);
+s.peek();
+s.pop();
+s.pop();`;
+const n2 = String.raw`ArrayStack s = new ArrayStack(3);
+s.push(11);
+s.push(22);
+s.push(33);
+s.pop();
+s.pop();
+s.push(44);`;
+const n4 = String.raw`ArrayStack s = new ArrayStack(2);
+s.push(1);
+System.out.println(s.pop());
+System.out.println(s.pop());`;
+
+const quiz = [
+  { q: 'A stack follows which rule?', opts: ['First in, first out', 'Last in, first out', 'Smallest first', 'Random order'], a: 1, why: 'A <b>stack</b> is LIFO: the item added most recently is removed first, like the top plate of a pile.' },
+  { q: 'Push 1, push 2, push 3, then pop. What is returned?', opts: ['1', '2', '3', 'nothing'], a: 2, why: '3 was pushed last, so it is on top. <code>pop()</code> removes and returns <b>3</b>.' },
+  { q: 'What is the difference between <code>pop()</code> and <code>peek()</code>?', opts: ['pop removes the top item; peek only looks at it', 'peek removes it; pop only looks', 'They are the same', 'peek returns the bottom item'], a: 0, why: 'Both return the top item, but only <code>pop()</code> moves <code>top</code> down (<code>top--;</code>). <code>peek()</code> leaves the stack unchanged.' },
+  { q: 'In <code>ArrayStack</code>, a new stack has <code>top = -1</code>. What does <code>size()</code> return?', opts: ['-1', '0', '1', 'the capacity'], a: 1, why: '<code>size()</code> returns <code>top + 1</code>, which is <b>0</b>. The -1 is only an index meaning "no top item yet."' },
+  { q: 'An <code>ArrayStack</code> holds 4, 9 (so <code>top</code> is 1). After <code>pop()</code>, what is in <code>data[1]</code>?', opts: ['0', '9', '4', 'null'], a: 1, why: '<code>pop()</code> only moves <code>top</code> down to 0. The 9 <b>stays in cell 1</b>, but it is above <code>top</code>, so it is not part of the stack. The next <code>push</code> writes over it.' },
+  { q: 'A program runs <code>s.pop();</code> on its own line, without printing it. What happens?', opts: ['Nothing, because the value is not used', 'The top item is still removed; its value is just not used', 'Java shows an error', 'The bottom item is removed'], a: 1, why: '<code>pop()</code> always removes the top item. Printing or storing the returned value is up to the program.' },
+  { q: 'Why does <code>push</code> run <code>top++;</code> <b>before</b> <code>data[top] = value;</code>?', opts: ['top points at the current top item, so it must move up to a free cell first', 'Java requires ++ to come first', 'To check if the stack is full', 'It does not matter'], a: 0, why: '<code>top</code> is the index of the current top item. Storing first would write over that item (or use index -1 on an empty stack). Moving up first gives the new value its own cell.' },
+];
+---
+<Base title="Stacks · ITC 120" description="Stacks (last in, first out): push, pop, and peek, traces, real-life uses, and a stack in Java using an array." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Stacks</p>
+    <p class="kicker">Linear data structures · Lesson 3 of 4</p>
+    <h1>Stacks</h1>
+    <KindChips />
+    <p class="lede">The newest item leaves first, like the top plate on a pile.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>explain the last-in, first-out (LIFO) rule and name places where it fits;</li>
+        <li>trace <code>push</code>, <code>pop</code>, and <code>peek</code> in a table, writing the stack from bottom to top and the value each call returns;</li>
+        <li>say what each <code>ArrayStack</code> method changes in <code>data</code> and <code>top</code>;</li>
+        <li>explain underflow and overflow, and how the code guards against them.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson. The <a href={base + '/itc120/linked-lists/'}>Linked lists</a> lesson helps for one optional part.</p>
+  </header>
+
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The big idea</p>
+      <h2>A pile with one open end</h2>
+    </div>
+    <div class="flow">
+      <p>After a <i>handaan</i>, the clean plates go on one pile. You put each washed plate on the top, and when someone needs a plate, they take the top one. The plate that went in <b>last</b> comes out <b>first</b>.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={platesPic()} /><figcaption>Plates go on and come off at the top only. The bottom plate went in first and will come out last.</figcaption></figure>
+      <div class="def">
+        <p class="note-label">Stack</p>
+        <p>A <b>stack</b> is a linear data structure (its items form one line) where items are added and removed at <b>one end only</b>, called the <b>top</b>. It follows the <b>LIFO</b> rule: <b>last in, first out</b>. The item added most recently is the first one removed.</p>
+      </div>
+      <p>A stack is not a new way of <i>storing</i> data. It is a <b>rule</b> placed on storage you already know, such as an array: "only touch the top." Here are the words that come with it:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Word</th><th>Meaning</th><th>With the plates</th></tr></thead>
+          <tbody>
+            <tr><td><b>top</b></td><td>the end where items enter and leave</td><td>the plate on top of the pile</td></tr>
+            <tr><td><code>push(x)</code></td><td>add x on the top</td><td>put a clean plate on the pile</td></tr>
+            <tr><td><code>pop()</code></td><td>remove the top item and return it</td><td>take the top plate</td></tr>
+            <tr><td><code>peek()</code></td><td>return the top item, but keep it there</td><td>look at the top plate without taking it</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>These names are conventions: ordinary method names that a programmer writes, not Java keywords. A different class could call them something else.</p>
+      <div class="def">
+        <p class="note-label">Underflow and overflow</p>
+        <p><b>Underflow</b>: popping or peeking when the stack is <b>empty</b> (no plates left). <b>Overflow</b>: pushing onto a fixed-size stack that is already <b>full</b> (the rack has no room).</p>
+      </div>
+      <div class="sub">
+        <h3>Where you see LIFO</h3>
+        <p>Here are some places where the newest item should come out first:</p>
+        <div class="scroll-x">
+          <table class="tbl">
+            <thead><tr><th>Use</th><th>How LIFO fits</th></tr></thead>
+            <tbody>
+              <tr><td>Undo</td><td>Each change could be pushed. Undo pops the most recent change first.</td></tr>
+              <tr><td>The Back button</td><td>Each page you visit could be pushed. Back pops the most recent page.</td></tr>
+              <tr><td>Reversing a word</td><td>Push the letters, then pop them all: they come out in reverse.</td></tr>
+              <tr><td>Method calls in Java</td><td>Java keeps a stack of calls. A call is pushed when a method starts and popped when it finishes. You will see this in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson.</td></tr>
+              <tr><td>Depth-first search</td><td>A stack remembers the path back. You will use it in the <a href={base + '/itc120/dfs/'}>DFS</a> lesson.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted">Undo and Back are illustrations of the rule, not a description of how any particular app is programmed.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Try it</p>
+      <h2>Stack lab</h2>
+    </div>
+    <div class="flow">
+      <p>Push three values, then pop them. In which order do they come out? Then try <b>peek</b>: what changes, and what does not?</p>
+      <SQLab id="lab-stack" mode="stack" />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="trace">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Tracing</p>
+      <h2>Tracing a stack in a table</h2>
+    </div>
+    <div class="flow">
+      <p>A <b>trace table</b> shows the stack after every call. This is also the format for exams and coding exercises: one row per call, the stack written <b>bottom → top</b> with commas, and the value the call returns (— if it returns nothing). The stack starts empty, and each row acts on the result of the row before it:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Call</th><th>Stack after (bottom → top)</th><th>Returned</th><th>size</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td><code>push(10)</code></td><td>10</td><td>—</td><td>1</td><td>10 goes on; it is the top.</td></tr>
+            <tr><td><code>push(20)</code></td><td>10, 20</td><td>—</td><td>2</td><td>20 goes above 10; 20 is the top.</td></tr>
+            <tr><td><code>peek()</code></td><td>10, 20</td><td><b>20</b></td><td>2</td><td>Reads the top. Nothing changes.</td></tr>
+            <tr><td><code>push(30)</code></td><td>10, 20, 30</td><td>—</td><td>3</td><td>30 is the new top.</td></tr>
+            <tr><td><code>pop()</code></td><td>10, 20</td><td><b>30</b></td><td>2</td><td>Removes 30; 20 is the top again.</td></tr>
+            <tr><td><code>pop()</code></td><td>10</td><td><b>20</b></td><td>1</td><td>Removes 20; only 10 is left.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ol class="flow">
+          <li><b>Write the stack bottom → top.</b> The newest item is written <b>last</b> (on the right), not first.</li>
+          <li><b>A call removes even when nothing prints it.</b> A line like <code>s.pop();</code> still removes the top item. Its value is returned and simply not used, so write it in the Returned column anyway.</li>
+          <li><b><code>peek()</code> changes nothing.</b> Copy the stack from the row above, and write the top value as Returned.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Java</p>
+      <h2>A stack in Java, using an array</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Array and index (from the Arrays lesson)</p>
+        <p>An <b>array</b> is a fixed number of cells side by side, all holding the same type. Each cell has an <b>index</b>, its position number, starting at 0. An array's <b>length</b> never changes, so the last index is <code>length - 1</code>.</p>
+      </div>
+      <p>The class <code>ArrayStack</code> keeps its items in an array called <code>data</code>. The field <code>top</code> is the <b>index of the top item</b>. A new stack has <code>top = -1</code>, meaning "no top item yet." The -1 is only an index; it is never returned as data.</p>
+      <pre class="code"><code set:html={hiN(stackFields)} /></pre>
+      <div class="def">
+        <p class="note-label">Boolean method</p>
+        <p>A <b>boolean method</b> returns <code>true</code> or <code>false</code>. <code>return top == -1;</code> returns <code>true</code> exactly when <code>top</code> equals -1.</p>
+      </div>
+      <p>The three checks all come from the meaning of <code>top</code>:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Method</th><th>Returns</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td><code>isEmpty()</code></td><td><code>top == -1</code></td><td>no top item yet</td></tr>
+            <tr><td><code>isFull()</code></td><td><code>top == data.length - 1</code></td><td>the top item is in the last cell</td></tr>
+            <tr><td><code>size()</code></td><td><code>top + 1</code></td><td>indexes start at 0, so top 1 means 2 items</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="def">
+        <p class="note-label">Exception and <code>throw</code></p>
+        <p>An <b>exception</b> is Java's way of stopping a method when it cannot do its job. The <code>throw</code> statement stops the method at once with an exception object. <code>IllegalStateException</code> is Java's standard exception for "you asked at the wrong time," such as popping an empty stack.</p>
+      </div>
+      <p>Now <code>push</code>, <code>pop</code>, and <code>peek</code>. Each one first checks for overflow or underflow, then does its job. Follow them on a stack made with <code>new ArrayStack(3)</code> that already holds 4. The array is drawn as a column, with index 0 at the bottom, so the top is really on top:</p>
+      <CodeWalk id="cw-stack" code={stackWalkCode} steps={stackWalkSteps()} cap="Walkthrough: push(9), pop(), peek(), then overflow" hint="Use Next to go step by step, or tap a line to jump to it." />
+      <div class="remember">
+        <p class="note-label">What each method changes</p>
+        <p><code>push</code> moves <code>top</code> up one cell, then stores the value there. <code>pop</code> saves the value at <code>top</code>, moves <code>top</code> down, and returns the saved value. <code>peek</code> changes <b>nothing</b>: it returns <code>data[top]</code> and leaves <code>top</code> alone.</p>
+      </div>
+      <div class="plain">
+        <p class="note-label">Why not return -1 when the stack is empty?</p>
+        <p>-1 could be real data: a stack of temperatures might hold -1. Throwing an exception makes the mistake impossible to miss. The rule: check <code>isEmpty()</code> before popping or peeking, and <code>isFull()</code> before pushing onto a fixed-size array.</p>
+      </div>
+      <div class="sub">
+        <h3>The whole program</h3>
+        <p>Here is everything in one runnable file. <code>main</code> does the same calls as the walkthrough:</p>
+        <pre class="code"><code set:html={hiN(fullProgram)} /></pre>
+        <TryIt />
+      </div>
+      <details class="reveal">
+        <summary>Optional: a stack built from a linked list</summary>
+        <div class="flow">
+          <p>A stack can also use a <a href={base + '/itc120/linked-lists/'}>linked list</a>, with the <b>first node as the top</b>. Then <code>push</code> is "insert at the beginning" and <code>pop</code> is "delete the first node," the same two operations from the Linked lists lesson. It never gets full, so it has no <code>isFull()</code>.</p>
+          <pre class="code"><code set:html={hiN(linkedStack)} /></pre>
+          <p class="small muted">It uses the same <code>Node</code> class as the Linked lists lesson. LIFO is the rule; an array or a linked list is just where the items are kept.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="mistakes">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Watch out</p>
+      <h2>Common mistakes</h2>
+    </div>
+    <div class="flow">
+      <div class="trap">
+        <p class="note-label">Mistake 1: storing before moving <code>top</code></p>
+        <p><b>Situation:</b> a student swaps the two lines of <code>push</code>:</p>
+        <pre class="code"><code set:html={hi(wrongPush)} /></pre>
+        <p><b>What goes wrong:</b> <code>top</code> is the index of the current top item. On an empty stack, <code>data[-1] = value;</code> crashes with an <code>ArrayIndexOutOfBoundsException</code>. On a stack holding 4, 9, the new value writes over the 9.</p>
+        <p><b>Fix:</b> move first (<code>top++;</code>), then store (<code>data[top] = value;</code>).</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake 2: thinking <code>pop</code> erases the cell</p>
+        <p><b>Situation:</b> after <code>pop()</code> on 4, 9, a student writes that <code>data[1]</code> is now 0.</p>
+        <p><b>What goes wrong:</b> <code>pop</code> only moves <code>top</code> down. The 9 is <b>still in cell 1</b> (see step 7 of the walkthrough). It is not part of the stack because it is above <code>top</code>, and the next <code>push</code> writes over it.</p>
+        <div class="mk-ans mk-solo">
+          <p class="mk-wrong"><b>✗ After pop()</b><span class="mono">data = [4, 0, 0]</span></p>
+          <p class="mk-right"><b>✓ After pop()</b><span class="mono">data = [4, 9, 0], top = 0</span></p>
+        </div>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake 3: using <code>peek</code> to remove</p>
+        <p><b>Situation:</b> a program calls <code>peek()</code> in a loop, hoping to empty the stack.</p>
+        <p><b>What goes wrong:</b> <code>peek()</code> never moves <code>top</code>, so it returns the same top item every time and the stack never shrinks.</p>
+        <p><b>Fix:</b> use <code>pop()</code> to remove; use <code>peek()</code> only to look.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Your turn</p>
+      <h2>Practice on paper</h2>
+    </div>
+    <div class="flow">
+      <p>Set A is the Section 5 self-check from your module, in case you want to redo it. Set B is new.</p>
+      <div class="paper flow">
+        <p class="note-label">Set A: from the module</p>
+        <ol>
+          <li>Write exactly what this prints.<pre class="code"><code set:html={hi(s1)} /></pre></li>
+          <li>In your own words, what is the difference between <code>pop()</code> and <code>peek()</code>? Which line of code shows it?</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li><code>9</code>, <code>2</code>, <code>2</code>, <code>false</code> (one per line). <code>pop()</code> removes 9. After <code>push(2)</code> the stack is 4, 2, so <code>peek()</code> shows 2 and <code>size()</code> is 2. With capacity 3, it is not full.</li>
+            <li><code>pop()</code> removes the top item and returns it; <code>peek()</code> returns it and leaves the stack unchanged. The line <code>top--;</code> in <code>pop()</code> is the difference.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Set B: new problems</p>
+        <ol class="flow">
+          <li>The statements run in order, starting with an empty stack. Copy the table and fill it in. The first row is done for you.
+            <pre class="code"><code set:html={hi(n1)} /></pre>
+            <div class="scroll-x">
+              <table class="tbl">
+                <thead><tr><th>Statement</th><th>Stack after (bottom → top)</th><th>Value returned</th></tr></thead>
+                <tbody>
+                  <tr><td><code>s.push(5);</code></td><td>5</td><td>—</td></tr>
+                  <tr><td><code>s.push(8);</code></td><td></td><td></td></tr>
+                  <tr><td><code>s.pop();</code></td><td></td><td></td></tr>
+                  <tr><td><code>s.push(3);</code></td><td></td><td></td></tr>
+                  <tr><td><code>s.push(6);</code></td><td></td><td></td></tr>
+                  <tr><td><code>s.peek();</code></td><td></td><td></td></tr>
+                  <tr><td><code>s.pop();</code></td><td></td><td></td></tr>
+                  <tr><td><code>s.pop();</code></td><td></td><td></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </li>
+          <li>Inside the array. After this code, (a) what is <code>top</code>? (b) What is in <code>data[1]</code> and <code>data[2]</code>? (c) Is 33 part of the stack? Why?
+            <pre class="code"><code set:html={hi(n2)} /></pre>
+          </li>
+          <li>Push the characters of <code>IT2C</code> one at a time (I first), then pop until the stack is empty. Write the characters in the order they come out.</li>
+          <li>What does this print? What happens on the last line?
+            <pre class="code"><code set:html={hi(n4)} /></pre>
+          </li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <p class="small muted">For self-study, not for grading. All answers were checked by running the code in Java.</p>
+          <ol class="flow">
+            <li>
+              <div class="scroll-x">
+                <table class="tbl">
+                  <thead><tr><th>Statement</th><th>Stack after (bottom → top)</th><th>Value returned</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>s.push(5);</code></td><td>5</td><td>—</td></tr>
+                    <tr><td><code>s.push(8);</code></td><td>5, 8</td><td>—</td></tr>
+                    <tr><td><code>s.pop();</code></td><td>5</td><td>8</td></tr>
+                    <tr><td><code>s.push(3);</code></td><td>5, 3</td><td>—</td></tr>
+                    <tr><td><code>s.push(6);</code></td><td>5, 3, 6</td><td>—</td></tr>
+                    <tr><td><code>s.peek();</code></td><td>5, 3, 6</td><td>6</td></tr>
+                    <tr><td><code>s.pop();</code></td><td>5, 3</td><td>6</td></tr>
+                    <tr><td><code>s.pop();</code></td><td>5</td><td>3</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </li>
+            <li>(a) <code>top</code> is 1. After the two pops it was 0; <code>push(44)</code> moved it to 1. (b) <code>data[1]</code> is 44 (it wrote over 22), and <code>data[2]</code> is still 33. (c) No. 33 is above <code>top</code>, so it is not part of the stack. The stack is 11, 44.</li>
+            <li><code>C</code>, <code>2</code>, <code>T</code>, <code>I</code>. C was pushed last, so it comes out first: the word comes out reversed, <b>C2TI</b>.</li>
+            <li>It prints <code>1</code>. The second <code>pop()</code> finds the stack empty, so it throws an <code>IllegalStateException</code> with the message "Stack underflow: empty." and the program stops (underflow).</li>
+          </ol>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-stack" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Stack: last in, first out. <code>push</code>, <code>pop</code>, and <code>peek</code> all happen at the top.</li>
+          <li><code>pop</code> removes and returns the top item; <code>peek</code> only looks.</li>
+          <li>In <code>ArrayStack</code>, <code>top</code> is the index of the top item: -1 means empty, and the size is <code>top + 1</code>.</li>
+          <li><code>push</code> moves <code>top</code> up, then stores. <code>pop</code> leaves the old value in its cell, above <code>top</code>.</li>
+          <li>Guard against underflow (empty) and overflow (full) before acting.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/queues/'}>Queues</a>, where the oldest item leaves first.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>R. Sedgewick and K. Wayne, <i>Algorithms</i>, 4th ed. Addison-Wesley, 2011, Section 1.3 (Bags, Queues, and Stacks). <a href="https://algs4.cs.princeton.edu/13stacks/">algs4.cs.princeton.edu</a></li>
+          <li>P. Morin, "ArrayStack: Fast Stack Operations Using an Array," Section 2.1 in <i>Open Data Structures</i>. <a href="https://opendatastructures.org/ods-java/2_1_ArrayStack_Fast_Stack_O.html">opendatastructures.org</a></li>
+          <li>Oracle, "Class IllegalStateException," Java SE 21 API. <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html">docs.oracle.com</a></li>
+          <li>Oracle, "How to Throw Exceptions," The Java Tutorials. <a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/throwing.html">docs.oracle.com</a></li>
+          <li>ITC 120 Course Syllabus, A.Y. 2026–2027, Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>

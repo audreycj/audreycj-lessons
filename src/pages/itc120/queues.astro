@@ -1,0 +1,473 @@
+---
+import Base from '../../layouts/Base.astro';
+import KindChips from '../../components/KindChips.astro';
+import SQLab from '../../components/SQLab.astro';
+import Quiz from '../../components/Quiz.astro';
+import CodeWalk from '../../components/CodeWalk.astro';
+import TryIt from '../../components/TryIt.astro';
+import { canteenLine, queueWalkCode, queueWalkSteps } from '../../lib/illus.js';
+import { course } from '../../data/itc120.js';
+import { hi, hiN } from '../../lib/code.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const queueFields = String.raw`class LinkedQueue {
+  Node front;    // first node (leaves next); null means empty
+  Node rear;     // last node (joined last); null means empty
+  int count;     // number of items
+
+  boolean isEmpty() {
+    return front == null;
+  }
+  int size() {
+    return count;
+  }
+  // ... enqueue, dequeue, and peek below
+}`;
+const peekCode = String.raw`int peek() {
+  if (isEmpty()) {
+    throw new IllegalStateException("Queue underflow: empty.");
+  }
+  return front.data;   // look only; front does not move
+}`;
+const fullProgram = String.raw`public class Main {
+  public static void main(String[] args) {
+    LinkedQueue q = new LinkedQueue();
+    q.enqueue(7);
+    q.enqueue(8);
+    System.out.println(q.dequeue());  // 7
+    System.out.println(q.dequeue());  // 8
+    System.out.println(q.isEmpty());  // true
+    q.enqueue(5);
+    System.out.println(q.peek());     // 5
+    System.out.println(q.size());     // 1
+  }
+}
+
+class Node {
+  int data;
+  Node next;
+  Node(int value) {
+    data = value;
+    next = null;
+  }
+}
+
+class LinkedQueue {
+  Node front;    // first node (leaves next); null means empty
+  Node rear;     // last node (joined last); null means empty
+  int count;     // number of items
+
+  boolean isEmpty() {
+    return front == null;
+  }
+  int size() {
+    return count;
+  }
+  void enqueue(int value) {
+    Node newNode = new Node(value);
+    if (isEmpty()) {
+      front = newNode;
+      rear = newNode;
+    } else {
+      rear.next = newNode;
+      rear = newNode;
+    }
+    count++;
+  }
+  int dequeue() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Queue underflow: empty.");
+    }
+    int value = front.data;
+    front = front.next;
+    if (front == null) {
+      rear = null;
+    }
+    count--;
+    return value;
+  }
+  int peek() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Queue underflow: empty.");
+    }
+    return front.data;
+  }
+}`;
+const wrongEnq = String.raw`} else {
+  rear = newNode;        // moves first...
+  rear.next = newNode;   // ...then links
+}`;
+const q1 = String.raw`LinkedQueue q = new LinkedQueue();
+q.enqueue(3);
+q.enqueue(5);
+q.enqueue(8);
+System.out.println(q.dequeue());
+System.out.println(q.peek());
+q.enqueue(1);
+System.out.println(q.size());`;
+const n1 = String.raw`LinkedQueue q = new LinkedQueue();
+q.enqueue(6);
+q.enqueue(14);
+q.dequeue();
+q.enqueue(9);
+q.enqueue(2);
+q.peek();
+q.dequeue();
+q.dequeue();`;
+const r1 = String.raw`Node current = head;
+int count = 0;
+while (current != null) {
+  if (current.data > 3) {
+    count++;
+  }
+  current = current.next;
+}
+System.out.println(count);`;
+
+const quiz = [
+  { q: 'A queue follows which rule?', opts: ['Last in, first out', 'First in, first out', 'Smallest first', 'Random order'], a: 1, why: 'A <b>queue</b> is FIFO: the item that has waited longest leaves first, like a canteen line.' },
+  { q: 'Enqueue 1, enqueue 2, enqueue 3, then dequeue. What is returned?', opts: ['1', '2', '3', 'nothing'], a: 0, why: '1 joined first, so it is at the front. <code>dequeue()</code> removes and returns <b>1</b>.' },
+  { q: 'In <code>LinkedQueue</code>, where does <code>enqueue</code> attach the new node?', opts: ['Before front', 'After rear', 'In the middle', 'It replaces front'], a: 1, why: 'The old rear node points to the new node (<code>rear.next = newNode;</code>), then <code>rear</code> moves to it. New items always join at the <b>rear</b>.' },
+  { q: 'Why must <code>rear.next = newNode;</code> come <b>before</b> <code>rear = newNode;</code>?', opts: ['After rear moves, rear no longer refers to the old last node, so the old last node can never be linked', 'Java runs the lines in any order', 'To update count', 'It does not matter'], a: 0, why: 'Once <code>rear</code> moves, nothing refers to the old last node from the rear side. Swapped, the new node points to <b>itself</b> and is never linked into the queue.' },
+  { q: 'After the last node leaves, why does <code>dequeue()</code> also set <code>rear = null</code>?', opts: ['Java requires it', 'So front and rear agree that the queue is empty, and rear does not keep referring to a node that has left', 'To make the next enqueue work', 'To save the value'], a: 1, why: 'Without it, <code>rear</code> would still refer to the removed node while <code>front</code> says the queue is empty. (The next <code>enqueue</code> would still work here, because <code>isEmpty()</code> checks <code>front</code>, but any code that reads <code>rear</code> would see a node that is no longer in the queue.)' },
+  { q: 'Students waiting at the registrar\'s window, served in the order they arrived. Which structure fits?', opts: ['Stack', 'Queue', 'Array', 'Tree'], a: 1, why: 'First come, first served: a <b>queue</b>.' },
+  { q: 'Add 1, 2, 3 to a stack and to a queue, then remove one item from each. Which values come out?', opts: ['Stack 1, queue 1', 'Stack 3, queue 1', 'Stack 1, queue 3', 'Stack 3, queue 3'], a: 1, why: 'The stack gives the newest (<b>3</b>); the queue gives the oldest (<b>1</b>).' },
+];
+---
+<Base title="Queues · ITC 120" description="Queues (first in, first out): enqueue, dequeue, and peek, traces, real-life uses, a queue in Java using a linked list, and how stacks and queues compare." course={{ code: course.code, href: base + course.href }} toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Prelim › Queues</p>
+    <p class="kicker">Linear data structures · Lesson 4 of 4</p>
+    <h1>Queues</h1>
+    <KindChips />
+    <p class="lede">The oldest item leaves first, like a canteen line.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>explain the first-in, first-out (FIFO) rule and name places where it fits;</li>
+        <li>trace <code>enqueue</code>, <code>dequeue</code>, and <code>peek</code> in a table, writing the queue from front to rear and the value each call returns;</li>
+        <li>say what each <code>LinkedQueue</code> method changes in <code>front</code>, <code>rear</code>, and the links, including why <code>rear</code> is cleared when the queue becomes empty;</li>
+        <li>choose a stack, queue, array, or linked list for a situation, and give a reason.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/linked-lists/'}>Linked lists</a> and <a href={base + '/itc120/stacks/'}>Stacks</a> lessons.</p>
+  </header>
+
+  <section class="chapter wrap" id="idea">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · The big idea</p>
+      <h2>First come, first served</h2>
+    </div>
+    <div class="flow">
+      <p>At the canteen, the student at the <b>front</b> of the line is served first and leaves. A new student joins at the <b>back</b>, called the <b>rear</b>. Nobody cuts in, and nobody leaves from the middle.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={canteenLine()} /><figcaption>Students join at the rear and leave from the front, in the order they came.</figcaption></figure>
+      <div class="def">
+        <p class="note-label">Queue</p>
+        <p>A <b>queue</b> is a linear data structure where items <b>join at one end</b>, the <b>rear</b>, and <b>leave from the other end</b>, the <b>front</b>. It follows the <b>FIFO</b> rule: <b>first in, first out</b>. The item that has waited longest is the first one removed.</p>
+      </div>
+      <p>Like a <a href={base + '/itc120/stacks/'}>stack</a>, a queue is a <b>rule</b> placed on storage, not a new way of storing data. Here are its words:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Word</th><th>Meaning</th><th>In the canteen line</th></tr></thead>
+          <tbody>
+            <tr><td><b>front</b></td><td>the item that leaves next</td><td>the student being served</td></tr>
+            <tr><td><b>rear</b></td><td>the item that joined most recently</td><td>the last student in line</td></tr>
+            <tr><td><code>enqueue(x)</code></td><td>add x at the rear</td><td>a new student lines up</td></tr>
+            <tr><td><code>dequeue()</code></td><td>remove the front item and return it</td><td>the front student is served and leaves</td></tr>
+            <tr><td><code>peek()</code></td><td>return the front item, but keep it there</td><td>see who is next, without serving them</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>As with <code>push</code> and <code>pop</code>, these are ordinary method names a programmer writes, not Java keywords.</p>
+      <div class="def">
+        <p class="note-label">Underflow (and why there is no overflow here)</p>
+        <p><b>Underflow</b>: dequeuing or peeking when the queue is <b>empty</b>. The queue in this lesson is built from a linked list, which has no fixed size, so it does not <b>overflow</b>: a new node can always be added (unless the computer runs out of memory). A queue stored in a fixed-size array can overflow.</p>
+      </div>
+      <div class="sub">
+        <h3>Where you see FIFO</h3>
+        <p>Queues fit any waiting line served in arrival order:</p>
+        <ul>
+          <li>print jobs sent to one shared printer;</li>
+          <li>students at the registrar's window;</li>
+          <li>passengers at a pedicab terminal;</li>
+          <li>breadth-first search, which you will meet in the <a href={base + '/itc120/bfs/'}>BFS</a> lesson: it keeps the places it still has to visit in a queue.</li>
+        </ul>
+        <p class="small muted">These illustrate the rule; they do not describe how any particular system is programmed.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="lab">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Try it</p>
+      <h2>Queue lab</h2>
+    </div>
+    <div class="flow">
+      <p>Enqueue three values, then dequeue them. In which order do they come out? Compare with the stack lab from the last lesson.</p>
+      <SQLab id="lab-queue" mode="queue" />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="trace">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Tracing</p>
+      <h2>Tracing a queue in a table</h2>
+    </div>
+    <div class="flow">
+      <p>The table works like the stack's, but the queue is written <b>front → rear</b>: the item that leaves next is on the left. The queue starts empty, and each row acts on the result of the row before it:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Call</th><th>Queue after (front → rear)</th><th>Returned</th><th>size</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td><code>enqueue(10)</code></td><td>10</td><td>—</td><td>1</td><td>10 joins; it is both front and rear.</td></tr>
+            <tr><td><code>enqueue(20)</code></td><td>10, 20</td><td>—</td><td>2</td><td>20 joins at the rear; 10 is still the front.</td></tr>
+            <tr><td><code>enqueue(30)</code></td><td>10, 20, 30</td><td>—</td><td>3</td><td>30 joins at the rear.</td></tr>
+            <tr><td><code>dequeue()</code></td><td>20, 30</td><td><b>10</b></td><td>2</td><td>10 leaves; 20 is the new front.</td></tr>
+            <tr><td><code>peek()</code></td><td>20, 30</td><td><b>20</b></td><td>2</td><td>Reads the front. Nothing changes.</td></tr>
+            <tr><td><code>enqueue(40)</code></td><td>20, 30, 40</td><td>—</td><td>3</td><td>40 joins at the rear.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="trap">
+        <p class="note-label">Exam traps</p>
+        <ol class="flow">
+          <li><b>Write the queue front → rear.</b> The newest item goes on the <b>right</b>, and <code>dequeue</code> removes from the <b>left</b>. (A stack removes from the right.)</li>
+          <li><b>A call removes even when nothing prints it.</b> <code>q.dequeue();</code> on its own line still removes the front item; write its value in the Returned column.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="java">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Java</p>
+      <h2>A queue in Java, using a linked list</h2>
+    </div>
+    <div class="flow">
+      <div class="def">
+        <p class="note-label">Node (from the Linked lists lesson)</p>
+        <p>A <b>node</b> is one box in a linked list. It holds a value, <code>data</code>, and a reference, <code>next</code>, to the node after it. <code>next</code> is <code>null</code> when no node comes after. A new node made with <code>new Node(value)</code> starts with <code>next = null</code>.</p>
+      </div>
+      <p>A linked list can insert and delete anywhere. A queue narrows that down to two places: <code>front</code> refers to the node that leaves next, and <code>rear</code> refers to the last node, where new nodes attach. Having <code>rear</code> means <code>enqueue</code> never has to walk the whole list to find the end.</p>
+      <pre class="code"><code set:html={hiN(queueFields)} /></pre>
+      <p>The fields have no starting values in the code, so Java gives them <b>default values</b>: <code>null</code> for references and <code>0</code> for <code>int</code>. A new queue (<code>new LinkedQueue()</code>) starts with <code>front == null</code>, <code>rear == null</code>, and <code>count == 0</code>. <code>isEmpty()</code> is a boolean method: it returns <code>true</code> exactly when <code>front</code> is <code>null</code>.</p>
+      <p>Now <code>enqueue</code> and <code>dequeue</code>. Follow them from an empty queue: enqueue 7, enqueue 8, then dequeue twice.</p>
+      <CodeWalk id="cw-queue" code={queueWalkCode} steps={queueWalkSteps()} cap="Walkthrough: enqueue(7), enqueue(8), dequeue(), dequeue()" hint="Use Next to go step by step, or tap a line to jump to it." />
+      <p><code>peek</code> only reads the front value. Like the other methods, it throws an <code>IllegalStateException</code> (Java's exception for "you asked at the wrong time") when the queue is empty:</p>
+      <pre class="code"><code set:html={hiN(peekCode)} /></pre>
+      <p>Each method is a linked-list operation you already know:</p>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Method</th><th>Linked-list operation</th><th>What changes</th></tr></thead>
+          <tbody>
+            <tr><td><code>enqueue</code></td><td>insert at the end</td><td>the old rear's <code>next</code>, then <code>rear</code></td></tr>
+            <tr><td><code>dequeue</code></td><td>delete the first node</td><td><code>front</code> (and <code>rear</code> too, when the last node leaves)</td></tr>
+            <tr><td><code>peek</code></td><td>read the first node</td><td>nothing</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub">
+        <h3>The whole program</h3>
+        <p>Here is everything in one runnable file. <code>main</code> does the walkthrough's calls, then a few more:</p>
+        <pre class="code"><code set:html={hiN(fullProgram)} /></pre>
+        <TryIt />
+      </div>
+      <details class="reveal">
+        <summary>Optional: a queue in an array</summary>
+        <div class="flow">
+          <p>A queue can also be kept in an array. If the front always stayed at index 0, every <code>dequeue</code> would have to shift all the other values one cell left, like deleting at index 0 in the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson. So array queues let the front <b>move forward</b> instead, and when the rear reaches the last cell, it <b>wraps around</b> to index 0 to reuse the cells that were freed. This is called a <b>circular array</b>.</p>
+          <p>The wrap-around uses the <code>%</code> (remainder) operator: the cell after index <code>i</code> is <code>(i + 1) % data.length</code>. With 5 cells, after index 4 comes <code>(4 + 1) % 5</code> = 0. Unlike the linked queue, an array queue <b>can overflow</b>.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="mistakes">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Watch out</p>
+      <h2>Common mistakes</h2>
+    </div>
+    <div class="flow">
+      <div class="trap">
+        <p class="note-label">Mistake 1: forgetting <code>rear = null</code> (lines 19–21 of the walkthrough code)</p>
+        <p><b>Situation:</b> a student deletes the <code>if (front == null)</code> block from <code>dequeue</code>. Then the walkthrough runs again: enqueue 7, enqueue 8, and <code>dequeue()</code> twice.</p>
+        <p><b>What goes wrong:</b> after the second <code>dequeue</code>, <code>front</code> is <code>null</code>, but <code>rear</code> <b>still refers to node 8</b>, which has left the queue (the red box in step 13 of the walkthrough). This time nothing clears it. The two references disagree about whether the queue is empty. The next <code>enqueue</code> happens to still work, because <code>isEmpty()</code> checks <code>front</code>. But any code that trusts <code>rear</code> goes wrong: a method that shows the last item would show 8, and if <code>isEmpty()</code> were written as <code>rear == null</code>, the next <code>enqueue</code> would attach the new node to the removed node 8, and <code>front</code> would stay <code>null</code>.</p>
+        <p><b>Fix:</b> when the last node leaves, clear both: <code>if (front == null) rear = null;</code>.</p>
+      </div>
+      <div class="trap">
+        <p class="note-label">Mistake 2: moving <code>rear</code> before linking</p>
+        <p><b>Situation:</b> a student swaps the two lines in the <code>else</code> part of <code>enqueue</code>:</p>
+        <pre class="code"><code set:html={hi(wrongEnq)} /></pre>
+        <p><b>What goes wrong:</b> after <code>rear = newNode;</code>, <code>rear</code> already refers to the new node, so <code>rear.next = newNode;</code> makes the new node point to <b>itself</b>. The old last node still has <code>next = null</code>, so the new node was never linked in. With 7 in the queue, <code>enqueue(8)</code> then <code>dequeue()</code> returns 7, and the queue looks empty: 8 is lost.</p>
+        <p><b>Fix:</b> link first (<code>rear.next = newNode;</code>), then move (<code>rear = newNode;</code>). Same idea as the safe insert order in the Linked lists lesson.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="together">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Bringing it together</p>
+      <h2>Stacks, queues, arrays, and linked lists</h2>
+    </div>
+    <div class="flow">
+      <div class="sub">
+        <h3>Same inputs, opposite orders</h3>
+        <p>Add 1, 2, 3, then remove all three: a stack gives 3, 2, 1; a queue gives 1, 2, 3. Try a longer sequence below: tap <b>Same inputs, both structures</b>.</p>
+        <SQLab id="lab-both" mode="both" />
+        <div class="scroll-x">
+          <table class="tbl">
+            <thead><tr><th></th><th>Stack</th><th>Queue</th></tr></thead>
+            <tbody>
+              <tr><td><b>Rule</b></td><td>LIFO: last in, first out</td><td>FIFO: first in, first out</td></tr>
+              <tr><td><b>Add / remove</b></td><td>push and pop at the top (same end)</td><td>enqueue at the rear, dequeue at the front</td></tr>
+              <tr><td><b>Look only</b></td><td>peek at the top</td><td>peek at the front</td></tr>
+              <tr><td><b>Written in a trace</b></td><td>bottom → top</td><td>front → rear</td></tr>
+              <tr><td><b>Fits tasks like</b></td><td>undo, going back, reversing</td><td>serving in arrival order</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>Arrays vs. linked lists</h3>
+        <p>Here is how the two storage choices compare on common tasks:</p>
+        <div class="scroll-x">
+          <table class="tbl">
+            <thead><tr><th>Task</th><th>Array</th><th>Singly linked list</th></tr></thead>
+            <tbody>
+              <tr><td>Reach the value at index k</td><td>one step, by index</td><td>follow k links from head</td></tr>
+              <tr><td>Insert or delete near the front</td><td>shift the later values</td><td>change one or two links</td></tr>
+              <tr><td>Insert after a node you already have</td><td>shift the later values</td><td>change two links</td></tr>
+              <tr><td>Delete the last value</td><td>just reduce the size</td><td>walk to the node before it</td></tr>
+              <tr><td>Memory per item</td><td>the value (plus unused cells)</td><td>the value plus a reference</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="remember">
+        <p class="note-label">Rule vs. storage</p>
+        <p><b>LIFO and FIFO describe behavior</b>: which item leaves next. <b>An array or a linked list is storage</b>: where the items are kept. Any rule can use either storage. These lessons showed an array stack and a linked queue, but a linked stack and an array queue work too (see the optional parts of both lessons).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="practice">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Your turn</p>
+      <h2>Practice on paper</h2>
+    </div>
+    <div class="flow">
+      <p>Set A is the Section 6 self-check from your module, in case you want to redo it. Set B is new. The readiness check covers all prelim topics.</p>
+      <div class="paper flow">
+        <p class="note-label">Set A: from the module</p>
+        <ol>
+          <li>Write exactly what this prints.<pre class="code"><code set:html={hi(q1)} /></pre></li>
+          <li>A <code>LinkedQueue</code> holds one node. After <code>dequeue()</code>, what are <code>front</code> and <code>rear</code>, and why must both change?</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li><code>3</code>, <code>5</code>, <code>3</code>. <code>dequeue()</code> removes 3; <code>peek()</code> shows 5; after <code>enqueue(1)</code> the queue is 5, 8, 1, so <code>size()</code> is 3.</li>
+            <li>Both become <code>null</code>. The queue is empty, so there is no front or rear. If <code>rear</code> still referred to the removed node, front and rear would disagree.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Set B: new problems</p>
+        <ol class="flow">
+          <li>The statements run in order, starting with an empty queue. Copy the table and fill it in. The first row is done for you.
+            <pre class="code"><code set:html={hi(n1)} /></pre>
+            <div class="scroll-x">
+              <table class="tbl">
+                <thead><tr><th>Statement</th><th>Queue after (front → rear)</th><th>Value returned</th></tr></thead>
+                <tbody>
+                  <tr><td><code>q.enqueue(6);</code></td><td>6</td><td>—</td></tr>
+                  <tr><td><code>q.enqueue(14);</code></td><td></td><td></td></tr>
+                  <tr><td><code>q.dequeue();</code></td><td></td><td></td></tr>
+                  <tr><td><code>q.enqueue(9);</code></td><td></td><td></td></tr>
+                  <tr><td><code>q.enqueue(2);</code></td><td></td><td></td></tr>
+                  <tr><td><code>q.peek();</code></td><td></td><td></td></tr>
+                  <tr><td><code>q.dequeue();</code></td><td></td><td></td></tr>
+                  <tr><td><code>q.dequeue();</code></td><td></td><td></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </li>
+          <li>A <code>LinkedQueue</code> holds 4, 10, 15 (front to rear). (a) After <code>enqueue(20)</code>, which node does <code>rear</code> refer to, and which node's <code>next</code> changed? (b) Then <code>dequeue()</code> runs three times. Which node do <code>front</code> and <code>rear</code> refer to now?</li>
+          <li>Choose a stack or a queue, and give a reason: (a) a printer that prints jobs in the order they were sent; (b) a text box that removes the most recently typed letter when you press Backspace.</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <p class="small muted">For self-study, not for grading. All answers were checked by running the code in Java.</p>
+          <ol class="flow">
+            <li>
+              <div class="scroll-x">
+                <table class="tbl">
+                  <thead><tr><th>Statement</th><th>Queue after (front → rear)</th><th>Value returned</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>q.enqueue(6);</code></td><td>6</td><td>—</td></tr>
+                    <tr><td><code>q.enqueue(14);</code></td><td>6, 14</td><td>—</td></tr>
+                    <tr><td><code>q.dequeue();</code></td><td>14</td><td>6</td></tr>
+                    <tr><td><code>q.enqueue(9);</code></td><td>14, 9</td><td>—</td></tr>
+                    <tr><td><code>q.enqueue(2);</code></td><td>14, 9, 2</td><td>—</td></tr>
+                    <tr><td><code>q.peek();</code></td><td>14, 9, 2</td><td>14</td></tr>
+                    <tr><td><code>q.dequeue();</code></td><td>9, 2</td><td>14</td></tr>
+                    <tr><td><code>q.dequeue();</code></td><td>2</td><td>9</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </li>
+            <li>(a) <code>rear</code> refers to node 20, and node 15's <code>next</code> changed from <code>null</code> to node 20. (b) Both refer to node <b>20</b>, the only node left: one node is both the front and the rear.</li>
+            <li>(a) Queue: first sent, first printed. (b) Stack: the newest letter is removed first.</li>
+          </ol>
+        </div></details>
+      </div>
+      <div class="paper flow">
+        <p class="note-label">Readiness check (all prelim topics, from the module)</p>
+        <ol>
+          <li>The list is head → 4 → 9 → 2 → 7 → null. What does this print?<pre class="code"><code set:html={hi(r1)} /></pre></li>
+          <li>Starting empty: add 1, add 2, remove, add 3, add 4, remove, remove. Which values are removed, in order, (a) if it is a stack, (b) if it is a queue? (Check it with the lab's "Same inputs" button above.)</li>
+          <li>Choose a stack, queue, array, or linked list, and give a reason: (a) passengers riding in the order they arrived; (b) undoing the most recent drawing stroke first; (c) looking up the score in seat 25 many times a day, in a class that never changes size.</li>
+          <li>True or false, with a reason: "Linked lists always insert and delete faster than arrays."</li>
+        </ol>
+        <details class="reveal"><summary>Show the answers</summary><div class="flow">
+          <ol>
+            <li><code>3</code>. Three values (4, 9, and 7) are greater than 3.</li>
+            <li>(a) Stack: <b>2, 4, 3</b> (1 is left). (b) Queue: <b>1, 2, 3</b> (4 is left).</li>
+            <li>(a) Queue: first come, first served. (b) Stack: the most recent stroke is undone first. (c) Array: the size is fixed, and the seat number works as an index for direct access. Seat 25 is at index 24, since seats count from 1 but indexes count from 0.</li>
+            <li><b>False.</b> Changing links is quick, but reaching the right node can mean walking through the list. Deleting the last value is quicker in an array, and reading by position is direct only in an array.</li>
+          </ol>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 8 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-queue" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Queue: first in, first out. Enqueue at the rear, dequeue at the front.</li>
+          <li><code>dequeue</code> removes and returns the front item; <code>peek</code> only looks.</li>
+          <li>In <code>LinkedQueue</code>, <code>enqueue</code> links the old rear to the new node first, then moves <code>rear</code>.</li>
+          <li>When the last node leaves, both <code>front</code> and <code>rear</code> become <code>null</code>.</li>
+          <li>LIFO and FIFO are rules. Arrays and linked lists are storage. Any rule can use either.</li>
+        </ol>
+      </div>
+      <p><b>You've finished the prelim topics.</b> Next: <a href={base + '/itc120/trees/'}>Trees and binary trees</a>, the start of the midterm.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>R. Sedgewick and K. Wayne, <i>Algorithms</i>, 4th ed. Addison-Wesley, 2011, Section 1.3 (Bags, Queues, and Stacks). <a href="https://algs4.cs.princeton.edu/13stacks/">algs4.cs.princeton.edu</a></li>
+          <li>P. Morin, "Linked Lists," Chapter 3 in <i>Open Data Structures</i>. <a href="https://opendatastructures.org/">opendatastructures.org</a></li>
+          <li>Oracle, "Types, Values, and Variables" (default values), Chapter 4 in <i>The Java Language Specification</i>, Java SE 21. <a href="https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html">docs.oracle.com</a></li>
+          <li>Oracle, "Class IllegalStateException," Java SE 21 API. <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html">docs.oracle.com</a></li>
+          <li>ITC 120 Course Syllabus, A.Y. 2026–2027, Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>

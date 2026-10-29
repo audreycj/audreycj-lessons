@@ -19,7 +19,8 @@ export const terms = [
       { name: 'Linear data structures', icon: 'list', lessons: [
         { title: 'Arrays: the four operations', href: '/itc120/arrays/', status: 'live', kind: ['ds', 'algo'], blurb: 'Access, traversal, insertion, and deletion. Watch values shift, step by step.' },
         { title: 'Linked lists', href: '/itc120/linked-lists/', status: 'live', kind: ['ds', 'algo'], blurb: 'Nodes and references in Java. Insert and delete by changing arrows, and see what goes wrong in the wrong order.' },
-        { title: 'Stacks and queues', href: '/itc120/stacks-queues/', status: 'live', kind: ['ds'], blurb: 'LIFO and FIFO, with traces and Java code. Push, pop, enqueue, and dequeue in the lab.' },
+        { title: 'Stacks', href: '/itc120/stacks/', status: 'live', kind: ['ds'], blurb: 'Last in, first out, like a pile of plates. Push, pop, and peek: traces, a walkthrough, and a stack in Java using an array.' },
+        { title: 'Queues', href: '/itc120/queues/', status: 'live', kind: ['ds'], blurb: 'First in, first out, like a canteen line. Enqueue and dequeue with a linked list, then stacks vs. queues side by side.' },
       ] },
     ],
   },

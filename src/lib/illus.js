@@ -3262,3 +3262,221 @@ export function llStreetPic() {
   sSay(s, 364, 'Each house only says which house is next.'); sSay(s, 382, 'You must ask at every house on the way.');
   return shrink(s.svg('Top: houses with numbers, like an array: 1, 2, 3, then house 500. You can go straight to number 500 in one trip, no matter how long the street is. Bottom: houses with directions only, like a linked list: each house only says which house is next, so you ask at every house, 1, 2, 3, and so on, until you reach number 500.', 'll-pic'));
 }
+
+
+/* ---- Stacks and queues (chat 17): plates sketch + push/pop and enqueue/dequeue walkthroughs ---- */
+
+/** Sketch: a pile of clean plates after a handaan. push = put on top, pop = take the top, peek = look. */
+export function platesPic() {
+  const s = new Sketch(340, 352, 517);
+  s.text(170, 24, 'Clean plates after a handaan', { font: 'body', size: 15, weight: 800 });
+  const plate = (cx, cy, o = {}) => {
+    s.ellipse(cx, cy, 128, 24, { fill: o.fill ?? C.card, sw: 1.7, stroke: o.stroke ?? C.ink, ...(o.ghost ? { dash: '5 4', single: true } : {}) });
+    s.ellipse(cx, cy - 1, 78, 11, { fill: o.inner ?? C.sky, sw: 1, stroke: o.stroke ?? C.ink, single: true });
+  };
+  // table and the pile (bottom first)
+  s.line(40, 284, 300, 284, { sw: 2, stroke: C.soft, rough: 0.6 });
+  s.rect(60, 284, 220, 10, { fill: C.butter, sw: 1.4, rough: 0.6 });
+  [266, 250, 234, 218].forEach((y) => plate(170, y));
+  s.text(170, 312, 'bottom: first plate in', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  // top label
+  s.arrow(296, 210, 240, 216, { stroke: C.orange, sw: 2.2, head: 8 });
+  s.text(300, 206, 'top', { font: 'body', size: 14, weight: 800, color: C.orange, anchor: 'start' });
+  // push: a plate comes down onto the top (left)
+  plate(84, 112, { fill: C.tealWash });
+  s.curve(84, 128, 128, 200, -24, { stroke: C.teal, sw: 2.4, head: 9 });
+  s.text(84, 62, 'push', { font: 'mono', size: 16, weight: 700, color: C.teal });
+  s.text(84, 82, 'put a plate on top', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  // pop: the top plate is lifted off (right)
+  plate(256, 112, { fill: C.orangeWash, inner: C.card });
+  s.curve(214, 204, 256, 128, -24, { stroke: C.orange, sw: 2.4, head: 9 });
+  s.text(256, 62, 'pop', { font: 'mono', size: 16, weight: 700, color: C.orange });
+  s.text(256, 82, 'take the top plate', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(170, 336, 'You never pull a plate from the middle or the bottom.', { font: 'body', size: 12.5, weight: 800, color: C.red });
+  return s.svg('A pile of four clean plates on a table after a handaan. On the left, push: a new plate is put down on the top of the pile. On the right, pop: the top plate is lifted off. The top plate is marked top; the bottom plate went in first. You never pull a plate from the middle or the bottom.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/* Stack walkthrough pictures: the array data drawn as a COLUMN (index 0 at the bottom), top pointer on the right. */
+const SKX = 128, SKW = 84, SKH = 44, SKY0 = 136; // cell i top edge = SKY0 - i * SKH (i = 0 is the bottom cell)
+const skCellY = (i) => SKY0 - i * SKH;
+function stackPic(cells, top, o = {}) {
+  const st = { '': ['#ffffff', '#1b2a2e', '#1b2a2e'], hot: ['#e8662e', '#b4461a', '#ffffff'], seen: ['#d7ece9', '#0e6b63', '#1b2a2e'], off: ['#eef2f2', '#9aa8aa', '#8a9799'] };
+  let b = sT(SKX + SKW / 2, 22, 'data', { mono: true, size: 14, w: 700, fill: '#0b544e' });
+  b += sT(SKX - 14, 22, 'index', { size: 12, w: 800, anchor: 'end', fill: '#37474a' });
+  cells.forEach((v, i) => {
+    const k = (o.kinds && o.kinds[i]) || (i > top ? 'off' : ''), [f, s, t] = st[k], y = skCellY(i);
+    const dash = k === 'off' ? ' stroke-dasharray="5 4"' : '';
+    b += `<rect x="${SKX}" y="${y}" width="${SKW}" height="${SKH}" fill="${f}" stroke="${s}" stroke-width="2"${dash}/>`;
+    b += sT(SKX + SKW / 2, y + 28, v, { mono: true, size: 16, w: 700, fill: t });
+    b += sT(SKX - 14, y + 28, i, { mono: true, size: 13, w: 600, anchor: 'end', fill: '#37474a' });
+  });
+  // the -1 spot under the bottom cell
+  const yM1 = skCellY(-1);
+  b += sT(SKX - 14, yM1 + 24, '-1', { mono: true, size: 13, w: 600, anchor: 'end', fill: '#8a9799' });
+  b += `<line x1="${SKX}" y1="${yM1 + 18}" x2="${SKX + SKW}" y2="${yM1 + 18}" stroke="#9aa8aa" stroke-width="1.6" stroke-dasharray="3 4"/>`;
+  // top pointer
+  const py = top >= 0 ? skCellY(top) + SKH / 2 : yM1 + 18;
+  b += solidArrow(SKX + SKW + 58, py, SKX + SKW + 6, py, '#e8662e');
+  b += sT(SKX + SKW + 64, py - 3, 'top', { mono: true, size: 14, w: 700, anchor: 'start', fill: '#b4461a' });
+  b += sT(SKX + SKW + 64, py + 15, `= ${top}`, { mono: true, size: 13, w: 700, anchor: 'start', fill: '#b4461a' });
+  if (o.note) b += sT(170, 234, o.note, { size: 12.5, w: 800, fill: '#4f5f62' });
+  // footer: stack contents + returned value
+  const items = cells.slice(0, top + 1);
+  b += sT(14, 268, o.foot ?? `stack (bottom → top): ${items.length ? items.join(', ') : 'empty'}`, { size: 12.5, w: 800, anchor: 'start', fill: '#0b544e' });
+  if (o.ret != null) b += mapBox(214, 250, 116, 28, '#fbdccc', '#e8662e', 1.8, 6) + sT(272, 269, `returns ${o.ret}`, { mono: true, size: 13, w: 700, fill: '#b4461a' });
+  if (o.err) b += mapBox(80, 216, 180, 28, '#fbe3e1', '#b23a33', 1.8, 6) + sT(170, 235, 'IllegalStateException', { mono: true, size: 12, w: 700, fill: '#b23a33' });
+  return introPic(340, 286, o.alt || 'The stack array drawn as a column.', b);
+}
+
+export const stackWalkCode = String.raw`void push(int value) {
+  if (isFull()) {
+    throw new IllegalStateException("Stack overflow: full.");
+  }
+  top++;                 // 1. move top up one cell
+  data[top] = value;     // 2. store the value there
+}
+
+int pop() {
+  if (isEmpty()) {
+    throw new IllegalStateException("Stack underflow: empty.");
+  }
+  int value = data[top]; // 1. save the top value
+  top--;                 // 2. move top down one cell
+  return value;
+}
+
+int peek() {
+  if (isEmpty()) {
+    throw new IllegalStateException("Stack underflow: empty.");
+  }
+  return data[top];      // look only; top does not change
+}`;
+
+/** CodeWalk steps on ArrayStack(3) holding 4: push(9), pop(), peek(), push(2), push(7), push(8) (overflow). */
+export function stackWalkSteps() {
+  const c = (t) => `<code>${t}</code>`;
+  return [
+    { lines: [1], pic: stackPic([4, 0, 0], 0, { alt: 'The stack holds 4 in cell 0; top is 0. Cells 1 and 2 hold 0 but are not part of the stack.' }), vars: [['value', '= 9'], ['top', '= 0']],
+      say: `The stack was made with ${c('new ArrayStack(3)')}, and 4 is already pushed. Now ${c('s.push(9)')} runs. Cells 1 and 2 still hold Java's default 0, but they are <b>above top</b> (dashed), so they are not part of the stack.` },
+    { lines: [2], pic: stackPic([4, 0, 0], 0, { alt: 'isFull: top 0 is not the last index 2.' }), vars: [['top', '= 0'], ['data.length - 1', '= 2']],
+      say: `${c('isFull()')} checks ${c('top == data.length - 1')}: is 0 equal to 2? <b>No</b>, there is room, so the ${c('throw')} line is skipped.` },
+    { lines: [5], pic: stackPic([4, 0, 0], 1, { kinds: { 1: 'seen' }, foot: 'halfway through push: 9 is not stored yet', alt: 'top moved up to 1. Cell 1 still holds 0.' }), vars: [['top', '= 1']],
+      say: `<b>Step 1:</b> ${c('top++;')} moves ${c('top')} up one cell, to 1. Cell 1 is now the top spot, but it still holds the old 0.` },
+    { lines: [6], pic: stackPic([4, 9, 0], 1, { kinds: { 1: 'hot' }, alt: '9 stored in cell 1. Stack: 4, 9.' }), vars: [['data[1]', '= 9']],
+      say: `<b>Step 2:</b> ${c('data[top] = value;')} stores 9 in cell 1. The stack is now <b>4, 9</b>, and size is ${c('top + 1')} = 2.` },
+    { lines: [9, 10], pic: stackPic([4, 9, 0], 1, { alt: 'pop is called. top is 1, so the stack is not empty.' }), vars: [['top', '= 1']],
+      say: `Now ${c('s.pop()')} runs. ${c('isEmpty()')} checks ${c('top == -1')}: is 1 equal to -1? <b>No</b>, so there is something to pop.` },
+    { lines: [13], pic: stackPic([4, 9, 0], 1, { kinds: { 1: 'seen' }, alt: 'value saves 9 from cell 1.' }), vars: [['value', '= 9']],
+      say: `<b>Step 1:</b> ${c('int value = data[top];')} saves 9, the top item, in ${c('value')}. Nothing has changed in the array yet.` },
+    { lines: [14], pic: stackPic([4, 9, 0], 0, { note: '9 is still in cell 1, but it is above top', alt: 'top moved down to 0. 9 is still in cell 1 but above top, so it is not in the stack.' }), vars: [['top', '= 0']],
+      say: `<b>Step 2:</b> ${c('top--;')} moves ${c('top')} down to 0. The 9 is <b>still in cell 1</b>, but it is above ${c('top')}, so it is not part of the stack any more.` },
+    { lines: [15], pic: stackPic([4, 9, 0], 0, { ret: 9, alt: 'pop returns 9. The stack is 4.' }), vars: [['returns', '9']],
+      say: `${c('return value;')} sends 9 back. The stack is <b>4</b>. (If the program does not print or store the 9, it is still removed.)` },
+    { lines: [18, 22], pic: stackPic([4, 9, 0], 0, { kinds: { 0: 'seen' }, ret: 4, alt: 'peek returns 4 from cell 0. top stays 0.' }), vars: [['top', '= 0 (same)']],
+      say: `${c('s.peek()')}: the stack is not empty, so ${c('return data[top];')} sends back 4. There is no ${c('top--')}, so <b>nothing changes</b>. That is the whole difference from ${c('pop')}.` },
+    { lines: [5, 6], pic: stackPic([4, 2, 0], 1, { kinds: { 1: 'hot' }, alt: 'push 2: top 1, 2 written over the old 9.' }), vars: [['top', '= 1'], ['data[1]', '= 2']],
+      say: `${c('s.push(2)')}: there is room, so ${c('top++')} makes top 1, and 2 is stored in cell 1, <b>writing over the old 9</b>. The stack is 4, 2.` },
+    { lines: [5, 6], pic: stackPic([4, 2, 7], 2, { kinds: { 2: 'hot' }, alt: 'push 7: top 2, the stack is full.' }), vars: [['top', '= 2']],
+      say: `${c('s.push(7)')}: top becomes 2 and 7 goes in cell 2, the last cell. The stack is 4, 2, 7, and it is <b>full</b>: ${c('top == data.length - 1')} is now true.` },
+    { lines: [2, 3], pic: stackPic([4, 2, 7], 2, { err: true, alt: 'push 8 on a full stack: isFull is true, so push throws an IllegalStateException.' }), vars: [['top', '= 2'], ['data.length - 1', '= 2']],
+      say: `${c('s.push(8)')}: ${c('isFull()')} is <b>true</b>, so line 3 throws the exception <b>"Stack overflow: full."</b> and push stops. Nothing changes: no cell 3 exists to write into.` },
+  ];
+}
+
+/* Queue walkthrough pictures: nodes in the linked-lists style (rBox), front / rear / newNode labels. */
+const QX = [44, 186];
+function qLabels(x, y, names) {
+  // names: [[text, color, arrowKey]], stacked upward from the node
+  return names.map(([n, fill], i) => sT(x + R.D / 2, y - 28 - i * 18, n, { mono: true, size: 13.5, w: 700, fill })).join('') +
+    (names.length ? rArrow(`M${x + R.D / 2} ${y - 22} V${y - 3}`, names[0][2], 2) : '');
+}
+const QF = ['front', '#0b544e', 't'], QR = ['rear', '#1b2a2e', 'k'], QN = ['newNode', '#b4461a', 'o'];
+function queuePic(st, alt) {
+  // st: { nodes: [{ v, i, lost, fill }], link: bool, front: i|null, rear: i|null, nn: i|null, nullF, nullR, gone: i, note }
+  const y = 84;
+  let b = '';
+  for (const n of st.nodes) {
+    const x = QX[n.i], names = [];
+    if (st.front === n.i) names.push(QF);
+    if (st.rear === n.i) names.push(QR);
+    if (st.nn === n.i) names.push(QN);
+    b += qLabels(x, y, names);
+    b += rBox(x, y, String(n.v), { fill: n.fill, lost: n.lost });
+  }
+  const has = (i) => st.nodes.some((n) => n.i === i);
+  if (st.link) b += rLink(QX[0], QX[1], y, st.linkNew ? 'o' : 'k', { w: st.linkNew ? 3 : 2.2 });
+  for (const n of st.nodes) if (!(st.link && n.i === 0)) b += rNullDown(QX[n.i], y);
+  if (st.gone != null) b += sT(QX[st.gone] + rW / 2, y + R.H + 56, 'left the queue', { size: 11.5, w: 800, fill: '#b23a33' });
+  // null references written on the right
+  let ny = 40;
+  if (st.front === null) { b += sT(330, ny, 'front = null', { mono: true, size: 13, w: 700, anchor: 'end', fill: '#b23a33' }); ny += 20; }
+  if (st.rear === null) { b += sT(330, ny, 'rear = null', { mono: true, size: 13, w: 700, anchor: 'end', fill: '#b23a33' }); ny += 20; }
+  if (!has(0) && !has(1) && st.front === null && st.rear === null) b += sT(170, 120, '(no nodes)', { size: 13, w: 700, fill: '#8a9799', it: true });
+  if (st.note) b += mapBox(10, 186, 320, 30, st.noteBad ? '#fbe3e1' : '#fff8e6', st.noteBad ? '#b23a33' : '#c98a12', 1.8, 6) + sT(170, 206, st.note, { size: 12.5, w: 800, fill: st.noteBad ? '#b23a33' : '#7a5208' });
+  if (st.ret != null) b += mapBox(10, 186, 116, 28, '#fbdccc', '#e8662e', 1.8, 6) + sT(68, 205, `returns ${st.ret}`, { mono: true, size: 13, w: 700, fill: '#b4461a' });
+  return rPic(340, 224, alt, b);
+}
+
+export const queueWalkCode = String.raw`void enqueue(int value) {
+  Node newNode = new Node(value);
+  if (isEmpty()) {
+    front = newNode;       // the only node is both
+    rear = newNode;        // the front and the rear
+  } else {
+    rear.next = newNode;   // 1. old rear refers to new node
+    rear = newNode;        // 2. rear refers to the new node
+  }
+  count++;
+}
+
+int dequeue() {
+  if (isEmpty()) {
+    throw new IllegalStateException("Queue underflow: empty.");
+  }
+  int value = front.data;  // 1. save the front value
+  front = front.next;      // 2. front moves to the next node
+  if (front == null) {     // 3. the queue became empty,
+    rear = null;           //    so rear must be cleared too
+  }
+  count--;
+  return value;
+}`;
+
+/** CodeWalk steps: empty queue, enqueue(7), enqueue(8), dequeue(), dequeue() (module Figure 6.2). */
+export function queueWalkSteps() {
+  const c = (t) => `<code>${t}</code>`;
+  const N7 = { v: 7, i: 0 }, N8 = { v: 8, i: 1 };
+  const new7 = { ...N7, fill: '#fbdccc' }, new8 = { ...N8, fill: '#fbdccc' }, lost7 = { ...N7, lost: true }, lost8 = { ...N8, lost: true };
+  return [
+    { lines: [2], pic: queuePic({ nodes: [new7], front: null, rear: null, nn: 0 }, 'An empty queue: front and rear are null. A new node 7 is made; newNode refers to it.'), vars: [['count', '= 0']],
+      say: `The queue starts empty: ${c('front')} and ${c('rear')} are ${c('null')}. ${c('enqueue(7)')} first makes a new node holding 7. ${c('newNode')} refers to it; its ${c('next')} is ${c('null')}.` },
+    { lines: [3], pic: queuePic({ nodes: [new7], front: null, rear: null, nn: 0 }, 'isEmpty is true because front is null.'), vars: [['isEmpty()', 'true']],
+      say: `${c('isEmpty()')} checks ${c('front == null')}: <b>true</b>, so the first branch runs.` },
+    { lines: [4], pic: queuePic({ nodes: [new7], front: 0, rear: null, nn: 0 }, 'front now refers to node 7.'), vars: [['front', '→ 7']],
+      say: `${c('front = newNode;')} The new node is the front: it will leave next.` },
+    { lines: [5], pic: queuePic({ nodes: [new7], front: 0, rear: 0, nn: 0 }, 'rear also refers to node 7.'), vars: [['rear', '→ 7']],
+      say: `${c('rear = newNode;')} It is also the rear: the one that joined last. With one node, <b>front and rear refer to the same node</b>.` },
+    { lines: [10], pic: queuePic({ nodes: [N7], front: 0, rear: 0 }, 'count is 1. The queue is 7.'), vars: [['count', '= 1']],
+      say: `${c('count++;')} The queue is <b>7</b>, and ${c('count')} is 1.` },
+    { lines: [2, 3], pic: queuePic({ nodes: [N7, new8], front: 0, rear: 0, nn: 1 }, 'enqueue 8: a new node 8. front is not null, so the else branch runs.'), vars: [['isEmpty()', 'false']],
+      say: `${c('enqueue(8)')}: a new node holding 8 is made. ${c('front')} is not ${c('null')}, so ${c('isEmpty()')} is <b>false</b> and the ${c('else')} branch runs.` },
+    { lines: [7], pic: queuePic({ nodes: [N7, new8], front: 0, rear: 0, nn: 1, link: true, linkNew: true }, 'The old rear, node 7, now points to node 8.'), vars: [['rear.next', '→ 8']],
+      say: `<b>Step 1:</b> ${c('rear.next = newNode;')} The old rear (7) now points to 8 (orange arrow). 8 is connected behind 7.` },
+    { lines: [8, 10], pic: queuePic({ nodes: [N7, N8], front: 0, rear: 1, link: true }, 'rear moved to node 8. The queue is 7, 8.'), vars: [['rear', '→ 8'], ['count', '= 2']],
+      say: `<b>Step 2:</b> ${c('rear = newNode;')} moves ${c('rear')} to 8, the new last node, and ${c('count++')} makes 2. The queue is <b>7, 8</b> (front to rear).` },
+    { lines: [14, 17], pic: queuePic({ nodes: [{ ...N7, fill: '#d7ece9' }, N8], front: 0, rear: 1, link: true }, 'dequeue: the queue is not empty; value saves 7.'), vars: [['value', '= 7']],
+      say: `${c('dequeue()')}: the queue is not empty. <b>Step 1:</b> ${c('int value = front.data;')} saves 7, the front value.` },
+    { lines: [18], pic: queuePic({ nodes: [lost7, N8], front: 1, rear: 1, link: true, gone: 0 }, 'front moved to node 8. Node 7 has left the queue.'), vars: [['front', '→ 8']],
+      say: `<b>Step 2:</b> ${c('front = front.next;')} moves ${c('front')} to 8. Node 7 is no longer reachable from ${c('front')}: it has <b>left the queue</b> (red dashed).` },
+    { lines: [19, 22, 23], pic: queuePic({ nodes: [N8], front: 1, rear: 1, ret: 7 }, 'front is not null, so rear stays. dequeue returns 7. The queue is 8.'), vars: [['count', '= 1'], ['returns', '7']],
+      say: `${c('front')} is not ${c('null')}, so the ${c('if')} is skipped and ${c('rear')} stays on 8. ${c('count')} becomes 1, and 7 is returned. The queue is <b>8</b>.` },
+    { lines: [17], pic: queuePic({ nodes: [{ ...N8, fill: '#d7ece9' }], front: 1, rear: 1 }, 'dequeue again: value saves 8.'), vars: [['value', '= 8']],
+      say: `${c('dequeue()')} again. ${c('value')} saves 8, the front value.` },
+    { lines: [18], pic: queuePic({ nodes: [lost8], front: null, rear: 1, gone: 1, note: 'front says empty, but rear still refers to 8!', noteBad: true }, 'front is now null, but rear still refers to node 8, which has left the queue.'), vars: [['front', '= null']],
+      say: `${c('front = front.next;')} Node 8's ${c('next')} is ${c('null')}, so ${c('front')} becomes ${c('null')}. But ${c('rear')} <b>still refers to node 8</b>, which has left the queue. The two disagree.` },
+    { lines: [19, 20], pic: queuePic({ nodes: [], front: null, rear: null }, 'front is null, so rear is set to null too. Both are null.'), vars: [['rear', '= null']],
+      say: `<b>Step 3:</b> ${c('front == null')} is <b>true</b>, so ${c('rear = null;')} runs. Now both say the queue is empty.` },
+    { lines: [22, 23], pic: queuePic({ nodes: [], front: null, rear: null, ret: 8 }, 'count is 0, and dequeue returns 8. The queue is empty.'), vars: [['count', '= 0'], ['returns', '8']],
+      say: `${c('count--')} makes 0, and 8 is returned. The queue is <b>empty</b>, just like at the start.` },
+  ];
+}

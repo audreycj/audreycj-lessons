@@ -1,31 +1,37 @@
 ---
 // Stack and queue lab: push/pop/peek on an array stack (capacity 5) and enqueue/dequeue/peek on a queue.
 // "Same inputs" runs one sequence on both to show LIFO vs FIFO.
-interface Props { id: string; }
-const { id } = Astro.props;
+// mode: 'stack' or 'queue' shows one structure (Stacks / Queues lessons); 'both' adds the comparison buttons.
+interface Props { id: string; mode?: 'stack' | 'queue' | 'both'; }
+const { id, mode = 'both' } = Astro.props;
+const showS = mode !== 'queue', showQ = mode !== 'stack';
+const cap = mode === 'stack' ? 'Stack lab' : mode === 'queue' ? 'Queue lab' : 'Stack and queue lab';
+const hint = mode === 'stack' ? 'Type a value, then push, pop, or peek. Every action is written in the log, like a trace table. Try popping an empty stack, or pushing a sixth value.'
+  : mode === 'queue' ? 'Type a value, then enqueue, dequeue, or peek. Every action is written in the log, like a trace table. Try dequeuing an empty queue.'
+  : 'Type a value, then add or remove. Every action is written in the log, like a trace table. Then tap Same inputs, both structures.';
 ---
-<figure class="fig sqlab" id={id}>
-  <p class="fig-cap">Stack and queue lab</p>
-  <p class="fig-hint">Type a value, then add or remove. Every action is written in the log, like a trace table. Try removing from an empty structure, or pushing onto a full stack.</p>
+<figure class={`fig sqlab is-${mode}`} id={id} data-mode={mode}>
+  <p class="fig-cap">{cap}</p>
+  <p class="fig-hint">{hint}</p>
   <label class="sq-in">value <input type="text" inputmode="numeric" value="10" autocomplete="off" /></label>
   <div class="sq-grid">
-    <div class="sq-col">
+    {showS && <div class="sq-col">
       <p class="sq-title">Stack <span class="muted">(LIFO · capacity 5)</span></p>
       <div class="btn-row"><button type="button" class="btn" data-a="push">push</button><button type="button" class="btn" data-a="pop">pop</button><button type="button" class="btn" data-a="speek">peek</button></div>
       <div class="sq-stack" aria-live="polite"></div>
-    </div>
-    <div class="sq-col">
+    </div>}
+    {showQ && <div class="sq-col">
       <p class="sq-title">Queue <span class="muted">(FIFO)</span></p>
       <div class="btn-row"><button type="button" class="btn" data-a="enq">enqueue</button><button type="button" class="btn" data-a="deq">dequeue</button><button type="button" class="btn" data-a="qpeek">peek</button></div>
       <div class="sq-queue" aria-live="polite"></div>
-    </div>
+    </div>}
   </div>
   <div class="btn-row sq-more">
-    <button type="button" class="btn" data-a="same">Same inputs, both structures</button>
-    <button type="button" class="btn" data-a="clear">Clear both</button>
+    {mode === 'both' && <button type="button" class="btn" data-a="same">Same inputs, both structures</button>}
+    <button type="button" class="btn" data-a="clear">{mode === 'both' ? 'Clear both' : 'Clear'}</button>
   </div>
   <p class="sq-msg" aria-live="polite" data-grow></p>
-  <div class="scroll-x"><table class="tbl sq-log"><thead><tr><th>Operation</th><th>Stack (bottom → top)</th><th>Queue (front → rear)</th><th>Returned</th></tr></thead><tbody></tbody></table></div>
+  <div class="scroll-x"><table class="tbl sq-log"><thead><tr><th>Operation</th>{showS && <th>Stack (bottom → top)</th>}{showQ && <th>Queue (front → rear)</th>}<th>Returned</th></tr></thead><tbody></tbody></table></div>
 </figure>
 
 <style is:global>
@@ -58,26 +64,27 @@ const { id } = Astro.props;
     const CAP = 5;
     let stack: number[] = [], queue: number[] = [];
     const inp = fig.querySelector<HTMLInputElement>('.sq-in input')!;
-    const sEl = fig.querySelector<HTMLElement>('.sq-stack')!, qEl = fig.querySelector<HTMLElement>('.sq-queue')!;
+    const mode = fig.dataset.mode || 'both', hasS = mode !== 'queue', hasQ = mode !== 'stack';
+    const sEl = fig.querySelector<HTMLElement>('.sq-stack'), qEl = fig.querySelector<HTMLElement>('.sq-queue');
     const msg = fig.querySelector<HTMLElement>('.sq-msg')!, log = fig.querySelector<HTMLElement>('.sq-log tbody')!;
     const fmt = (a: number[]) => (a.length ? a.join(', ') : '(empty)');
     function paint(hotS = -1, hotQ = -1, lookS = false, lookQ = false) {
-      sEl.innerHTML = stack.length ? stack.map((v, i) => `<span class="it ${i === hotS ? 'hot' : ''} ${lookS && i === stack.length - 1 ? 'look' : ''}">${v}${i === stack.length - 1 ? '<small>← top</small>' : ''}</span>`).join('') : '<span class="empty">empty</span>';
-      qEl.innerHTML = queue.length ? queue.map((v, i) => `<span class="it ${i === hotQ ? 'hot' : ''} ${lookQ && i === 0 ? 'look' : ''}">${v}${i === 0 ? '<small>front</small>' : i === queue.length - 1 ? '<small>rear</small>' : ''}</span>`).join('') : '<span class="empty">empty</span>';
+      if (sEl) sEl.innerHTML = stack.length ? stack.map((v, i) => `<span class="it ${i === hotS ? 'hot' : ''} ${lookS && i === stack.length - 1 ? 'look' : ''}">${v}${i === stack.length - 1 ? '<small>← top</small>' : ''}</span>`).join('') : '<span class="empty">empty</span>';
+      if (qEl) qEl.innerHTML = queue.length ? queue.map((v, i) => `<span class="it ${i === hotQ ? 'hot' : ''} ${lookQ && i === 0 ? 'look' : ''}">${v}${i === 0 ? '<small>front</small>' : i === queue.length - 1 ? '<small>rear</small>' : ''}</span>`).join('') : '<span class="empty">empty</span>';
     }
     function say(t: string, bad = false) { msg.innerHTML = t; msg.classList.toggle('bad', bad); }
-    function row(op: string, ret: string) { log.insertAdjacentHTML('beforeend', `<tr><td>${op}</td><td>${fmt(stack)}</td><td>${fmt(queue)}</td><td>${ret}</td></tr>`); }
+    function row(op: string, ret: string) { log.insertAdjacentHTML('beforeend', `<tr><td>${op}</td>${hasS ? `<td>${fmt(stack)}</td>` : ''}${hasQ ? `<td>${fmt(queue)}</td>` : ''}<td>${ret}</td></tr>`); }
     function val() { const n = Number(inp.value.trim()); if (!inp.value.trim() || !Number.isInteger(n)) { say('Type a whole number first.', true); return null; } return n; }
     function bump() { const n = Number(inp.value); if (Number.isInteger(n)) inp.value = String(n + 10); }
 
     function act(a: string) {
       if (a === 'push') { const v = val(); if (v == null) return; if (stack.length >= CAP) { say('<b>Stack overflow:</b> the stack is full (capacity 5). push throws an exception instead of storing the value.', true); return; } stack.push(v); paint(stack.length - 1); say(`push(${v}): ${v} goes on the <b>top</b>.`); row(`push(${v})`, '—'); bump(); }
       if (a === 'pop') { if (!stack.length) { say('<b>Stack underflow:</b> the stack is empty, so there is nothing to pop.', true); return; } const v = stack.pop()!; paint(); say(`pop() removes and returns <b>${v}</b>, the item added most recently.`); row('pop()', String(v)); }
-      if (a === 'speek') { if (!stack.length) { say('<b>Stack underflow:</b> the stack is empty, so there is nothing to peek at.', true); return; } paint(-1, -1, true); say(`peek() returns <b>${stack[stack.length - 1]}</b> but leaves it on the stack.`); row('peek() (stack)', String(stack[stack.length - 1])); }
+      if (a === 'speek') { if (!stack.length) { say('<b>Stack underflow:</b> the stack is empty, so there is nothing to peek at.', true); return; } paint(-1, -1, true); say(`peek() returns <b>${stack[stack.length - 1]}</b> but leaves it on the stack.`); row(hasQ ? 'peek() (stack)' : 'peek()', String(stack[stack.length - 1])); }
       if (a === 'enq') { const v = val(); if (v == null) return; queue.push(v); paint(-1, queue.length - 1); say(`enqueue(${v}): ${v} joins at the <b>rear</b>.`); row(`enqueue(${v})`, '—'); bump(); }
       if (a === 'deq') { if (!queue.length) { say('<b>Queue underflow:</b> the queue is empty, so there is nothing to dequeue.', true); return; } const v = queue.shift()!; paint(); say(`dequeue() removes and returns <b>${v}</b>, the item that has waited longest.`); row('dequeue()', String(v)); }
-      if (a === 'qpeek') { if (!queue.length) { say('<b>Queue underflow:</b> the queue is empty, so there is nothing to peek at.', true); return; } paint(-1, -1, false, true); say(`peek() returns <b>${queue[0]}</b>, the front, without removing it.`); row('peek() (queue)', String(queue[0])); }
-      if (a === 'clear') { stack = []; queue = []; log.innerHTML = ''; paint(); say('Both are empty.'); inp.value = '10'; }
+      if (a === 'qpeek') { if (!queue.length) { say('<b>Queue underflow:</b> the queue is empty, so there is nothing to peek at.', true); return; } paint(-1, -1, false, true); say(`peek() returns <b>${queue[0]}</b>, the front, without removing it.`); row(hasS ? 'peek() (queue)' : 'peek()', String(queue[0])); }
+      if (a === 'clear') { stack = []; queue = []; log.innerHTML = ''; paint(); say(mode === 'both' ? 'Both are empty.' : `The ${hasS ? 'stack' : 'queue'} is empty.`); inp.value = '10'; }
       if (a === 'same') {
         stack = []; queue = []; log.innerHTML = '';
         const seq: [string, number?][] = [['add', 1], ['add', 2], ['remove'], ['add', 3], ['add', 4], ['remove'], ['remove']];
@@ -90,6 +97,6 @@ const { id } = Astro.props;
       }
     }
     fig.querySelectorAll<HTMLButtonElement>('[data-a]').forEach((b) => b.addEventListener('click', () => act(b.dataset.a!)));
-    paint(); say('Both are empty. Start by pushing or enqueuing a value.');
+    paint(); say(mode === 'stack' ? 'The stack is empty. Start by pushing a value.' : mode === 'queue' ? 'The queue is empty. Start by enqueuing a value.' : 'Both are empty. Start by pushing or enqueuing a value.');
   });
 </script>

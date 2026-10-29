@@ -946,3 +946,6 @@ svg.objbox.ll-kind { max-width: 20rem; margin: 0.4rem 0; }
 .cw-wrong > figure.cw { border: 2px solid var(--red-pen); background: #fbeeee; }
 .cw-wrong > figure.cw .fig-cap { color: var(--red-pen); }
 .cw-wrong > figure.cw .fig-cap::before { content: "✗ Wrong code · "; font-family: var(--font-body); font-size: 0.85em; font-weight: 800; }
+
+/* SQLab with one structure (Stacks or Queues lesson): one full-width column (chat 17) */
+.sqlab.is-stack .sq-grid, .sqlab.is-queue .sq-grid { grid-template-columns: 1fr !important; }
