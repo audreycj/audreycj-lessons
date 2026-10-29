@@ -3352,12 +3352,16 @@ int peek() {
   return data[top];      // look only; top does not change
 }`;
 
-/** CodeWalk steps on ArrayStack(3) holding 4: push(9), pop(), peek(), push(2), push(7), push(8) (overflow). */
+/** CodeWalk steps on a new ArrayStack(3): push(4), push(9), pop(), peek(), push(2), push(7), push(8) (overflow). */
 export function stackWalkSteps() {
   const c = (t) => `<code>${t}</code>`;
   return [
+    { lines: [1], pic: stackPic([0, 0, 0], -1, { alt: 'A new stack: top is -1. All three cells hold 0, but all are above top, so the stack is empty.' }), vars: [['value', '= 4'], ['top', '= -1']],
+      say: `The stack was just made with ${c('new ArrayStack(3)')}, so ${c('top')} is -1: empty. The three cells hold Java's default 0, but they are all <b>above top</b> (dashed), so none of them is part of the stack. Now ${c('s.push(4)')} runs.` },
+    { lines: [5, 6], pic: stackPic([4, 0, 0], 0, { kinds: { 0: 'hot' }, alt: 'push 4: top moved from -1 to 0, and 4 is stored in cell 0.' }), vars: [['top', '= 0'], ['data[0]', '= 4']],
+      say: `${c('isFull()')} is false (-1 is not 2), so the two steps run. ${c('top++;')} moves ${c('top')} from -1 to <b>0</b>, then ${c('data[top] = value;')} stores 4 in cell 0. This is why ${c('top')} starts at -1: one step up lands on the first cell.` },
     { lines: [1], pic: stackPic([4, 0, 0], 0, { alt: 'The stack holds 4 in cell 0; top is 0. Cells 1 and 2 hold 0 but are not part of the stack.' }), vars: [['value', '= 9'], ['top', '= 0']],
-      say: `The stack was made with ${c('new ArrayStack(3)')}, and 4 is already pushed. Now ${c('s.push(9)')} runs. Cells 1 and 2 still hold Java's default 0, but they are <b>above top</b> (dashed), so they are not part of the stack.` },
+      say: `Now ${c('s.push(9)')} runs. The stack is 4. Cells 1 and 2 still hold 0, but they are <b>above top</b> (dashed), so they are not part of the stack.` },
     { lines: [2], pic: stackPic([4, 0, 0], 0, { alt: 'isFull: top 0 is not the last index 2.' }), vars: [['top', '= 0'], ['data.length - 1', '= 2']],
       say: `${c('isFull()')} checks ${c('top == data.length - 1')}: is 0 equal to 2? <b>No</b>, there is room, so the ${c('throw')} line is skipped.` },
     { lines: [5], pic: stackPic([4, 0, 0], 1, { kinds: { 1: 'seen' }, foot: 'halfway through push: 9 is not stored yet', alt: 'top moved up to 1. Cell 1 still holds 0.' }), vars: [['top', '= 1']],
@@ -3479,4 +3483,151 @@ export function queueWalkSteps() {
     { lines: [22, 23], pic: queuePic({ nodes: [], front: null, rear: null, ret: 8 }, 'count is 0, and dequeue returns 8. The queue is empty.'), vars: [['count', '= 0'], ['returns', '8']],
       say: `${c('count--')} makes 0, and 8 is returned. The queue is <b>empty</b>, just like at the start.` },
   ];
+}
+
+
+/* ---- Stacks (chat 18): her four picture requests (definition, rule on an array, underflow/overflow, where you see LIFO) ---- */
+
+/** Clean: the definition. A, B, C, D pushed into a column with ONE open end; in-order vs out-order. */
+export function stkDefPic() {
+  const X = 128, W = 84, H = 42, Y0 = 246; // item i (0 = A, bottom) top edge = Y0 - i * 46
+  let b = sT(170, 26, 'A, B, C, D were pushed in that order', { size: 15, w: 800, fill: '#0b544e' });
+  b += solidArrow(150, 42, 150, 96, '#0e6b63') + sT(142, 66, 'push', { mono: true, size: 14, w: 700, anchor: 'end', fill: '#0e6b63' });
+  b += solidArrow(190, 96, 190, 42, '#e8662e') + sT(198, 66, 'pop', { mono: true, size: 14, w: 700, anchor: 'start', fill: '#b4461a' });
+  b += sT(X + W + 14, 98, 'open end', { size: 12.5, w: 800, anchor: 'start', fill: '#4f5f62' });
+  b += `<path d="M${X - 4} 100 V${Y0 + H + 4} H${X + W + 4} V100" fill="none" stroke="#1b2a2e" stroke-width="3" stroke-linejoin="round"/>`;
+  const ins = ['1st', '2nd', '3rd', '4th'], outs = ['4th', '3rd', '2nd', '1st'];
+  ['A', 'B', 'C', 'D'].forEach((v, i) => {
+    const y = Y0 - i * 46, isTop = i === 3;
+    b += mapBox(X, y, W, H, isTop ? '#fbdccc' : '#ffffff', isTop ? '#e8662e' : '#1b2a2e', 2, 4);
+    b += sT(X + W / 2, y + 28, v, { mono: true, size: 18, w: 700, fill: isTop ? '#b4461a' : '#1b2a2e' });
+    b += sT(X - 16, y + 27, `in: ${ins[i]}`, { size: 13, w: 800, anchor: 'end', fill: '#0e6b63' });
+    if (isTop) {
+      b += sT(X + W + 16, y + 19, 'top', { mono: true, size: 14, w: 700, anchor: 'start', fill: '#b4461a' });
+      b += sT(X + W + 16, y + 37, `out: ${outs[i]}`, { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
+    } else b += sT(X + W + 16, y + 27, `out: ${outs[i]}`, { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
+  });
+  b += sT(170, 314, 'closed bottom: nothing goes in or out here', { size: 12.5, w: 700, fill: '#4f5f62' });
+  b += sT(170, 336, 'Last in (D) is the first out.', { size: 14, w: 800, fill: '#b4461a' });
+  return introPic(340, 346, 'A stack drawn as a column with one open end at the top and a closed bottom. A, B, C, D were pushed in that order, so A is at the bottom and D is the top. push puts an item in through the open top, and pop takes the top item out. On the left, the order they went in: A 1st, B 2nd, C 3rd, D 4th. On the right, the order pop takes them out: D 1st, C 2nd, B 3rd, A 4th. Last in, first out.', b);
+}
+
+/** Clean: a stack is a RULE on an array. Top: any index. Bottom: the same cells as a column; only the top end is used. */
+export function stkRulePic() {
+  const pan = (y, h, fill, line) => `<rect x="8" y="${y}" width="324" height="${h}" rx="10" fill="${fill}" stroke="${line}" stroke-width="1.5"/>`;
+  const vals = [4, 9, 2, 0, 0];
+  let b = pan(8, 152, '#ffffff', '#c9d6d4') + sT(22, 34, 'An array: any cell, any time', { size: 15, w: 800, fill: '#0b544e', anchor: 'start' });
+  vals.forEach((v, i) => {
+    const x = 36 + i * 54;
+    b += solidArrow(x + 27, 50, x + 27, 72, '#37474a', 2);
+    b += mapBox(x, 76, 54, 40, '#ffffff', '#1b2a2e', 2, 0) + sT(x + 27, 102, v, { mono: true, size: 16, w: 700 });
+    b += sT(x + 27, 132, i, { mono: true, size: 13, w: 600, fill: '#37474a' });
+  });
+  b += sT(170, 152, 'You may read or change any index, like data[3].', { size: 12.5, w: 700, fill: '#37474a' });
+  // the same cells, with the stack rule
+  b += pan(168, 280, '#fdf1ea', '#f0c2a8') + sT(22, 194, 'The same array, with the stack rule', { size: 15, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += sT(22, 213, 'turned up as a column: index 0 at the bottom', { size: 12.5, w: 700, fill: '#4f5f62', anchor: 'start' });
+  const CX = 96, CW = 70, CH = 38, cy = (i) => 374 - i * CH; // cell i top edge
+  vals.forEach((v, i) => {
+    const y = cy(i), off = i > 2, isTop = i === 2;
+    b += `<rect x="${CX}" y="${y}" width="${CW}" height="${CH}" fill="${off ? '#eef2f2' : isTop ? '#fbdccc' : '#ffffff'}" stroke="${off ? '#9aa8aa' : isTop ? '#e8662e' : '#1b2a2e'}" stroke-width="2"${off ? ' stroke-dasharray="5 4"' : ''}/>`;
+    b += sT(CX + CW / 2, y + 25, v, { mono: true, size: 16, w: 700, fill: off ? '#8a9799' : isTop ? '#b4461a' : '#1b2a2e' });
+    b += sT(CX - 12, y + 25, i, { mono: true, size: 13, w: 600, anchor: 'end', fill: '#37474a' });
+  });
+  b += solidArrow(206, cy(3) + 19, CX + CW + 6, cy(3) + 19, '#0e6b63') + sT(212, cy(3) + 24, 'push puts it here', { size: 13, w: 800, anchor: 'start', fill: '#0e6b63' });
+  b += solidArrow(206, cy(2) + 19, CX + CW + 6, cy(2) + 19, '#e8662e') + sT(212, cy(2) + 15, 'top item:', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' }) + sT(212, cy(2) + 32, 'pop and peek', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
+  const by1 = cy(1) + 4, by2 = cy(0) + CH - 4;
+  b += `<path d="M${CX + CW + 8} ${by1} H${CX + CW + 16} V${by2} H${CX + CW + 8}" fill="none" stroke="#b23a33" stroke-width="2" stroke-linejoin="round"/>`;
+  b += sT(196, by1 + 18, 'hands off:', { size: 13, w: 800, anchor: 'start', fill: '#b23a33' }) + sT(196, by1 + 36, 'no reaching into', { size: 13, w: 700, anchor: 'start', fill: '#b23a33' }) + sT(196, by1 + 54, 'the middle', { size: 13, w: 700, anchor: 'start', fill: '#b23a33' });
+  b += sT(170, 436, 'Same cells. The rule decides what you may do.', { size: 13, w: 800, fill: '#1b2a2e' });
+  return introPic(340, 456, 'Top panel: an array with five cells holding 4, 9, 2, 0, 0 at indexes 0 to 4. Arrows point into every cell: you may read or change any index. Bottom panel: the same array with the stack rule, turned up as a column with index 0 at the bottom. 4, 9, 2 are the stack and 2 in cell 2 is the top item, used by pop and peek. push puts a new item in cell 3, the next cell up. Cells 3 and 4 are dashed because they are above the top. Cells 0 and 1 are hands off: no reaching into the middle. Same cells; the rule decides what you may do.', b);
+}
+
+/** Sketch: underflow (empty shelf, nothing to pop) and overflow (shelf full to the top, no room to push). */
+export function stkFlowPic() {
+  const s = new Sketch(340, 412, 618);
+  const plate = (cx, cy, o = {}) => {
+    s.ellipse(cx, cy, o.w ?? 112, 20, { fill: o.fill ?? C.card, sw: 1.6, stroke: o.stroke ?? C.ink, ...(o.dash ? { dash: o.dash, single: true } : {}) });
+    if (!o.dash) s.ellipse(cx, cy - 1, (o.w ?? 112) * 0.6, 9, { fill: C.sky, sw: 1, single: true });
+  };
+  const shelf = (y0) => {
+    s.rect(36, y0 + 44, 156, 112, { fill: '#fff7e6', sw: 2.2, rough: 0.7 });
+    s.line(30, y0 + 156, 198, y0 + 156, { sw: 3.2, rough: 0.5 });
+  };
+  // Underflow
+  s.round(6, 6, 328, 196, 10, { fill: '#fffdf8', sw: 1.2, stroke: '#d9cbb4', rough: 0.5 });
+  s.text(18, 32, 'Underflow: the stack is empty', { font: 'body', size: 15, weight: 800, anchor: 'start', color: C.red });
+  shelf(6);
+  plate(114, 142, { dash: '5 4', stroke: '#9aa8aa', fill: 'none' });
+  s.text(114, 118, 'no plates left', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.curve(178, 128, 250, 84, -20, { stroke: C.orange, sw: 2.2, single: true, dash: '6 5' });
+  s.text(272, 66, 'pop()', { font: 'mono', size: 15, weight: 700, color: C.orange });
+  s.text(272, 112, 'Nothing', { font: 'body', size: 14, weight: 800, color: C.red });
+  s.text(272, 130, 'to take!', { font: 'body', size: 14, weight: 800, color: C.red });
+  s.text(18, 188, 'In code: pop() or peek() when top == -1', { font: 'body', size: 13, weight: 800, anchor: 'start', color: C.soft });
+  // Overflow
+  const y0 = 210;
+  s.round(6, y0, 328, 196, 10, { fill: '#fffdf8', sw: 1.2, stroke: '#d9cbb4', rough: 0.5 });
+  s.text(18, y0 + 26, 'Overflow: the stack is full', { font: 'body', size: 15, weight: 800, anchor: 'start', color: C.red });
+  shelf(y0);
+  [y0 + 144, y0 + 128, y0 + 112, y0 + 96, y0 + 80, y0 + 64].forEach((y) => plate(114, y));
+  plate(272, y0 + 76, { w: 96, fill: C.tealWash });
+  s.text(272, y0 + 52, 'push(x)', { font: 'mono', size: 15, weight: 700, color: C.teal });
+  s.arrow(232, y0 + 98, 200, y0 + 108, { stroke: C.teal, sw: 2.2, single: true, dash: '6 5' });
+  s.text(272, y0 + 118, 'No room!', { font: 'body', size: 14, weight: 800, color: C.red });
+  s.text(272, y0 + 140, 'the shelf has a', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(272, y0 + 157, 'fixed size', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(18, y0 + 182, 'In code: push(x) when top == data.length - 1', { font: 'body', size: 13, weight: 800, anchor: 'start', color: C.soft });
+  return s.svg('Two panels. Top, underflow: an empty shelf with no plates left; trying to pop gets nothing to take. In code: pop or peek when top is -1. Bottom, overflow: the shelf is full of plates up to the shelf above; a new plate for push does not fit: no room. In code: push when top equals data.length minus 1.').replace(/(\d+\.\d)\d+/g, '$1');
+}
+
+/** Sketch: three places LIFO fits: Undo, the Back button, reversing the word MATI. */
+export function stkLifoPic() {
+  const s = new Sketch(340, 562, 731);
+  const pan = (y, h, title, sub) => {
+    s.round(6, y, 328, h, 10, { fill: '#fffdf8', sw: 1.2, stroke: '#d9cbb4', rough: 0.5 });
+    s.text(18, y + 26, title, { font: 'body', size: 15, weight: 800, anchor: 'start', color: C.teal });
+    s.text(18, y + 45, sub, { font: 'body', size: 12.5, weight: 700, anchor: 'start', color: C.soft });
+  };
+  const card = (x, y, w, t, top) => {
+    s.round(x, y, w, 28, 5, { fill: top ? C.orangeWash : C.card, sw: 1.6, stroke: top ? C.orange : C.ink });
+    s.text(x + w / 2, y + 19, t, { font: 'body', size: 13, weight: 800, color: top ? '#b4461a' : C.ink });
+  };
+  // 1. Undo
+  pan(6, 168, 'Undo', 'Each change is pushed. Undo pops the newest one.');
+  card(20, 128, 150, 'typed "Hello"');
+  card(20, 96, 150, 'made it bold');
+  card(20, 64, 150, 'deleted a line', true);
+  s.round(230, 70, 88, 36, 8, { fill: C.butter, sw: 1.8 });
+  s.text(274, 94, 'Undo', { font: 'body', size: 15, weight: 800 });
+  s.arrow(176, 78, 222, 86, { stroke: C.orange, sw: 2.2 });
+  s.text(274, 128, 'brings back', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(274, 146, 'the deleted line', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  // 2. Back button
+  pan(182, 190, 'The Back button', 'Each page you open is pushed. Back pops it.');
+  card(20, 336, 150, 'search results');
+  card(20, 304, 150, 'DOrSU website');
+  card(20, 272, 150, 'ITC 120 page');
+  card(20, 240, 150, 'Stacks lesson', true);
+  s.round(230, 246, 88, 36, 8, { fill: C.butter, sw: 1.8 });
+  s.path('M246 264 L256 256 L256 272 Z', { fill: C.ink, sw: 1.2 });
+  s.text(284, 270, 'Back', { font: 'body', size: 15, weight: 800 });
+  s.arrow(176, 254, 222, 262, { stroke: C.orange, sw: 2.2 });
+  s.text(274, 304, 'You are back', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  s.text(274, 322, 'on ITC 120 page', { font: 'body', size: 12.5, weight: 700, color: C.soft });
+  // 3. Reversing a word
+  pan(380, 176, 'Reversing a word', 'Push the letters of MATI, then pop them all.');
+  s.text(66, 478, 'M A T I', { font: 'mono', size: 19, weight: 700 });
+  s.text(66, 500, 'push M, A, T, I', { font: 'body', size: 12.5, weight: 700, color: C.teal });
+  ['M', 'A', 'T', 'I'].forEach((v, i) => {
+    const y = 522 - i * 26, top = i === 3;
+    s.rect(150, y, 40, 24, { fill: top ? C.orangeWash : C.card, sw: 1.6, stroke: top ? C.orange : C.ink });
+    s.text(170, y + 18, v, { font: 'mono', size: 15, weight: 700, color: top ? '#b4461a' : C.ink });
+  });
+  s.curve(100, 458, 146, 452, -14, { stroke: C.teal, sw: 2.2 });
+  s.curve(194, 452, 240, 458, -14, { stroke: C.orange, sw: 2.2 });
+  s.text(276, 478, 'I T A M', { font: 'mono', size: 19, weight: 700, color: '#b4461a' });
+  s.text(276, 500, 'pop 4 times', { font: 'body', size: 12.5, weight: 700, color: '#b4461a' });
+  s.text(276, 520, 'reversed!', { font: 'body', size: 12.5, weight: 800, color: C.soft });
+  return s.svg('Three places where the newest item comes out first. Undo: three changes are piled up: typed Hello, made it bold, deleted a line on top. Undo takes the top one first, so the deleted line comes back. The Back button: pages piled up: search results, DOrSU website, ITC 120 page, and the Stacks lesson on top. Back takes the top page off, so you are back on the ITC 120 page. Reversing a word: push the letters M, A, T, I, then pop four times: they come out I, T, A, M, the word reversed.').replace(/(\d+\.\d)\d+/g, '$1');
 }
