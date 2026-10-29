@@ -127,6 +127,70 @@ while (current != null) {
 }
 System.out.println(count);`;
 
+const taskCode = String.raw`public class Main {
+  public static void main(String[] args) {
+    ArrayQueue q = new ArrayQueue(4);
+    q.enqueue(1);
+    q.enqueue(2);
+    q.enqueue(3);
+    System.out.println(q.dequeue());  // expected: 1
+    System.out.println(q.dequeue());  // expected: 2
+    q.enqueue(4);
+    q.enqueue(5);                     // wraps around to cell 0
+    q.enqueue(6);                     // goes into cell 1
+    System.out.println(q.isFull());   // expected: true
+    while (!q.isEmpty()) {
+      System.out.print(q.dequeue() + " ");
+    }
+    System.out.println();             // expected: 3 4 5 6
+  }
+}
+
+class ArrayQueue {
+  int[] data;
+  int front;   // index of the front item
+  int rear;    // index of the rear item; -1 before the first enqueue
+  int count;   // number of items
+
+  ArrayQueue(int capacity) {
+    data = new int[capacity];
+    front = 0;
+    rear = -1;
+    count = 0;
+  }
+  boolean isEmpty() {
+    return count == 0;
+  }
+  boolean isFull() {
+    return count == data.length;
+  }
+  void enqueue(int value) {
+    // YOUR CODE:
+    // 1. If the queue is full, throw an IllegalStateException.
+    // 2. Move rear to the next cell, wrapping around with %.
+    // 3. Store the value there, and add 1 to count.
+
+  }
+  int dequeue() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Queue underflow: empty.");
+    }
+    int value = data[front];
+    front = (front + 1) % data.length;   // move front, wrapping around
+    count--;
+    return value;
+  }
+}`;
+const taskAns = String.raw`void enqueue(int value) {
+  if (isFull()) {
+    throw new IllegalStateException("Queue overflow: full.");
+  }
+  rear = (rear + 1) % data.length;
+  data[rear] = value;
+  count++;
+}`;
+const circPeek = `<div class="illus">${qCircPic()}</div><p class="small">Read the queue from <code>front</code>, going right and wrapping around. The cell after index <code>i</code> is <code>(i + 1) % data.length</code>.</p>`;
+
 const quiz = [
   { q: 'A queue follows which rule?', opts: ['Last in, first out', 'First in, first out', 'Smallest first', 'Random order'], a: 1, why: 'A <b>queue</b> is FIFO: the item that has waited longest leaves first, like a canteen line.' },
   { q: 'Enqueue 1, enqueue 2, enqueue 3, then dequeue. What is returned?', opts: ['1', '2', '3', 'nothing'], a: 0, why: '1 joined first, so it is at the front. <code>dequeue()</code> removes and returns <b>1</b>.' },
@@ -382,10 +446,10 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
   <section class="chapter wrap" id="practice">
     <div class="chapter-head">
       <p class="chapter-num">Part 7 · Your turn</p>
-      <h2>Practice on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
-      <p>Set A is the Section 6 self-check from your module, in case you want to redo it. Set B is new. The readiness check covers all prelim topics.</p>
+      <p>Set A is the Section 6 self-check from your module, in case you want to redo it. Set B is new. The readiness check covers all prelim topics. The coding task at the end runs in Java.</p>
       <div class="paper flow">
         <p class="note-label">Set A: from the module</p>
         <ol>
@@ -463,6 +527,33 @@ const safePeek = `<p class="note-label">The safe order for inserting</p><ol><li>
             <li>(a) Queue: first come, first served. (b) Stack: the most recent stroke is undone first. (c) Array: the size is fixed, and the seat number works as an index for direct access. Seat 25 is at index 24, since seats count from 1 but indexes count from 0.</li>
             <li><b>False.</b> Changing links is quick, but reaching the right node can mean walking through the list. Deleting the last value is quicker in an array, and reading by position is direct only in an array.</li>
           </ol>
+        </div></details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: a queue in an array</p>
+        <p>Part 4's optional box kept a queue in a <b>circular array</b> (<Peek label="see the picture" title="From Part 4: a queue in an array" html={circPeek} />). Here it is in Java, as our own class <code>ArrayQueue</code>. <code>dequeue</code> is done: it takes the value at <code>front</code>, then moves <code>front</code> to the next cell, wrapping around with <code>%</code>. Finish <code>enqueue</code> in about 6 lines where it says YOUR CODE. It does the same thing at the <b>rear</b>. Run it: the printed lines must match the comments.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output: <code>1</code>, <code>2</code>, <code>true</code>, then <code>3 4 5 6</code>.</p>
+          <p>The table shows what happens inside the array (4 cells) as <code>main</code> runs. A dash means the cell was never used:</p>
+          <div class="scroll-x">
+            <table class="tbl">
+              <thead><tr><th>Statement</th><th>Cells 0, 1, 2, 3</th><th><code>front</code></th><th><code>rear</code></th><th><code>count</code></th></tr></thead>
+              <tbody>
+                <tr><td><code>new ArrayQueue(4)</code></td><td>–, –, –, –</td><td>0</td><td>-1</td><td>0</td></tr>
+                <tr><td><code>enqueue</code> 1, 2, 3</td><td>1, 2, 3, –</td><td>0</td><td>2</td><td>3</td></tr>
+                <tr><td><code>dequeue()</code> twice</td><td>1, 2, 3, –</td><td>2</td><td>2</td><td>1</td></tr>
+                <tr><td><code>enqueue(4)</code></td><td>1, 2, 3, 4</td><td>2</td><td>3</td><td>2</td></tr>
+                <tr><td><code>enqueue(5)</code></td><td>5, 2, 3, 4</td><td>2</td><td>0</td><td>3</td></tr>
+                <tr><td><code>enqueue(6)</code></td><td>5, 6, 3, 4</td><td>2</td><td>1</td><td>4</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The two dequeues did not erase 1 and 2. They stay in their cells, but <code>front</code> moved past them, so they are no longer part of the queue. <code>enqueue(5)</code> found no cell after index 3, so <code>rear</code> wrapped around: <code>(3 + 1) % 4</code> = 0, and 5 wrote over the old 1. Reading from <code>front</code> (cell 2) and wrapping gives 3, 4, 5, 6.</p>
+          <p>A common mistake is <code>rear++;</code> instead of the <code>%</code> line. Then <code>enqueue(5)</code> tries cell 4, and Java throws an <code>ArrayIndexOutOfBoundsException</code>, even though cells 0 and 1 are free.</p>
+          <p>Why does <code>rear</code> start at -1? The first <code>enqueue</code> moves it to <code>(-1 + 1) % 4</code> = 0, so the first value goes into cell 0. It is the same idea as <code>top = -1</code> in the Stacks lesson. And <code>count</code> makes <code>isEmpty()</code> and <code>isFull()</code> one comparison each. Without it, an empty queue and a full queue can have the same <code>front</code> and <code>rear</code>.</p>
         </div></details>
       </div>
     </div>

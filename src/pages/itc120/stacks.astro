@@ -132,6 +132,78 @@ s.push(1);
 System.out.println(s.pop());
 System.out.println(s.pop());`;
 
+const taskCode = String.raw`public class Main {
+  // Returns n written in binary, for example toBinary(6) gives "110".
+  static String toBinary(int n) {
+    if (n == 0) {
+      return "0";
+    }
+    ArrayStack s = new ArrayStack(32);
+    String result = "";
+    // YOUR CODE:
+    // 1. While n > 0: push the remainder n % 2,
+    //    then divide: n = n / 2.
+    // 2. While the stack is not empty: pop a digit
+    //    and add it to the end of result.
+
+    return result;
+  }
+
+  public static void main(String[] args) {
+    System.out.println(toBinary(6));    // expected: 110
+    System.out.println(toBinary(13));   // expected: 1101
+    System.out.println(toBinary(20));   // expected: 10100
+    System.out.println(toBinary(1));    // expected: 1
+    System.out.println(toBinary(0));    // expected: 0
+  }
+}
+
+class ArrayStack {
+  int[] data;
+  int top;
+
+  ArrayStack(int capacity) {
+    data = new int[capacity];
+    top = -1;
+  }
+  boolean isEmpty() {
+    return top == -1;
+  }
+  boolean isFull() {
+    return top == data.length - 1;
+  }
+  void push(int value) {
+    if (isFull()) {
+      throw new IllegalStateException("Stack overflow: full.");
+    }
+    top++;
+    data[top] = value;
+  }
+  int pop() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Stack underflow: empty.");
+    }
+    int value = data[top];
+    top--;
+    return value;
+  }
+}`;
+const taskAns = String.raw`static String toBinary(int n) {
+  if (n == 0) {
+    return "0";
+  }
+  ArrayStack s = new ArrayStack(32);
+  String result = "";
+  while (n > 0) {
+    s.push(n % 2);
+    n = n / 2;
+  }
+  while (!s.isEmpty()) {
+    result = result + s.pop();
+  }
+  return result;
+}`;
+
 const quiz = [
   { q: 'A stack follows which rule?', opts: ['First in, first out', 'Last in, first out', 'Smallest first', 'Random order'], a: 1, why: 'A <b>stack</b> is LIFO: the item added most recently is removed first, like the top plate of a pile.' },
   { q: 'Push 1, push 2, push 3, then pop. What is returned?', opts: ['1', '2', '3', 'nothing'], a: 2, why: '3 was pushed last, so it is on top. <code>pop()</code> removes and returns <b>3</b>.' },
@@ -369,10 +441,10 @@ const quiz = [
   <section class="chapter wrap" id="practice">
     <div class="chapter-head">
       <p class="chapter-num">Part 6 · Your turn</p>
-      <h2>Practice on paper</h2>
+      <h2>Practice</h2>
     </div>
     <div class="flow">
-      <p>Set A is the Section 5 self-check from your module, in case you want to redo it. Set B is new.</p>
+      <p>Set A is the Section 5 self-check from your module, in case you want to redo it. Set B is new. The coding task at the end runs in Java.</p>
       <div class="paper flow">
         <p class="note-label">Set A: from the module</p>
         <ol>
@@ -439,6 +511,31 @@ const quiz = [
             <li><code>C</code>, <code>2</code>, <code>T</code>, <code>I</code>. C was pushed last, so it comes out first: the word comes out reversed, <b>C2TI</b>.</li>
             <li>It prints <code>1</code>. The second <code>pop()</code> finds the stack empty, so it throws an <code>IllegalStateException</code> with the message "Stack underflow: empty." and the program stops (underflow).</li>
           </ol>
+        </div></details>
+      </div>
+      <div class="paper flow" id="task">
+        <p class="note-label">Your coding task: decimal to binary</p>
+        <p>To write a number in binary, divide it by 2 again and again, and keep each remainder. The catch: the remainders come out in the wrong order. The <b>last</b> remainder is the <b>first</b> binary digit. A stack fixes that for free: push each remainder, then pop them all. Here is 6, step by step:</p>
+        <div class="scroll-x">
+          <table class="tbl">
+            <thead><tr><th><code>n</code></th><th><code>n % 2</code> (push it)</th><th><code>n / 2</code> (the new <code>n</code>)</th></tr></thead>
+            <tbody>
+              <tr><td>6</td><td>0</td><td>3</td></tr>
+              <tr><td>3</td><td>1</td><td>1</td></tr>
+              <tr><td>1</td><td>1</td><td>0, so stop</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The stack now holds 0, 1, 1 (bottom → top). Popping gives 1, 1, 0, so 6 is <b>110</b> in binary.</p>
+        <p>Finish <code>toBinary</code> in about 6 lines where it says YOUR CODE. <code>ArrayStack</code> is the class from Part 4, with only the methods this task needs. Run it: each printed line must match its comment.</p>
+        <pre class="code"><code set:html={hiN(taskCode)} /></pre>
+        <TryIt />
+        <details class="reveal"><summary>Show one possible answer</summary><div class="flow">
+          <pre class="code"><code set:html={hiN(taskAns)} /></pre>
+          <p>Output, one per line: <code>110</code>, <code>1101</code>, <code>10100</code>, <code>1</code>, <code>0</code>.</p>
+          <p><code>n / 2</code> divides two <code>int</code>s, so the decimal part is dropped: 13 / 2 is 6. The part that was dropped is exactly <code>n % 2</code>, the remainder we push. The first loop stops when <code>n</code> reaches 0.</p>
+          <p>The second loop is the stack doing its job. The remainders went in last-digit-first, and LIFO brings them out first-digit-first, just as <code>IT2C</code> came out as <code>C2TI</code> in Set B. <code>result + s.pop()</code> joins text and a number, so <code>"" + 1</code> gives <code>"1"</code>, then <code>"1" + 1</code> gives <code>"11"</code>, and so on.</p>
+          <p>Why the <code>if (n == 0)</code> at the start? With 0, the first loop never runs, nothing is pushed, and <code>result</code> stays empty. But 0 in binary is <code>0</code>, not an empty line.</p>
         </div></details>
       </div>
     </div>
