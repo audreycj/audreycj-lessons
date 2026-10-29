@@ -3516,7 +3516,7 @@ export function stkDefPic() {
 export function stkRulePic() {
   const pan = (y, h, fill, line) => `<rect x="8" y="${y}" width="324" height="${h}" rx="10" fill="${fill}" stroke="${line}" stroke-width="1.5"/>`;
   const vals = [4, 9, 2, 0, 0];
-  let b = pan(8, 152, '#ffffff', '#c9d6d4') + sT(22, 34, 'An array: any cell, any time', { size: 15, w: 800, fill: '#0b544e', anchor: 'start' });
+  let b = pan(8, 152, '#ffffff', '#c9d6d4') + sT(22, 34, 'An ordinary array: any cell', { size: 15, w: 800, fill: '#0b544e', anchor: 'start' });
   vals.forEach((v, i) => {
     const x = 36 + i * 54;
     b += solidArrow(x + 27, 50, x + 27, 72, '#37474a', 2);
@@ -3525,7 +3525,7 @@ export function stkRulePic() {
   });
   b += sT(170, 152, 'You may read or change any index, like data[3].', { size: 12.5, w: 700, fill: '#37474a' });
   // the same cells, with the stack rule
-  b += pan(168, 280, '#fdf1ea', '#f0c2a8') + sT(22, 194, 'The same array, with the stack rule', { size: 15, w: 800, fill: '#b4461a', anchor: 'start' });
+  b += pan(168, 280, '#fdf1ea', '#f0c2a8') + sT(22, 194, 'ArrayStack: the same array + top', { size: 15, w: 800, fill: '#b4461a', anchor: 'start' });
   b += sT(22, 213, 'turned up as a column: index 0 at the bottom', { size: 12.5, w: 700, fill: '#4f5f62', anchor: 'start' });
   const CX = 96, CW = 70, CH = 38, cy = (i) => 374 - i * CH; // cell i top edge
   vals.forEach((v, i) => {
@@ -3535,12 +3535,12 @@ export function stkRulePic() {
     b += sT(CX - 12, y + 25, i, { mono: true, size: 13, w: 600, anchor: 'end', fill: '#37474a' });
   });
   b += solidArrow(206, cy(3) + 19, CX + CW + 6, cy(3) + 19, '#0e6b63') + sT(212, cy(3) + 24, 'push puts it here', { size: 13, w: 800, anchor: 'start', fill: '#0e6b63' });
-  b += solidArrow(206, cy(2) + 19, CX + CW + 6, cy(2) + 19, '#e8662e') + sT(212, cy(2) + 15, 'top item:', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' }) + sT(212, cy(2) + 32, 'pop and peek', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
+  b += solidArrow(206, cy(2) + 19, CX + CW + 6, cy(2) + 19, '#e8662e') + sT(212, cy(2) + 15, 'top = 2:', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' }) + sT(212, cy(2) + 32, 'pop and peek', { size: 13, w: 800, anchor: 'start', fill: '#b4461a' });
   const by1 = cy(1) + 4, by2 = cy(0) + CH - 4;
   b += `<path d="M${CX + CW + 8} ${by1} H${CX + CW + 16} V${by2} H${CX + CW + 8}" fill="none" stroke="#b23a33" stroke-width="2" stroke-linejoin="round"/>`;
   b += sT(196, by1 + 18, 'hands off:', { size: 13, w: 800, anchor: 'start', fill: '#b23a33' }) + sT(196, by1 + 36, 'no reaching into', { size: 13, w: 700, anchor: 'start', fill: '#b23a33' }) + sT(196, by1 + 54, 'the middle', { size: 13, w: 700, anchor: 'start', fill: '#b23a33' });
   b += sT(170, 436, 'Same cells. The rule decides what you may do.', { size: 13, w: 800, fill: '#1b2a2e' });
-  return introPic(340, 456, 'Top panel: an array with five cells holding 4, 9, 2, 0, 0 at indexes 0 to 4. Arrows point into every cell: you may read or change any index. Bottom panel: the same array with the stack rule, turned up as a column with index 0 at the bottom. 4, 9, 2 are the stack and 2 in cell 2 is the top item, used by pop and peek. push puts a new item in cell 3, the next cell up. Cells 3 and 4 are dashed because they are above the top. Cells 0 and 1 are hands off: no reaching into the middle. Same cells; the rule decides what you may do.', b);
+  return introPic(340, 456, 'Top panel: an array with five cells holding 4, 9, 2, 0, 0 at indexes 0 to 4. Arrows point into every cell: you may read or change any index. Bottom panel: ArrayStack, the same array with top and the stack rule, turned up as a column with index 0 at the bottom. 4, 9, 2 are the stack and top is 2, the index of the top item, used by pop and peek. push puts a new item in cell 3, the next cell up. Cells 3 and 4 are dashed because they are above the top. Cells 0 and 1 are hands off: no reaching into the middle. Same cells; the rule decides what you may do.', b);
 }
 
 /** Sketch: underflow (empty shelf, nothing to pop) and overflow (shelf full to the top, no room to push). */

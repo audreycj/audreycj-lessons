@@ -175,9 +175,8 @@ const quiz = [
       </div>
       <p>Here is the definition as a picture. Four items went in, one after another:</p>
       <figure class="fig illus-fig"><Fragment set:html={defSvg} /><figcaption>The items form <b>one line</b>, from the bottom to the top. Only the <b>top end is open</b>, so every push and every pop happens there. Read the two sides: A went in first but comes out last; D went in last and comes out first. That is LIFO.</figcaption></figure>
-      <p>A stack is not a new way of <i>storing</i> data. It is a <b>rule</b> placed on storage you already know, such as an array: "only touch the top." The cells stay the same; the rule only changes which cells you may use:</p>
-      <figure class="fig illus-fig"><Fragment set:html={stkRulePic()} /><figcaption>Top: a plain array lets you use any index. Bottom: the same five cells with the stack rule. 4, 9, 2 are the stack, 2 is the top item, and the next push goes into cell 3. The cells under the top are still there, but you may not reach in and take or change 9 or 4.</figcaption></figure>
-      <p><b>Why limit yourself?</b> Many tasks only ever need the newest item (you will see some below). With the rule, adding or removing never shifts other items, as inserting into the middle of an array does, so push and pop take the same few steps however big the stack gets. And no part of the program can mix up the order by reaching into the middle.</p>
+      <p>What makes something a stack is the <b>rule</b> "only touch the top," not what holds the items. The plates could sit on a table or a shelf; it is still a stack as long as you only add and take at the top. (In Part 4, a stack keeps its items in an array.)</p>
+      <p><b>Why follow such a strict rule?</b> Many tasks only ever need the newest item (you will see some below). The rule keeps their order safe: nothing can be pulled from the middle and mix things up.</p>
       <p>Here are the words that come with a stack:</p>
       <div class="scroll-x">
         <table class="tbl">
@@ -273,6 +272,9 @@ const quiz = [
         <p class="note-label">Array and index (from the Arrays lesson)</p>
         <p>An <b>array</b> is a fixed number of cells side by side, all holding the same type. Each cell has an <b>index</b>, its position number, starting at 0. An array's <b>length</b> never changes, so the last index is <code>length - 1</code>.</p>
       </div>
+      <p>Java has no class called <code>ArrayStack</code>. It is <b>our own class</b>, written in this lesson; the name just means "a stack that keeps its items in an array." Inside, it is an ordinary array plus one number, <code>top</code>, and the stack rule:</p>
+      <figure class="fig illus-fig"><Fragment set:html={stkRulePic()} /><figcaption>Top: an ordinary array lets you use any index. Bottom: the same five cells inside <code>ArrayStack</code>, drawn as a column. 4, 9, 2 are the stack, and <code>top</code> is 2, the index of the top item. The next push goes into cell 3. Cells 0 and 1 are still there, but the stack's methods only ever use the top.</figcaption></figure>
+      <p>This also makes a stack fast. Adding or removing at the top never shifts other items (as inserting into the middle of an array does), so <code>push</code> and <code>pop</code> take the same few steps however big the stack gets.</p>
       <p>The class <code>ArrayStack</code> keeps its items in an array called <code>data</code>. The field <code>top</code> is the <b>index of the top item</b>. A new stack has <code>top = -1</code>, meaning "no top item yet." The -1 is only an index; it is never returned as data. Why not start at 0? <code>top = 0</code> would mean "the top item is in cell 0," so the stack would already hold one item.</p>
       <pre class="code"><code set:html={hiN(stackFields)} /></pre>
       <div class="def">
@@ -312,7 +314,7 @@ const quiz = [
       </div>
       <div class="plain">
         <p class="note-label">Good to know: Java's ready-made stacks</p>
-        <p>Java already has stack classes: <code>java.util.Stack</code> and the newer <code>ArrayDeque</code>, which Java's documentation recommends. Both have <code>push</code>, <code>pop</code>, and <code>peek</code>. In this course you build your own, so you can see what happens inside.</p>
+        <p>Our <code>ArrayStack</code> is custom-made, but Java also has stack classes of its own: <code>java.util.Stack</code> and the newer <code>ArrayDeque</code>, which Java's documentation recommends. Both have <code>push</code>, <code>pop</code>, and <code>peek</code>. In this course you build your own, so you can see what happens inside.</p>
         <p>You may also meet <code>StackOverflowError</code>. That is overflow on Java's own stack of method calls, usually from a recursive method that never stops. You will see it in the <a href={base + '/itc120/recursion/'}>Recursion</a> lesson.</p>
       </div>
       <details class="reveal">
