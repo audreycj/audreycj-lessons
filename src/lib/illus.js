@@ -3133,19 +3133,19 @@ export function llNamesPic() {
   const s = new Sketch(340, 290, 1114);
   s.round(6, 6, 160, 278, 10, { fill: '#eef6f4', sw: 1.2, stroke: '#c9d6d4' });
   s.round(174, 6, 160, 278, 10, { fill: '#fdf1ea', sw: 1.2, stroke: '#f0c2a8' });
-  s.text(86, 30, 'Node b = a;', { font: 'mono', size: 13, weight: 700 });
-  s.text(254, 30, 'Node b = new Node(5);', { font: 'mono', size: 11.5, weight: 700 });
+  s.text(86, 30, 'Node b = a;', { font: 'mono', size: 13, weight: 700 }); s.text(86, 48, 'b.data = 9;', { font: 'mono', size: 12, weight: 700, color: C.orange });
+  s.text(254, 30, 'Node b = new Node(5);', { font: 'mono', size: 11.5, weight: 700 }); s.text(254, 48, 'b.data = 9;', { font: 'mono', size: 12, weight: 700, color: C.orange });
   const tag = (x, y, t) => { s.round(x - 16, y - 16, 32, 24, 5, { fill: C.tealWash, sw: 1.4, stroke: C.teal }); s.text(x, y + 1, t, { font: 'mono', size: 14, weight: 700, color: C.teal }); };
   const person = (x, y, shirt, num) => { kid(s, x, y, shirt); s.text(x, y + 38, num, { font: 'body', size: 13, weight: 800, color: '#fff' }); };
-  tag(56, 66, 'a'); tag(116, 66, 'b'); person(86, 128, C.orange, '9');
-  s.arrow(60, 74, 76, 108, { stroke: C.orange, sw: 2.2, single: true }); s.arrow(112, 74, 96, 108, { stroke: C.orange, sw: 2.2, single: true });
+  tag(56, 76, 'a'); tag(116, 76, 'b'); person(86, 128, C.orange, '9');
+  s.arrow(60, 84, 76, 108, { stroke: C.orange, sw: 2.2, single: true }); s.arrow(112, 84, 96, 108, { stroke: C.orange, sw: 2.2, single: true });
   s.text(86, 204, 'one person,', { font: 'body', size: 12.5, weight: 800, color: C.teal }); s.text(86, 220, 'two names', { font: 'body', size: 12.5, weight: 800, color: C.teal });
-  s.text(86, 250, 'b.data = 9', { font: 'mono', size: 12, weight: 700 }); s.text(86, 268, 'a.data is 9 too', { font: 'body', size: 12, weight: 800, color: C.orange });
-  tag(214, 66, 'a'); tag(294, 66, 'b'); person(214, 128, C.teal, '5'); person(294, 128, C.orange, '9');
-  s.arrow(214, 76, 214, 108, { stroke: C.orange, sw: 2.2, single: true }); s.arrow(294, 76, 294, 108, { stroke: C.orange, sw: 2.2, single: true });
+  s.text(86, 250, 'his shirt: 5 → 9', { font: 'body', size: 12, weight: 800, color: C.orange }); s.text(86, 268, 'a.data is 9 too', { font: 'body', size: 12, weight: 800, color: C.orange });
+  tag(214, 76, 'a'); tag(294, 76, 'b'); person(214, 128, C.teal, '5'); person(294, 128, C.orange, '9');
+  s.arrow(214, 86, 214, 108, { stroke: C.orange, sw: 2.2, single: true }); s.arrow(294, 86, 294, 108, { stroke: C.orange, sw: 2.2, single: true });
   s.text(254, 204, 'two people,', { font: 'body', size: 12.5, weight: 800, color: C.orange }); s.text(254, 220, 'one name each', { font: 'body', size: 12.5, weight: 800, color: C.orange });
-  s.text(254, 250, 'b.data = 9', { font: 'mono', size: 12, weight: 700 }); s.text(254, 268, 'a.data stays 5', { font: 'body', size: 12, weight: 800, color: C.teal });
-  return shrink(s.svg('Left, Node b = a: the name tags a and b both point to one person, whose shirt number is the data. After b.data = 9, a.data is 9 too, because it is one person with two names. Right, Node b = new Node(5): a and b point to two different people. After b.data = 9, a.data stays 5.', 'll-pic'));
+  s.text(254, 250, 'only b\'s shirt: 5 → 9', { font: 'body', size: 12, weight: 800, color: C.orange }); s.text(254, 268, 'a.data stays 5', { font: 'body', size: 12, weight: 800, color: C.teal });
+  return shrink(s.svg('Left, Node b = a: the name tags a and b both point to one person, whose shirt number is the data. After b.data = 9, his shirt changes from 5 to 9, so a.data is 9 too, because it is one person with two names. Right, Node b = new Node(5): a and b point to two different people, both starting with 5. After b.data = 9, only the shirt of b changes from 5 to 9, and a.data stays 5.', 'll-pic'));
 }
 
 /** Part 3: access the 3rd node. */

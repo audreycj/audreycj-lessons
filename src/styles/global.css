@@ -941,3 +941,8 @@ h3.blk-h .blk-t { background: linear-gradient(transparent 62%, var(--butter) 62%
 svg.objbox.ll-pic { max-width: 22rem; }
 svg.objbox.ll-kind { max-width: 20rem; margin: 0.4rem 0; }
 .try-it { color: var(--ink-soft); margin-top: 0.4rem; }
+
+/* walkthroughs of WRONG code (linked-lists, chat 16) */
+.cw-wrong > figure.cw { border: 2px solid var(--red-pen); background: #fbeeee; }
+.cw-wrong > figure.cw .fig-cap { color: var(--red-pen); }
+.cw-wrong > figure.cw .fig-cap::before { content: "✗ Wrong code · "; font-family: var(--font-body); font-size: 0.85em; font-weight: 800; }

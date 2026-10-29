@@ -262,13 +262,13 @@ const quiz = [
         <p class="note-label">Forgetting <code>current = current.next;</code></p>
         <p>Without that line, <code>current</code> never moves. It stays on node 10, so <code>current != null</code> is true forever: the loop prints <code>10 -&gt; </code> again and again and never ends.</p>
       </div>
-      <CodeWalk id="cw-ll-stuck" code={llStuckCode} steps={llStuckSteps()} cap="Walkthrough: the loop without the move line" hint="Use Next to go step by step, or tap a line to jump to it." />
+      <div class="cw-wrong"><CodeWalk id="cw-ll-stuck" code={llStuckCode} steps={llStuckSteps()} cap="Walkthrough: the loop without the move line" hint="Use Next to go step by step, or tap a line to jump to it." /></div>
       <div class="remember">
         <p class="note-label">null, two ways</p>
         <p>In <code>current != null</code>, <code>null</code> is a <b>reference value</b>: "no node." In <code>System.out.println("null")</code>, it is just <b>text</b> in quotation marks that the program prints.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={llNullPic()} /><figcaption>Same word, two jobs.</figcaption></figure>
       </div>
-      \1
+      <p><b>Access</b> is the same walk, stopped early: to get the third node, start at <code>head</code> and follow two links. An array reaches <code>arr[2]</code> in one step. A linked list walks.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={llAccessPic()} /><figcaption>Access stops at the node it needs.</figcaption></figure>
     </div>
   </section>
@@ -300,7 +300,7 @@ const quiz = [
         <p class="note-label">Swap the lines, and the list is lost</p>
         <p>If <code>head = newNode;</code> runs first, then <code>newNode.next = head;</code> copies the <b>new</b> head, so node 5 refers to itself. Nothing refers to node 10 anymore, and <code>printList(head)</code> prints 5 forever.</p>
       </div>
-      <CodeWalk id="cw-ll-swap" code={llSwapCode} steps={llSwapSteps()} cap="Walkthrough: the same lines, swapped" hint="Use Next to go step by step, or tap a line to jump to it." />
+      <div class="cw-wrong"><CodeWalk id="cw-ll-swap" code={llSwapCode} steps={llSwapSteps()} cap="Walkthrough: the same lines, swapped" hint="Use Next to go step by step, or tap a line to jump to it." /></div>
       <div class="sub">
         <h3>Insert after a node you already have</h3>
         <p>Start with 10 → 20 → 30, and <code>current</code> refers to node 20. Insert 25 after it:</p>
