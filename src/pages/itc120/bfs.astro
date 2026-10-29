@@ -351,6 +351,19 @@ const quiz = [
       <p>This program builds the main example as an adjacency matrix, then runs BFS from A. Java's <code>Queue</code> works like the queue you learned: <code>offer</code> = enqueue at the rear, <code>poll</code> = dequeue from the front. <code>LinkedList</code> is one of Java's built-in queue types.</p>
       <pre class="code"><code set:html={hi(code)} /></pre>
       <TryIt cls="BFS" />
+      <p>Here is how to read the new lines aloud. The matrix lines (<code>names</code>, <code>adj</code>, <code>addEdge</code>) are the same as in the <a href={base + '/itc120/graphs/#java'}>Graphs lesson, Part 8</a>.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+        <tbody>
+          <tr><td class="nowrap"><code>import java.util.Queue;</code></td><td>"let this program use Java's Queue" (and the line above it, LinkedList). Both are in <code>java.util</code>.</td></tr>
+          <tr><td><code>boolean[] seen = new boolean[n];</code></td><td>"make n true/false slots named seen." Every slot starts <code>false</code>. <code>seen[v]</code> answers: has v been put in the queue yet?</td></tr>
+          <tr><td><code>Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();</code></td><td>"queue is a Queue of Integers, built as a LinkedList." <code>Queue</code> is the type we use (it gives us offer, poll, isEmpty); <code>LinkedList</code> is the built-in class that does the work. <code>&lt;Integer&gt;</code> means it holds vertex numbers (<a href={base + '/itc120/graphs/#java-list'}>why Integer, not int</a>).</td></tr>
+          <tr><td class="nowrap"><code>queue.offer(start);</code></td><td>"enqueue start at the rear."</td></tr>
+          <tr><td class="nowrap"><code>while (!queue.isEmpty())</code></td><td>"while the queue is <b>not</b> empty." The <code>!</code> means not.</td></tr>
+          <tr><td class="nowrap"><code>int u = queue.poll();</code></td><td>"dequeue: remove the front vertex and call it u."</td></tr>
+          <tr><td><code>adj[u][v] == 1 &amp;&amp; !seen[v]</code></td><td>"v is a neighbor of u <b>and</b> v has not been seen yet." With <code>&amp;&amp;</code>, both parts must be true.</td></tr>
+        </tbody>
+      </table></div>
       <div class="plain">
         <p class="note-label">Match the code to the procedure</p>
         <p><code>seen[start] = true; queue.offer(start);</code> is step 1. The <code>while</code> loop is step 2: <code>poll</code> is "dequeue and visit", and the <code>for</code> loop checks row <code>u</code> of the matrix from A to Z, enqueuing every neighbor not yet seen.</p>

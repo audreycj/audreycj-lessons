@@ -395,12 +395,36 @@ public class ListGraph {
         <h3>Adjacency matrix: a 2D array</h3>
         <pre class="code"><code set:html={hi(code1)} /></pre>
         <TryIt cls="MatrixGraph" />
+        <p>Here is how to read the new lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>static char[] names = &#123;'A', 'B', 'C', 'D'&#125;;</code></td><td>"names is an array of <b>char</b> values, holding A, B, C, D." A <code>char</code> is one character, written in single quotes: <code>'A'</code>. (Double quotes, <code>"A"</code>, make a String.) So <code>names[1]</code> is <code>'B'</code>.</td></tr>
+            <tr><td><code>static int n = names.length;</code></td><td>"n is the number of names": 4. Because it is <code>static</code>, every method in the class can use it.</td></tr>
+            <tr><td><code>static int[][] adj = new int[n][n];</code></td><td>"make a grid named adj with n rows and n columns." Every cell starts at 0 (no edges yet). This is the <a href="#two-d">2D array</a> from Part 3.</td></tr>
+            <tr><td class="nowrap"><code>adj[from][to] = 1;</code></td><td>"in row <i>from</i>, column <i>to</i>, store 1": there is now an edge from <i>from</i> to <i>to</i>.</td></tr>
+            <tr><td class="nowrap"><code>if (adj[1][j] == 1)</code></td><td>"if row 1 (B) has a 1 in column j": then vertex j is a neighbor of B.</td></tr>
+          </tbody>
+        </table></div>
       </div>
-      <div class="sub">
+      <div class="sub" id="java-list">
         <h3>Adjacency list: a list of lists</h3>
         <p><code>ArrayList</code> is Java's built-in resizable array: you can keep calling <code>add</code> and it grows. Here, we keep one <code>ArrayList</code> per vertex. Each inner list plays the role of the linked lists in our pictures.</p>
         <pre class="code"><code set:html={hi(code2)} /></pre>
         <TryIt cls="ListGraph" />
+        <p>Here is how to read the new lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>import java.util.ArrayList;</code></td><td>"let this program use Java's ArrayList class." ArrayList is in Java's <code>java.util</code> package, so we must import it first.</td></tr>
+            <tr><td><code>ArrayList&lt;ArrayList&lt;Integer&gt;&gt; list</code></td><td>"list is an ArrayList whose items are ArrayLists of Integers": a list of lists. The type inside <code>&lt; &gt;</code> says what a list holds.</td></tr>
+            <tr><td class="nowrap"><code>= new ArrayList&lt;&gt;();</code></td><td>"make a new, empty one." The empty <code>&lt;&gt;</code> copies the types from the left side.</td></tr>
+            <tr><td><code>list.add(new ArrayList&lt;&gt;());</code></td><td>"add one new, empty inner list at the end." The loop does this n times: index 0 is A's list, index 1 is B's list, and so on.</td></tr>
+            <tr><td class="nowrap"><code>list.get(from).add(to);</code></td><td>Read it left to right: "get vertex <i>from</i>'s list, then add <i>to</i> at its end."</td></tr>
+            <tr><td><code>for (int j : list.get(1))</code></td><td>"for each number j in B's list." This is a <b>for-each loop</b>: no index and no <code>i++</code>. It visits every item in order and stops after the last one.</td></tr>
+          </tbody>
+        </table></div>
+        <p class="small muted">Why <code>Integer</code> and not <code>int</code>? The types inside <code>&lt; &gt;</code> must be classes. <code>Integer</code> is the class version of <code>int</code>, and Java converts between the two for you, so <code>add(to)</code> works with a plain int, and <code>int j</code> in the for-each loop gets a plain int back.</p>
       </div>
       <p>Notice the difference when listing B's neighbors: the matrix loop checks all <code>n</code> cells in row 1, while the list loop only visits B's real neighbors.</p>
       <p>One more difference: the matrix loop always gives neighbors in index order (A, B, C, …), but an <code>ArrayList</code> keeps them in the order the edges were added. Here both give A C D. In the next lessons, this order matters: it decides which neighbor BFS and DFS visit first.</p>

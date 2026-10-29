@@ -363,6 +363,15 @@ const quiz = [
       <p>DFS is short when written with recursion. This program builds the main example and runs DFS from A.</p>
       <pre class="code"><code set:html={hi(code)} /></pre>
       <TryIt cls="DFS" />
+      <p>Most lines match the BFS program (see its <a href={base + '/itc120/bfs/#java'}>read-aloud table</a>). Three lines to read aloud:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+        <tbody>
+          <tr><td><code>static boolean[] visited = new boolean[n];</code></td><td>"make n true/false slots named visited, all <code>false</code> at first." It is <code>static</code> (outside the method) so every recursive call of <code>dfs</code> shares the same array.</td></tr>
+          <tr><td><code>adj[u][v] == 1 &amp;&amp; !visited[v]</code></td><td>"v is a neighbor of u <b>and</b> v is <b>not</b> visited yet."</td></tr>
+          <tr><td class="nowrap"><code>dfs(v);</code></td><td>"go deeper: run dfs on v all the way, then come back and continue this loop."</td></tr>
+        </tbody>
+      </table></div>
       <div class="plain">
         <p class="note-label">Match the code to the procedure</p>
         <p>Calling <code>dfs(v)</code> is the <b>push</b> (go deeper). When the <code>for</code> loop ends, the method returns: that is the <b>pop</b> (backtrack). The <code>visited</code> array stops us from going around a cycle forever. Compare with BFS: there is no queue here, because Java's call stack is the stack.</p>
