@@ -593,6 +593,29 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <p class="small muted">In the small trees: <b style="color:var(--red-pen)">red</b> = the unbalanced node (±2), <b style="color:var(--orange-ink, #b4461a)">orange</b> = the value just inserted.</p>
       </div>
 
+      <div class="sub">
+        <h3>Why a zigzag needs two rotations</h3>
+        <p>Take the LR case: insert 30, 10, 20. The path from 30 goes left, then right: a zigzag. One right rotation at 30 does not work here: it only flips the zigzag the other way, and the tree is still unbalanced.</p>
+        <p>So the fix starts one level lower, at the child 10. Rotation 1 is a normal <Peek label="left rotation" title="A left rotation, from above" html={rotLPeek} />, only done at 10: 20 (10's right child) moves up into 10's spot, and 10 moves down to become 20's left child. With just two nodes, it looks like 20 and 10 swapped places, but it is the same three moves. The BST rule decides the result: 10 &lt; 20 &lt; 30, so after the rotation the three values sit in a straight line going left. That is the LL case, and LL needs one right rotation:</p>
+        <figure class="fig">
+          <div class="two-col three rot">
+            <div>
+              <p class="small"><b>1. Zigzag (LR): 30 is +2</b></p>
+              <TreeFig spec="30(10(,20))" marks={{ 30: 'bad', 20: 'new' }} showBf minW={200} label="Zigzag: 30 at the top, 10 on its left, 20 on the right of 10. 30 has balance factor +2." />
+            </div>
+            <div>
+              <p class="small"><b>2. Left rotation at 10: now a straight line (LL)</b></p>
+              <TreeFig spec="30(20(10))" marks={{ 30: 'bad', 20: 'pivot', 10: 'down' }} showBf minW={200} label="Straight line: 30 at the top, 20 on its left, 10 on the left of 20." />
+            </div>
+            <div>
+              <p class="small"><b>3. Right rotation at 30: balanced</b></p>
+              <TreeFig spec="20(10,30)" marks={{ 20: 'pivot', 30: 'down' }} showBf minW={200} label="Balanced: 20 at the top, 10 on its left, 30 on its right." />
+            </div>
+          </div>
+        </figure>
+        <p>RL is the same with left and right swapped: a right rotation at the child, then a left rotation at the unbalanced node. The panel below shows all four cases step by step.</p>
+      </div>
+
       <AvlLab id="lab-cases" cap="Watch each case" hint="Pick a case, then tap Next step. Each example inserts three values into an empty tree." presets={[
         { label: 'LL', values: [30, 20, 10] },
         { label: 'RR', values: [10, 20, 30] },

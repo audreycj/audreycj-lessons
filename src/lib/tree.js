@@ -103,7 +103,8 @@ export function avlInsertSteps(root, v) {
     if (kase === 'LR') { x = y.r; moved = x.l; z.l = rotLeft(y); }
     else { x = y.l; moved = x.r; z.r = rotRight(y); }
     const mv = moved ? ` ${x.v}'s old ${kase === 'LR' ? 'left' : 'right'} child, <b>${moved.v}</b>, moves over to become ${y.v}'s ${kase === 'LR' ? 'right' : 'left'} child.` : '';
-    steps.push(snap(root, `<b>Step 4a. Rotate ${kase === 'LR' ? 'left' : 'right'} at ${y.v}.</b> ${x.v} moves up and ${y.v} moves down to its ${kase === 'LR' ? 'left' : 'right'}.${mv} Now the shape is a straight line, the ${kase === 'LR' ? 'LL' : 'RR'} case.`, { tag: 'Rotation 1 of 2', marks: { [z.v]: 'bad', [x.v]: 'pivot', ...(moved ? { [moved.v]: 'moved' } : {}) }, showBf: true }));
+    const d1 = kase === 'LR' ? 'left' : 'right', d2 = kase === 'LR' ? 'right' : 'left';
+    steps.push(snap(root, `<b>Step 4a. Rotate ${d1} at ${y.v}.</b> This is a normal ${d1} rotation, done at the child ${y.v} instead of at ${z.v}: ${x.v} (${y.v}'s ${d2} child) moves up into ${y.v}'s spot, and ${y.v} moves down to become ${x.v}'s ${d1} child.${mv}${moved ? '' : ` With so few nodes, it looks like ${x.v} and ${y.v} just swapped places, but it is a rotation.`} Now ${z.v} → ${x.v} → ${y.v} all go ${d1}: a straight line, the ${kase === 'LR' ? 'LL' : 'RR'} case.`, { tag: 'Rotation 1 of 2', marks: { [z.v]: 'bad', [x.v]: 'pivot', ...(moved ? { [moved.v]: 'moved' } : {}) }, showBf: true }));
     // second rotation at z
     const top = kase === 'LR' ? z.l : z.r; // == x
     const moved2 = kase === 'LR' ? top.r : top.l;
