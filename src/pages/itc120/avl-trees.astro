@@ -591,11 +591,6 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
           </tbody>
         </table></div>
         <p class="small muted">In the small trees: <b style="color:var(--red-pen)">red</b> = the unbalanced node (±2), <b style="color:var(--orange-ink, #b4461a)">orange</b> = the value just inserted.</p>
-        <div class="remember">
-          <p class="note-label">How to remember</p>
-          <p><b>Straight line → 1 rotation. Zigzag → 2 rotations.</b></p>
-          <p>For LL and RR, rotate the <b>opposite</b> way: too heavy on the left, rotate right. For LR and RL, the first rotation straightens the zigzag into a line, then you fix the line.</p>
-        </div>
       </div>
 
       <AvlLab id="lab-cases" cap="Watch each case" hint="Pick a case, then tap Next step. Each example inserts three values into an empty tree." presets={[
@@ -606,6 +601,11 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
       ]} />
 
       <p>Notice that all four examples end with the same tree: 20 at the top, 10 on the left, 30 on the right. Different starting shapes, same balanced result.</p>
+      <div class="remember">
+        <p class="note-label">How to remember</p>
+        <p><b>Straight line → 1 rotation. Zigzag → 2 rotations.</b></p>
+        <p>For LL and RR, rotate the <b>opposite</b> way: too heavy on the left, rotate right. For LR and RL, the first rotation straightens the zigzag into a line, then you fix the line.</p>
+      </div>
     </div>
   </section>
 
