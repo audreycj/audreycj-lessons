@@ -150,6 +150,8 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
     if (d) d.open = true;
     li.scrollIntoView({ block: 'center' });
     li.classList.add('is-back');
+    // Always end the glow after 4 s (phones with Reduce Motion on get a still highlight with no animation, so it must be removed here).
+    setTimeout(function () { li.classList.remove('is-back'); }, 4000);
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   })();
   // Show progress saved by each lesson's contents panel ("Mark chapter as done"), on this device only.
