@@ -75,7 +75,8 @@ export function avlInsertSteps(root, v) {
   }
   const z = path[zi];
   const b = bf(z);
-  steps.push(snap(root, `<b>Step 2. Check balance factors from ${v} back up.</b> Node <b>${z.v}</b> has balance factor <b>${sign(b)}</b>: its ${b > 0 ? 'left' : 'right'} side is too tall. This is the node we fix.`, { tag: 'Unbalanced', marks: { [z.v]: 'bad', [v]: 'new' }, showBf: true }));
+  const upList = path.slice(zi).reverse().map((p) => `${p.v} is ${sign(bf(p))}${Math.abs(bf(p)) > 1 ? '' : ' (fine)'}`).join(', ');
+  steps.push(snap(root, `<b>Step 2. Check balance factors from ${v} back up.</b> Going up from ${v}: ${upList}. ${z.v} is the first node that reaches ${sign(b)}: its ${b > 0 ? 'left' : 'right'} side is two levels taller. So <b>node ${z.v} is the node we fix</b> (red). The next step says how.`, { tag: 'Unbalanced', marks: { [z.v]: 'bad', [v]: 'new' }, showBf: true }));
 
   // 3. Name the case from the first two moves z -> y -> x toward the new value.
   const first = v < z.v ? 'L' : 'R';
@@ -161,7 +162,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 /**
  * Draw a tree as an SVG string.
- * opts: { marks, showBf, showH, showNil, spot ({ key, side: 'l'|'r' }: highlight one empty slot), pos (override positions), alpha (per-node opacity), label, minW }
+ * opts: { marks, pathKeys (node keys whose connecting edges are drawn thick orange), showBf, showH, showNil, spot ({ key, side: 'l'|'r' }: highlight one empty slot), pos (override positions), alpha (per-node opacity), label, minW }
  * Red-black nodes carry n.c = 'R' or 'B'; their marks are drawn as a ring (halo) so the fill keeps its color.
  */
 export function svgTree(root, opts = {}) {
@@ -176,7 +177,8 @@ export function svgTree(root, opts = {}) {
   for (const [a, b] of L.edges) {
     const p = pos[a], q = pos[b];
     if (!p || !q) continue;
-    s += `<line x1="${p.x + off}" y1="${p.y}" x2="${q.x + off}" y2="${q.y}" />`;
+    const hot = opts.pathKeys && opts.pathKeys.map(String).includes(String(a)) && opts.pathKeys.map(String).includes(String(b)) ? ' class="is-path"' : '';
+    s += `<line${hot} x1="${p.x + off}" y1="${p.y}" x2="${q.x + off}" y2="${q.y}" />`;
   }
   if (opts.showNil) {
     for (const key of Object.keys(L.pos)) {
