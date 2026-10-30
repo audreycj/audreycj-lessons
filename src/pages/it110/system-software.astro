@@ -1,0 +1,364 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
+import StepShow from '../../components/StepShow.astro';
+import SortTap from '../../components/SortTap.astro';
+import { course } from '../../data/it110.js';
+import { softwareLayers, spoolPic } from '../../lib/it110-illus.js';
+import { fnBoot, fnInterface, fnPrograms, fnFiles, fnDevices, fnSecurity, driverPic, kernelPic, bootPic, multitaskPic, multithreadPic, multiprocPic, memPic, bufferPic, deskFloor, cliGui, osTraits, pcServers, otherDevices, utilityKit, futAI, futCloud, futDevices, futSecurity, roughen } from '../../lib/it110-os-pics.js';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Peeks back to earlier IT 110 topics (her rule: every back-reference comes with its picture or definition right there)
+const swDef = '<p><b>Software</b> is a set of instructions (a program) that tells the hardware what to do. Hardware is the part you can touch; software is the part you cannot.</p>';
+const ramDef = '<p><b>RAM</b> (random access memory) is the computer\'s working memory. It holds the programs and data the CPU is using <b>right now</b>. It is fast, but it is erased when the power goes off. <b>Storage</b> (SSD or hard drive) keeps everything, even with the power off, but it is slower.</p>';
+const bitDef = '<p>A <b>bit</b> is the smallest piece of data: a single 0 or 1. A <b>32-bit</b> or <b>64-bit</b> OS works with data in chunks of 32 or 64 bits. Bigger chunks let it count, and so reach, much more memory.</p>';
+const storDef = '<p><b>Storage</b> keeps your files even when the power is off. A <b>hard drive (HDD)</b> stores data on a spinning disk read by a moving arm. An <b>SSD</b> stores it on memory chips, with no moving parts, so it is much faster.</p>';
+const peekHtml = (label, title, html) => '<span class="peek"><span role="button" tabindex="0" class="peek-btn" aria-expanded="false" data-peek="' + ('<p class=&quot;peek-title&quot;>' + title + '</p>' + html.replace(/"/g, '&quot;')) + '">' + label + '</span></span>';
+const coreDef = '<p>A <b>core</b> is one complete processing unit inside the CPU. A quad-core CPU has four cores, so it can really work on four things at the same moment.</p>';
+
+// The six OS jobs as picture cards (her feedback, chat 41: the table needed pictures)
+const jobs = [
+  { t: '1. Starts the computer (booting)', pic: roughen(fnBoot()), m: 'Loads itself into memory when you turn the computer on.', can: 'Opens the canteen each morning' },
+  { t: '2. Gives you an interface', pic: roughen(fnInterface()), m: 'The screens, icons, menus, and buttons you use to talk to the computer (Part 4).', can: 'The counter and the menu board' },
+  { t: '3. Manages programs, the CPU, and memory', pic: fnPrograms(), m: 'Decides which program uses the CPU and gives each one a share of ' + peekHtml('RAM', 'From Week 5: Processing and memory', ramDef) + '.', can: 'Decides who cooks what, on which stove' },
+  { t: '4. Manages files and storage', pic: roughen(fnFiles()), m: 'Keeps track of every file and folder: where it is saved and what it is called.', can: 'Keeps the stock room in order' },
+  { t: '5. Manages devices', pic: roughen(fnDevices()), m: 'Talks to the keyboard, screen, printer, and Wi-Fi using <b>device drivers</b>.', can: 'Knows how to run each machine' },
+  { t: '6. Keeps it secure', pic: roughen(fnSecurity()), m: 'User accounts, passwords, fingerprint or face log-in, and security updates.', can: 'Only staff in the kitchen' },
+];
+
+const bootSteps = [0, 1, 2, 3, 4].map((i) => ({
+  pic: bootPic(i),
+  say: [
+    '<b>1. Power on.</b> You press the power button. Electricity reaches the parts inside, but the operating system is still sleeping on the storage drive.',
+    '<b>2. Firmware check.</b> The CPU runs a small program kept on a chip on the motherboard (the main circuit board): the <b>BIOS</b> or the newer <b>UEFI</b>. It does a quick test of the hardware, called the <b>POST</b> (power-on self-test).',
+    '<b>3. Find the OS.</b> The firmware looks on the storage drive for the operating system.',
+    '<b>4. Load the kernel.</b> The core part of the OS, the <b>kernel</b>, is copied from storage into RAM. The CPU can only run programs that are in RAM.',
+    '<b>5. Ready.</b> The OS loads the <b>device drivers</b> and startup programs, then shows the log-in or lock screen. Booting is done.',
+  ][i],
+}));
+
+const spoolSteps = [0, 1, 2, 3].map((i) => ({
+  pic: spoolPic(i),
+  say: [
+    'You print three files. They go into the <b>print queue</b> (the spool) on the storage drive in a second, so your computer is free again.',
+    'The printer takes the <b>first</b> file, Report. You keep typing while it prints.',
+    'Report is done. The printer takes the next one, Poster. Quiz waits its turn.',
+    'Poster is done, and Quiz is printing. The queue is now empty. First in, first out, like the line at the canteen.',
+  ][i],
+}));
+
+const sysOrApp = [
+  { t: 'Android', a: 0, why: 'It is an operating system: it runs the phone itself.' },
+  { t: 'Microsoft Word', a: 1, why: 'You use it to write documents: a job for you, the user.' },
+  { t: 'Windows Security (antivirus)', a: 0, why: 'A utility program: it protects the computer itself.' },
+  { t: 'GCash', a: 1, why: 'You use it to send money and pay bills: a job for you.' },
+  { t: 'File Explorer', a: 0, why: 'A utility built into Windows for managing files and folders.' },
+  { t: 'Mobile Legends', a: 1, why: 'A game is for you, the user. Games are application software.' },
+  { t: 'A printer driver (a small program that lets the computer use a printer)', a: 0, why: 'A driver lets the OS talk to one device. It is system software.' },
+  { t: 'Google Chrome', a: 1, why: 'A web browser is an application: you use it to visit websites. (ChromeOS, the laptop operating system, is system software.)' },
+];
+
+const deviceOs = [
+  { q: 'Joy bought a Samsung Galaxy phone. Which operating system does it most likely run?', opts: ['iOS', 'Android', 'macOS', 'Windows Server'], a: 1, why: 'Samsung, Xiaomi, OPPO, vivo, realme, and most other phones sold here run Android. iOS is only for iPhones.' },
+  { q: 'The registrar\'s office runs a server that stores every student\'s grades. Which OS fits that computer?', opts: ['Android', 'watchOS', 'Linux or Windows Server', 'iPadOS'], a: 2, why: 'Servers use server operating systems: Linux (for example, Ubuntu Server or Red Hat Enterprise Linux) or Windows Server.' },
+  { q: 'Which device does NOT need a full operating system that you install apps on?', opts: ['A laptop', 'A smartphone', 'A smart TV', 'A simple calculator'], a: 3, why: 'A simple calculator runs one fixed program. Laptops, phones, and smart TVs all have an OS (smart TVs use Google TV, Tizen, or webOS, for example).' },
+];
+
+const utilQuiz = [
+  { q: 'Your phone says "Storage full" and you cannot take more photos. Which utility helps first?', opts: ['Antivirus', 'File compression', 'A storage cleaner (disk cleanup)', 'Backup'], a: 2, why: 'A storage cleaner finds junk files, old downloads, and duplicate photos you can delete to free up space.' },
+  { q: 'Your group\'s video file is 300 MB, too big to send. Which utility makes it smaller to send?', opts: ['File compression (ZIP)', 'Uninstaller', 'Disk optimizer', 'Diagnostic tool'], a: 0, why: 'Compression packs files into a smaller ZIP file. (For videos, a smaller video export or a cloud link often helps more, since videos are already compressed.)' },
+  { q: 'After installing a "free" game from a random website, your laptop shows pop-up ads everywhere. Which utility do you run?', opts: ['Backup', 'Antivirus (security) program', 'Search tool', 'Disk cleanup'], a: 1, why: 'Pop-ups after a download from an unknown site are a sign of malware (adware). An antivirus program can find and remove it.' },
+  { q: 'Your laptop goes to the repair shop tomorrow, and the technician may erase the drive. What do you do tonight?', opts: ['Defragment the drive', 'Uninstall your apps', 'Back up your files', 'Compress the Windows folder'], a: 2, why: 'A backup copies your files to another place (a flash drive, an external drive, or the cloud) so you can get them back.' },
+];
+
+const tricks = [
+  { q: 'You export a 10-minute video. The editing app splits it into four parts, and four CPU cores each work on one part at the same time.', opts: ['Multitasking', 'Parallel processing', 'Spooling', 'Virtual memory'], a: 1, why: 'Several cores share ONE big task: parallel processing.' },
+  { q: 'In Google Docs, the text you type shows up while, at the same moment, the app saves your work.', opts: ['Multithreading', 'Multiprocessing', 'Buffering', 'Booting'], a: 0, why: 'Two jobs inside ONE program, at the same time: two threads.' },
+  { q: 'Twenty students send files to the one printer in the lab. The files wait in line, and everyone keeps working.', opts: ['Virtual memory', 'Multithreading', 'Spooling', 'Parallel processing'], a: 2, why: 'Print jobs waiting in a queue for a slow device: spooling.' },
+  { q: 'Your laptop has only 4 GB of RAM. With many tabs open, it gets very slow but does not crash.', opts: ['Spooling', 'Virtual memory', 'Multitasking', 'Booting'], a: 1, why: 'The OS moved some data to the storage drive (virtual memory). It works, but storage is slower than RAM.' },
+];
+
+const quiz = [
+  { q: 'Which statement is correct?', opts: ['Application software runs the computer itself.', 'System software runs the computer; application software does a job for the user.', 'System software and application software are the same thing.', 'Utility programs are application software.'], a: 1, why: 'System software (the OS and utilities) runs and maintains the computer. Application software does a specific task for you.' },
+  { q: 'What happens during booting?', opts: ['The OS kernel is copied from storage into RAM.', 'All your files are copied into RAM.', 'The CPU is copied into the storage drive.', 'The OS is downloaded from the Internet.'], a: 0, why: 'The firmware finds the OS on the storage drive and loads its kernel into RAM, where the CPU can run it.' },
+  { q: 'You listen to Spotify while you chat on Messenger. Which OS feature makes that possible?', opts: ['Spooling', 'Multitasking', 'Virtual memory', 'Booting'], a: 1, why: 'Multitasking means running more than one program at the same time.' },
+  { q: 'Your laptop has 8 GB of RAM, but your open programs need 10 GB. What does the OS use for the extra?', opts: ['Spooling', 'A device driver', 'Virtual memory on the storage drive', 'A second CPU'], a: 2, why: 'With virtual memory, the OS uses part of the storage drive as extra memory. It works, but it is slower than real RAM.' },
+  { q: 'Which interface lets you type commands instead of clicking icons?', opts: ['GUI', 'CLI', 'Touch interface', 'Voice interface'], a: 1, why: 'CLI = command-line interface: you type commands such as dir.' },
+  { q: 'Which pair is correct?', opts: ['iPhone: Android', 'Apple Watch: watchOS', 'Chromebook: macOS', 'Samsung Galaxy Watch: iOS'], a: 1, why: 'Apple Watch runs watchOS. iPhone runs iOS, Chromebooks run ChromeOS, and Samsung Galaxy Watches run Wear OS.' },
+  { q: 'Which one is a utility program?', opts: ['Canva', 'Facebook', 'Disk Cleanup', 'Microsoft Excel'], a: 2, why: 'Disk Cleanup maintains the computer by deleting unneeded files. The others are applications.' },
+  { q: 'You plug a new printer into your laptop, and Windows says "Setting up device". What is it installing?', opts: ['An app', 'A device driver', 'A new kernel', 'A virus'], a: 1, why: 'A device driver tells the OS how to use that specific printer.' },
+  { q: 'Why should you NOT defragment an SSD?', opts: ['SSDs have no files.', 'An SSD reaches every spot equally fast, so defragmenting does not help and only wears it out.', 'Defragmenting makes an SSD a hard drive.', 'SSDs are always full.'], a: 1, why: 'Defragmenting helps hard drives, whose disks must spin to reach each piece of a file. SSDs have no moving parts.' },
+];
+---
+<Base title="System Software · IT 110" description="System software: what an operating system does, how it makes processing faster, operating systems for computers, servers, and other devices, and utility programs." course={{ code: course.code, href: base + course.href }} theme="it110" toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>IT 110</a> › Midterm › Software</p>
+    <p class="kicker">Software · Lesson 1 of 2</p>
+    <h1>System Software: Operating Systems and Utility Programs</h1>
+    <p class="lede">The software that runs the computer, so your apps can run on it.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>tell <b>system software</b> apart from <b>application software</b>;</li>
+        <li>explain what an <b>operating system</b> does, and how it makes processing faster;</li>
+        <li>compare operating systems and name the ones used on <b>computers</b>, <b>servers</b>, and <b>other devices</b>;</li>
+        <li>explain what <b>utility programs</b> do, and name common ones;</li>
+        <li>discuss where operating systems are going next.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>You need:</b> your phone (or a computer) nearby. A few parts ask you to look around in it.</p>
+  </header>
+
+  <section class="chapter wrap" id="kinds">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · Two kinds of software</p>
+      <h2>Software that runs the computer, and software that works for you</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky">
+        <p class="note-label">Before you tap any app</p>
+        <p>Turn on your phone. Before you open Messenger or GCash, a lot is already working: the lock screen, the clock, the battery and signal icons, the fingerprint or face check. You did not open any app for these. They come from the phone's <b>operating system</b>, a kind of <b>system software</b>.</p>
+      </div>
+      <p>Recall what <Peek label="software" title="From Weeks 3-4: The world of computers" html={swDef} /> is. There are two big kinds:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">System software</p><p>Programs that <b>run and maintain the computer itself</b>. They control the hardware and give other programs a place to run. Two main kinds: the <b>operating system (OS)</b> and <b>utility programs</b>.</p></div>
+        <div class="def"><p class="note-label">Application software</p><p>Programs that do a <b>specific job for you</b>, the user: write a report, edit a photo, chat, pay a bill, play a game. Also called <b>apps</b>. (Next lesson.)</p></div>
+      </div>
+      <p>A school canteen works the same way. The picture puts the two side by side, layer by layer:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={softwareLayers()} /><figcaption>Each layer depends on the one under it. Apps run on the OS, and the OS runs the hardware. You only deal with the top layers.</figcaption></figure>
+      <p>Here is the difference in one table:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th></th><th>System software</th><th>Application software</th></tr></thead>
+        <tbody>
+          <tr><td><b>Job</b></td><td>Runs and maintains the computer</td><td>Does a task for the user</td></tr>
+          <tr><td><b>Needed?</b></td><td>Yes. Without an OS, the computer cannot be used.</td><td>Only the ones you need</td></tr>
+          <tr><td><b>When it runs</b></td><td>The OS: from the moment you turn it on. Utilities: in the background, or when needed</td><td>When you open it</td></tr>
+          <tr><td><b>Examples</b></td><td>Windows, Android, iOS, File Explorer, antivirus, drivers</td><td>Word, Canva, Chrome, GCash, Mobile Legends</td></tr>
+        </tbody>
+      </table></div>
+      <div class="sub">
+        <h3>Sort it: system or application?</h3>
+        <p>Tap one answer on each card. You get the reason right away.</p>
+        <SortTap id="sort-sys" cats={['System', 'Application']} items={sysOrApp} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="os-jobs">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · The operating system</p>
+      <h2>What an operating system does</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Operating system (OS)</p><p>The main system software. It <b>starts the computer</b>, <b>manages its hardware and software</b>, and lets you <b>interact with it</b>. Every app needs the OS to run.</p></div>
+      <p>Like the canteen manager, the OS has several jobs. Here are the main ones, with the canteen job that matches:</p>
+      <div class="fn-grid">
+        {jobs.map((j) => (
+          <div class="fn-card">
+            <p class="fn-t">{j.t}</p>
+            <Fragment set:html={j.pic} />
+            <p set:html={j.m} />
+            <p class="fn-can"><span aria-hidden="true">🍲</span> Canteen: {j.can}</p>
+          </div>
+        ))}
+      </div>
+      <div class="def"><p class="note-label">Device driver</p><Fragment set:html={roughen(driverPic())} /><p>A small program that tells the OS how to use one specific device, such as a printer model. Plug in a new mouse, and the OS usually finds and installs its driver by itself. This is called <b>plug and play</b>.</p></div>
+      <div class="def"><p class="note-label">Kernel</p><Fragment set:html={kernelPic()} /><p>The <b>kernel</b> is <b>software, not a physical part</b>. It is the most important part of the OS program: the core that stays in RAM the whole time the computer is on. (The rest of the OS includes the interface, settings, and file manager.) Apps never control the hardware themselves. They ask the OS, and the kernel gives the orders to the CPU, RAM, and storage.</p><p class="small muted">Do not mix it up with the parts <b>inside</b> the CPU (such as the control unit and the arithmetic logic unit from Week 5). Those are hardware. The kernel is a program that runs <b>on</b> the CPU.</p></div>
+      <div class="sub">
+        <h3>Function 1, step by step: booting</h3>
+        <p><b>Booting</b> is starting up the computer and loading the OS. Remember where programs must be for the CPU to run them: <Peek label="RAM, not storage" title="From Week 5: Processing and memory" html={ramDef} />. Go through the steps:</p>
+        <StepShow id="boot" steps={bootSteps} cap="From power button to log-in screen" hint="The top is the laptop. The green board below is what is inside it. Tap Next: the orange parts are working in that step." />
+        <p class="small muted">A <b>cold boot</b> starts from power off. A <b>warm boot</b> is a restart while the computer is on (for example, after an update).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="efficiency">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Faster processing</p>
+      <h2>How the OS makes the computer work faster</h2>
+    </div>
+    <div class="flow">
+      <p>The OS has tricks that let the computer do more in the same time. Here are five, from the one you use every day to the ones you do not see:</p>
+      <div class="def"><p class="note-label">1. Multitasking</p><Fragment set:html={multitaskPic()} /><p>Running <b>more than one program</b> at the same time. Spotify plays while you chat on Messenger and a file downloads. Today's CPUs have several <Peek label="cores" title="A CPU core" html={coreDef} />, but you usually run more programs than there are cores. So each core takes turns between a few programs, switching so fast that they all seem to run at once. The picture shows 6 apps sharing 4 cores.</p></div>
+      <div class="def"><p class="note-label">2. Multithreading</p><Fragment set:html={multithreadPic()} /><p>Splitting <b>one program</b> into smaller tasks, called <b>threads</b>, that run at the same time. Word checks your spelling while you keep typing. Each is a thread of the same program.</p></div>
+      <div class="def"><p class="note-label">3. Multiprocessing and parallel processing</p><Fragment set:html={multiprocPic()} /><p><b>Multiprocessing:</b> two or more CPUs or cores work at the same time, each on its own task. <b>Parallel processing:</b> several cores split <b>one big task</b> into parts, like four classmates each writing one part of a report, so it is done sooner (for example, exporting a video).</p></div>
+      <div class="def"><p class="note-label">4. Memory management and virtual memory</p><Fragment set:html={memPic()} /><p>The OS gives each open program its own part of RAM. When RAM runs out, it uses part of the <Peek label="storage drive" title="From Week 6: Storage" html={storDef} /> as extra memory. This is <b>virtual memory</b>. It lets you open more programs, but it is slower.</p></div>
+      <figure class="fig illus-fig illus"><Fragment set:html={deskFloor()} /><figcaption>Virtual memory is like a small study desk. When the desk is full, some books go on the floor beside you: you can still use them, but reaching them takes longer. That is why a computer with too little RAM feels slow.</figcaption></figure>
+      <div class="def"><p class="note-label">5. Buffering and spooling</p><Fragment set:html={bufferPic()} /><p>A <b>buffer</b> is a waiting area in memory for data on its way to or from a device. YouTube <b>buffers</b> the next seconds of a video so it plays smoothly. <b>Spooling</b> is buffering for a slow device such as a printer: documents wait in a <b>print queue</b> on the storage drive, so you can keep working while they print.</p></div>
+      <StepShow id="spool" steps={spoolSteps} cap="Print spooling" hint="Tap Next and watch the print queue." />
+      <div class="sub">
+        <h3>Which trick is it?</h3>
+        <p>The five are easy to mix up. Try these before you read the summary below.</p>
+        <Quiz id="quiz-tricks" questions={tricks} />
+      </div>
+      <div class="remember">
+        <p class="note-label">The five in one line each</p>
+        <ul>
+          <li><b>Multitasking:</b> many programs at once.</li>
+          <li><b>Multithreading:</b> many parts of one program at once.</li>
+          <li><b>Multiprocessing / parallel processing:</b> many CPUs or cores at once (on different tasks / on one big task).</li>
+          <li><b>Virtual memory:</b> storage used as extra RAM.</li>
+          <li><b>Buffering / spooling:</b> data waits its turn so nobody has to stop and wait.</li>
+        </ul>
+      </div>
+      <p class="break-note"><b>Good place to take a break.</b> Next: the different kinds of operating systems, and which devices use them.</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="kinds-os">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Kinds of operating systems</p>
+      <h2>Comparing operating systems</h2>
+    </div>
+    <div class="flow">
+      <p>Operating systems differ in a few ways. These are the characteristics to compare:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Compare by</th><th>The choices</th></tr></thead>
+        <tbody>
+          <tr><td><b>Interface</b></td><td><b>CLI</b> (command-line interface: you type commands) or <b>GUI</b> (graphical user interface: icons, windows, and menus you click or tap). Phones add touch and voice.</td></tr>
+          <tr><td><b>Users at a time</b></td><td><b>Single-user</b> (one person at a time) or <b>multiuser</b> (many people at once, like a school server that many students log in to at once)</td></tr>
+          <tr><td><b>Programs at a time</b></td><td><b>Single-tasking</b> (one program at a time) or <b>multitasking</b> (many). Almost all of today's OSs multitask.</td></tr>
+          <tr><td><b>Where it runs</b></td><td><b>Personal</b> (desktops, laptops), <b>server</b> (network), <b>mobile</b> (phones, tablets), or <b>embedded</b> (built into a device)</td></tr>
+          <tr><td><b>32-bit or 64-bit</b></td><td>(What is a <Peek label="bit" title="From Week 5: Processing and memory" html={bitDef} />?) A 32-bit OS can use only about 4 GB of RAM. A 64-bit OS can use much more. Windows 11 is 64-bit only.</td></tr>
+          <tr><td><b>Who can change it</b></td><td><b>Proprietary</b> (owned by a company; you cannot see or change its code: Windows, macOS, iOS) or <b>open source</b> (anyone can see, change, and share the code: Linux)</td></tr>
+        </tbody>
+      </table></div>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(osTraits())} /><figcaption>Two of the comparisons as pictures: how many users at a time, and who can see the code.</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(cliGui())} /><figcaption>The same task, opening the Pictures folder, two ways. IT people still use the CLI for servers and quick fixes.</figcaption></figure>
+
+      <div class="sub">
+        <h3>Operating systems for personal computers and servers</h3>
+        <p>These are the operating systems you will meet on computers, as of 2026:</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={roughen(pcServers())} /><figcaption>You can often tell the OS by its screen: a taskbar in the middle (Windows), a dock at the bottom (macOS), a browser front and center (ChromeOS).</figcaption></figure>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>OS (made by)</th><th>Used on</th><th>Good to know</th></tr></thead>
+          <tbody>
+            <tr><td><span class="os-chip">Windows</span> <span class="small">(Microsoft)</span></td><td>Most desktops and laptops</td><td>The most common PC OS. Windows 11 is current; Windows 10 support ended in October 2025.</td></tr>
+            <tr><td><span class="os-chip">macOS</span> <span class="small">(Apple)</span></td><td>Mac computers only</td><td>Popular for design, video, and music work</td></tr>
+            <tr><td><span class="os-chip">Linux</span> <span class="small">(many groups)</span></td><td>PCs, and most servers</td><td>Free. Comes in versions called <b>distributions</b>, such as Ubuntu and Linux Mint.</td></tr>
+            <tr><td><span class="os-chip">ChromeOS</span> <span class="small">(Google)</span></td><td>Chromebooks</td><td>Built around the Chrome browser and cloud apps</td></tr>
+            <tr><td><span class="os-chip">Windows Server</span> <span class="small">(Microsoft)</span></td><td>Servers</td><td>For company networks, accounts, and files</td></tr>
+            <tr><td><span class="os-chip">UNIX</span> <span class="small">(Bell Labs, 1969)</span></td><td>Large servers and mainframes</td><td>macOS is built on it, and Linux copies its ideas</td></tr>
+          </tbody>
+        </table></div>
+        <p>A <b>server OS</b> (also called a network OS) is built to serve many users over a network at the same time: sharing files, printers, websites, and accounts. Most of the web servers on the Internet run Linux.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Devices other than computers</h3>
+        <p>Phones, watches, TVs, and even cars need an operating system too. A <b>mobile OS</b> runs phones and tablets. An <b>embedded OS</b> is built into a device to run just that device. Here are common examples:</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={roughen(otherDevices())} /><figcaption>If it has a screen and runs apps, or quietly runs a machine, it has an operating system inside.</figcaption></figure>
+        <div class="scroll-x"><table class="tbl">
+          <thead><tr><th>Device</th><th>Operating systems</th></tr></thead>
+          <tbody>
+            <tr><td><b>Smartphones and tablets</b></td><td><span class="os-chip">Android</span> (Samsung, Xiaomi, OPPO, vivo, realme, and more), <span class="os-chip">iOS</span> and <span class="os-chip">iPadOS</span> (iPhone, iPad), <span class="os-chip">HarmonyOS</span> (Huawei)</td></tr>
+            <tr><td><b>Smartwatches</b></td><td><span class="os-chip">watchOS</span> (Apple Watch), <span class="os-chip">Wear OS</span> (Google Pixel Watch, Samsung Galaxy Watch)</td></tr>
+            <tr><td><b>Smart TVs</b></td><td><span class="os-chip">Google TV / Android TV</span>, <span class="os-chip">Tizen</span> (Samsung), <span class="os-chip">webOS</span> (LG)</td></tr>
+            <tr><td><b>Game consoles</b></td><td>Each console has its own OS (PlayStation, Xbox, Nintendo Switch)</td></tr>
+            <tr><td><b>Cars, ATMs, appliances, routers</b></td><td>Embedded systems, often built on Linux (for example, Android Automotive in some cars)</td></tr>
+          </tbody>
+        </table></div>
+        <div class="look">
+          <p class="note-label">Look around: which OS is on your phone?</p>
+          <p>Open <b>Settings</b>, then <b>About phone</b> (Android) or <b>General › About</b> (iPhone). Find the OS name and version. Is it Android, iOS, or HarmonyOS? Brands also add their own look on top of Android, such as One UI (Samsung) or HyperOS (Xiaomi): the OS underneath is still Android.</p>
+        </div>
+        <Quiz id="quiz-devices" questions={deviceOs} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="utilities">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Utility programs</p>
+      <h2>Utility programs: the computer's cleaning and repair crew</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Utility program</p><p>System software that <b>maintains, protects, or speeds up</b> the computer. Many come built into the OS; others you can download or buy. In the canteen, they are the cleaners, the pest control, and the repair crew.</p></div>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(utilityKit())} /><figcaption>The utility toolbox. Most of these come free with Windows, macOS, Android, and iOS. Open the table below to see what each one does.</figcaption></figure>
+      <details class="reveal"><summary>Show the full table: what each utility does, and where to find it</summary><div class="flow">
+      <p>The table lists the most common utilities and where to find them on Windows and on a phone:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Utility</th><th>What it does</th><th>On Windows</th><th>On a phone</th></tr></thead>
+        <tbody>
+          <tr><td><b>File manager</b></td><td>Open, copy, move, rename, and delete files and folders</td><td>File Explorer</td><td>Files or My Files app</td></tr>
+          <tr><td><b>Search tool</b></td><td>Finds files, apps, and settings by name</td><td>Search box on the taskbar</td><td>Search bar on the home screen or in Settings</td></tr>
+          <tr><td><b>Disk cleanup / storage cleaner</b></td><td>Deletes temporary and unneeded files to free up space</td><td>Disk Cleanup, Storage Sense</td><td>Settings › Storage, or Files by Google › Clean</td></tr>
+          <tr><td><b>Disk optimizer (defragmenter)</b></td><td>On a hard drive: puts the scattered pieces of each file back together, so it reads faster</td><td>Defragment and Optimize Drives</td><td>Automatic</td></tr>
+          <tr><td><b>Uninstaller</b></td><td>Removes a program and its files completely</td><td>Settings › Apps</td><td>Hold an app › Uninstall</td></tr>
+          <tr><td><b>Backup and recovery</b></td><td>Makes copies of your files so you can get them back after a loss</td><td>File History, OneDrive</td><td>Google One backup, iCloud Backup</td></tr>
+          <tr><td><b>Antivirus / security</b></td><td>Finds and removes <b>malware</b>: harmful programs such as viruses</td><td>Windows Security (Microsoft Defender)</td><td>Google Play Protect</td></tr>
+          <tr><td><b>File compression</b></td><td>Makes files smaller (a ZIP file) to send or store</td><td>Right-click › Compress to ZIP file</td><td>Files app › Compress (on most phones)</td></tr>
+          <tr><td><b>Diagnostic tools</b></td><td>Checks the computer for problems and shows what slows it down</td><td>Task Manager</td><td>Battery or Device care in Settings</td></tr>
+        </tbody>
+      </table></div>
+      </div></details>
+      <div class="sticky">
+        <p class="note-label">Careful: hard drive vs. SSD</p>
+        <p>Defragmenting helps a <b>hard drive</b>, whose spinning disk must move to each piece of a file. An <Peek label="SSD" title="From Week 6: Storage" html={storDef} /> has no moving parts, so defragmenting it does not help and only wears it out. Windows knows the difference: on an SSD, "Optimize" does a different, gentler job instead.</p>
+      </div>
+      <div class="look">
+        <p class="note-label">Look around: what fills up your phone?</p>
+        <p>Open <b>Settings › Storage</b> (Android) or <b>Settings › General › iPhone Storage</b>. Which kind of file or app takes the most space? That screen is a storage utility at work.</p>
+      </div>
+      <div class="sub">
+        <h3>Which utility do you need?</h3>
+        <Quiz id="quiz-util" questions={utilQuiz} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="future">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · What comes next</p>
+      <h2>The future of operating systems</h2>
+    </div>
+    <div class="flow">
+      <p>Operating systems keep changing. These are the directions you can already see today:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">AI built in</p><Fragment set:html={roughen(futAI())} /><p>Assistants are becoming part of the OS itself: Copilot in Windows, Apple Intelligence on iPhones and Macs, and Gemini on Android. You ask in plain words, and the OS finds files, changes settings, or summarizes text.</p></div>
+        <div class="def"><p class="note-label">More cloud</p><Fragment set:html={roughen(futCloud())} /><p>More of your files and apps live online and follow you to any device. ChromeOS was built this way. Some companies even run whole Windows computers in the cloud.</p></div>
+        <div class="def"><p class="note-label">One OS, many devices</p><Fragment set:html={roughen(futDevices())} /><p>Phone, watch, laptop, TV, and car work together: a call moves from phone to laptop, a photo appears on every device. HarmonyOS was designed for this.</p></div>
+        <div class="def"><p class="note-label">Stronger security</p><Fragment set:html={roughen(futSecurity())} /><p>Face and fingerprint log-in, <b>passkeys</b> (you unlock with your fingerprint or face instead of typing a password), and automatic updates. Old versions lose updates (like Windows 10 in 2025), so users must upgrade to stay safe.</p></div>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think about it</p>
+        <p>An OS that knows everything on your phone can help you a lot. What could go wrong? Write two benefits and two risks on paper. (You will meet privacy again in the Finals.)</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-sys" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li><b>System software</b> runs and maintains the computer (the OS and utility programs). <b>Application software</b> does a job for the user.</li>
+          <li>The <b>OS</b> boots the computer, gives you an interface, manages programs, memory, files, and devices, and keeps the computer secure.</li>
+          <li>To work faster, the OS uses multitasking, multithreading, multiprocessing and parallel processing, virtual memory, and buffering and spooling.</li>
+          <li>Compare OSs by interface (CLI or GUI), users, tasks, where they run, 32- or 64-bit, and proprietary or open source.</li>
+          <li>Computers: Windows, macOS, Linux, ChromeOS. Servers: Linux, Windows Server, UNIX. Phones: Android, iOS. Watches: watchOS, Wear OS.</li>
+          <li><b>Utility programs</b> maintain, protect, and speed up the computer: file managers, cleanup, backup, antivirus, compression, and more.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/it110/application-software/'}>Application software</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>D. Morley and C. S. Parker, <i>Understanding Computers: Today and Tomorrow</i>. Course Technology, 2015, Chapter 5 (System Software: Operating Systems and Utility Programs).</li>
+          <li>M. Vermaat et al., <i>Discovering Computers 2018: Digital Technology, Data, and Devices</i>. Cengage Learning, 2018.</li>
+          <li>Microsoft Support pages on the end of Windows 10 support and on Optimize Drives (defragmenting and TRIM). <a href="https://support.microsoft.com">support.microsoft.com</a></li>
+          <li>IT 110 Introduction to Computing Syllabus, Faculty of Computing, Engineering, and Technology, Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>

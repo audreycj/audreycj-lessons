@@ -1,0 +1,57 @@
+---
+// "Sort it" cards (IT 110, chat 41): each card gets one tap on a category button, then shows right/wrong and why.
+// Usage: <SortTap id="sort-sys" cats={['System', 'Application']} items={[{ t: 'Android', a: 0, why: '...' }]} />
+// The why line fades in (opacity only, so it still works with Reduce Motion on). Styles: global.css "IT 110" block.
+interface Item { t: string; a: number; why: string; }
+interface Props { id: string; cats: string[]; items: Item[]; }
+const { id, cats, items } = Astro.props;
+---
+<div class="sorttap" id={id}>
+  <ul class="st-list">
+    {items.map((it) => (
+      <li class="st-item" data-a={it.a}>
+        <p class="st-t" set:html={it.t} />
+        <div class="st-btns">
+          {cats.map((c, k) => <button type="button" class="st-btn" data-k={k}>{c}</button>)}
+        </div>
+        <p class="st-why" hidden set:html={it.why} />
+      </li>
+    ))}
+  </ul>
+  <div class="st-foot">
+    <p class="st-score" aria-live="polite">0 of {items.length} right</p>
+    <button class="btn st-reset" type="button">Try again</button>
+  </div>
+</div>
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var f = document.getElementById(id); if (!f) return;
+    var items = f.querySelectorAll('.st-item'), sc = f.querySelector('.st-score'), right = 0, done = 0;
+    function upd() { sc.textContent = right + ' of ' + items.length + ' right' + (done === items.length ? (right === items.length ? '. All correct!' : '. Read the ones in red, then try again.') : ''); }
+    items.forEach(function (it) {
+      var btns = it.querySelectorAll('.st-btn'), why = it.querySelector('.st-why'), a = Number(it.dataset.a);
+      btns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var k = Number(b.dataset.k), ok = k === a;
+          if (ok) right++;
+          done++;
+          btns[a].classList.add('is-right');
+          if (!ok) b.classList.add('is-wrong');
+          btns.forEach(function (x) { x.disabled = true; });
+          it.classList.add(ok ? 'got-right' : 'got-wrong');
+          why.innerHTML = '<b>' + (ok ? '✓ Right. ' : '✗ Not quite. ') + '</b>' + why.dataset.text;
+          why.hidden = false; upd();
+        });
+      });
+      why.dataset.text = why.innerHTML;
+    });
+    f.querySelector('.st-reset').addEventListener('click', function () {
+      right = 0; done = 0; upd();
+      items.forEach(function (it) {
+        it.classList.remove('got-right', 'got-wrong');
+        it.querySelectorAll('.st-btn').forEach(function (b) { b.disabled = false; b.classList.remove('is-right', 'is-wrong'); });
+        var w = it.querySelector('.st-why'); w.hidden = true; w.innerHTML = w.dataset.text;
+      });
+    });
+  })();
+</script>

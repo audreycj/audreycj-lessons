@@ -1,0 +1,92 @@
+---
+// Mini spreadsheet (IT 110 Application software, chat 41). Tap a cell: the formula bar shows its address and content,
+// and a sentence says what kind of entry it is. Change a "Sold" number: the formulas recalculate and the changed cells glow.
+// "Show formulas" switches the formula cells to their formulas (like Excel's Show Formulas). Styles: global.css "IT 110" block.
+interface Props { id: string; }
+const { id } = Astro.props;
+const items = [['Pandesal', 4, 50], ['Pancit canton', 18, 12], ['3-in-1 coffee', 10, 25], ['Egg', 9, 30]];
+---
+<figure class="fig sheetlab" id={id}>
+  <p class="fig-cap">Aling Nena's sari-sari store: sales today</p>
+  <p class="fig-hint">Tap any cell to see what is inside it. Then change a number in the <b>Sold</b> column and watch the formulas update.</p>
+  <div class="sl-bar" aria-live="polite"><span class="sl-addr mono">D2</span><span class="sl-fx">fx</span><span class="sl-content mono">=B2*C2</span></div>
+  <p class="sl-kind">Tap a cell.</p>
+  <div class="scroll-x">
+    <table class="sl-grid">
+      <thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead>
+      <tbody>
+        <tr><th>1</th><td data-c="A1" class="sl-head">Item</td><td data-c="B1" class="sl-head">Price (₱)</td><td data-c="C1" class="sl-head">Sold</td><td data-c="D1" class="sl-head">Sales (₱)</td></tr>
+        {items.map(([n, p, q], i) => (
+          <tr><th>{i + 2}</th>
+            <td data-c={'A' + (i + 2)}>{n}</td>
+            <td data-c={'B' + (i + 2)} class="sl-num">{p}</td>
+            <td data-c={'C' + (i + 2)} class="sl-num sl-in"><input type="number" inputmode="numeric" min="0" max="999" value={q} data-q={q} aria-label={'C' + (i + 2) + ': ' + n + ' sold'} /></td>
+            <td data-c={'D' + (i + 2)} class="sl-num sl-f">{Number(p) * Number(q)}</td>
+          </tr>
+        ))}
+        <tr class="sl-total"><th>6</th><td data-c="A6">Total</td><td data-c="B6"></td><td data-c="C6" class="sl-num sl-f"></td><td data-c="D6" class="sl-num sl-f"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="btn-row">
+    <button type="button" class="btn sl-show" aria-pressed="false">Show formulas</button>
+    <button type="button" class="btn sl-reset">Start over</button>
+  </div>
+</figure>
+
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var f = document.getElementById(id); if (!f) return;
+    var cells = {}; f.querySelectorAll('td[data-c]').forEach(function (td) { cells[td.dataset.c] = td; });
+    var addr = f.querySelector('.sl-addr'), content = f.querySelector('.sl-content'), kind = f.querySelector('.sl-kind');
+    var show = f.querySelector('.sl-show'), showing = false, sel = null;
+    var formula = { D2: '=B2*C2', D3: '=B3*C3', D4: '=B4*C4', D5: '=B5*C5', C6: '=SUM(C2:C5)', D6: '=SUM(D2:D5)' };
+    function num(a) { var td = cells[a], i = td.querySelector('input'); var v = Number(i ? i.value : td.textContent); return isFinite(v) ? v : 0; }
+    function value(a) {
+      if (a === 'C6') return [2, 3, 4, 5].reduce(function (s, r) { return s + num('C' + r); }, 0);
+      if (a === 'D6') return [2, 3, 4, 5].reduce(function (s, r) { return s + value('D' + r); }, 0);
+      if (formula[a]) return num('B' + a.slice(1)) * num('C' + a.slice(1));
+      return num(a);
+    }
+    function describe(a) {
+      var td = cells[a], r = a.slice(1);
+      if (formula[a] && a.slice(1) === '6') return '<b>' + a + '</b> holds a formula that uses the <b>SUM function</b>: it adds ' + (a[0] === 'C' ? 'C2 to C5' : 'D2 to D5') + '. The cell shows the result: <b>' + value(a) + '</b>.';
+      if (formula[a]) return '<b>' + a + '</b> holds a <b>formula</b>: price × sold, or B' + r + ' × C' + r + '. The cell shows the result: <b>' + value(a) + '</b>.';
+      if (td.querySelector('input')) return '<b>' + a + '</b> holds a <b>value</b> (a number someone typed). Change it, and every formula that uses it updates.';
+      if (td.classList.contains('sl-num')) return '<b>' + a + '</b> holds a <b>value</b>: the price, a number you can compute with.';
+      if (!td.textContent.trim()) return '<b>' + a + '</b> is empty.';
+      return '<b>' + a + '</b> holds a <b>label</b>: text that tells you what the numbers mean. You do not compute with labels.';
+    }
+    function pick(a) {
+      if (sel) sel.classList.remove('is-sel');
+      sel = cells[a]; sel.classList.add('is-sel');
+      addr.textContent = a;
+      var td = cells[a], i = td.querySelector('input');
+      content.textContent = formula[a] || (i ? i.value : td.textContent);
+      kind.innerHTML = describe(a);
+    }
+    function paint(flash) {
+      Object.keys(formula).forEach(function (a) {
+        var td = cells[a], text = showing ? formula[a] : String(value(a));
+        if (td.textContent !== text) {
+          td.textContent = text;
+          if (flash && !showing) { td.classList.remove('is-flash'); void td.offsetWidth; td.classList.add('is-flash'); }
+        }
+      });
+      f.classList.toggle('is-formulas', showing);
+      if (sel) pick(sel.dataset.c);
+    }
+    Object.keys(cells).forEach(function (a) { cells[a].addEventListener('click', function () { pick(a); }); });
+    f.querySelectorAll('input').forEach(function (i) {
+      i.addEventListener('focus', function () { pick(i.closest('td').dataset.c); });
+      i.addEventListener('input', function () { if (Number(i.value) < 0) i.value = 0; paint(true); });
+    });
+    show.addEventListener('click', function () { showing = !showing; show.setAttribute('aria-pressed', String(showing)); show.textContent = showing ? 'Show results' : 'Show formulas'; paint(false); });
+    f.querySelector('.sl-reset').addEventListener('click', function () {
+      f.querySelectorAll('input').forEach(function (i) { i.value = i.dataset.q; });
+      showing = false; show.setAttribute('aria-pressed', 'false'); show.textContent = 'Show formulas';
+      paint(false); pick('D2');
+    });
+    paint(false); pick('D2');
+  })();
+</script>

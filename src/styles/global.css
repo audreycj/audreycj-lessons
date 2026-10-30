@@ -1162,3 +1162,87 @@ h3 .xtra { font-size: .7em; font-weight: 600; color: #8a5a00; background: #fbecc
 /* Tiny tree inside a table cell (avl four cases). */
 .mini-tree { display: block; width: 6rem; margin-bottom: 0.25rem; }
 .mini-tree .tree-svg { max-height: none; }
+
+/* ===================== IT 110 (chat 41) =====================
+   Everything below is scoped to IT 110 pages (body.theme-it110) or uses class names only IT 110 uses (st-, sl-, svg.clean),
+   so ITC 120 pages look exactly the same as before.
+   IT 110 colors: her IT 110 slides use navy + a bright royal blue + purple + gold + red-orange, all at full strength,
+   so they compete. Here: ONE main blue (muted denim) + ONE warm accent (soft tangerine, its opposite on the color wheel),
+   both at the same medium strength; washes are light tints of those two; grays lean slightly blue so they belong.
+   The variable NAMES stay (--teal = main color, --orange = accent) so every shared component follows automatically. */
+body.theme-it110 {
+  --paper: #f8f8f3;
+  --grid: rgba(39, 90, 156, 0.075);
+  --ink: #18233a;
+  --ink-soft: #3b4659;
+  --line: #d3dbe6;
+  --teal: #275a9c;
+  --teal-2: #3b7cc4;
+  --teal-wash: #e3ecf8;
+  --teal-ink: #1c4479;
+  --orange: #e27b3e;
+  --orange-wash: #fbe7da;
+  --orange-ink: #a64a1c;
+  --amber: #eeb04a;
+  --butter: #f7dd9f;
+  --sticky: #fdf3d6;
+  --shadow: rgba(24, 35, 58, 0.10);
+}
+body.theme-it110 .remember { background: #e3ecf8; border-left-color: var(--teal); }
+.tape.blue { background: repeating-linear-gradient(45deg, transparent 0 7px, rgba(255,255,255,0.22) 7px 14px), #bcd0ee; box-shadow: 0 1px 3px rgba(24,35,58,0.25); }
+
+/* clean (non-sketch) IT 110 pictures */
+svg.clean { display: block; width: 100%; height: auto; max-width: 24rem; margin-inline: auto; }
+
+/* SortTap: tap a category for each card */
+.sorttap .st-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.sorttap .st-item { margin: 0; background: var(--card); border: 1.5px solid var(--line); border-radius: 8px; padding: 0.75rem 0.85rem; display: grid; gap: 0.55rem; align-content: start; transition: border-color 0.25s ease, background-color 0.25s ease; }
+.sorttap .st-item.got-right { border-color: var(--teal); }
+.sorttap .st-item.got-wrong { border-color: var(--red-pen); background: #fffafa; }
+.sorttap .st-t { font-weight: 800; }
+.sorttap .st-btns { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.sorttap .st-btn { font: inherit; font-size: var(--step--1); font-weight: 700; color: var(--ink); background: var(--card); border: 1.5px solid var(--ink); border-radius: 99px; padding: 0.35rem 0.85rem; min-height: 2.5rem; cursor: pointer; }
+.sorttap .st-btn:hover:not(:disabled) { background: var(--teal-wash); }
+.sorttap .st-btn:disabled { cursor: default; opacity: 0.55; }
+.sorttap .st-btn.is-right { opacity: 1; background: var(--teal); border-color: var(--teal); color: #fff; }
+.sorttap .st-btn.is-wrong { opacity: 1; background: var(--red-wash); border-color: var(--red-pen); text-decoration: line-through; }
+.sorttap .st-why { font-size: var(--step--1); color: var(--ink-soft); animation: stFade 0.35s ease both; }
+.sorttap .st-foot { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between; margin-top: 0.9rem; }
+.sorttap .st-score { font-family: var(--font-display); font-weight: 600; font-size: var(--step-1); }
+@keyframes stFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* SheetLab: mini spreadsheet */
+.sheetlab .sl-bar { display: flex; align-items: center; gap: 0.5rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--card); padding: 0.35rem 0.6rem; font-size: 1rem; }
+.sheetlab .sl-addr { min-width: 2.6rem; font-weight: 600; padding-right: 0.5rem; border-right: 1.5px solid var(--line); }
+.sheetlab .sl-fx { font-style: italic; font-weight: 800; color: var(--teal); }
+.sheetlab .sl-content { font-weight: 600; overflow-wrap: anywhere; }
+.sheetlab .sl-kind { min-height: 4.9em; margin: 0.6rem 0; font-size: var(--step--1); }
+.sheetlab .sl-grid { border-collapse: collapse; font-size: 0.98rem; min-width: 19.5rem; width: 100%; }
+.sheetlab .sl-grid th { background: #eef1f5; color: var(--ink-soft); font-weight: 700; font-size: 0.85rem; border: 1px solid #c3cbd6; padding: 0.2rem 0.35rem; }
+.sheetlab .sl-grid td { border: 1px solid #c3cbd6; padding: 0.35rem 0.45rem; background: var(--card); cursor: pointer; white-space: nowrap; transition: background-color 0.6s ease; }
+.sheetlab .sl-grid td.sl-head { font-weight: 800; background: var(--teal-wash); }
+.sheetlab .sl-grid td.sl-num { text-align: right; font-family: var(--font-mono); font-size: 0.92rem; }
+.sheetlab .sl-grid td.sl-f { color: var(--teal-ink); font-weight: 600; }
+.sheetlab .sl-grid tr.sl-total td { font-weight: 800; border-top: 2px solid var(--ink); }
+.sheetlab .sl-grid td.is-sel { outline: 3px solid var(--orange); outline-offset: -2px; }
+.sheetlab .sl-grid td.is-flash { animation: slFlash 1.1s ease; }
+.sheetlab.is-formulas .sl-grid td.sl-f { font-size: 0.8rem; text-align: left; }
+.sheetlab .sl-in input { width: 3.6rem; font: inherit; font-size: 16px; text-align: right; border: 1.5px solid var(--teal); border-radius: 4px; background: var(--teal-wash); padding: 0.1rem 0.25rem; }
+@keyframes slFlash { 0% { background-color: var(--butter); } 100% { background-color: var(--card); } }
+
+/* OS table chips, "look around" boxes */
+.os-chip { display: inline-block; font-weight: 800; font-size: 0.9em; padding: 0.05em 0.5em; border-radius: 99px; background: var(--teal-wash); color: var(--teal-ink); white-space: nowrap; }
+.look { background: var(--card); border: 2px dashed var(--teal); border-radius: 8px; padding: 0.8rem 1rem; }
+.look .note-label { color: var(--teal-ink); }
+/* IT 110 course page: the dark "ink" unit tone in navy instead of dark teal */
+body.theme-it110 .tone-ink { --tone: #2a3a5c; --tone-wash: #e6ebf3; }
+/* IT 110 round 2 (chat 41): OS job cards and pictures inside definition boxes */
+.fn-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.fn-card { background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--teal); border-radius: 8px; padding: 0.8rem 1rem 0.9rem; display: grid; gap: 0.5rem; align-content: start; box-shadow: 0 4px 14px var(--shadow); }
+.fn-card svg.clean { max-width: 17rem; }
+.fn-card .fn-t { font-weight: 800; color: var(--teal-ink); }
+.fn-card .fn-can { font-size: var(--step--1); color: var(--orange-ink); font-weight: 700; border-top: 1px dashed var(--line); padding-top: 0.45rem; }
+.def > svg.clean { max-width: 23rem; margin-block: 0.3rem 0.6rem; }
+/* IT 110 round 6 (chat 41): booting panel has two layouts; wide screens get the bigger side-by-side one */
+svg.clean.bp-wide { display: none; max-width: 46rem; }
+@media (min-width: 48rem) { svg.clean.bp-narrow { display: none; } svg.clean.bp-wide { display: block; } }

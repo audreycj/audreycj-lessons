@@ -1,0 +1,173 @@
+---
+import Base from '../../layouts/Base.astro';
+import { course, terms } from '../../data/it110.js';
+import { pcDoodles } from '../../lib/it110-illus.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const href = (p) => base + p;
+const tones = ['teal', 'orange', 'amber', 'ink'];
+
+// Small line icons for each unit (drawn inline, no image files)
+const icons = {
+  people: '<circle cx="16" cy="14" r="6"/><circle cx="33" cy="14" r="6"/><path d="M5 40c0-8 5-14 11-14s11 6 11 14M22 40c0-8 5-14 11-14s11 6 11 14"/>',
+  pc: '<rect x="5" y="7" width="38" height="26" rx="3"/><path d="M18 33l-3 9M30 33l3 9M12 43h24"/>',
+  chip: '<rect x="12" y="12" width="24" height="24" rx="3"/><rect x="19" y="19" width="10" height="10"/><path d="M18 5v7M24 5v7M30 5v7M18 36v7M24 36v7M30 36v7M5 18h7M5 24h7M5 30h7M36 18h7M36 24h7M36 30h7"/>',
+  io: '<rect x="4" y="28" width="26" height="14" rx="2"/><path d="M9 33h2M14 33h2M19 33h2M24 33h2M10 38h14"/><rect x="18" y="6" width="26" height="17" rx="2"/><path d="M38 34c0-5 2-8 5-8"/>',
+  app: '<rect x="6" y="6" width="15" height="15" rx="4"/><rect x="27" y="6" width="15" height="15" rx="4"/><rect x="6" y="27" width="15" height="15" rx="4"/><circle cx="34.5" cy="34.5" r="7.5"/>',
+  net: '<circle cx="24" cy="10" r="5"/><circle cx="9" cy="38" r="5"/><circle cx="39" cy="38" r="5"/><path d="M21 14 11 33M27 14l10 19M14 38h20"/>',
+  shield: '<path d="M24 5l16 6v11c0 11-7 19-16 22C15 41 8 33 8 22V11z"/><path d="M17 24l5 5 9-10"/>',
+};
+// Units are numbered in course order.
+const unitNum = new Map();
+let n = 0;
+terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
+---
+<Base title="IT 110 Lessons · Ma'am Audrey" course={{ code: course.code, href: href(course.href) }} theme="it110">
+  <section class="wrap head">
+    <div class="head-text">
+      <span class="tape blue">{course.code}</span>
+      <h1>{course.title}</h1>
+      <p class="muted">{course.who}</p>
+    </div>
+    <Fragment set:html={pcDoodles()} />
+  </section>
+
+  {terms.map((t) => {
+    const lessons = t.units.reduce((n, u) => n + u.lessons.length, 0);
+    return (
+    <details class={`wrap term term-${t.id}`} id={t.id} open={t.open ? true : undefined} data-term={t.id}>
+      <summary class="term-head">
+        <span class="term-title"><span class="term-name">{t.name}</span><span class="term-count">{lessons ? `${t.units.length} unit${t.units.length > 1 ? 's' : ''} · ${lessons} lessons` : 'coming soon'}</span></span>
+        <span class="term-chev" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="#1b2a2e" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg></span>
+      </summary>
+      <p class="term-note">{t.note}</p>
+      <div class="units">
+        {t.units.map((u) => {
+          const unitNo = unitNum.get(u);
+          const tone = tones[(unitNo - 1) % tones.length];
+          const live = u.lessons.filter((l) => l.status === 'live').length;
+          return (
+            <article class={`unit tone-${tone}`}>
+              <header class="unit-head">
+                <svg class="unit-ic" viewBox="0 0 48 50" width="42" height="42" fill="none" stroke="#1b2a2e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={icons[u.icon] || ''} />
+                <div>
+                  <p class="unit-kicker">Unit {String(unitNo).padStart(2, '0')} · {u.lessons.length} lesson{u.lessons.length > 1 ? 's' : ''}</p>
+                  <h3>{u.name}</h3>
+                </div>
+              </header>
+              <ol class="path">
+                {u.lessons.map((l, i) => (
+                  <li class={`step s-${l.status}`} id={'l-' + l.href.split('/').filter(Boolean).pop()}>
+                    {l.status === 'live' ? (
+                      <a href={href(l.href)} data-lesson={href(l.href)}>
+                        <span class="num">{i + 1}</span>
+                        <span class="txt"><span class="l-title">{l.title}</span>{l.blurb && <span class="l-blurb">{l.blurb}</span>}</span>
+                        <span class="prog" aria-live="polite"></span>
+                        <span class="go" aria-hidden="true">→</span>
+                      </a>
+                    ) : (
+                      <div>
+                        <span class="num">{i + 1}</span>
+                        <span class="txt"><span class="l-title">{l.title}</span><span class="l-blurb">{l.status === 'soon' ? 'Coming soon' : 'On Discord for now'}</span></span>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </article>
+          );
+        })}
+      </div>
+    </details>
+    );
+  })}
+</Base>
+
+<style>
+  .head { padding-block: 1.6rem 0.5rem; display: grid; gap: 1rem; align-items: center; }
+  .head h1 { margin-top: 0.6rem; }
+  .head h1::after { content: ""; display: block; width: 4.5rem; height: 6px; border-radius: 3px; background: var(--orange); margin-top: 0.7rem; }
+  .head .muted { margin-top: 0.6rem; }
+  .ha-edges path { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; fill: none; }
+  .ha-nodes circle { fill: var(--card); stroke: var(--ink); stroke-width: 3; }
+  .ha-nodes .o { fill: var(--orange); }
+  .ha-nodes .a { fill: var(--butter); }
+
+  .term { padding-top: 2.6rem; }
+  .term-note { margin-top: 0.7rem; color: var(--ink-soft); }
+  .units { display: grid; gap: 1.4rem; margin-top: 1.4rem; }
+
+  .unit { --tone: var(--teal); --tone-wash: var(--teal-wash); --tone-ink: #fff;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 18px rgba(27, 42, 46, 0.1); }
+  .tone-orange { --tone: var(--orange); --tone-wash: var(--orange-wash); }
+  .tone-amber { --tone: var(--amber); --tone-wash: #fdf1d8; --tone-ink: var(--ink); }
+  .tone-ink { --tone: #2c4a50; --tone-wash: #e6ecee; }
+  .tone-muted { --tone: #8d9c9e; --tone-wash: #eef2f2; }
+  .unit-head { display: flex; gap: 0.9rem; align-items: center; padding: 0.9rem 1.1rem; background: var(--tone); color: var(--tone-ink); }
+  .unit-head h3 { color: inherit; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; }
+  .unit-kicker { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.9; }
+  .unit-ic { width: 2.6rem; height: 2.6rem; flex: none; padding: 0.3rem; border-radius: 10px; background: rgba(255, 255, 255, 0.95); }
+  .unit-ic :global(*) { fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  .path { list-style: none; padding: 0.4rem 0; margin: 0; position: relative; }
+  .path::before { content: ""; position: absolute; left: calc(1.1rem + 0.95rem); top: 1.4rem; bottom: 1.4rem; width: 2px; background: var(--tone-wash); }
+  .step { margin: 0; position: relative; }
+  .step > a, .step > div { display: grid; grid-template-columns: 1.9rem 1fr auto auto; gap: 0.8rem; align-items: center; padding: 0.7rem 1.1rem; color: var(--ink); text-decoration: none; }
+  .step > a:hover { background: var(--tone-wash); color: var(--ink); }
+  .step + .step > a, .step + .step > div { border-top: 1px dashed var(--line); }
+  .num { width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 0.9rem; background: var(--card); border: 2px solid var(--tone); color: var(--ink); position: relative; z-index: 1; }
+  .s-live .num { background: var(--tone); color: var(--tone-ink); }
+  .step.is-done .num { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .txt { display: grid; gap: 0.1rem; min-width: 0; }
+  .l-title { font-weight: 800; }
+  .l-blurb { font-size: var(--step--1); color: var(--ink-soft); }
+  .s-soon .l-title, .s-pdf .l-title { color: var(--ink-soft); }
+  .s-soon .l-blurb { color: var(--orange-ink); font-weight: 700; }
+  .prog { font-size: 0.75rem; font-weight: 800; color: var(--teal-ink); white-space: nowrap; }
+  .prog:empty { display: none; }
+  .prog.done { background: var(--teal-wash); padding: 0.15rem 0.55rem; border-radius: 99px; }
+  .go { font-weight: 800; color: var(--tone); font-size: 1.2rem; }
+  .tone-amber .go { color: #b07610; }
+  @media (max-width: 30rem) { .step > a { grid-template-columns: 1.9rem 1fr; } .go { display: none; } .prog { grid-column: 2; justify-self: start; } }
+</style>
+
+<script is:inline>
+  // Remember which terms the student opened or closed (this device only).
+  (function () {
+    document.querySelectorAll('details[data-term]').forEach(function (d) {
+      var k = 'lx:it110:term:' + d.dataset.term;
+      try { var v = localStorage.getItem(k); if (v !== null) d.open = v === '1'; } catch (e) {}
+      d.addEventListener('toggle', function () { try { localStorage.setItem(k, d.open ? '1' : '0'); } catch (e) {} });
+    });
+  })();
+  // Coming back from a lesson (link ends in #l-<lesson>): open its term, scroll it to the middle, and glow it briefly.
+  (function () {
+    // Also works with the short form #<lesson>, e.g. /it110/#system-software (for links shared with students).
+    var h = location.hash;
+    if (h.length < 2) return;
+    var li = document.getElementById(h.indexOf('#l-') === 0 ? h.slice(1) : 'l-' + h.slice(1));
+    if (!li) return;
+    var d = li.closest('details');
+    if (d) d.open = true;
+    li.scrollIntoView({ block: 'center' });
+    li.classList.add('is-back');
+    // Always end the glow after 4 s (phones with Reduce Motion on get a still highlight with no animation, so it must be removed here).
+    setTimeout(function () { li.classList.remove('is-back'); }, 4000);
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  })();
+  // Show progress saved by each lesson's contents panel ("Mark chapter as done"), on this device only.
+  (function () {
+    document.querySelectorAll('[data-lesson]').forEach(function (a) {
+      try {
+        var key = 'lx:' + a.dataset.lesson;
+        var ids = JSON.parse(localStorage.getItem(key + ':ids') || 'null');
+        var done = JSON.parse(localStorage.getItem(key + ':done') || '[]');
+        if (!ids || !ids.length) return;
+        var n = done.filter(function (d) { return ids.indexOf(d) > -1; }).length;
+        if (!n) return;
+        var p = a.querySelector('.prog');
+        if (n >= ids.length) { p.textContent = '✓ Done'; p.classList.add('done'); a.parentElement.classList.add('is-done'); }
+        else p.textContent = n + ' of ' + ids.length + ' parts';
+      } catch (e) {}
+    });
+  })();
+</script>

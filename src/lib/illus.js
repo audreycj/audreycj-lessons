@@ -4477,3 +4477,42 @@ export function parkProbe() {
   s.text(170, 304, 'Taken? Try the next slot. That is linear probing.', { font: 'body', size: 12.5, weight: 800, color: '#b4461a' });
   return s.svg("A parking row with slots numbered 0 to 6, seen from above. Cars 700, 50 and 85 are in slots 0, 1 and 2; car 76 is in slot 6. Car 92's slot is 92 mod 7 = 1. Slot 1 is taken, slot 2 is taken, slot 3 is free, so car 92 drives along and parks in slot 3. Taken? Try the next slot. That is linear probing.").replace(/(\d+\.\d)\d+/g, '$1');
 }
+
+/** Clean (AVL speed box): a full binary tree whose levels double (1, 2, 4, 8), one search path in orange, and the count up to 10 levels. */
+export function levelsDouble() {
+  const W = 200, X0 = 14, Y = [34, 86, 138, 190], r = 9;
+  const xOf = (d, i) => X0 + (i + 0.5) * W / 2 ** d;
+  const onPath = (d, i) => i === [0, 1, 2, 5][d]; // root -> right... a zigzag path: 0, 1, 2, 5
+  let e = '', n = '';
+  for (let d = 0; d < 3; d++) for (let i = 0; i < 2 ** d; i++) for (const c of [2 * i, 2 * i + 1]) {
+    const hot = onPath(d, i) && onPath(d + 1, c);
+    e += `<line x1="${xOf(d, i)}" y1="${Y[d]}" x2="${xOf(d + 1, c)}" y2="${Y[d + 1]}" stroke="${hot ? '#e8662e' : '#1b2a2e'}" stroke-width="${hot ? 4.5 : 1.6}" stroke-linecap="round"/>`;
+  }
+  for (let d = 0; d < 4; d++) for (let i = 0; i < 2 ** d; i++) {
+    const hot = onPath(d, i);
+    n += `<circle cx="${xOf(d, i)}" cy="${Y[d]}" r="${r}" fill="${hot ? '#fce9e0' : '#e3f1ef'}" stroke="${hot ? '#e8662e' : '#0e6b63'}" stroke-width="${hot ? 2.6 : 1.8}"/>`;
+  }
+  let t = '';
+  ['1 node', '2 nodes', '4 nodes', '8 nodes'].forEach((s, d) => { t += sT(232, Y[d] + 5, `level ${d}: ${s}`, { size: 13, anchor: 'start' }); });
+  t += sT(X0 + W / 2, 222, '⋮', { size: 18 }) + sT(262, 222, '⋮', { size: 18 });
+  t += sT(232, 248, 'level 9: 512 nodes', { size: 13, anchor: 'start' });
+  t += `<path d="M14 264 H326" stroke="#1b2a2e" stroke-width="1.2"/>`;
+  t += sT(170, 287, '10 levels: 1 + 2 + 4 + … + 512 = 1,023 nodes', { mono: true, size: 12.5, w: 700, fill: '#0b544e' });
+  t += sT(170, 311, 'A search walks one path down (orange): about 10 steps', { size: 12.5, w: 800, fill: '#b4461a' });
+  return `<svg class="objbox" viewBox="0 0 340 324" role="img" aria-label="A balanced binary tree drawn level by level. Level 0 has 1 node, level 1 has 2, level 2 has 4, level 3 has 8: each level holds twice as many as the one above. Continuing down to level 9, which holds 512 nodes, 10 levels hold 1 + 2 + 4 + ... + 512 = 1,023 nodes. One path from the top to the bottom is orange: a search walks only that path, about 10 steps.">${e}${n}${t}</svg>`;
+}
+
+/** Clean (AVL speed box): 1,024 cut in half again and again; bars shrink by half each row; 10 cuts reach 1. */
+export function halvingStrip() {
+  const vals = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1];
+  let b = '';
+  vals.forEach((v, k) => {
+    const y = 22 + k * 22;
+    b += sT(62, y + 5, v.toLocaleString('en-US'), { mono: true, size: 12.5, w: 700, anchor: 'end' });
+    b += `<rect x="72" y="${y - 7}" width="${Math.max(2, Math.round(200 * v / 1024))}" height="14" rx="3" fill="${k === 10 ? '#e8662e' : '#e3f1ef'}" stroke="${k === 10 ? '#b4461a' : '#0e6b63'}" stroke-width="1.4"/>`;
+    if (k > 0) b += sT(328, y + 5, `cut ${k}`, { size: 12, w: 800, fill: k === 10 ? '#b4461a' : '#37474a', anchor: 'end' });
+  });
+  b += `<path d="M14 266 H326" stroke="#1b2a2e" stroke-width="1.2"/>`;
+  b += sT(170, 290, '10 cuts to reach 1, so log₂ 1,024 = 10', { size: 13, w: 800, fill: '#0b544e' });
+  return `<svg class="objbox" viewBox="0 0 340 304" role="img" aria-label="1,024 cut in half again and again: 512, 256, 128, 64, 32, 16, 8, 4, 2, 1. Each row's bar is half as long as the one above. It takes 10 cuts to reach 1, so log base 2 of 1,024 is 10.">${b}</svg>`;
+}

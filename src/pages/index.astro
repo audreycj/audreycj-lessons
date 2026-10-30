@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const courses = [
   { code: 'ITC 120', title: 'Data Structures and Algorithms', who: 'BSIT 2nd Year', href: `${base}/itc120/`, open: true, color: 'teal' },
-  { code: 'IT 110', title: 'Introduction to Computing', who: 'BSIT 1st Year', open: false, color: 'amber' },
+  { code: 'IT 110', title: 'Introduction to Computing', who: 'BSIT 1st Year', href: `${base}/it110/`, open: true, color: 'blue' },
 ];
 ---
 <Base title="Ma'am Audrey's Lessons">
@@ -70,6 +70,7 @@ const courses = [
   .book > a::before, .book > div::before { content: ""; position: absolute; left: 0.45rem; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,0.35); }
   .book.teal > * { background: var(--teal); }
   .book.amber > * { background: var(--amber); color: var(--ink); }
+  .book.blue > * { background: #275a9c; }
   .book.is-closed > div { opacity: 0.6; box-shadow: 2px 2px 0 var(--ink); }
   .book > a:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
   .b-code { font-size: 0.8rem; letter-spacing: 0.08em; opacity: 0.9; }

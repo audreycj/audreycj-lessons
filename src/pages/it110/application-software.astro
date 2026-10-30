@@ -1,0 +1,322 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
+import SortTap from '../../components/SortTap.astro';
+import SheetLab from '../../components/SheetLab.astro';
+import { course } from '../../data/it110.js';
+import { installedCloud, dbTable, softwareLayers } from '../../lib/it110-illus.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Peeks back to Lesson 1 (her rule: every back-reference comes with its picture right there)
+const layersPeek = '<div class="peek-pic">' + softwareLayers() + '</div><p>Apps sit on top of the OS. The OS runs the hardware.</p>';
+const utilPeek = '<p><b>Utility program:</b> system software that maintains, protects, or speeds up the computer, such as a file manager, antivirus, or disk cleanup.</p>';
+
+const owners = [
+  { t: 'Microsoft 365: you pay every year to keep using Word, Excel, and PowerPoint', a: 0, why: 'You pay for it, and the company keeps the code: commercial software (sold as a subscription).' },
+  { t: 'WinRAR: free to try for 40 days, then it asks you to buy it', a: 1, why: 'Try first, pay later: shareware.' },
+  { t: 'Adobe Acrobat Reader: free forever, but you cannot see or change its code', a: 2, why: 'Free to use, but still owned by Adobe: freeware.' },
+  { t: 'LibreOffice: free, and anyone can read, change, and share its code', a: 3, why: 'The code is open to everyone: open source.' },
+  { t: 'Adobe Photoshop: a monthly subscription', a: 0, why: 'You pay to use it, and the code stays with Adobe: commercial.' },
+  { t: 'VLC media player: free, and its code is public for anyone to improve', a: 3, why: 'Open source, made by volunteers and the VideoLAN group.' },
+];
+
+const whichApp = [
+  { q: 'You need to compute the average of 40 students\' quiz scores. Which app fits best?', opts: ['Word processor', 'Spreadsheet', 'Presentation graphics', 'Media player'], a: 1, why: 'Spreadsheets compute with numbers: =AVERAGE(B2:B41) does it in one formula.' },
+  { q: 'You are writing your resume for an OJT application. Which app?', opts: ['Spreadsheet', 'Database', 'Word processor', 'Video editor'], a: 2, why: 'A word processor is for text documents: letters, resumes, reports.' },
+  { q: 'The registrar must store 8,000 students\' records, and many staff search them at the same time. Which app?', opts: ['A database (DBMS)', 'A word processor', 'Presentation graphics', 'An image editor'], a: 0, why: 'A database stores large amounts of related data, lets many users work at once, and finds records fast.' },
+  { q: 'Your group will report on input and output devices in front of the class. Which app?', opts: ['Spreadsheet', 'Presentation graphics', 'Database', 'File compression'], a: 1, why: 'Presentation graphics (PowerPoint, Google Slides, Canva) make slides for a talk.' },
+  { q: 'You want to trim and add music to a TikTok video. Which kind of software?', opts: ['Video editing', 'Desktop publishing', 'Spreadsheet', 'Utility program'], a: 0, why: 'A video editor such as CapCut cuts clips and adds music, text, and effects.' },
+];
+
+const quiz = [
+  { q: 'When you "buy" an app, what do you usually get?', opts: ['The app itself, to change and resell', 'A license: permission to use it under the owner\'s rules', 'The source code', 'Nothing, apps are always free'], a: 1, why: 'The company keeps ownership. You get a license, usually through the EULA you agree to when you install.' },
+  { q: 'Which one is open source?', opts: ['Microsoft Word', 'Adobe Photoshop', 'LibreOffice Writer', 'Windows 11'], a: 2, why: 'LibreOffice\'s code is open for anyone to read, change, and share.' },
+  { q: 'Which is TRUE about cloud-based software?', opts: ['It must be installed from a CD.', 'It runs on a server; you open it in a browser or app, usually with internet.', 'It cannot save files.', 'It only works on Windows.'], a: 1, why: 'Cloud apps (like Google Docs) run on the provider\'s servers, so they work on any device with internet.' },
+  { q: 'Which keyboard shortcut undoes your last action on Windows?', opts: ['Ctrl + U', 'Ctrl + Z', 'Ctrl + Y', 'Ctrl + S'], a: 1, why: 'Ctrl + Z is Undo. Ctrl + Y is Redo. On a Mac, use Command (⌘) instead of Ctrl.' },
+  { q: 'In a spreadsheet, what is B4?', opts: ['A formula', 'A cell address: column B, row 4', 'A function', 'A chart'], a: 1, why: 'Columns are letters and rows are numbers, so B4 is the cell in column B, row 4.' },
+  { q: 'Which is a correct spreadsheet formula to add cells D2 to D5?', opts: ['SUM D2 to D5', '=SUM(D2:D5)', '(D2+D5)=', '=ADD[D2-D5]'], a: 1, why: 'Formulas start with =. SUM is a function, and D2:D5 is the range from D2 to D5.' },
+  { q: 'In a database table, what is a record?', opts: ['One column, such as Last name', 'All the data about one item, such as one student (a row)', 'The name of the database', 'A chart'], a: 1, why: 'A record is a row. A field is a column.' },
+  { q: 'What does a primary key do?', opts: ['It locks the database with a password.', 'It identifies each record uniquely, such as a Student ID.', 'It sorts the table A to Z.', 'It is the first field of every table.'], a: 1, why: 'No two records can have the same primary key, so each one can be found exactly.' },
+];
+---
+<Base title="Application Software · IT 110" description="Application software: ownership rights, installed vs. cloud-based software, common commands, and word processing, spreadsheet, database, presentation, graphics, and multimedia software." course={{ code: course.code, href: base + course.href }} theme="it110" toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>IT 110</a> › Midterm › Software</p>
+    <p class="kicker">Software · Lesson 2 of 2</p>
+    <h1>Application Software</h1>
+    <p class="lede">The software that does your work: write, compute, present, edit, and more.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>describe <b>application software</b>, the kinds of <b>ownership rights</b>, and the difference between <b>installed</b> and <b>cloud-based</b> software;</li>
+        <li>explain <b>common concepts and commands</b> that most apps share;</li>
+        <li>explain what <b>word processing</b> and <b>spreadsheet</b> software are for, and the documents they make;</li>
+        <li>define basic <b>database</b> terms and explain why databases are useful;</li>
+        <li>describe <b>presentation graphics</b>, and name common <b>graphics, multimedia</b>, and other kinds of apps.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>Before this:</b> <a href={base + '/it110/system-software/'}>System software</a>. <b>You need:</b> your phone, and a computer if you have one.</p>
+  </header>
+
+  <section class="chapter wrap" id="apps">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · What apps are</p>
+      <h2>Application software, installed or in the cloud</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky">
+        <p class="note-label">Count your apps</p>
+        <p>Open your phone's app list. Messenger, TikTok, GCash, Canva, Google Classroom, a game or two. Every one of them was made to do a job <b>for you</b>. That is what makes them application software, the top layer of the <Peek label="software layers" title="From Lesson 1" html={layersPeek} />.</p>
+      </div>
+      <div class="def"><p class="note-label">Application software (app)</p><p>A program that does a <b>specific task for the user</b>, such as writing a document, computing grades, editing a photo, or chatting. It needs an operating system to run.</p></div>
+      <p>Apps come in two main ways: installed on your device, or used from the cloud.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={installedCloud()} /><figcaption>Installed software lives on your device. Cloud-based software lives on someone else's server, and you reach it over the Internet.</figcaption></figure>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th></th><th>Installed software</th><th>Cloud-based software</th></tr></thead>
+        <tbody>
+          <tr><td><b>Where it runs</b></td><td>On your own computer or phone</td><td>On the provider's servers; you use a browser or a small app</td></tr>
+          <tr><td><b>Internet</b></td><td>Not needed for most work</td><td>Usually needed</td></tr>
+          <tr><td><b>Updates</b></td><td>You install them</td><td>Automatic: everyone has the newest version</td></tr>
+          <tr><td><b>Your files</b></td><td>Saved on your device</td><td>Saved online: open them on any device, and share easily</td></tr>
+          <tr><td><b>Examples</b></td><td>Microsoft Word (desktop app), VLC, most games</td><td>Google Docs, Canva in a browser, Word on the web</td></tr>
+        </tbody>
+      </table></div>
+      <p>Cloud-based software is also called <b>web apps</b> or <b>SaaS</b> (software as a service). Many apps are now both: Word comes as an installed app and a web app, and phone apps such as GCash are installed but need the Internet to work.</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Desktop app</p><p>Installed on a desktop or laptop computer (Windows or macOS).</p></div>
+        <div class="def"><p class="note-label">Mobile app</p><p>Installed on a phone or tablet from an app store (Google Play, App Store, AppGallery).</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="ownership">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Ownership rights</p>
+      <h2>Who owns the software?</h2>
+    </div>
+    <div class="flow">
+      <p>When you "buy" Microsoft Office, you do not own the program. The company keeps it. You get a <b>software license</b>: permission to use it under the owner's rules.</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Software license</p><p>A legal agreement that says how you may use the software: on how many devices, for how long, and whether you may copy or share it.</p></div>
+        <div class="def"><p class="note-label">EULA</p><p><b>End-user license agreement</b>: the long "I agree" text you see when you install an app. Tapping "I agree" means you accept its rules.</p></div>
+      </div>
+      <p>Software is grouped by the rights its owner gives you. The table compares the five kinds:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Kind</th><th>Pay?</th><th>Copy and share?</th><th>See and change the code?</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td><b>Commercial</b></td><td>Yes (once, or a subscription)</td><td>No</td><td>No</td><td>Microsoft 365, Adobe Photoshop, Windows</td></tr>
+          <tr><td><b>Shareware</b></td><td>Free to try, then pay</td><td>Often allowed for the trial</td><td>No</td><td>WinRAR</td></tr>
+          <tr><td><b>Freeware</b></td><td>No</td><td>Usually yes, but the owner keeps the rights</td><td>No</td><td>Adobe Acrobat Reader, Google Chrome</td></tr>
+          <tr><td><b>Public domain</b></td><td>No</td><td>Yes, no rules at all (no copyright)</td><td>Yes</td><td>SQLite (a small database program)</td></tr>
+          <tr><td><b>Open source</b></td><td>No</td><td>Yes, under its license</td><td>Yes</td><td>LibreOffice, VLC, GIMP, Firefox, Linux</td></tr>
+        </tbody>
+      </table></div>
+      <div class="sticky">
+        <p class="note-label">Free to try, pay for more</p>
+        <p>Canva, Spotify, and CapCut are free, but some features need a paid plan. This is called <b>freemium</b>. It is a way of selling commercial software, not a sixth kind of ownership.</p>
+      </div>
+      <div class="sub">
+        <h3>Sort it: which kind?</h3>
+        <SortTap id="sort-own" cats={['Commercial', 'Shareware', 'Freeware', 'Open source']} items={owners} />
+      </div>
+      <div class="remember">
+        <p class="note-label">"Cracked" software is not free software</p>
+        <p>Copying or using commercial software without a license is <b>software piracy</b>, and it is against the law (in the Philippines, the Intellectual Property Code, RA 8293, protects computer programs). Cracked apps are also a common way malware gets in. Use free or open-source alternatives instead, such as LibreOffice, GIMP, or Canva's free plan. You will study piracy more in the Finals.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="common">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · What most apps share</p>
+      <h2>Common concepts and commands</h2>
+    </div>
+    <div class="flow">
+      <p>Learn these once, and they work in almost every app, from Word to Canva:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Concept</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td><b>Document / file</b></td><td>The work you make and save: a report, a worksheet, a slide deck.</td></tr>
+          <tr><td><b>Save vs. Save As</b></td><td><b>Save</b> keeps changes in the same file. <b>Save As</b> makes a new copy with a new name, place, or format.</td></tr>
+          <tr><td><b>File format</b></td><td>The type of file, shown by its <b>extension</b>: .docx (Word), .xlsx (Excel), .pptx (PowerPoint), .pdf (PDF), .jpg or .png (pictures).</td></tr>
+          <tr><td><b>Ribbon, menus, toolbars</b></td><td>Where the commands are. Office groups them in <b>tabs</b> (Home, Insert, Layout) on the <b>ribbon</b>.</td></tr>
+          <tr><td><b>Dialog box</b></td><td>A small window that asks you for choices, like the Print box.</td></tr>
+          <tr><td><b>Editing vs. formatting</b></td><td><b>Editing</b> changes the content (add, delete, move words). <b>Formatting</b> changes how it looks (font, size, color, alignment).</td></tr>
+          <tr><td><b>Clipboard</b></td><td>A temporary holding place for what you cut or copy, until you paste it.</td></tr>
+          <tr><td><b>Templates</b></td><td>Ready-made designs to start from (a resume, a certificate).</td></tr>
+          <tr><td><b>Help</b></td><td>Built-in help and search (press F1 in many Windows apps).</td></tr>
+        </tbody>
+      </table></div>
+      <p>These keyboard shortcuts work in almost every Windows app. On a Mac, use the Command key (⌘) instead of Ctrl:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Shortcut</th><th>Command</th><th>Shortcut</th><th>Command</th></tr></thead>
+        <tbody>
+          <tr><td class="nowrap"><b>Ctrl + C</b></td><td>Copy</td><td class="nowrap"><b>Ctrl + Z</b></td><td>Undo</td></tr>
+          <tr><td class="nowrap"><b>Ctrl + X</b></td><td>Cut</td><td class="nowrap"><b>Ctrl + Y</b></td><td>Redo</td></tr>
+          <tr><td class="nowrap"><b>Ctrl + V</b></td><td>Paste</td><td class="nowrap"><b>Ctrl + S</b></td><td>Save</td></tr>
+          <tr><td class="nowrap"><b>Ctrl + A</b></td><td>Select all</td><td class="nowrap"><b>Ctrl + P</b></td><td>Print</td></tr>
+          <tr><td class="nowrap"><b>Ctrl + B</b></td><td>Bold</td><td class="nowrap"><b>Ctrl + F</b></td><td>Find</td></tr>
+        </tbody>
+      </table></div>
+      <div class="look">
+        <p class="note-label">On your phone</p>
+        <p>The same ideas are there. Press and hold on text to get <b>Cut, Copy, Paste</b>, and <b>Select all</b>. Many apps have an Undo arrow (↶) at the top.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="word-sheet">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Words and numbers</p>
+      <h2>Word processing and spreadsheet software</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Word processing software</p><p>An app for making <b>text documents</b>: letters, reports, essays, resumes, and modules. Examples: Microsoft Word, Google Docs, LibreOffice Writer, WPS Writer, Apple Pages.</p></div>
+      <p>Its main features are listed below:</p>
+      <ul>
+        <li><b>Word wrap:</b> text moves to the next line by itself when a line is full. Press Enter only to start a new paragraph.</li>
+        <li><b>Formatting</b> at three levels: <b>character</b> (font, size, bold, color), <b>paragraph</b> (alignment, line spacing, indents, bullets), and <b>page</b> (margins, paper size, orientation, page numbers).</li>
+        <li><b>Spelling and grammar check</b>, and <b>find and replace</b>.</li>
+        <li><b>Tables, pictures, headers and footers</b>.</li>
+        <li><b>Comments and track changes</b>, so a group can review one report.</li>
+      </ul>
+
+      <div class="def"><p class="note-label">Spreadsheet software</p><p>An app for working with <b>numbers in rows and columns</b>: grades, budgets, sales, and inventories. It computes for you, and it can turn numbers into <b>charts</b>. Examples: Microsoft Excel, Google Sheets, LibreOffice Calc, WPS Spreadsheets.</p></div>
+      <p>Spreadsheets have their own words. Learn these before you try the lab below:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><b>Worksheet / workbook</b></td><td>One sheet of rows and columns / one file that holds one or more worksheets.</td></tr>
+          <tr><td><b>Row, column</b></td><td>Rows go across and are numbered (1, 2, 3). Columns go down and are lettered (A, B, C).</td></tr>
+          <tr><td><b>Cell</b> and <b>cell address</b></td><td>The box where a row and a column meet. Its name is its column letter plus row number, such as <b>B4</b>.</td></tr>
+          <tr><td><b>Range</b></td><td>A group of cells next to each other, such as <b>D2:D5</b> (D2, D3, D4, and D5).</td></tr>
+          <tr><td><b>Label</b></td><td>Text that describes the data, such as "Item" or "Total".</td></tr>
+          <tr><td><b>Value</b></td><td>A number you can compute with.</td></tr>
+          <tr><td><b>Formula</b></td><td>A calculation that starts with <b>=</b>, such as <b>=B2*C2</b> (the * means "times").</td></tr>
+          <tr><td><b>Function</b></td><td>A ready-made formula: <b>SUM</b> (add), <b>AVERAGE</b>, <b>MAX</b>, <b>MIN</b>, <b>COUNT</b>. Example: <b>=SUM(D2:D5)</b>.</td></tr>
+        </tbody>
+      </table></div>
+      <SheetLab id="sheet" />
+      <p>Try this: make Aling Nena sell 100 pandesal instead of 50. Which cells changed by themselves? That is the power of formulas: change one value, and every answer that depends on it updates. This is also how <b>what-if analysis</b> works ("What if I sell more eggs?").</p>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="db-slides">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Records and slides</p>
+      <h2>Database and presentation graphics software</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Database and DBMS</p><p>A <b>database</b> is an organized collection of related data, such as every student's record in the university. A <b>database management system (DBMS)</b> is the software for creating, using, and managing it. Examples: Microsoft Access, LibreOffice Base, and for large systems, MySQL, Oracle Database, and Microsoft SQL Server.</p></div>
+      <p>A database stores its data in <b>tables</b>. The picture labels the parts of one table:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={dbTable()} /><figcaption>A Students table. Every table has fields (columns) and records (rows), and a primary key that makes each record unique.</figcaption></figure>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><b>Table</b></td><td>Data about one kind of thing (students, subjects, payments), in rows and columns.</td></tr>
+          <tr><td><b>Field</b></td><td>One column: one kind of data, such as Last name.</td></tr>
+          <tr><td><b>Record</b></td><td>One row: all the data about one item, such as one student.</td></tr>
+          <tr><td><b>Primary key</b></td><td>A field whose value is different for every record, such as Student ID. Two students can share a last name, but never an ID.</td></tr>
+          <tr><td><b>Query</b></td><td>A question you ask the database, such as "all BSIT students in section 1A".</td></tr>
+          <tr><td><b>Form</b></td><td>A screen for typing in or viewing one record at a time.</td></tr>
+          <tr><td><b>Report</b></td><td>A formatted printout or summary, such as a class list.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Why not just use a spreadsheet? For small lists, a spreadsheet is fine. A database is better when the data is big and shared, because it:</p>
+      <ul>
+        <li>stores each fact <b>once</b> (less repeated data, fewer mistakes);</li>
+        <li>lets <b>many users</b> work at the same time (the registrar, the cashier, and the dean);</li>
+        <li>finds records <b>fast</b>, even among thousands;</li>
+        <li>keeps data <b>accurate and secure</b>, with rules (no duplicate IDs) and passwords.</li>
+      </ul>
+      <p class="small muted">You will learn databases in detail in the Finals (Week 16).</p>
+
+      <div class="def"><p class="note-label">Presentation graphics software</p><p>An app for making <b>electronic slide shows</b>: a set of slides shown one at a time while someone talks. Examples: Microsoft PowerPoint, Google Slides, Canva, Apple Keynote.</p></div>
+      <p>The words you will see in these apps:</p>
+      <ul>
+        <li><b>Slide:</b> one page of the show. <b>Slide show:</b> playing the slides full screen.</li>
+        <li><b>Layout</b> and <b>theme:</b> where things go on a slide, and the colors and fonts for the whole deck.</li>
+        <li><b>Transition:</b> the effect <b>between</b> slides. <b>Animation:</b> the effect <b>on one object</b> inside a slide.</li>
+        <li><b>Speaker notes</b> and <b>presenter view:</b> notes only you can see while you present.</li>
+      </ul>
+      <p>Slide shows are used for class reports (like your input and output reporting), thesis defenses, meetings, seminars, and sales pitches.</p>
+      <div class="sticky">
+        <p class="note-label">Slides help the speaker; they do not replace the speaker</p>
+        <p>Use big text, a few words per slide, and one idea per slide. If the audience can read everything on the slide, they stop listening to you.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="other">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · More kinds of apps</p>
+      <h2>Graphics, multimedia, and other application software</h2>
+    </div>
+    <div class="flow">
+      <p><b>Graphics software</b> makes and edits pictures. <b>Multimedia software</b> works with sound and video. The table lists the common kinds:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Kind</th><th>Used for</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td><b>Image editing (painting)</b></td><td>Editing photos made of tiny dots called <b>pixels</b></td><td>Adobe Photoshop, GIMP, Snapseed</td></tr>
+          <tr><td><b>Drawing (vector)</b></td><td>Logos and illustrations made of lines and shapes; they stay sharp at any size</td><td>Adobe Illustrator, Inkscape</td></tr>
+          <tr><td><b>Design for everyone</b></td><td>Posters, social media posts, slides, from templates</td><td>Canva</td></tr>
+          <tr><td><b>CAD and 3D</b></td><td>Building plans, product designs, 3D models</td><td>AutoCAD, SketchUp, Blender</td></tr>
+          <tr><td><b>Audio editing</b></td><td>Recording and cleaning up sound, podcasts</td><td>Audacity</td></tr>
+          <tr><td><b>Video editing</b></td><td>Cutting clips, adding music, text, and effects</td><td>CapCut, Adobe Premiere Pro, DaVinci Resolve</td></tr>
+          <tr><td><b>Media players</b></td><td>Playing music and videos</td><td>VLC, Spotify, YouTube</td></tr>
+        </tbody>
+      </table></div>
+      <p>Many other apps do not fit the groups above. Here are a few more kinds you already use:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Kind</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td><b>Web browsers and email</b></td><td>Chrome, Safari, Firefox, Gmail, Outlook</td></tr>
+          <tr><td><b>Communication and collaboration</b></td><td>Messenger, Google Meet, Zoom, Microsoft Teams</td></tr>
+          <tr><td><b>Education</b></td><td>Google Classroom, Duolingo</td></tr>
+          <tr><td><b>Note-taking</b></td><td>Microsoft OneNote, Google Keep, Notion</td></tr>
+          <tr><td><b>Finance and payments</b></td><td>GCash, Maya, bank apps, accounting software (QuickBooks)</td></tr>
+          <tr><td><b>Desktop publishing</b></td><td>Adobe InDesign (magazines, books, newsletters)</td></tr>
+          <tr><td><b>Project management</b></td><td>Trello, Microsoft Planner</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Remember: a utility such as File Explorer or antivirus is not in these lists. Utilities are <Peek label="system software" title="From Lesson 1" html={utilPeek} />, not applications.</p>
+      <div class="sub">
+        <h3>Which app for the job?</h3>
+        <Quiz id="quiz-which" questions={whichApp} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="check">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Check yourself</p>
+      <h2>Self-check</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+      <Quiz id="quiz-app" questions={quiz} />
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li>Application software does a specific job for the user, and runs on top of the OS.</li>
+          <li>Installed software runs on your device; cloud-based software runs on a server and is used over the Internet.</li>
+          <li>You buy a <b>license</b>, not the software. Kinds: commercial, shareware, freeware, public domain, and open source.</li>
+          <li>Most apps share the same ideas: Save and Save As, file formats, editing vs. formatting, the clipboard, and shortcuts like Ctrl + C, V, Z, S.</li>
+          <li>Word processors make text documents. Spreadsheets compute with cells, formulas, and functions such as =SUM(D2:D5).</li>
+          <li>A database stores data in tables of fields (columns) and records (rows), with a primary key. Presentation software makes slide shows.</li>
+        </ol>
+      </div>
+      <p><b>Next:</b> <a href={base + course.href}>Back to the IT 110 lessons</a>. Networks and the Internet come next.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>D. Morley and C. S. Parker, <i>Understanding Computers: Today and Tomorrow</i>. Course Technology, 2015, Chapter 6 (Application Software).</li>
+          <li>S. Freund, <i>Microsoft Office 365 Office 2016</i>. Cengage Learning, 2017.</li>
+          <li>Republic Act No. 8293, Intellectual Property Code of the Philippines.</li>
+          <li>IT 110 Introduction to Computing Syllabus, Faculty of Computing, Engineering, and Technology, Davao Oriental State University.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
