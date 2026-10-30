@@ -235,7 +235,7 @@ const taskAns = String.raw`static TreeNode rotateLeft(TreeNode z) {
   return y;
 }`;
 const rotLMarks = { 20: 'down', 30: 'pivot', 25: 'moved' };
-const rotLPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([20, 10, 30, 25, 40]), { marks: rotLMarks, minW: 260, label: 'Before: 20 at the top, 30 on its right, 25 is 30 left child' })}<p class="small"><b>After left rotation at 20</b></p>${svgTreeP(buildBstP([30, 20, 40, 10, 25]), { marks: rotLMarks, minW: 260, label: 'After: 30 at the top, 20 on its left, 25 is now 20 right child' })}<p class="small">30 moves up, 20 moves down, and 25 changes parent.</p>`;
+const rotLPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([20, 10, 30, 25, 40, 50]), { marks: rotLMarks, minW: 260, label: 'Before: 20 at the top, 30 on its right, 25 is 30 left child' })}<p class="small"><b>After left rotation at 20</b></p>${svgTreeP(buildBstP([30, 20, 40, 10, 25, 50]), { marks: rotLMarks, minW: 260, label: 'After: 30 at the top, 20 on its left, 25 is now 20 right child' })}<p class="small">30 moves up, 20 moves down, and 25 changes parent.</p>`;
 
 const quiz = [
   { q: 'The balance factor of a node is computed as:', opts: ['Left subtree nodes − right subtree nodes', 'Right subtree height − left subtree height', 'Left subtree height − right subtree height', 'Number of edges × number of levels'], a: 2, why: 'Balance factor = height(left) − height(right). It uses <b>heights</b>, not node counts, and it is <b>left minus right</b>.' },
@@ -295,10 +295,10 @@ const avlPeek = '<div class="flow"><p class="small">From Part 1: an <b>AVL tree<
   '<p class="small"><b>After the fix:</b> 20 moved up. Same three values, no lean.</p>' + svgTreeP(buildBstP([20, 10, 30]), { marks: { 20: 'pivot' }, minW: 200, label: 'After: 20 at the top, 10 on its left, 30 on its right.' }) + '</div>';
 const floatPic = svgTreeP(buildBstP([35]), { marks: { 35: 'moved' }, label: '35, floating, not connected to the tree' });
 const insertPeek = '<div class="flow"><p class="small"><b>Insert checklist</b> (from the BST insertion lesson): start at the root. Smaller? Look left. Larger? Look right. Empty spot? Attach the value there. Not empty? Go down to that node and compare again.</p><p class="small">For 35 in the halfway tree: 35 &gt; 30, look right: 40 is there, go down. 35 &lt; 40, look left: empty! Attach 35 there.</p>' +
-  svgTreeP(buildBstP([30, 20, 40, 35, 50]), { pathKeys: [30, 40, 35], marks: { 30: 'path', 40: 'path', 35: 'new' }, minW: 240, label: 'The walk for 35: from 30 go right to 40, then left to the empty spot, where 35 is attached.' }) + '</div>';
+  svgTreeP(buildBstP([30, 20, 40, 10, 35, 50]), { pathKeys: [30, 40, 35], marks: { 30: 'path', 40: 'path', 35: 'new' }, minW: 240, label: 'The walk for 35: from 30 go right to 40, then left to the empty spot, where 35 is attached.' }) + '</div>';
 const bfPeek = `<div class="def"><p class="note-label">Height and balance factor</p><p>The height of a node is the number of edges on the longest path from it down to a leaf. A leaf has height <b>0</b>; an empty spot (null) has height <b>−1</b>.</p><p>Balance factor = height(left) − height(right).</p></div>`;
 const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
-const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
+const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35, 10]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 10, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
 ---
 <Base title="AVL Trees · ITC 120" description="AVL trees: balance factors, the four rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
   <header class="wrap lesson-hero flow">
@@ -514,7 +514,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
 
       <div class="sub">
         <h3>A right rotation, slowly</h3>
-        <p>Here is a <b>right rotation at 40</b>. It happens in three moves:</p>
+        <p>Here is a tree that <b>needs</b> a fix. 10 was just inserted, and now 40 has a balance factor of <b>+2</b>: its left side is two levels taller than its right. A <b>right rotation at 40</b> fixes it in three moves:</p>
         <ol>
           <li><b>30 moves up</b> into 40's old spot.</li>
           <li><b>40 moves down</b> to become 30's right child.</li>
@@ -523,17 +523,17 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <figure class="fig">
           <div class="two-col three rot">
             <div>
-              <p class="small"><b>1. Before</b></p>
-              <TreeFig values={[40, 30, 50, 20, 35]} marks={{ 40: 'down', 30: 'pivot', 35: 'moved' }} minW={240} label="Before: 40 at the top, 30 on its left, 50 on its right; 20 and 35 under 30" />
+              <p class="small"><b>1. Before: 40 is +2 (too tall on the left)</b></p>
+              <TreeFig values={[40, 30, 50, 20, 35, 10]} marks={{ 40: 'down', 30: 'pivot', 35: 'moved', 10: 'new' }} showBf minW={240} label="Before: 40 at the top with balance factor +2; 30 on its left, 50 on its right; 20 and 35 under 30; 10, just inserted, under 20" />
             </div>
             <div>
               <p class="small"><b>2. 30 up, 40 down: 35 is floating</b></p>
-              <TreeFig values={[30, 20, 40, 50]} marks={{ 40: 'down', 30: 'pivot' }} showNil spot={{ key: 40, side: 'l' }} minW={240} label="Halfway: 30 at the top, 20 on its left, 40 on its right, 50 under 40. 40's left spot is empty and highlighted." />
+              <TreeFig values={[30, 20, 40, 10, 50]} marks={{ 40: 'down', 30: 'pivot' }} showNil spot={{ key: 40, side: 'l' }} minW={240} label="Halfway: 30 at the top, 20 on its left with 10 under it, 40 on its right with 50 under it. 40's left spot is empty and highlighted." />
               <div class="float-node"><Fragment set:html={floatPic} /><span class="small">35, not connected yet. It goes into the highlighted spot.</span></div>
             </div>
             <div>
-              <p class="small"><b>3. After: 35 is 40's left child</b></p>
-              <TreeFig values={[30, 20, 40, 35, 50]} marks={{ 40: 'down', 30: 'pivot', 35: 'moved' }} minW={240} label="After: 30 at the top, 20 on its left, 40 on its right; 35 is 40's left child, 50 is 40's right child" />
+              <p class="small"><b>3. After: 35 is 40's left child, and every node is balanced</b></p>
+              <TreeFig values={[30, 20, 40, 10, 35, 50]} marks={{ 40: 'down', 30: 'pivot', 35: 'moved' }} showBf minW={240} label="After: 30 at the top with balance factor 0; 20 on its left with 10 under it; 40 on its right with 35 and 50 under it" />
             </div>
           </div>
           <div class="legend">
@@ -544,12 +544,12 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         </figure>
         <p>Why 40's left, and nowhere else? Find 35's spot the same way as <Peek label="BST insertion" title="From BST insertion" html={insertPeek} />: 35 is bigger than 30, so go right to 40; 35 is smaller than 40, so look left: empty, so 35 goes there. It is the only spot that keeps the BST rule, so there is exactly <b>one</b> correct place.</p>
         <p class="small muted">In the Java code (Part 7), 35 is not inserted again from the top. One line moves it, together with anything under it, straight to 40's left. It lands in the same spot.</p>
-        <p>Check: the in-order list before is 20, 30, 35, 40, 50. After, it is still 20, 30, 35, 40, 50.</p>
+        <p>Check: the in-order list before is 10, 20, 30, 35, 40, 50. After, it is still 10, 20, 30, 35, 40, 50. And the balance factors are back in −1 to +1.</p>
       </div>
 
       <div class="sub">
         <h3>A left rotation</h3>
-        <p>A <b>left rotation</b> is the same three moves with left and right swapped. Here is a <b>left rotation at 20</b>:</p>
+        <p>A <b>left rotation</b> is the same three moves with left and right swapped. Here, 50 was just inserted, and 20 has a balance factor of <b>−2</b>: its right side is two levels taller. A <b>left rotation at 20</b> fixes it:</p>
         <ol>
           <li>Its <b>right</b> child, <b>30</b>, moves up into 20's spot.</li>
           <li><b>20 moves down</b> to become 30's <b>left</b> child.</li>
@@ -558,16 +558,16 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <figure class="fig">
           <div class="two-col rot">
             <div>
-              <p class="small"><b>Before</b></p>
-              <TreeFig values={[20, 10, 30, 25, 40]} marks={{ 20: 'down', 30: 'pivot', 25: 'moved' }} minW={260} label="Before: 20 at the top, 10 on its left, 30 on its right, 25 is 30's left child, 40 is 30's right child" />
+              <p class="small"><b>Before: 20 is −2 (too tall on the right)</b></p>
+              <TreeFig values={[20, 10, 30, 25, 40, 50]} marks={{ 20: 'down', 30: 'pivot', 25: 'moved', 50: 'new' }} showBf minW={260} label="Before: 20 at the top with balance factor -2; 10 on its left, 30 on its right; 25 and 40 under 30; 50, just inserted, under 40" />
             </div>
             <div>
               <p class="small"><b>After left rotation at 20</b></p>
-              <TreeFig values={[30, 20, 40, 10, 25]} marks={{ 20: 'down', 30: 'pivot', 25: 'moved' }} minW={260} label="After: 30 at the top, 20 on its left with children 10 and 25, 40 on its right" />
+              <TreeFig values={[30, 20, 40, 10, 25, 50]} marks={{ 20: 'down', 30: 'pivot', 25: 'moved' }} showBf minW={260} label="After: 30 at the top with balance factor 0; 20 on its left with children 10 and 25; 40 on its right with 50 under it" />
             </div>
           </div>
         </figure>
-        <p>Check: the in-order list is 10, 20, 25, 30, 40 before and after.</p>
+        <p>Check: the in-order list is 10, 20, 25, 30, 40, 50 before and after, and every balance factor is back in −1 to +1.</p>
       </div>
 
       <div class="sub">
