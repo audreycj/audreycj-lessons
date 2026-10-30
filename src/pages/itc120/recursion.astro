@@ -290,7 +290,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
           <li><span class="c-base">Base case, lines 2 to 5:</span> when <code>n</code> is 0, print Go! and stop.</li>
           <li><span class="c-rec">Recursive case, lines 6 and 7:</span> print <code>n</code>, then call itself with a smaller number.</li>
         </ul>
-        <p>Step through it. The box on the left lists the calls that have started but not finished. Its colors mean:</p>
+        <p>Step through it. The "Call stack" box in the picture lists the calls that have started but not finished. Its colors mean:</p>
         <Fragment set:html={stackKey} />
         <CodeWalk id="cw-count" code={countDownCode} steps={countDownSteps()} layout="stack" cap="Walkthrough: countDown(3)" hint="Use Next to follow the calls going in (forward) and finishing (back). Tap a line to jump to it." />
         <p>We only wrote one call, <code>countDown(3);</code>. Line 7 made the others. This table sums them up:</p>
