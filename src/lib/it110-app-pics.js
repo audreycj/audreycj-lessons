@@ -30,6 +30,16 @@ const doc = (x, y, f = B.card, tag = '', tf = B.blue) =>
 const txt = (x, y, html, size = 13, a = 'start') => `<text x="${x}" y="${y}" font-family="Nunito, system-ui, sans-serif" font-size="${size}" font-weight="700" fill="${B.ink}" text-anchor="${a}">${html}</text>`;
 
 /* ---------- Part 1 ---------- */
+/** Small clean picture for the cloud Peek: servers inside a cloud, reached by a laptop and a phone. */
+export function cloudPic() {
+  let b = P('M50 70 Q30 66 34 46 Q38 28 60 32 Q66 10 94 14 Q114 2 132 18 Q156 12 166 32 Q190 32 190 54 Q194 72 172 74 Z', B.blueWash, B.ink, 2);
+  [72, 102, 132].forEach((x) => { b += R(x, 30, 24, 36, { r: 2, f: B.ink, sw: 1.4 }) + [0, 1, 2].map((i) => L(x + 5, 38 + i * 9, x + 19, 38 + i * 9, B.blueMid, 1.6)).join('') + `<circle cx="${x + 19}" cy="${60}" r="1.6" fill="#7ee08a"/>`; });
+  b += R(30, 112, 54, 34, { r: 3, f: B.card, sw: 1.8 }) + P('M24 148 L90 148 L86 154 L28 154 Z', B.grey, B.ink, 1.4) + R(150, 106, 26, 46, { r: 5, f: B.card, sw: 1.8 });
+  b += L(68, 108, 92, 76, B.soft, 1.6, ' stroke-dasharray="4 4"') + L(160, 104, 140, 76, B.soft, 1.6, ' stroke-dasharray="4 4"');
+  b += T(112, 98, 'Internet', { size: 11, w: 700, c: B.soft });
+  return svgWrap(220, 160, 'A cloud with three servers inside it. A laptop and a phone connect to it over the Internet.', b);
+}
+
 export function phoneApps() {
   const kinds = [['chat', B.blue], ['pay', B.blueInk], ['photo', B.orange], ['music', B.green], ['doc', B.blue], ['game', B.red], ['class', B.green], ['video', B.orange], ['map', B.amber]];
   let inner = '';
@@ -59,7 +69,7 @@ export function licensePic() {
   return svgWrap(350, 232, 'The company keeps the program code, locked, and the right to sell copies. You get a license card with rules: use it on one computer, do not copy or resell. Tapping I agree means you accept the EULA.', b);
 }
 export function ownScale() {
-  const kinds = [['Commercial', '', false, '₱ pay', B.orangeInk], ['Shareware', '', false, 'try, then ₱', B.orangeInk], ['Freeware', '', false, 'free', B.green], ['Open', 'source', true, 'free', B.green], ['Public', 'domain', true, 'free', B.green]];
+  const kinds = [['Commercial', '', false, 'pay', B.orangeInk], ['Shareware', '', false, 'try, then pay', B.orangeInk], ['Freeware', '', false, 'free', B.green], ['Open', 'source', true, 'free', B.green], ['Public', 'domain', true, 'free', B.green]];
   let b = T(180, 20, 'From most locked to most open', { size: 13.5, c: B.blueInk });
   b += L(24, 120, 330, 120, B.soft, 2) + ARROW(320, 120, 340, 120, B.soft, 2);
   kinds.forEach(([n1, n2, open, cost, cc], i) => {

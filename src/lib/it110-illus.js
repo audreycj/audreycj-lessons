@@ -148,7 +148,8 @@ export function installedCloud() {
   s.text(84, 96, 'App', { font: 'body', size: 14, weight: 800, color: '#fff' });
   s.text(84, 172, 'The program is stored', { font: 'body', size: 12.5, weight: 700, color: B.soft });
   s.text(84, 189, 'and runs on your device.', { font: 'body', size: 12.5, weight: 700, color: B.soft });
-  s.text(84, 214, 'Works offline', { font: 'body', size: 12.5, weight: 800, color: B.green });
+  s.text(84, 212, 'Can work offline', { font: 'body', size: 12.5, weight: 800, color: B.green });
+  s.text(84, 230, '(some features need internet)', { font: 'body', size: 11, weight: 700, color: B.soft });
   // cloud with app, phone and laptop below
   s.path('M206 82 Q192 58 218 52 Q224 28 252 38 Q272 26 286 46 Q312 44 312 66 Q326 78 306 88 Z', { fill: B.orangeWash, sw: 1.8 });
   s.round(240, 50, 44, 30, 6, { fill: B.orange, sw: 1.5 });
@@ -160,7 +161,7 @@ export function installedCloud() {
   s.text(262, 189, 'open it in a browser or app.', { font: 'body', size: 12.5, weight: 700, color: B.soft });
   s.text(262, 214, 'Needs internet', { font: 'body', size: 12.5, weight: 800, color: B.orangeInk });
   s.line(175, 40, 175, 230, { sw: 1.4, dash: '5 5', single: true, stroke: B.greyInk });
-  return r1(s.svg('Installed: the app is stored and runs on your own laptop, and it works offline. Cloud-based: the app runs on a server in the cloud; you open it from a laptop browser or a phone, and it needs internet.'));
+  return r1(s.svg('Installed: the app is stored and runs on your own laptop, and it can work offline, though some features need internet. Cloud-based: the app runs on a server in the cloud; you open it from a laptop browser or a phone, and it needs internet.'));
 }
 
 /** Clean: a database table with a field, a record, and the primary key marked. */

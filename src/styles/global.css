@@ -1246,3 +1246,16 @@ body.theme-it110 .tone-ink { --tone: #2a3a5c; --tone-wash: #e6ebf3; }
 /* IT 110 round 6 (chat 41): booting panel has two layouts; wide screens get the bigger side-by-side one */
 svg.clean.bp-wide { display: none; max-width: 46rem; }
 @media (min-width: 48rem) { svg.clean.bp-narrow { display: none; } svg.clean.bp-wide { display: block; } }
+
+/* ---- IT 110 chat 42 (her feedback) ---- */
+/* App window picture: wider on desktop, full width on phones */
+@media (min-width: 48rem) { .illus.wide-win svg.clean { max-width: 36rem; } }
+/* Picture cards: center a lone last card (flex instead of grid, this grid only) */
+.fn-grid.fn-center { display: flex; flex-wrap: wrap; justify-content: center; }
+.fn-grid.fn-center > .fn-card { flex: 1 1 16rem; max-width: 22rem; }
+/* "Finished this chapter?" checkpoint: warm tangerine so it stands out from the blue; green only once done */
+body.theme-it110 .done-row { border-color: #e27b3e; background: #fbe2d2; }
+body.theme-it110 .done-hint { color: #a64a1c; }
+body.theme-it110 .done-btn { background: #b9561f; color: #fff; }
+body.theme-it110 .done-btn[aria-pressed="true"] { background: var(--card); color: #3f8a5a; }
+body.theme-it110 .done-row:has(.done-btn[aria-pressed="true"]) { border-color: #3f8a5a; border-style: solid; background: #dcefe2; }
