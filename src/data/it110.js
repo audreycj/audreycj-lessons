@@ -38,7 +38,7 @@ export const terms = [
       ] },
       { name: 'Software', icon: 'app', lessons: [
         { title: 'System software: operating systems and utility programs', href: '/it110/system-software/', status: 'live', blurb: 'What an operating system does, how it makes the computer faster, which OS runs on which device, and the utility programs that keep it healthy.' },
-        { title: 'Application software', href: '/it110/application-software/', status: 'live', blurb: 'Who owns the software, installed vs. cloud apps, and the apps you will use most: word processors, spreadsheets, databases, slides, and more.' },
+        { title: 'Application software', href: '/it110/application-software/', status: 'soon', blurb: 'Who owns the software, installed vs. cloud apps, and the apps you will use most: word processors, spreadsheets, databases, slides, and more.' },
       ] },
       { name: 'Networks and the Internet', icon: 'net', lessons: [
         { title: 'Computer networks', href: '/it110/networks/', status: 'soon' },

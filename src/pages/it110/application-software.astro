@@ -6,10 +6,13 @@ import SortTap from '../../components/SortTap.astro';
 import SheetLab from '../../components/SheetLab.astro';
 import { course } from '../../data/it110.js';
 import { installedCloud, dbTable, softwareLayers } from '../../lib/it110-illus.js';
+import { roughen } from '../../lib/it110-os-pics.js';
+import { phoneApps, licensePic, ownScale, appWindow, saveCard, clipCard, editCard, formatLevels, cellGrid, dbShared, slideShow, transAnim, pixelVector, mediaKit } from '../../lib/it110-app-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back to Lesson 1 (her rule: every back-reference comes with its picture right there)
 const layersPeek = '<div class="peek-pic">' + softwareLayers() + '</div><p>Apps sit on top of the OS. The OS runs the hardware.</p>';
+const serverPeek = '<p>A <b>server</b> is a powerful computer that stores data and runs programs for many users over a network. Big companies keep thousands of them in buildings called <b>data centers</b>.</p>';
 const utilPeek = '<p><b>Utility program:</b> system software that maintains, protects, or speeds up the computer, such as a file manager, antivirus, or disk cleanup.</p>';
 
 const owners = [
@@ -34,9 +37,12 @@ const quiz = [
   { q: 'Which one is open source?', opts: ['Microsoft Word', 'Adobe Photoshop', 'LibreOffice Writer', 'Windows 11'], a: 2, why: 'LibreOffice\'s code is open for anyone to read, change, and share.' },
   { q: 'Which is TRUE about cloud-based software?', opts: ['It must be installed from a CD.', 'It runs on a server; you open it in a browser or app, usually with internet.', 'It cannot save files.', 'It only works on Windows.'], a: 1, why: 'Cloud apps (like Google Docs) run on the provider\'s servers, so they work on any device with internet.' },
   { q: 'Which keyboard shortcut undoes your last action on Windows?', opts: ['Ctrl + U', 'Ctrl + Z', 'Ctrl + Y', 'Ctrl + S'], a: 1, why: 'Ctrl + Z is Undo. Ctrl + Y is Redo. On a Mac, use Command (⌘) instead of Ctrl.' },
+  { q: 'Your teacher wants a PDF, but your report is Report.docx. What do you use?', opts: ['Save', 'Save As (or Export), and pick PDF', 'Ctrl + Z', 'Copy and paste'], a: 1, why: 'Save As makes a new copy in a new format. Your .docx file stays as it is.' },
+  { q: 'You make your title bold and blue. Is that editing or formatting?', opts: ['Editing, because the document changed', 'Formatting, because only the look changed', 'Saving', 'Neither'], a: 1, why: 'Formatting changes how text looks. Editing changes the content: adding, deleting, or moving words.' },
   { q: 'In a spreadsheet, what is B4?', opts: ['A formula', 'A cell address: column B, row 4', 'A function', 'A chart'], a: 1, why: 'Columns are letters and rows are numbers, so B4 is the cell in column B, row 4.' },
   { q: 'Which is a correct spreadsheet formula to add cells D2 to D5?', opts: ['SUM D2 to D5', '=SUM(D2:D5)', '(D2+D5)=', '=ADD[D2-D5]'], a: 1, why: 'Formulas start with =. SUM is a function, and D2:D5 is the range from D2 to D5.' },
   { q: 'In a database table, what is a record?', opts: ['One column, such as Last name', 'All the data about one item, such as one student (a row)', 'The name of the database', 'A chart'], a: 1, why: 'A record is a row. A field is a column.' },
+  { q: 'On one slide, only the photo flies in. What is that effect called?', opts: ['A transition', 'An animation', 'A theme', 'A layout'], a: 1, why: 'An animation moves one object inside a slide. A transition is the effect between two slides.' },
   { q: 'What does a primary key do?', opts: ['It locks the database with a password.', 'It identifies each record uniquely, such as a Student ID.', 'It sorts the table A to Z.', 'It is the first field of every table.'], a: 1, why: 'No two records can have the same primary key, so each one can be found exactly.' },
 ];
 ---
@@ -69,8 +75,9 @@ const quiz = [
         <p class="note-label">Count your apps</p>
         <p>Open your phone's app list. Messenger, TikTok, GCash, Canva, Google Classroom, a game or two. Every one of them was made to do a job <b>for you</b>. That is what makes them application software, the top layer of the <Peek label="software layers" title="From Lesson 1" html={layersPeek} />.</p>
       </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(phoneApps())} /><figcaption>Every icon on your phone is an application: a program made to do one job for you.</figcaption></figure>
       <div class="def"><p class="note-label">Application software (app)</p><p>A program that does a <b>specific task for the user</b>, such as writing a document, computing grades, editing a photo, or chatting. It needs an operating system to run.</p></div>
-      <p>Apps come in two main ways: installed on your device, or used from the cloud.</p>
+      <p>Apps come in two main ways: installed on your device, or used from the cloud. "The cloud" means someone else's <Peek label="servers" title="Server" html={serverPeek} />, reached over the Internet.</p>
       <figure class="fig illus-fig illus"><Fragment set:html={installedCloud()} /><figcaption>Installed software lives on your device. Cloud-based software lives on someone else's server, and you reach it over the Internet.</figcaption></figure>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th></th><th>Installed software</th><th>Cloud-based software</th></tr></thead>
@@ -84,7 +91,7 @@ const quiz = [
       </table></div>
       <p>Cloud-based software is also called <b>web apps</b> or <b>SaaS</b> (software as a service). Many apps are now both: Word comes as an installed app and a web app, and phone apps such as GCash are installed but need the Internet to work.</p>
       <div class="two-col">
-        <div class="def"><p class="note-label">Desktop app</p><p>Installed on a desktop or laptop computer (Windows or macOS).</p></div>
+        <div class="def"><p class="note-label">Desktop app</p><p>Installed on a desktop or laptop computer (Windows, macOS, or Linux).</p></div>
         <div class="def"><p class="note-label">Mobile app</p><p>Installed on a phone or tablet from an app store (Google Play, App Store, AppGallery).</p></div>
       </div>
     </div>
@@ -97,18 +104,21 @@ const quiz = [
     </div>
     <div class="flow">
       <p>When you "buy" Microsoft Office, you do not own the program. The company keeps it. You get a <b>software license</b>: permission to use it under the owner's rules.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(licensePic())} /><figcaption>You never get the program itself. You get permission to use it, under rules you accept when you tap "I agree".</figcaption></figure>
       <div class="two-col">
         <div class="def"><p class="note-label">Software license</p><p>A legal agreement that says how you may use the software: on how many devices, for how long, and whether you may copy or share it.</p></div>
         <div class="def"><p class="note-label">EULA</p><p><b>End-user license agreement</b>: the long "I agree" text you see when you install an app. Tapping "I agree" means you accept its rules.</p></div>
       </div>
-      <p>Software is grouped by the rights its owner gives you. The table compares the five kinds:</p>
+      <p>Software is grouped by the rights its owner gives you. The picture lines up the five kinds, from most locked to most open:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={ownScale()} /><figcaption>Locked = you may not see or change the code. Open = anyone may read, change, and share it.</figcaption></figure>
+      <p>The table gives the details of each kind:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Kind</th><th>Pay?</th><th>Copy and share?</th><th>See and change the code?</th><th>Examples</th></tr></thead>
         <tbody>
           <tr><td><b>Commercial</b></td><td>Yes (once, or a subscription)</td><td>No</td><td>No</td><td>Microsoft 365, Adobe Photoshop, Windows</td></tr>
           <tr><td><b>Shareware</b></td><td>Free to try, then pay</td><td>Often allowed for the trial</td><td>No</td><td>WinRAR</td></tr>
           <tr><td><b>Freeware</b></td><td>No</td><td>Usually yes, but the owner keeps the rights</td><td>No</td><td>Adobe Acrobat Reader, Google Chrome</td></tr>
-          <tr><td><b>Public domain</b></td><td>No</td><td>Yes, no rules at all (no copyright)</td><td>Yes</td><td>SQLite (a small database program)</td></tr>
+          <tr><td><b>Public domain</b></td><td>No</td><td>Yes, no rules at all (no copyright)</td><td>Usually (the code is often shared)</td><td>SQLite (a small database program)</td></tr>
           <tr><td><b>Open source</b></td><td>No</td><td>Yes, under its license</td><td>Yes</td><td>LibreOffice, VLC, GIMP, Firefox, Linux</td></tr>
         </tbody>
       </table></div>
@@ -133,7 +143,9 @@ const quiz = [
       <h2>Common concepts and commands</h2>
     </div>
     <div class="flow">
-      <p>Learn these once, and they work in almost every app, from Word to Canva:</p>
+      <p>Learn these once, and they work in almost every app, from Word to Canva. First, the parts of an app window:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(appWindow())} /><figcaption>The parts of a word processor window. Most apps put their commands in the same kinds of places.</figcaption></figure>
+      <p>The table explains the ideas that most apps share:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Concept</th><th>What it means</th></tr></thead>
         <tbody>
@@ -148,7 +160,13 @@ const quiz = [
           <tr><td><b>Help</b></td><td>Built-in help and search (press F1 in many Windows apps).</td></tr>
         </tbody>
       </table></div>
-      <p>These keyboard shortcuts work in almost every Windows app. On a Mac, use the Command key (⌘) instead of Ctrl:</p>
+      <p>Three of these ideas are easier to see than to read:</p>
+      <div class="fn-grid">
+        <div class="fn-card"><p class="fn-t">Save vs. Save As</p><Fragment set:html={saveCard()} /><p>Save As is how you turn your Word report into a PDF to submit. The .docx file stays.</p></div>
+        <div class="fn-card"><p class="fn-t">Copy and paste, through the clipboard</p><Fragment set:html={clipCard()} /><p><b>Cut</b> works the same way, but it also removes the word from the first file.</p></div>
+        <div class="fn-card"><p class="fn-t">Editing vs. formatting</p><Fragment set:html={editCard()} /><p>Editing changes the words. Formatting changes only how they look.</p></div>
+      </div>
+      <p>These keyboard shortcuts work in almost every Windows app. On a Mac, use the Command key (⌘) instead of Ctrl (for Redo, many Mac apps use ⌘ + Shift + Z):</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Shortcut</th><th>Command</th><th>Shortcut</th><th>Command</th></tr></thead>
         <tbody>
@@ -163,6 +181,7 @@ const quiz = [
         <p class="note-label">On your phone</p>
         <p>The same ideas are there. Press and hold on text to get <b>Cut, Copy, Paste</b>, and <b>Select all</b>. Many apps have an Undo arrow (↶) at the top.</p>
       </div>
+      <p class="break-note"><b>Good place to take a break.</b> Next: word processors and spreadsheets.</p>
     </div>
   </section>
 
@@ -181,6 +200,7 @@ const quiz = [
         <li><b>Tables, pictures, headers and footers</b>.</li>
         <li><b>Comments and track changes</b>, so a group can review one report.</li>
       </ul>
+      <figure class="fig illus-fig illus"><Fragment set:html={formatLevels()} /><figcaption>One page, three levels of formatting. Word wrap is why you never press Enter at the end of a line, only at the end of a paragraph.</figcaption></figure>
 
       <div class="def"><p class="note-label">Spreadsheet software</p><p>An app for working with <b>numbers in rows and columns</b>: grades, budgets, sales, and inventories. It computes for you, and it can turn numbers into <b>charts</b>. Examples: Microsoft Excel, Google Sheets, LibreOffice Calc, WPS Spreadsheets.</p></div>
       <p>Spreadsheets have their own words. Learn these before you try the lab below:</p>
@@ -197,8 +217,11 @@ const quiz = [
           <tr><td><b>Function</b></td><td>A ready-made formula: <b>SUM</b> (add), <b>AVERAGE</b>, <b>MAX</b>, <b>MIN</b>, <b>COUNT</b>. Example: <b>=SUM(D2:D5)</b>.</td></tr>
         </tbody>
       </table></div>
+      <p>The picture shows a cell address and a range on a real grid. The numbers in column D are Aling Nena's sales in the lab below.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={cellGrid()} /><figcaption>B4 is one cell. D2:D5 is a range: every cell from D2 down to D5. =SUM(D2:D5) adds all four.</figcaption></figure>
       <SheetLab id="sheet" />
       <p>Try this: make Aling Nena sell 100 pandesal instead of 50. Which cells changed by themselves? That is the power of formulas: change one value, and every answer that depends on it updates. This is also how <b>what-if analysis</b> works ("What if I sell more eggs?").</p>
+      <p class="break-note"><b>Good place to take a break.</b> Next: databases and slide shows.</p>
     </div>
   </section>
 
@@ -230,9 +253,11 @@ const quiz = [
         <li>finds records <b>fast</b>, even among thousands;</li>
         <li>keeps data <b>accurate and secure</b>, with rules (no duplicate IDs) and passwords.</li>
       </ul>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(dbShared())} /><figcaption>The registrar, the cashier, and the dean work on the same student records at the same time. A spreadsheet file on one laptop cannot do that.</figcaption></figure>
       <p class="small muted">You will learn databases in detail in the Finals (Week 16).</p>
 
       <div class="def"><p class="note-label">Presentation graphics software</p><p>An app for making <b>electronic slide shows</b>: a set of slides shown one at a time while someone talks. Examples: Microsoft PowerPoint, Google Slides, Canva, Apple Keynote.</p></div>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(slideShow())} /><figcaption>The audience sees the slide show on the big screen. The speaker sees presenter view on the laptop.</figcaption></figure>
       <p>The words you will see in these apps:</p>
       <ul>
         <li><b>Slide:</b> one page of the show. <b>Slide show:</b> playing the slides full screen.</li>
@@ -240,6 +265,7 @@ const quiz = [
         <li><b>Transition:</b> the effect <b>between</b> slides. <b>Animation:</b> the effect <b>on one object</b> inside a slide.</li>
         <li><b>Speaker notes</b> and <b>presenter view:</b> notes only you can see while you present.</li>
       </ul>
+      <figure class="fig illus-fig illus"><Fragment set:html={transAnim()} /><figcaption>Transitions and animations are easy to mix up. A transition changes the whole slide. An animation moves one thing.</figcaption></figure>
       <p>Slide shows are used for class reports (like your input and output reporting), thesis defenses, meetings, seminars, and sales pitches.</p>
       <div class="sticky">
         <p class="note-label">Slides help the speaker; they do not replace the speaker</p>
@@ -254,7 +280,9 @@ const quiz = [
       <h2>Graphics, multimedia, and other application software</h2>
     </div>
     <div class="flow">
-      <p><b>Graphics software</b> makes and edits pictures. <b>Multimedia software</b> works with sound and video. The table lists the common kinds:</p>
+      <p><b>Graphics software</b> makes and edits pictures. <b>Multimedia software</b> works with sound and video. Here are the six common kinds at a glance:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(mediaKit())} /><figcaption>Graphics and multimedia apps: for pictures, drawings, 3D models, sound, and video.</figcaption></figure>
+      <p>The table lists what each kind is used for, with examples:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Kind</th><th>Used for</th><th>Examples</th></tr></thead>
         <tbody>
@@ -267,6 +295,8 @@ const quiz = [
           <tr><td><b>Media players</b></td><td>Playing music and videos</td><td>VLC, Spotify, YouTube</td></tr>
         </tbody>
       </table></div>
+      <p>Why are there two kinds of picture apps? Zoom in on a photo and on a logo, and you see the difference:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={pixelVector()} /><figcaption>Photos are made of pixels, so they get blocky when enlarged. Logos are usually vectors, so they stay sharp on a phone or on a tarpaulin.</figcaption></figure>
       <p>Many other apps do not fit the groups above. Here are a few more kinds you already use:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Kind</th><th>Examples</th></tr></thead>

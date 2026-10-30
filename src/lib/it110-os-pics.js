@@ -526,3 +526,6 @@ export function futSecurity() {
   b += T(174, 128, 'security update', { size: 10, w: 700, c: B.soft }) + T(174, 141, 'installed by itself', { size: 10, w: 700, c: B.soft });
   return svgWrap(240, 156, 'A phone asks to sign in with a passkey, no password: a finger touches the fingerprint reader. A laptop shows a green shield: a security update installed by itself.', b);
 }
+
+// chat 42 exports (shared with it110-app-pics.js)
+export { laptop3, printer3, appIcon, pointHand, tapHand, L, C, P, laptop, phone, folder, tile, person };
