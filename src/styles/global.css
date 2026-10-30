@@ -1259,3 +1259,24 @@ body.theme-it110 .done-hint { color: #a64a1c; }
 body.theme-it110 .done-btn { background: #b9561f; color: #fff; }
 body.theme-it110 .done-btn[aria-pressed="true"] { background: var(--card); color: #3f8a5a; }
 body.theme-it110 .done-row:has(.done-btn[aria-pressed="true"]) { border-color: #3f8a5a; border-style: solid; background: #dcefe2; }
+
+/* ---- IT 110 chat 42 round 4: app-kind colors, numbered picture notes, word processor grid ---- */
+.cat-word { --cat: #2b579a; } .cat-sheet { --cat: #217346; } .cat-db { --cat: #a4373a; } .cat-slides { --cat: #d4651a; } .cat-media { --cat: #7a4ea3; } .cat-other { --cat: #4a5a73; }
+h3.cat-h { color: var(--cat); border-left: 6px solid var(--cat); padding-left: 0.6rem; margin-top: 1.8rem; }
+body .def.cat > .note-label { background: var(--cat); color: #fff; }
+table.tbl.cat thead th { background: var(--cat); }
+.look.cat { border-color: var(--cat); } .look.cat .note-label { color: var(--cat); }
+.fn-grid.cat .fn-t { color: var(--cat); }
+.fn-grid.cat .fn-card { border-top-color: var(--cat); }
+.cat-key { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.cat-chip { display: inline-block; padding: 0.2em 0.75em; border-radius: 999px; background: var(--cat); color: #fff; font-weight: 800; font-size: var(--step--1); }
+.tag-list { list-style: none; counter-reset: tg; padding: 0; margin: 0; display: grid; gap: 0.6rem; }
+.tag-list > li { counter-increment: tg; position: relative; padding-left: 2.1rem; }
+.tag-list > li::before { content: counter(tg); position: absolute; left: 0; top: 0.05rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--cat); color: #fff; font-weight: 900; font-size: 0.85rem; display: grid; place-items: center; }
+.tag-fig { display: grid; gap: 1rem 1.4rem; align-items: center; }
+.tag-fig figure { margin: 0; }
+.tag-fig svg.clean { max-width: 30rem; }
+@media (min-width: 48rem) { .tag-fig { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); } }
+.wp-grid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.wp-grid figure { margin: 0; }
+.wp-grid svg.clean { max-width: none; }

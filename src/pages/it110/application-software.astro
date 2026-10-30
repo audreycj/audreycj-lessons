@@ -7,7 +7,7 @@ import SheetLab from '../../components/SheetLab.astro';
 import { course } from '../../data/it110.js';
 import { installedCloud, dbTable, softwareLayers } from '../../lib/it110-illus.js';
 import { roughen } from '../../lib/it110-os-pics.js';
-import { cloudPic, phoneApps, licensePic, ownScale, appWindow, saveCard, clipCard, editCard, formatLevels, cellGrid, dbShared, slideShow, transAnim, pixelVector, mediaKit } from '../../lib/it110-app-pics.js';
+import { imgWindow, vidWindow, piracyPic, wpWord, wpWriter, wpDocs, wpPages, formatPage, sheetWindow, slideWindow, dbmsPic, othWeb, othComm, othEdu, othNotes, othPay, othDtp, othPm, cloudPic, phoneApps, licensePic, ownScale, appWindow, saveCard, clipCard, editCard, cellGrid, dbShared, slideShow, transAnim, pixelVector, mediaKit } from '../../lib/it110-app-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back to Lesson 1 (her rule: every back-reference comes with its picture right there)
@@ -17,7 +17,7 @@ const utilPeek = '<p><b>Utility program:</b> system software that maintains, pro
 
 const owners = [
   { t: 'Microsoft 365: you pay every year to keep using Word, Excel, and PowerPoint', a: 0, why: 'You pay for it, and the company keeps the code: commercial software (sold as a subscription).' },
-  { t: 'WinRAR: free to try for 40 days, then it asks you to buy it', a: 1, why: 'Try first, pay later: shareware.' },
+  { t: 'A PC game demo: play the first levels for free, then buy the full game to keep playing', a: 1, why: 'Try first, pay later: shareware (also called a demo or trial version).' },
   { t: 'Adobe Acrobat Reader: free forever, but you cannot see or change its code', a: 2, why: 'Free to use, but still owned by Adobe: freeware.' },
   { t: 'LibreOffice: free, and anyone can read, change, and share its code', a: 3, why: 'The code is open to everyone: open source.' },
   { t: 'Adobe Photoshop: a monthly subscription', a: 0, why: 'You pay to use it, and the code stays with Adobe: commercial.' },
@@ -30,6 +30,17 @@ const whichApp = [
   { q: 'The registrar must store 8,000 students\' records, and many staff search them at the same time. Which app?', opts: ['A database (DBMS)', 'A word processor', 'Presentation graphics', 'An image editor'], a: 0, why: 'A database stores large amounts of related data, lets many users work at once, and finds records fast.' },
   { q: 'Your group will report on input and output devices in front of the class. Which app?', opts: ['Spreadsheet', 'Presentation graphics', 'Database', 'File compression'], a: 1, why: 'Presentation graphics (PowerPoint, Google Slides, Canva) make slides for a talk.' },
   { q: 'You want to trim and add music to a TikTok video. Which kind of software?', opts: ['Video editing', 'Desktop publishing', 'Spreadsheet', 'Utility program'], a: 0, why: 'A video editor such as CapCut cuts clips and adds music, text, and effects.' },
+];
+
+// Part 7: other application software as picture cards (her feedback, chat 42)
+const others = [
+  { t: 'Web browsers and email', pic: roughen(othWeb()), m: 'Open websites, and send and receive email.', ex: 'Chrome, Safari, Firefox, Gmail, Outlook' },
+  { t: 'Communication and collaboration', pic: roughen(othComm()), m: 'Chat, call, and meet online, and work on the same files together.', ex: 'Messenger, Google Meet, Zoom, Microsoft Teams' },
+  { t: 'Education', pic: roughen(othEdu()), m: 'Join online classes, get lessons, and turn in work, or learn something on your own.', ex: 'Google Classroom, Duolingo' },
+  { t: 'Note-taking', pic: roughen(othNotes()), m: 'Write notes, lists, and reminders, and find them on any device.', ex: 'Microsoft OneNote, Google Keep, Notion' },
+  { t: 'Finance and payments', pic: roughen(othPay()), m: 'Send money, pay bills, and keep track of income and expenses.', ex: 'GCash, Maya, bank apps, QuickBooks (accounting)' },
+  { t: 'Desktop publishing (DTP)', pic: roughen(othDtp()), m: 'Lay out text and pictures on pages for printing: magazines, books, newsletters, and brochures.', ex: 'Adobe InDesign, Scribus (free and open source)' },
+  { t: 'Project management', pic: roughen(othPm()), m: 'Plan a project: list the tasks, give them to people, and track what is done.', ex: 'Trello, Microsoft Planner, Asana' },
 ];
 
 const quiz = [
@@ -117,10 +128,10 @@ const quiz = [
         <thead><tr><th>Kind</th><th>Pay?</th><th>Copy and share?</th><th>See and change the code?</th><th>Examples</th></tr></thead>
         <tbody>
           <tr><td><b>Commercial</b></td><td>Yes (once, or a subscription)</td><td>No</td><td>No</td><td>Windows, Adobe Premiere Pro, Minecraft</td></tr>
-          <tr><td><b>Shareware</b></td><td>Free to try, then pay</td><td>Often allowed for the trial</td><td>No</td><td>Internet Download Manager (IDM, 30-day trial), Bandicam (the free version adds a watermark)</td></tr>
+          <tr><td><b>Shareware</b></td><td>Free to try, then pay</td><td>Often allowed for the trial</td><td>No</td><td>WinRAR (after its 40-day trial, it keeps asking you to buy it), free trials such as the Microsoft 365 free trial, game demos</td></tr>
           <tr><td><b>Freeware</b></td><td>No</td><td>Usually yes, but the owner keeps the rights</td><td>No</td><td>Google Chrome, Microsoft Edge</td></tr>
           <tr><td><b>Public domain</b></td><td>No</td><td>Yes, no rules at all (no copyright)</td><td>Usually (the code is often shared)</td><td>SQLite, a small database program inside almost every phone. Public domain software is rare.</td></tr>
-          <tr><td><b>Open source</b></td><td>No</td><td>Yes, under its license</td><td>Yes</td><td>Firefox, the core of Android, Linux, Blender, Audacity, OBS Studio</td></tr>
+          <tr><td><b>Open source</b></td><td>No</td><td>Yes, under its license</td><td>Yes</td><td>Firefox, the core of Android, Linux, Blender, OBS Studio (used by many streamers)</td></tr>
         </tbody>
       </table></div>
       <div class="sticky">
@@ -134,6 +145,7 @@ const quiz = [
       <div class="remember">
         <p class="note-label">"Cracked" software is not free software</p>
         <p>Copying or using commercial software without a license is <b>software piracy</b>, and it is against the law (in the Philippines, the Intellectual Property Code, RA 8293, protects computer programs). Cracked apps are also a common way malware gets in. Use free or open-source alternatives instead, such as LibreOffice, GIMP, or Canva's free plan. You will study piracy more in the Finals.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={roughen(piracyPic())} /><figcaption>A "free" cracked app is never really free.</figcaption></figure>
       </div>
     </div>
   </section>
@@ -191,8 +203,24 @@ const quiz = [
       <h2>Word processing and spreadsheet software</h2>
     </div>
     <div class="flow">
-      <div class="def"><p class="note-label">Word processing software</p><p>An app for making <b>text documents</b>: letters, reports, essays, resumes, and modules. Examples: Microsoft Word, Google Docs, LibreOffice Writer, WPS Writer, Apple Pages.</p></div>
-      <p>Its main features are listed below:</p>
+      <p>From here on, each kind of app has its own color. Word processing, spreadsheet, database, and presentation use the colors of Microsoft Word, Excel, Access, and PowerPoint:</p>
+      <div class="cat-key"><span class="cat-chip cat-word">Word processing</span><span class="cat-chip cat-sheet">Spreadsheet</span><span class="cat-chip cat-db">Database</span><span class="cat-chip cat-slides">Presentation</span><span class="cat-chip cat-media">Graphics and multimedia</span></div>
+      <h3 class="cat-h cat-word">Word processing software</h3>
+      <div class="def cat cat-word"><p class="note-label">Word processing software</p><p>An app for making <b>text documents</b>: letters, reports, essays, resumes, and modules. Examples: Microsoft Word, Google Docs, LibreOffice Writer, WPS Writer, Apple Pages.</p></div>
+      <p>Word processors from different companies look different, but they have the same parts and do the same jobs. The numbers mark the same three parts in each app:</p>
+      <ol class="tag-list cat-word">
+        <li><b>Menus, tabs, or a toolbar:</b> where the commands are.</li>
+        <li><b>Formatting buttons:</b> font, size, Bold, Italic, Underline, and alignment. Pages keeps them in the Format sidebar on the right.</li>
+        <li><b>The page:</b> what you see on the screen is what you get when you print. That is why word processors are called <b>WYSIWYG</b> ("what you see is what you get").</li>
+      </ol>
+      <div class="wp-grid">
+        <figure class="illus"><Fragment set:html={wpWord()} /><figcaption><b>Microsoft Word</b>: installed, and also on the web</figcaption></figure>
+        <figure class="illus"><Fragment set:html={wpWriter()} /><figcaption><b>LibreOffice Writer</b>: installed, free and open source</figcaption></figure>
+        <figure class="illus"><Fragment set:html={wpDocs()} /><figcaption><b>Google Docs</b>: cloud-based, runs in a web browser</figcaption></figure>
+        <figure class="illus"><Fragment set:html={wpPages()} /><figcaption><b>Apple Pages</b>: installed on Macs, iPhones, and iPads</figcaption></figure>
+      </div>
+      <p>Learn one, and you can use the others.</p>
+      <p>Their main features are listed below:</p>
       <ul>
         <li><b>Word wrap:</b> text moves to the next line by itself when a line is full. Press Enter only to start a new paragraph.</li>
         <li><b>Formatting</b> at three levels: <b>character</b> (font, size, bold, color), <b>paragraph</b> (alignment, line spacing, indents, bullets), and <b>page</b> (margins, paper size, orientation, page numbers).</li>
@@ -200,11 +228,34 @@ const quiz = [
         <li><b>Tables, pictures, headers and footers</b>.</li>
         <li><b>Comments and track changes</b>, so a group can review one report.</li>
       </ul>
-      <figure class="fig illus-fig illus"><Fragment set:html={formatLevels()} /><figcaption>One page, three levels of formatting. Word wrap is why you never press Enter at the end of a line, only at the end of a paragraph.</figcaption></figure>
+      <p>The page below shows the three levels of formatting, and word wrap. Each number matches a note:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={formatPage()} /></figure>
+        <ol class="tag-list cat-word">
+          <li><b>Character formatting</b> changes letters and words: font, size, bold, italic, underline, and color. Here: the big blue title, the bold <b>Dahican Beach</b>, and the italic <i>skimboarding</i>.</li>
+          <li><b>Paragraph formatting</b> changes a whole paragraph: alignment (the centered title and last line), the first-line indent, bullets, and line spacing.</li>
+          <li><b>Word wrap:</b> the lines of a paragraph end by themselves when they are full. The ¶ mark shows where Enter was pressed, only at the end of a paragraph. In Word, the ¶ button on the Home tab shows or hides these marks; they never print.</li>
+          <li><b>Page formatting</b> changes the whole page: margins (the dashed line), paper size, orientation (portrait or landscape), the header and footer, and page numbers.</li>
+        </ol>
+      </div>
 
-      <div class="def"><p class="note-label">Spreadsheet software</p><p>An app for working with <b>numbers in rows and columns</b>: grades, budgets, sales, and inventories. It computes for you, and it can turn numbers into <b>charts</b>. Examples: Microsoft Excel, Google Sheets, LibreOffice Calc, WPS Spreadsheets.</p></div>
+      <h3 class="cat-h cat-sheet">Spreadsheet software</h3>
+      <div class="def cat cat-sheet"><p class="note-label">Spreadsheet software</p><p>An app for working with <b>numbers in rows and columns</b>: grades, budgets, sales, and inventories. It computes for you, and it can turn numbers into <b>charts</b>. Examples: Microsoft Excel, Google Sheets, LibreOffice Calc, WPS Spreadsheets.</p></div>
+      <p>A spreadsheet window has its own parts. The numbers match the notes:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={sheetWindow()} /></figure>
+        <ol class="tag-list cat-sheet">
+          <li><b>Ribbon:</b> the commands. The <b>Formulas</b> tab has the functions; the <b>Data</b> tab sorts and filters.</li>
+          <li><b>Name box:</b> the address of the selected cell (D2).</li>
+          <li><b>Formula bar:</b> what is really inside the cell. D2 shows 200, but it holds the formula =B2*C2.</li>
+          <li><b>Column letters and row numbers:</b> together they name every cell.</li>
+          <li><b>Active cell:</b> the selected cell, with a thick border. What you type goes here.</li>
+          <li><b>Sheet tabs:</b> the worksheets inside this workbook (the file).</li>
+        </ol>
+      </div>
+      <p class="small muted">Google Sheets and LibreOffice Calc look almost the same: a grid of cells, a name box, a formula bar, and sheet tabs. Apple Numbers works the same way, but its tables sit on a blank page, and one sheet can hold several tables.</p>
       <p>Spreadsheets have their own words. Learn these before you try the lab below:</p>
-      <div class="scroll-x"><table class="tbl">
+      <div class="scroll-x"><table class="tbl cat cat-sheet">
         <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
         <tbody>
           <tr><td><b>Worksheet / workbook</b></td><td>One sheet of rows and columns / one file that holds one or more worksheets.</td></tr>
@@ -221,7 +272,6 @@ const quiz = [
       <figure class="fig illus-fig illus"><Fragment set:html={cellGrid()} /><figcaption>B4 is one cell. D2:D5 is a range: every cell from D2 down to D5. =SUM(D2:D5) adds all four.</figcaption></figure>
       <SheetLab id="sheet" />
       <p>Try this: make Aling Nena sell 100 pandesal instead of 50. Which cells changed by themselves? That is the power of formulas: change one value, and every answer that depends on it updates. This is also how <b>what-if analysis</b> works ("What if I sell more eggs?").</p>
-      <p class="break-note"><b>Good place to take a break.</b> Next: databases and slide shows.</p>
     </div>
   </section>
 
@@ -231,10 +281,13 @@ const quiz = [
       <h2>Database and presentation graphics software</h2>
     </div>
     <div class="flow">
-      <div class="def"><p class="note-label">Database and DBMS</p><p>A <b>database</b> is an organized collection of related data, such as every student's record in the university. A <b>database management system (DBMS)</b> is the software for creating, using, and managing it. Examples: Microsoft Access, LibreOffice Base, and for large systems, MySQL, Oracle Database, and Microsoft SQL Server.</p></div>
+      <h3 class="cat-h cat-db">Database software</h3>
+      <div class="def cat cat-db"><p class="note-label">Database and DBMS</p><p>A <b>database</b> is an organized collection of related data, such as every student's record in the university. A <b>database management system (DBMS)</b> is the software for creating, using, and managing it. Examples: Microsoft Access, LibreOffice Base, and for large systems, MySQL, Oracle Database, and Microsoft SQL Server.</p></div>
+      <p>A database and a DBMS are not the same thing. The picture shows how they work together:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={dbmsPic()} /><figcaption>The database is the data. The DBMS is the software that manages it. You and your apps do not touch the data directly: you ask the DBMS.</figcaption></figure>
       <p>A database stores its data in <b>tables</b>. The picture labels the parts of one table:</p>
       <figure class="fig illus-fig illus"><Fragment set:html={dbTable()} /><figcaption>A Students table. Every table has fields (columns) and records (rows), and a primary key that makes each record unique.</figcaption></figure>
-      <div class="scroll-x"><table class="tbl">
+      <div class="scroll-x"><table class="tbl cat cat-db">
         <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
         <tbody>
           <tr><td><b>Table</b></td><td>Data about one kind of thing (students, subjects, payments), in rows and columns.</td></tr>
@@ -254,10 +307,27 @@ const quiz = [
         <li>keeps data <b>accurate and secure</b>, with rules (no duplicate IDs) and passwords.</li>
       </ul>
       <figure class="fig illus-fig illus"><Fragment set:html={roughen(dbShared())} /><figcaption>The registrar, the cashier, and the dean work on the same student records at the same time. A spreadsheet file on one laptop cannot do that.</figcaption></figure>
+      <div class="look cat cat-db">
+        <p class="note-label">Is Excel a database?</p>
+        <p>Not really. Excel is a spreadsheet. It can hold a simple list, such as a class list, and sort and filter it, so many people use it like a small database. But it is not a DBMS: by itself it does not enforce rules such as unique IDs, link tables together, or let many people safely update the same records at once. Microsoft's database programs are <b>Access</b> and <b>SQL Server</b>.</p>
+      </div>
       <p class="small muted">You will learn databases in detail in the Finals (Week 16).</p>
 
-      <div class="def"><p class="note-label">Presentation graphics software</p><p>An app for making <b>electronic slide shows</b>: a set of slides shown one at a time while someone talks. Examples: Microsoft PowerPoint, Google Slides, Canva, Apple Keynote.</p></div>
+      <h3 class="cat-h cat-slides">Presentation graphics software</h3>
+      <div class="def cat cat-slides"><p class="note-label">Presentation graphics software</p><p>An app for making <b>electronic slide shows</b>: a set of slides shown one at a time while someone talks. Examples: Microsoft PowerPoint, Google Slides, Canva, Apple Keynote.</p></div>
       <figure class="fig illus-fig illus"><Fragment set:html={roughen(slideShow())} /><figcaption>The audience sees the slide show on the big screen. The speaker sees presenter view on the laptop.</figcaption></figure>
+      <p>In the app itself, the window has these parts. The numbers match the notes:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={slideWindow()} /></figure>
+        <ol class="tag-list cat-slides">
+          <li><b>Tabs:</b> <b>Design</b> for themes, <b>Transitions</b> for effects between slides, <b>Animations</b> for effects on one object, and <b>Slide Show</b> to present.</li>
+          <li><b>Slide thumbnails:</b> every slide, in order. Drag one to move it.</li>
+          <li><b>The slide</b> you are editing.</li>
+          <li><b>Notes pane:</b> your speaker notes. Only you see them, in presenter view.</li>
+          <li><b>Slide Show button:</b> plays the slides full screen.</li>
+        </ol>
+      </div>
+      <p class="small muted">Google Slides, Canva, and Apple Keynote have the same parts: small thumbnails of every slide (on the side or at the bottom), the slide you are editing, and speaker notes.</p>
       <p>The words you will see in these apps:</p>
       <ul>
         <li><b>Slide:</b> one page of the show. <b>Slide show:</b> playing the slides full screen.</li>
@@ -276,18 +346,23 @@ const quiz = [
 
   <section class="chapter wrap" id="other">
     <div class="chapter-head">
-      <p class="chapter-num">Part 6 · More kinds of apps</p>
-      <h2>Graphics, multimedia, and other application software</h2>
+      <p class="chapter-num">Part 6 · Pictures, sound, and video</p>
+      <h2>Graphics and multimedia software</h2>
     </div>
     <div class="flow">
-      <p><b>Graphics software</b> makes and edits pictures. <b>Multimedia software</b> works with sound and video. Here are the six common kinds at a glance:</p>
+      <div class="two-col">
+        <div class="def cat cat-media"><p class="note-label">Graphics software</p><p>Apps for making and editing pictures: photos, drawings, logos, and 3D models.</p></div>
+        <div class="def cat cat-media"><p class="note-label">Multimedia software</p><p>Apps for working with sound and video: recording, editing, and playing them.</p></div>
+      </div>
+      <p>Here are the six common kinds at a glance:</p>
       <figure class="fig illus-fig illus"><Fragment set:html={roughen(mediaKit())} /><figcaption>Graphics and multimedia apps: for pictures, drawings, 3D models, sound, and video.</figcaption></figure>
       <p>The table lists what each kind is used for, with examples:</p>
-      <div class="scroll-x"><table class="tbl">
+      <div class="scroll-x"><table class="tbl cat cat-media">
         <thead><tr><th>Kind</th><th>Used for</th><th>Examples</th></tr></thead>
         <tbody>
           <tr><td><b>Image editing (painting)</b></td><td>Editing photos made of tiny dots called <b>pixels</b></td><td>Adobe Photoshop, GIMP, Snapseed</td></tr>
           <tr><td><b>Drawing (vector)</b></td><td>Logos and illustrations made of lines and shapes; they stay sharp at any size</td><td>Adobe Illustrator, Inkscape</td></tr>
+          <tr><td><b>Interface (UI) design</b></td><td>Designing the screens of apps and websites, often as a team, right in a web browser</td><td>Figma</td></tr>
           <tr><td><b>Design for everyone</b></td><td>Posters, social media posts, slides, from templates</td><td>Canva</td></tr>
           <tr><td><b>CAD and 3D</b></td><td>Building plans, product designs, 3D models</td><td>AutoCAD, SketchUp, Blender</td></tr>
           <tr><td><b>Audio editing</b></td><td>Recording and cleaning up sound, podcasts</td><td>Audacity</td></tr>
@@ -297,20 +372,46 @@ const quiz = [
       </table></div>
       <p>Why are there two kinds of picture apps? Zoom in on a photo and on a logo, and you see the difference:</p>
       <figure class="fig illus-fig illus"><Fragment set:html={pixelVector()} /><figcaption>Photos are made of pixels, so they get blocky when enlarged. Logos are usually vectors, so they stay sharp on a phone or on a tarpaulin.</figcaption></figure>
-      <p>Many other apps do not fit the groups above. Here are a few more kinds you already use:</p>
-      <div class="scroll-x"><table class="tbl">
-        <thead><tr><th>Kind</th><th>Examples</th></tr></thead>
-        <tbody>
-          <tr><td><b>Web browsers and email</b></td><td>Chrome, Safari, Firefox, Gmail, Outlook</td></tr>
-          <tr><td><b>Communication and collaboration</b></td><td>Messenger, Google Meet, Zoom, Microsoft Teams</td></tr>
-          <tr><td><b>Education</b></td><td>Google Classroom, Duolingo</td></tr>
-          <tr><td><b>Note-taking</b></td><td>Microsoft OneNote, Google Keep, Notion</td></tr>
-          <tr><td><b>Finance and payments</b></td><td>GCash, Maya, bank apps, accounting software (QuickBooks)</td></tr>
-          <tr><td><b>Desktop publishing</b></td><td>Adobe InDesign (magazines, books, newsletters)</td></tr>
-          <tr><td><b>Project management</b></td><td>Trello, Microsoft Planner</td></tr>
-        </tbody>
-      </table></div>
-      <p class="small muted">Remember: a utility such as File Explorer or antivirus is not in these lists. Utilities are <Peek label="system software" title="From Lesson 1" html={utilPeek} />, not applications.</p>
+      <p>Here is what two of these apps look like inside. The numbers match the notes.</p>
+      <h3 class="cat-h cat-media">An image editor (like Photoshop or GIMP)</h3>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={imgWindow()} /></figure>
+        <ol class="tag-list cat-media">
+          <li><b>Menu bar:</b> all the commands, from File to Help.</li>
+          <li><b>Options bar:</b> the settings of the tool you picked, such as the brush size.</li>
+          <li><b>Toolbox:</b> select, crop, brush, eraser, text, zoom, and more.</li>
+          <li><b>Canvas:</b> the picture you are editing.</li>
+          <li><b>Layers:</b> the picture is a stack of see-through sheets. You can change one layer, such as the text, without touching the photo under it.</li>
+          <li><b>Colors:</b> the main (foreground) color and the background color.</li>
+        </ol>
+      </div>
+      <h3 class="cat-h cat-media">A video editor (like CapCut or Premiere Pro)</h3>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={vidWindow()} /></figure>
+        <ol class="tag-list cat-media">
+          <li><b>Media:</b> the clips, music, and pictures you brought in.</li>
+          <li><b>Preview:</b> plays your video as it looks now.</li>
+          <li><b>Timeline:</b> puts everything in order, left to right. Video and text tracks are on top; the audio track is below.</li>
+          <li><b>Playhead:</b> the moment you are on. The preview shows this frame.</li>
+          <li><b>Export:</b> saves the finished video as one file, such as an MP4, ready to upload.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="more-apps">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Apps you already use</p>
+      <h2>Other application software</h2>
+    </div>
+    <div class="flow">
+      <p>Many apps do not fit the groups above, but they are still application software: each one does a job for you. Here are seven more kinds you probably use already:</p>
+      <div class="fn-grid fn-center cat cat-other">
+        {others.map((o) => (
+          <div class="fn-card"><p class="fn-t">{o.t}</p><Fragment set:html={o.pic} /><p>{o.m}</p><p class="fn-can">Examples: {o.ex}</p></div>
+        ))}
+      </div>
+      <p class="small muted">Remember: a utility such as File Explorer or antivirus is not in these groups. Utilities are <Peek label="system software" title="From Lesson 1" html={utilPeek} />, not applications.</p>
       <div class="sub">
         <h3>Which app for the job?</h3>
         <Quiz id="quiz-which" questions={whichApp} />
@@ -320,7 +421,7 @@ const quiz = [
 
   <section class="chapter wrap" id="check">
     <div class="chapter-head">
-      <p class="chapter-num">Part 7 · Check yourself</p>
+      <p class="chapter-num">Part 8 · Check yourself</p>
       <h2>Self-check</h2>
     </div>
     <div class="flow">
