@@ -1150,3 +1150,9 @@ h3 .xtra { font-size: .7em; font-weight: 600; color: #8a5a00; background: #fbecc
 }
 @media (max-width: 40rem) { .done-row { justify-content: stretch; } .done-btn { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .done-btn.is-nudge { animation: none; outline: 3px solid var(--orange); outline-offset: 3px; } }
+
+/* Floating node beside a tree (avl right rotation, step 2). */
+.float-node { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.4rem; }
+.float-node .tree-svg { width: 3.2rem; flex: none; margin: 0; }
+.float-node .tree-svg circle.body { stroke-dasharray: 4 3; }
+.two-col.three.rot > * { flex-basis: 11rem; }
