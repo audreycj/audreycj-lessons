@@ -296,6 +296,14 @@ const avlPeek = '<div class="flow"><p class="small">From Part 1: an <b>AVL tree<
 const floatPic = svgTreeP(buildBstP([35]), { marks: { 35: 'moved' }, label: '35, floating, not connected to the tree' });
 const insertPeek = '<div class="flow"><p class="small"><b>Insert checklist</b> (from the BST insertion lesson): start at the root. Smaller? Look left. Larger? Look right. Empty spot? Attach the value there. Not empty? Go down to that node and compare again.</p><p class="small">For 35 in the halfway tree: 35 &gt; 30, look right: 40 is there, go down. 35 &lt; 40, look left: empty! Attach 35 there.</p>' +
   svgTreeP(buildBstP([30, 20, 40, 10, 35, 50]), { pathKeys: [30, 40, 35], marks: { 30: 'path', 40: 'path', 35: 'new' }, minW: 240, label: 'The walk for 35: from 30 go right to 40, then left to the empty spot, where 35 is attached.' }) + '</div>';
+// Four-cases table: a tiny tree per case (red = unbalanced node, orange = value just inserted).
+const caseMini = (vals, label) => '<span class="mini-tree">' + svgTreeP(buildBstP(vals), { marks: { [vals[0]]: 'bad', [vals[2]]: 'new' }, label }) + '</span>';
+const caseShape = {
+  LL: caseMini([30, 20, 10], 'LL shape: 30 at the top, 20 on its left, 10 on the left of 20'),
+  RR: caseMini([10, 20, 30], 'RR shape: 10 at the top, 20 on its right, 30 on the right of 20'),
+  LR: caseMini([30, 10, 20], 'LR shape: 30 at the top, 10 on its left, 20 on the right of 10'),
+  RL: caseMini([10, 30, 20], 'RL shape: 10 at the top, 30 on its right, 20 on the left of 30'),
+};
 const bfPeek = `<div class="def"><p class="note-label">Height and balance factor</p><p>The height of a node is the number of edges on the longest path from it down to a leaf. A leaf has height <b>0</b>; an empty spot (null) has height <b>−1</b>.</p><p>Balance factor = height(left) − height(right).</p></div>`;
 const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
 const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35, 10]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 10, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
@@ -576,12 +584,13 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <div class="scroll-x"><table class="tbl">
           <thead><tr><th>Case</th><th>Path from the unbalanced node</th><th>Shape</th><th>Fix</th></tr></thead>
           <tbody>
-            <tr><td><b>LL</b></td><td>left, then left</td><td>straight line</td><td>1 right rotation at the unbalanced node</td></tr>
-            <tr><td><b>RR</b></td><td>right, then right</td><td>straight line</td><td>1 left rotation at the unbalanced node</td></tr>
-            <tr><td><b>LR</b></td><td>left, then right</td><td>zigzag</td><td>left rotation at the child, then right rotation at the unbalanced node</td></tr>
-            <tr><td><b>RL</b></td><td>right, then left</td><td>zigzag</td><td>right rotation at the child, then left rotation at the unbalanced node</td></tr>
+            <tr><td><b>LL</b></td><td>left, then left</td><td><Fragment set:html={caseShape.LL} />straight line</td><td>1 right rotation at the unbalanced node</td></tr>
+            <tr><td><b>RR</b></td><td>right, then right</td><td><Fragment set:html={caseShape.RR} />straight line</td><td>1 left rotation at the unbalanced node</td></tr>
+            <tr><td><b>LR</b></td><td>left, then right</td><td><Fragment set:html={caseShape.LR} />zigzag</td><td>left rotation at the child, then right rotation at the unbalanced node</td></tr>
+            <tr><td><b>RL</b></td><td>right, then left</td><td><Fragment set:html={caseShape.RL} />zigzag</td><td>right rotation at the child, then left rotation at the unbalanced node</td></tr>
           </tbody>
         </table></div>
+        <p class="small muted">In the small trees: <b style="color:var(--red-pen)">red</b> = the unbalanced node (±2), <b style="color:var(--orange-ink, #b4461a)">orange</b> = the value just inserted.</p>
         <div class="remember">
           <p class="note-label">How to remember</p>
           <p><b>Straight line → 1 rotation. Zigzag → 2 rotations.</b></p>
