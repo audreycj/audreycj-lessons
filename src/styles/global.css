@@ -179,6 +179,7 @@ figure { margin: 0; }
 /* ---------- Tree drawings ---------- */
 .tree-svg { display: block; width: 100%; height: auto; max-height: 26rem; margin-inline: auto; overflow: visible; }
 .tree-svg .t-edges line { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+.tree-svg .t-edges line.is-path { stroke: var(--orange); stroke-width: 5; }
 .tree-svg circle { fill: var(--card); stroke: var(--ink); stroke-width: 2; }
 .tree-svg text { font-family: var(--font-body); font-weight: 800; font-size: 15px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
 .tree-svg .t-bf { font-family: var(--font-mono); font-size: 13px; font-weight: 600; fill: var(--teal-ink); text-anchor: start; }
@@ -1129,3 +1130,22 @@ h3 .xtra { font-size: .7em; font-weight: 600; color: #8a5a00; background: #fbecc
 /* QA 3 (chat 37): roomy sticky notes inside .sub blocks get the same space as in .flow */
 .sub > .sticky.roomy { margin-top: 1.9rem; margin-bottom: 1.9rem; }
 .sub > .sticky.roomy + * { margin-top: 1.9rem; }
+
+/* "Mark chapter as done" (Toc.astro): easy to see, with a one-time bounce + glow when it scrolls into view (chat 40). */
+.done-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.6rem 1rem; margin-top: 2.2rem; padding: 0.9rem 1rem; border: 2px dashed var(--teal); border-radius: 12px; background: var(--teal-wash); }
+.done-hint { margin: 0; font-weight: 700; color: var(--teal-ink); font-size: var(--step--1); flex: 1 1 14rem; }
+.done-btn { background: var(--teal); color: #fff; font-size: 1.05rem; padding: 0.7em 1.3em; }
+.done-btn:hover { color: #fff; }
+.done-btn[aria-pressed="true"] { background: var(--card); color: var(--teal-ink); }
+.done-row:has(.done-btn[aria-pressed="true"]) .done-hint { visibility: hidden; }
+.done-btn.is-nudge { animation: done-nudge 2.2s ease-out; }
+@keyframes done-nudge {
+  0% { transform: scale(1); box-shadow: 2px 2px 0 var(--ink), 0 0 0 0 rgba(232, 102, 46, 0.55); }
+  12% { transform: scale(1.08); }
+  24% { transform: scale(0.97); }
+  36% { transform: scale(1.04); box-shadow: 2px 2px 0 var(--ink), 0 0 0 10px rgba(232, 102, 46, 0.35); }
+  60% { transform: scale(1); box-shadow: 2px 2px 0 var(--ink), 0 0 0 16px rgba(232, 102, 46, 0); }
+  100% { transform: scale(1); box-shadow: 2px 2px 0 var(--ink), 0 0 0 0 rgba(232, 102, 46, 0); }
+}
+@media (max-width: 40rem) { .done-row { justify-content: stretch; } .done-btn { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .done-btn.is-nudge { animation: none; outline: 3px solid var(--orange); outline-offset: 3px; } }

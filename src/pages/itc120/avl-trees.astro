@@ -249,6 +249,32 @@ const quiz = [
   { q: 'Which traversal of any AVL tree gives the values in sorted order?', opts: ['Pre-order', 'In-order', 'Post-order', 'None; rotations mix up the order'], a: 1, why: 'An AVL tree is still a BST, and rotations never break the BST rule. So in-order (Left, Node, Right) is always sorted.' },
 ];
 // Peeks back to earlier parts/lessons (chat 23)
+// Height review peek: longest path from 30 in orange, each node's height under it.
+const heightPeek = '<div class="flow">' + svgTreeP(buildBstP([30, 20, 40, 10, 25, 5]), { pathKeys: [30, 20, 10, 5], marks: { 30: 'found', 20: 'path', 10: 'path', 5: 'path' }, showH: true, minW: 240, label: 'A BST with 30 at the top. The longest path down from 30, 30 to 20 to 10 to 5, is orange: 3 edges. Heights: 30 is 3, 20 is 2, 10 is 1, and the leaves 5, 25, and 40 are 0.' }) +
+  '<p class="small">From 30, the longest path down to a leaf is 30 → 20 → 10 → 5 (orange): <b>3 edges</b>, so the height of 30 is <b>3</b>. The number under each node is its height. Leaves (5, 25, 40) have height 0.</p></div>';
+// Speed box: a balanced tree where each level holds twice as many nodes; one search path in orange.
+const levelsPic = (() => {
+  const tw = 320, x0 = 10, top = 26, gap = 46, r = 10, path = [0, 1, 2, 5];
+  const X = (d, i) => x0 + (tw * (i + 0.5)) / 2 ** d;
+  let e = '', n = '', t = '';
+  for (let d = 0; d < 4; d++) {
+    const y = top + d * gap;
+    for (let i = 0; i < 2 ** d; i++) {
+      if (d < 3) for (const c of [2 * i, 2 * i + 1]) {
+        const hot = path[d] === i && path[d + 1] === c ? ' class="is-path"' : '';
+        e += '<line' + hot + ' x1="' + X(d, i) + '" y1="' + y + '" x2="' + X(d + 1, c) + '" y2="' + (y + gap) + '" />';
+      }
+      n += '<g class="t-node' + (path[d] === i ? ' m-path' : '') + '"><circle class="body" cx="' + X(d, i) + '" cy="' + y + '" r="' + r + '" /></g>';
+    }
+    t += '<text x="390" y="' + y + '" style="font-size:19px;fill:var(--teal-ink)">' + 2 ** d + '</text>';
+  }
+  const y9 = top + 4 * gap + 34;
+  t += '<text x="170" y="' + (top + 3 * gap + 28) + '" style="font-size:20px">⋮</text><text x="390" y="' + (top + 3 * gap + 28) + '" style="font-size:20px">⋮</text>';
+  t += '<text x="170" y="' + y9 + '" style="font-size:15px;font-weight:700;fill:var(--ink-soft)">level 10: too many to draw</text><text x="390" y="' + y9 + '" style="font-size:19px;fill:var(--teal-ink)">512</text>';
+  t += '<text x="390" y="8" style="font-size:13px;font-weight:700;fill:var(--ink-soft)">nodes on this level</text>';
+  return '<svg class="tree-svg" viewBox="0 -6 460 ' + (y9 + 22) + '" style="max-width:520px" role="img" aria-label="A balanced tree drawn level by level. Level 1 has 1 node, level 2 has 2, level 3 has 4, level 4 has 8, and so on, doubling each time, up to level 10 with 512 nodes. One path from the top down to the bottom is orange: a search visits one node per level.">' +
+    '<g class="t-edges">' + e + '</g>' + n + t + '</svg>';
+})();
 const bfPeek = `<div class="def"><p class="note-label">Height and balance factor</p><p>The height of a node is the number of edges on the longest path from it down to a leaf. A leaf has height <b>0</b>; an empty spot (null) has height <b>−1</b>.</p><p>Balance factor = height(left) − height(right).</p></div>`;
 const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
 const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
@@ -311,7 +337,9 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
             <tr><td><b>Balanced tree</b> (AVL, red-black)</td><td>close to log₂ n</td><td>about 10 steps</td><td>about 20 steps</td></tr>
           </tbody>
         </table>
-        <p>Where does "about 10" come from? In a balanced tree, each level can hold <b>twice</b> as many nodes as the level above it: 1, 2, 4, 8, 16, and so on. After 10 levels, that is already about 1,000 nodes (2 × 2 × … × 2, ten times, is 1,024). After 20 levels, it is about 1,000,000. So a search walks only about 10 or 20 steps down.</p>
+        <p>Where does "about 10" come from? In a balanced tree, each level can hold <b>twice</b> as many nodes as the level above it: 1, 2, 4, 8, 16, and so on. A search walks <b>one path</b> down, one node per level, so its number of steps is the number of levels:</p>
+        <figure class="fig"><Fragment set:html={levelsPic} /><figcaption>Each level holds twice as many nodes as the one above. A search (orange) visits only one node per level.</figcaption></figure>
+        <p>10 levels hold 1 + 2 + 4 + … + 512 = <b>1,023</b> nodes, about 1,000. 20 levels hold about 1,000,000. So in a balanced tree, a search takes only about 10 steps for 1,000 values, and about 20 for a million.</p>
         <p>Books call this number <b>log₂ n</b> ("log base 2 of n"): how many times you can cut n in half until you reach 1. 1,024 → 512 → 256 → 128 → 64 → 32 → 16 → 8 → 4 → 2 → 1 is <b>10</b> halvings, so log₂ 1,024 = 10. This is why balanced trees stay fast: doubling the number of values adds only <b>one</b> more level. 2,048 values need about 11 steps, not 2,048.</p>
         <p>Keeping the tree balanced does not slow things down either: the fix it uses, a <b>rotation</b> (you will learn it in Part 4), changes only a few links.</p>
         <p class="small muted">Good to know: books write the two speeds as <b>O(n)</b> ("order n") for the unbalanced worst case and <b>O(log n)</b> ("order log n") for a balanced tree. An AVL tree can be a little taller than log₂ n, but never much: at most about 1.44 × log₂ n. So even a million values need fewer than 30 steps.</p>
@@ -343,7 +371,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
 
       <div class="def">
         <p class="note-label">Height (review)</p>
-        <p>The <b>height of a node</b> is the number of edges on the longest path from that node down to a leaf.</p>
+        <p>The <b>height of a node</b> is the number of edges on the <Peek label="longest path from that node down to a leaf" title="Height, in a picture" html={heightPeek} />.</p>
         <p>A leaf has height <b>0</b>. An empty spot (a <code>null</code> child) has height <b>−1</b>, because it is one level below a leaf.</p>
       </div>
 
@@ -352,6 +380,14 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <p>The <b>balance factor</b> of a node is the height of its left subtree minus the height of its right subtree:</p>
         <p class="formula">balance factor = height(left) − height(right)</p>
       </div>
+
+      <p>Work it out for <b>every node</b>, one node at a time, in three steps:</p>
+      <ol>
+        <li>Find the height of the node's <b>left subtree</b> (that is, the height of its left child). No left child? Use <b>−1</b>.</li>
+        <li>Find the height of its <b>right subtree</b> the same way. No right child? Use <b>−1</b>.</li>
+        <li><b>Subtract:</b> left − right.</li>
+      </ol>
+      <p>Do not mix up the two numbers. A node's <b>height</b> says how tall its own subtree is. Its <b>balance factor</b> compares its two sides. In the pictures below, <code>h=</code> under a node is its height, and the small number at its top right is its balance factor.</p>
 
       <p>The sign of the balance factor tells you which way the node leans. There are three possible readings:</p>
       <table class="tbl">
@@ -366,7 +402,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
       <div class="remember">
         <p class="note-label">The balance rule</p>
         <p>A node is <b>balanced</b> if its balance factor is <b>−1, 0, or +1</b>.</p>
-        <p>It is <b>unbalanced</b> when it reaches <b>+2 or −2</b>. That is when an AVL tree must fix it.</p>
+        <p>It is <b>unbalanced</b> when it reaches <b>+2 or −2</b>. That is when an AVL tree (the self-fixing tree from Part 1) must fix it.</p>
       </div>
 
       <div class="sub">
@@ -375,6 +411,22 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <p>Look at node <b>20</b>: its left child 10 has height 0, and its right child 30 has height 0. So its balance factor is 0 − 0 = <b>0</b>.</p>
         <p style="margin-top:0.5rem">Look at node <b>40</b>: its left subtree (starting at 20) has height 1. Its right subtree (starting at 60) has height 0. So 1 − 0 = <b>+1</b>. It leans left a little, but that is allowed.</p>
         <p style="margin-top:0.5rem">Look at leaf <b>60</b>: both children are empty (height −1). So −1 − (−1) = <b>0</b>. Every leaf has balance factor 0.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Example 2: a missing child counts as −1</h3>
+        <p>Insert 10, 20, 30 into a plain BST. You get this chain (you will meet it again in Part 4 as the <b>RR case</b>):</p>
+        <TreeFig values={[10, 20, 30]} showH showBf minW={220} label="A chain: 10 at the top, 20 its right child, 30 the right child of 20. Heights: 10 is 2, 20 is 1, 30 is 0. Balance factors: 10 is −2, 20 is −1, 30 is 0." />
+        <p>Work from the bottom up. The table shows each node's left height, right height, and balance factor:</p>
+        <table class="tbl">
+          <thead><tr><th>Node</th><th>Left subtree height</th><th>Right subtree height</th><th>Balance factor</th></tr></thead>
+          <tbody>
+            <tr><td><b>30</b></td><td>−1 (no left child)</td><td>−1 (no right child)</td><td>−1 − (−1) = <b>0</b></td></tr>
+            <tr><td><b>20</b></td><td>−1 (no left child)</td><td>0 (30 is a leaf)</td><td>−1 − 0 = <b>−1</b></td></tr>
+            <tr><td><b>10</b></td><td>−1 (no left child)</td><td>1 (20 → 30 is one edge)</td><td>−1 − 1 = <b>−2</b></td></tr>
+          </tbody>
+        </table>
+        <p>Node 10 is <b>−2</b>: unbalanced, because its right side is two levels taller than its left. Notice that 10's balance factor (−2) is not its height (2): the height measures one side going down, the balance factor compares two sides.</p>
       </div>
 
       <BfExplorer id="bfx" values={[40, 20, 60, 10, 30, 70, 5, 80]} />
@@ -444,9 +496,41 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
             <span><i class="l-moved"></i> changes parent</span>
           </div>
         </figure>
-        <p>But wait: 30 already had a right child, <b>35</b>, and now 40 wants that spot. So <span class="hl">35 moves over to become 40's left child</span>. Does it still fit? Yes: 35 is bigger than 30 and smaller than 40, so it belongs between them.</p>
+        <p>It happens in three moves:</p>
+        <ol>
+          <li><b>30 moves up</b> into 40's old spot.</li>
+          <li><b>40 moves down</b> to become 30's right child.</li>
+          <li>But 30's right spot already held <b>35</b>. Now 40 is there, so <span class="hl">35 needs a new spot</span>.</li>
+        </ol>
+        <figure class="fig">
+          <TreeFig values={[30, 20, 40, 50]} marks={{ 40: 'down', 30: 'pivot' }} showNil spot={{ key: 40, side: 'l' }} minW={260} label="Halfway: 30 at the top, 20 on its left, 40 on its right, 50 under 40 on the right. 40's left spot is empty and highlighted: that is where 35 goes." />
+          <figcaption>After moves 1 and 2, 35 is waiting for a spot. The highlighted box is 40's empty left spot: 40 lost its left child (30) when 30 moved up.</figcaption>
+        </figure>
+        <p>Where can 35 go? It must be on <b>30's right</b> (35 is bigger than 30) and on <b>40's left</b> (35 is smaller than 40). The highlighted spot is the only one that is both, so there is exactly <b>one</b> correct place: <b>35 becomes 40's left child</b>.</p>
         <p>Check: the in-order list before is 20, 30, 35, 40, 50. After, it is still 20, 30, 35, 40, 50.</p>
-        <p>A <b>left rotation</b> is the mirror image: the right child moves up, the node moves down to the left, and the child's old <i>left</i> child changes parent.</p>
+      </div>
+
+      <div class="sub">
+        <h3>A left rotation</h3>
+        <p>A <b>left rotation</b> is the same three moves with left and right swapped. Here is a <b>left rotation at 20</b>:</p>
+        <ol>
+          <li>Its <b>right</b> child, <b>30</b>, moves up into 20's spot.</li>
+          <li><b>20 moves down</b> to become 30's <b>left</b> child.</li>
+          <li>30's old left child, <b>25</b>, moves to 20's empty <b>right</b> spot (25 is bigger than 20 and smaller than 30).</li>
+        </ol>
+        <figure class="fig">
+          <div class="two-col rot">
+            <div>
+              <p class="small"><b>Before</b></p>
+              <TreeFig values={[20, 10, 30, 25, 40]} marks={{ 20: 'down', 30: 'pivot', 25: 'moved' }} minW={260} label="Before: 20 at the top, 10 on its left, 30 on its right, 25 is 30's left child, 40 is 30's right child" />
+            </div>
+            <div>
+              <p class="small"><b>After left rotation at 20</b></p>
+              <TreeFig values={[30, 20, 40, 10, 25]} marks={{ 20: 'down', 30: 'pivot', 25: 'moved' }} minW={260} label="After: 30 at the top, 20 on its left with children 10 and 25, 40 on its right" />
+            </div>
+          </div>
+        </figure>
+        <p>Check: the in-order list is 10, 20, 25, 30, 40 before and after.</p>
       </div>
 
       <div class="sub">
@@ -577,7 +661,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         <h3>3. The right rotation</h3>
 <pre class="code"><code set:html={hi(code3)} /></pre>
         <p>Compare <code>rotateRight</code> with the <Peek label="right rotation picture in Part 4" title="From Part 4" html={rotPeek} />: <code>z</code> is 40, <code>y</code> is 30, and <code>moved</code> is 35. The method <b>returns the new top</b>, so whoever called it can connect it back to the tree.</p>
-        <p><code>rotateLeft</code> is the mirror image, and <code>insertRec</code> below calls it too. You will write it yourself in <a href="#task">the coding task at the end of this part</a>.</p>
+        <p><code>rotateLeft</code> is the same code with every left and right swapped (a mirror image), and <code>insertRec</code> below calls it too. You will write it yourself in <a href="#task">the coding task at the end of this part</a>.</p>
       </div>
 
       <div class="sub">

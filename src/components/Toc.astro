@@ -76,8 +76,6 @@ const { course, lesson } = Astro.props;
   }
   .toc-scrim { position: fixed; inset: 0; z-index: 34; background: rgba(27, 42, 46, 0.35); }
 
-  .done-row { display: flex; justify-content: flex-end; margin-top: 2rem; }
-  .done-btn[aria-pressed="true"] { background: var(--teal-wash); }
 
   /* Wide screens: sidebar open by default, content shifts right */
   @media (min-width: 1100px) {
@@ -146,8 +144,9 @@ const { course, lesson } = Astro.props;
       // "Mark chapter as done" at the end of each chapter
       var target = sec.querySelector('.flow-lg, .flow') || sec;
       var row = document.createElement('div'); row.className = 'done-row';
+      var hint = document.createElement('p'); hint.className = 'done-hint'; hint.textContent = 'Finished this chapter? Mark it to track your progress.';
       var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn done-btn';
-      row.appendChild(btn); target.appendChild(row);
+      row.appendChild(hint); row.appendChild(btn); target.appendChild(row);
       function paintBtn() {
         var on = done.indexOf(sec.id) > -1;
         btn.setAttribute('aria-pressed', String(on));
@@ -170,6 +169,20 @@ const { course, lesson } = Astro.props;
       document.getElementById('toc-meter').style.width = (100 * n / items.length) + '%';
     }
     paintProg();
+
+    // Nudge: when a "Mark chapter as done" button rises above the bottom quarter of the screen, it bounces and glows once.
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          io.unobserve(e.target);
+          if (e.target.getAttribute('aria-pressed') === 'true') return;
+          e.target.classList.add('is-nudge');
+          setTimeout(function () { e.target.classList.remove('is-nudge'); }, 2200);
+        });
+      }, { rootMargin: '0px 0px -25% 0px', threshold: 1 });
+      document.querySelectorAll('.done-btn').forEach(function (b) { io.observe(b); });
+    }
 
     // Resume where you left off
     var last = load('last', null), resume = document.getElementById('toc-resume');
