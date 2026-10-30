@@ -641,10 +641,10 @@ table.tbl.tr-table tbody tr:hover td, table.tbl.tr-table tbody tr:focus td, tabl
 .cw-step.is-hidden { opacity: 0; transition: opacity 0.28s ease, visibility 0s linear 0.28s; }
 .cw-l { transition: background 0.25s ease, border-color 0.25s ease; }
 @keyframes stepIn { from { opacity: 0.25; transform: translateY(3px); } to { opacity: 1; transform: none; } }
-.bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg { animation: stepIn 0.3s ease; }
+.bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg, .solab svg, .hslab svg, .srlab svg, .setlab svg { animation: stepIn 0.3s ease; }
 @keyframes stepFade { from { opacity: 0.25; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg { animation-name: stepFade; }
+  .bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg, .solab svg, .hslab svg, .srlab svg, .setlab svg { animation-name: stepFade; }
 }
 .tree-svg .m-skip circle { fill: #f1f3f3; stroke: #b5c0c1; stroke-dasharray: 3 3; }
 .tree-svg .m-skip text { fill: #9aa8aa; }
@@ -816,7 +816,7 @@ pre.code .rg-rec { display: inline-block; width: 100%; background: rgba(127, 179
 .ns-t.is-hot { background: rgba(240, 169, 59, 0.55); box-shadow: 0 0 0 2px #f0a93b; }
 .ns.is-flash .ns-code.is-on .ns-t:not(.is-hot) { animation: ns-flash 1.3s ease; }
 @keyframes ns-flash { 0%, 45% { background: rgba(240, 169, 59, 0.55); } 100% { background: transparent; } }
-@media (prefers-reduced-motion: reduce) { .ns-code, .ns-code.is-on, .bugs .bug-line { transition: none; } .ns.is-flash .ns-code.is-on .ns-t { animation: none; } }
+/* Reduce Motion: NameSwap keeps its crossfade and word flash (opacity and color only, no movement). */
 
 /* BST deletion (Oct 27): sorted-list boxes, linked-list skip, tap-a-node trees, 4-color deleteRec shading */
 .tree-svg .sl-box { fill: var(--card); stroke: var(--ink); stroke-width: 1.5; }
@@ -832,7 +832,7 @@ pre.code .rg-rec { display: inline-block; width: 100%; background: rgba(127, 179
 .tt-say { min-height: 5em; margin: 0.5rem 0 0; padding: 0.55rem 0.8rem; border-radius: 8px; background: var(--paper); border: 1.5px solid var(--line); }
 .tt-say.is-in { animation: tt-in 0.3s ease; }
 @keyframes tt-in { from { opacity: 0.25; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .tt-say.is-in { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tt-say.is-in { animation-name: stepFade; } }
 .ss .cw-steps { margin-bottom: 0.6rem; }
 .ss .cw-nav { grid-template-columns: auto auto 1fr auto; }
 .mk-ans.mk-solo { max-width: 24rem; }
