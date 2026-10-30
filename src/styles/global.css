@@ -640,11 +640,12 @@ table.tbl.tr-table tbody tr:hover td, table.tbl.tr-table tbody tr:focus td, tabl
 .cw-step { transition: opacity 0.28s ease; }
 .cw-step.is-hidden { opacity: 0; transition: opacity 0.28s ease, visibility 0s linear 0.28s; }
 .cw-l { transition: background 0.25s ease, border-color 0.25s ease; }
+/* AVL and BST labs are left out: they have their own node movement, and a fade on top looked like the colors muting out (chat 40). */
 @keyframes stepIn { from { opacity: 0.25; transform: translateY(3px); } to { opacity: 1; transform: none; } }
-.bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg, .solab svg, .hslab svg, .srlab svg, .setlab svg { animation: stepIn 0.3s ease; }
+.lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg, .solab svg, .hslab svg, .srlab svg, .setlab svg { animation: stepIn 0.3s ease; }
 @keyframes stepFade { from { opacity: 0.25; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg, .solab svg, .hslab svg, .srlab svg, .setlab svg { animation-name: stepFade; }
+  .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg, .solab svg, .hslab svg, .srlab svg, .setlab svg { animation-name: stepFade; }
 }
 .tree-svg .m-skip circle { fill: #f1f3f3; stroke: #b5c0c1; stroke-dasharray: 3 3; }
 .tree-svg .m-skip text { fill: #9aa8aa; }
