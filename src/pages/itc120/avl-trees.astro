@@ -290,6 +290,9 @@ const halvesPic = (() => {
 const pedicabPeek = '<div class="flow"><div class="illus">' + pedicabTilt() + '</div><p class="small">Before: all four passengers sit at the back, so the pedicab tilts backward. After: one passenger moved to the front seat, and it is balanced again. An AVL tree fixes a leaning tree the same way, by moving a few nodes.</p></div>';
 const readPeek = '<div class="flow">' + svgTreeP(buildBstP([20, 10, 30, 5]), { marks: { 20: 'found' }, showH: true, showBf: true, minW: 220, label: 'A tree: 20 at the top, 10 and 30 under it, 5 under 10. Each node shows h= under it and a small number at its top right. Node 20: h=2 and +1.' }) +
   '<p class="small">Look at <b>20</b> (yellow). <b>h=2</b> under it is its <b>height</b>: the longest path down, 20 → 10 → 5, has 2 edges. The small <b>+1</b> at its top right is its <b>balance factor</b>: left height 1 (at 10) − right height 0 (at 30) = +1.</p></div>';
+const avlPeek = '<div class="flow"><p class="small">From Part 1: an <b>AVL tree</b> is a BST that fixes itself. When one side gets too heavy, it moves a few nodes around (a <b>rotation</b>). No value is removed, and the BST rule still holds.</p>' +
+  '<p class="small"><b>Before:</b> 10 leans right.</p>' + svgTreeP(buildBstP([10, 20, 30]), { marks: { 10: 'bad' }, minW: 200, label: 'Before: 10 at the top, 20 under it on the right, 30 under 20. 10 leans right.' }) +
+  '<p class="small"><b>After the fix:</b> 20 moved up. Same three values, no lean.</p>' + svgTreeP(buildBstP([20, 10, 30]), { marks: { 20: 'pivot' }, minW: 200, label: 'After: 20 at the top, 10 on its left, 30 on its right.' }) + '</div>';
 const bfPeek = `<div class="def"><p class="note-label">Height and balance factor</p><p>The height of a node is the number of edges on the longest path from it down to a leaf. A leaf has height <b>0</b>; an empty spot (null) has height <b>−1</b>.</p><p>Balance factor = height(left) − height(right).</p></div>`;
 const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
 const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
@@ -432,7 +435,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
       <div class="remember">
         <p class="note-label">The balance rule</p>
         <p>A node is <b>balanced</b> if its balance factor is <b>−1, 0, or +1</b>.</p>
-        <p>It is <b>unbalanced</b> when it reaches <b>+2 or −2</b>. That is when an AVL tree (<Peek label="the self-fixing tree from Part 1" title="From Part 1" html={pedicabPeek} />) must fix it.</p>
+        <p>It is <b>unbalanced</b> when it reaches <b>+2 or −2</b>. That is when an AVL tree (<Peek label="the self-fixing tree from Part 1" title="From Part 1" html={avlPeek} />) must fix it.</p>
       </div>
 
       <div class="sub">
