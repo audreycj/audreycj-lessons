@@ -311,8 +311,10 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
             <tr><td><b>Balanced tree</b> (AVL, red-black)</td><td>close to log₂ n</td><td>about 10 steps</td><td>about 20 steps</td></tr>
           </tbody>
         </table>
-        <p><b>log₂ n</b> means "how many times you can cut n in half until you reach 1". 1,000 → 500 → 250 → … → 1 takes about 10 halvings. So doubling the number of values adds only <b>one</b> more level. The rotations that keep a tree balanced take only a few steps each, so insert and delete stay fast too.</p>
-        <p class="small muted">Good to know: books write this as <b>O(n)</b> ("order n") for the unbalanced worst case and <b>O(log n)</b> ("order log n") for a balanced tree. An AVL tree is never taller than about 1.44 × log₂ n (a red-black tree: 2 × log₂ n), so even a million values need at most a few dozen steps.</p>
+        <p>Where does "about 10" come from? In a balanced tree, each level can hold <b>twice</b> as many nodes as the level above it: 1, 2, 4, 8, 16, and so on. After 10 levels, that is already about 1,000 nodes (2 × 2 × … × 2, ten times, is 1,024). After 20 levels, it is about 1,000,000. So a search walks only about 10 or 20 steps down.</p>
+        <p>Books call this number <b>log₂ n</b> ("log base 2 of n"): how many times you can cut n in half until you reach 1. 1,024 → 512 → 256 → 128 → 64 → 32 → 16 → 8 → 4 → 2 → 1 is <b>10</b> halvings, so log₂ 1,024 = 10. This is why balanced trees stay fast: doubling the number of values adds only <b>one</b> more level. 2,048 values need about 11 steps, not 2,048.</p>
+        <p>Keeping the tree balanced does not slow things down either: the fix it uses, a <b>rotation</b> (you will learn it in Part 4), changes only a few links.</p>
+        <p class="small muted">Good to know: books write the two speeds as <b>O(n)</b> ("order n") for the unbalanced worst case and <b>O(log n)</b> ("order log n") for a balanced tree. An AVL tree can be a little taller than log₂ n, but never much: at most about 1.44 × log₂ n. So even a million values need fewer than 30 steps.</p>
       </div>
 
       <div class="remember">
