@@ -451,7 +451,7 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
           <p><span class="mono">10 30 20</span>. <code>postOrder(20)</code> calls <code>postOrder(10)</code>: 10 prints after its empty sides. Then <code>postOrder(30)</code>: 30 prints. Only then does line 5 of <code>postOrder(20)</code> print 20: last.</p>
         </div></details>
       </div>
-      <p class="break-note"><b>Good place to take a break.</b> So far, recursion only <b>printed</b> a tree. Next: recursion that <b>adds</b> a node, using the <Peek label="insert from the insertion lesson" title="From the insertion lesson" html={loopPeek} />.</p>
+      <p>So far, recursion only <b>printed</b> a tree. Next: recursion that <b>adds</b> a node, using the <Peek label="insert from the insertion lesson" title="From the insertion lesson" html={loopPeek} />.</p>
     </div>
   </section>
 
@@ -511,7 +511,6 @@ const stackKey = `<p class="cs-key"><span><i class="k-run"></i>running</span><sp
         <p><b>Empty tree:</b> <code>root = insertRec(null, 7);</code> <code>node</code> is null, so line 4 returns a new node 7, and <code>root =</code> saves it. Now 7 is the root.</p>
         <p><b>Value already there:</b> <code>insertRec(root, 30)</code> goes 40 → 20 → 30. At 30 the value is equal, so neither line 7 nor line 9 runs. Line 11 returns node 30 unchanged. Nothing is added (our BSTs skip duplicates).</p>
       </div>
-      <p class="break-note"><b>Good place to take a break.</b> Next: the same code, written with different names.</p>
     </div>
   </section>
 

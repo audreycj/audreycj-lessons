@@ -363,7 +363,6 @@ const quiz = [
         <p><b>Fix:</b> after the main loop, copy what is left of the left half, then what is left of the right half. Only one of the two loops will actually copy something.</p>
       </div>
       <p>One cost to remember: merge sort needs the extra array <code>temp</code>. For n values, that is extra memory for up to n values.</p>
-      <div class="break-note">Good place to take a break.</div>
     </div>
   </section>
 
@@ -408,7 +407,6 @@ const quiz = [
         <figure class="fig illus-fig"><Fragment set:html={quickWorstPic()} /><figcaption>Each partition only removes the pivot itself, so it does as much work as bubble sort.</figcaption></figure>
         <p>With our last-value pivot, a sorted array of 1,000 values takes <b>{fmt(sorted1000.quick)}</b> comparisons, the same as bubble sort. Real programs avoid this by picking the <b>middle</b> value or a <b>random</b> value as the pivot (and swapping it to the end first). Then a bad split is very unlikely.</p>
       </div>
-      <div class="break-note">Good place to take a break.</div>
     </div>
   </section>
 
