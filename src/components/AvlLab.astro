@@ -131,7 +131,7 @@ const config = JSON.stringify({ presets, custom, kind });
 
     function draw(snap: any, pos: any, alpha?: any) {
       svgBox.innerHTML = snap.tree
-        ? svgTree(snap.tree, { marks: snap.marks, showBf: snap.showBf, showNil: nil && nil.checked, pos, alpha, minW: W, minH: H, label: (cfg.kind === 'rb' ? 'Red-black' : 'AVL') + ' tree, step ' + at })
+        ? svgTree(snap.tree, { marks: snap.marks, showBf: snap.showBf, padBf: true, showNil: nil && nil.checked, pos, alpha, minW: W, minH: H, label: (cfg.kind === 'rb' ? 'Red-black' : 'AVL') + ' tree, step ' + at })
         : `<p class="muted small" style="text-align:center">(empty tree)</p>`;
     }
 

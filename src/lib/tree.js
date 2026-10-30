@@ -172,7 +172,7 @@ export function svgTree(root, opts = {}) {
   const marks = opts.marks || {};
   const w = Math.max(L.w, opts.minW || 0), h = Math.max(L.h, opts.minH || 0);
   const off = opts.pos ? 0 : (w - L.w) / 2;
-  const extra = (opts.showBf ? 6 : 0) + (opts.showNil ? 34 : 0);
+  const extra = (opts.showBf || opts.padBf ? 6 : 0) + (opts.showNil ? 34 : 0);   // padBf: keep the balance-factor room even when they are hidden, so a step lab's tree never shifts
   let s = `<svg class="tree-svg" viewBox="0 0 ${w} ${h + extra}" style="max-width:${Math.round(w * 1.15)}px" role="img" aria-label="${esc(opts.label || 'Tree diagram')}">`;
   s += '<g class="t-edges">';
   for (const [a, b] of L.edges) {
