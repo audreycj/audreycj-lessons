@@ -141,9 +141,10 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
   })();
   // Coming back from a lesson (link ends in #l-<lesson>): open its term, scroll it to the middle, and glow it briefly.
   (function () {
+    // Also works with the short form #<lesson>, e.g. /itc120/#avl-trees (for links shared with students).
     var h = location.hash;
-    if (h.indexOf('#l-') !== 0) return;
-    var li = document.getElementById(h.slice(1));
+    if (h.length < 2) return;
+    var li = document.getElementById(h.indexOf('#l-') === 0 ? h.slice(1) : 'l-' + h.slice(1));
     if (!li) return;
     var d = li.closest('details');
     if (d) d.open = true;

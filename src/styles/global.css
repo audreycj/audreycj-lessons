@@ -841,7 +841,7 @@ pre.code .rg-c3 { display: inline-block; width: 100%; background: rgba(154, 115,
 .c-c3 { color: #6f4a9e; font-weight: 800; }
 
 /* Course page: the lesson the student just came back from glows briefly */
-.step.is-back > a { animation: back-glow 2.6s ease-out; }
+.step.is-back > a { animation: back-glow 4s ease-out; }
 @keyframes back-glow { 0%, 35% { background: var(--butter); box-shadow: inset 4px 0 0 var(--amber); } 100% { background: transparent; box-shadow: inset 4px 0 0 transparent; } }
 @media (prefers-reduced-motion: reduce) { .step.is-back > a { animation: none; background: var(--butter); } }
 
