@@ -553,7 +553,8 @@ svg.objbox { max-width: 20rem; }
 
 /* ---------- Peek: see an earlier figure without scrolling ---------- */
 .peek-btn { font: inherit; color: var(--teal-ink); font-weight: 700; background: var(--teal-wash); border: 0; border-bottom: 2px dotted var(--teal);
-  border-radius: 4px 4px 0 0; padding: 0 0.25em; cursor: help; line-height: inherit; }
+  border-radius: 4px 4px 0 0; padding: 0 0.25em; cursor: help; line-height: inherit;
+  display: inline; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .peek-btn:hover, .peek-btn[aria-expanded="true"] { background: var(--butter); border-bottom-color: var(--amber); color: var(--ink); }
 .peek-card { position: absolute; z-index: 60; width: min(24rem, calc(100vw - 32px)); background: var(--card); border: 1.5px solid var(--ink);
   border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); padding: 0.8rem 0.9rem; display: grid; gap: 0.5rem; font-size: var(--step--1); }

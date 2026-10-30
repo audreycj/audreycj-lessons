@@ -275,6 +275,18 @@ const levelsPic = (() => {
   return '<svg class="tree-svg" viewBox="0 -6 460 ' + (y9 + 22) + '" style="max-width:520px" role="img" aria-label="A balanced tree drawn level by level. Level 1 has 1 node, level 2 has 2, level 3 has 4, level 4 has 8, and so on, doubling each time, up to level 10 with 512 nodes. One path from the top down to the bottom is orange: a search visits one node per level.">' +
     '<g class="t-edges">' + e + '</g>' + n + t + '</svg>';
 })();
+// Speed box: 1,024 cut in half ten times; bar widths halve (the last few are drawn at a small minimum width).
+const halvesPic = (() => {
+  let b = '';
+  for (let k = 0; k <= 10; k++) {
+    const v = 1024 / 2 ** k, w = Math.max(250 / 2 ** k, 5), y = 8 + k * 26;
+    const last = k === 10;
+    b += '<rect x="10" y="' + y + '" width="' + w.toFixed(1) + '" height="18" rx="3" style="fill:' + (last ? 'var(--orange)' : 'var(--teal)') + ';stroke:none" />';
+    b += '<text x="' + (w + 18).toFixed(1) + '" y="' + (y + 10) + '" style="text-anchor:start;font-size:16px">' + v.toLocaleString('en-US') + '</text>';
+    if (k) b += '<text x="400" y="' + (y + 10) + '" style="text-anchor:end;font-size:14px;font-weight:700;fill:var(--ink-soft)">cut ' + k + '</text>';
+  }
+  return '<svg class="tree-svg" viewBox="0 0 410 300" style="max-width:460px" role="img" aria-label="1,024 cut in half ten times: 512, 256, 128, 64, 32, 16, 8, 4, 2, and finally 1 after cut 10. Each bar is half as long as the one above.">' + b + '</svg>';
+})();
 const bfPeek = `<div class="def"><p class="note-label">Height and balance factor</p><p>The height of a node is the number of edges on the longest path from it down to a leaf. A leaf has height <b>0</b>; an empty spot (null) has height <b>−1</b>.</p><p>Balance factor = height(left) − height(right).</p></div>`;
 const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
 const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30, 50, 20, 35]), { marks: rotMarks, minW: 260, label: 'Before: 40 at the top, 30 on its left, 35 is 30 right child' })}<p class="small"><b>After right rotation at 40</b></p>${svgTreeP(buildBstP([30, 20, 40, 35, 50]), { marks: rotMarks, minW: 260, label: 'After: 30 at the top, 40 on its right, 35 is now 40 left child' })}<p class="small">30 moves up, 40 moves down, and 35 changes parent.</p>`;
@@ -339,8 +351,33 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
         </table>
         <p>Where does "about 10" come from? In a balanced tree, each level can hold <b>twice</b> as many nodes as the level above it: 1, 2, 4, 8, 16, and so on. A search walks <b>one path</b> down, one node per level, so its number of steps is the number of levels:</p>
         <figure class="fig"><Fragment set:html={levelsPic} /><figcaption>Each level holds twice as many nodes as the one above. A search (orange) visits only one node per level.</figcaption></figure>
-        <p>10 levels hold 1 + 2 + 4 + … + 512 = <b>1,023</b> nodes, about 1,000. 20 levels hold about 1,000,000. So in a balanced tree, a search takes only about 10 steps for 1,000 values, and about 20 for a million.</p>
-        <p>Books call this number <b>log₂ n</b> ("log base 2 of n"): how many times you can cut n in half until you reach 1. 1,024 → 512 → 256 → 128 → 64 → 32 → 16 → 8 → 4 → 2 → 1 is <b>10</b> halvings, so log₂ 1,024 = 10. This is why balanced trees stay fast: doubling the number of values adds only <b>one</b> more level. 2,048 values need about 11 steps, not 2,048.</p>
+        <p>10 levels hold about 1,000 nodes, and 20 levels hold about 1,000,000. So in a balanced tree, a search takes about <b>10 steps</b> for 1,000 values and about <b>20 steps</b> for a million.</p>
+        <p>The best part: <b>doubling</b> the number of values adds only <b>one</b> more level.</p>
+        <figure class="fig">
+          <div class="two-col">
+            <div>
+              <p class="small"><b>7 values: 3 levels</b></p>
+              <TreeFig values={[40, 20, 60, 10, 30, 50, 70]} minW={240} label="A balanced tree with 7 values in 3 levels" />
+            </div>
+            <div>
+              <p class="small"><b>15 values (about double): 4 levels</b></p>
+              <TreeFig values={[80, 40, 120, 20, 60, 100, 140, 10, 30, 50, 70, 90, 110, 130, 150]} minW={300} label="A balanced tree with 15 values in 4 levels" />
+            </div>
+          </div>
+          <figcaption>About twice the values, only one more level. A search in each tree takes at most 3 and 4 steps.</figcaption>
+        </figure>
+        <p>Books call this number of levels <b>log₂ n</b> ("log base 2 of n"): how many times you can cut n in half until you reach 1. Watch 1,024 get cut in half, again and again:</p>
+        <figure class="fig"><Fragment set:html={halvesPic} /><figcaption>Ten cuts take 1,024 down to 1, so log₂ 1,024 = 10. A tree with 1,024 values needs only about 10 levels.</figcaption></figure>
+        <p>So the number of steps grows very slowly. Here it is for a few sizes:</p>
+        <table class="tbl">
+          <thead><tr><th>Values (n)</th><th>Levels in a balanced tree (about log₂ n)</th></tr></thead>
+          <tbody>
+            <tr><td>1,000</td><td>10</td></tr>
+            <tr><td>2,000</td><td>11</td></tr>
+            <tr><td>4,000</td><td>12</td></tr>
+            <tr><td>1,000,000</td><td>20</td></tr>
+          </tbody>
+        </table>
         <p>Keeping the tree balanced does not slow things down either: the fix it uses, a <b>rotation</b> (you will learn it in Part 4), changes only a few links.</p>
         <p class="small muted">Good to know: books write the two speeds as <b>O(n)</b> ("order n") for the unbalanced worst case and <b>O(log n)</b> ("order log n") for a balanced tree. An AVL tree can be a little taller than log₂ n, but never much: at most about 1.44 × log₂ n. So even a million values need fewer than 30 steps.</p>
       </div>

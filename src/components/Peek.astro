@@ -8,15 +8,15 @@ interface Props { label: string; title?: string; html?: string; }
 const { label, title, html } = Astro.props;
 const body = (title ? `<p class="peek-title">${title}</p>` : '') + (html ?? (await Astro.slots.render('default')));
 ---
-<span class="peek"><button type="button" class="peek-btn" aria-expanded="false" data-peek={body}>{label}</button></span>
+<span class="peek"><span role="button" tabindex="0" class="peek-btn" aria-expanded="false" data-peek={body}>{label}</span></span>
 
 <script>
   const card = document.createElement('div');
   card.className = 'peek-card'; card.setAttribute('role', 'dialog'); card.hidden = true;
   document.body.appendChild(card);
-  let owner: HTMLButtonElement | null = null, pinned = false, hideT = 0;
+  let owner: HTMLElement | null = null, pinned = false, hideT = 0;
   const narrow = () => matchMedia('(max-width: 40rem)').matches;
-  function open(btn: HTMLButtonElement, pin: boolean) {
+  function open(btn: HTMLElement, pin: boolean) {
     clearTimeout(hideT);
     if (owner !== btn) {
       card.innerHTML = btn.dataset.peek || '';
@@ -39,7 +39,9 @@ const body = (title ? `<p class="peek-title">${title}</p>` : '') + (html ?? (awa
     } else { card.style.left = ''; card.style.top = ''; card.style.maxHeight = ''; card.style.overflow = ''; }
   }
   function close() { card.hidden = true; pinned = false; if (owner) owner.setAttribute('aria-expanded', 'false'); }
-  document.querySelectorAll<HTMLButtonElement>('.peek-btn').forEach((btn) => {
+  // A span (not a button) so a long label wraps inside the sentence on phones; Enter/Space work like a button.
+  document.querySelectorAll<HTMLElement>('.peek-btn').forEach((btn) => {
+    btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } });
     btn.addEventListener('click', (e) => { e.stopPropagation(); if (!card.hidden && owner === btn && pinned) close(); else open(btn, true); });
     btn.addEventListener('mouseenter', () => { if (!narrow()) open(btn, false); });
     btn.addEventListener('mouseleave', () => { if (!pinned) hideT = window.setTimeout(close, 200); });
