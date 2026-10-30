@@ -138,7 +138,7 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
       cancelAnimationFrame(anim);
       if (!s.tree) { shown = {}; draw(s, {}); return; }
       const to = target(s.tree), from = shown;
-      if (!animate || reduce) { shown = to; draw(s, to); return; }
+      if (!animate) { shown = to; draw(s, to); return; }   // moves even with Reduce Motion: tapped by the student, and the movement is the lesson
       const t0 = performance.now(), dur = 550;
       const tick = (now: number) => {
         const t = Math.min(1, (now - t0) / dur), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;

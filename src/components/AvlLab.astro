@@ -150,7 +150,7 @@ const config = JSON.stringify({ presets, custom, kind });
       if (!snap.tree) { shown = {}; draw(snap, {}); return; }
       const to = targetPos(snap.tree);
       const from = shown;
-      if (!animate || reduce) { shown = to; draw(snap, to); return; }
+      if (!animate) { shown = to; draw(snap, to); return; }   // moves even with Reduce Motion: tapped by the student, and the movement is the lesson
       const t0 = performance.now(), dur = 650;
       const tick = (now: number) => {
         let t = Math.min(1, (now - t0) / dur);

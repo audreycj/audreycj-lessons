@@ -39,7 +39,8 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+/* Reduce Motion (chat 40): no smooth scrolling or decorative motion, but fades and the step-by-step movement in labs stay (they are tapped by the student and teach the idea). */
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {
   margin: 0;
@@ -641,9 +642,9 @@ table.tbl.tr-table tbody tr:hover td, table.tbl.tr-table tbody tr:focus td, tabl
 .cw-l { transition: background 0.25s ease, border-color 0.25s ease; }
 @keyframes stepIn { from { opacity: 0.25; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 .bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg { animation: stepIn 0.3s ease; }
+@keyframes stepFade { from { opacity: 0.25; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .cw-step, .cw-step.is-hidden, .cw-l { transition: none; }
-  .bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg { animation: none; }
+  .bstlab svg, .avl-lab svg, .lllab .ll-svg svg, .terms .tree-svg, .tl-out, .arrlab .al-row, .sqlab .it.hot, .trlab svg { animation-name: stepFade; }
 }
 .tree-svg .m-skip circle { fill: #f1f3f3; stroke: #b5c0c1; stroke-dasharray: 3 3; }
 .tree-svg .m-skip text { fill: #9aa8aa; }
