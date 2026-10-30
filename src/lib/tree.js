@@ -118,7 +118,7 @@ export function avlInsertSteps(root, v) {
     const mv = moved ? ` ${y.v}'s old ${kase === 'LL' ? 'right' : 'left'} child, <b>${moved.v}</b>, moves over to become ${z.v}'s ${kase === 'LL' ? 'left' : 'right'} child (it still fits the BST rule there).` : '';
     steps.push(snap(root, `<b>Step 4. Rotate ${kase === 'LL' ? 'right' : 'left'} at ${z.v}.</b> ${y.v} moves up to ${z.v}'s old spot, and ${z.v} moves down to ${y.v}'s ${kase === 'LL' ? 'right' : 'left'}.${mv}`, { tag: 'Rotation', marks: { [y.v]: 'pivot', [z.v]: 'down', ...(moved ? { [moved.v]: 'moved' } : {}) }, showBf: true }));
   }
-  steps.push(snap(root, `<b>Done.</b> Every balance factor is −1, 0, or +1 again, and the in-order list is still sorted. For insertion, <b>one fix is always enough</b>.`, { tag: 'Balanced', marks: {}, showBf: true }));
+  steps.push(snap(root, `<b>Done.</b> Every balance factor is −1, 0, or +1 again, and the in-order list is still sorted. You do <b>not</b> need to check the nodes above ${z.v} again: after an insertion, this one fix balances the whole tree. Go on to the next value.`, { tag: 'Balanced', marks: {}, showBf: true }));
   return { root, steps };
 }
 
