@@ -1,0 +1,470 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
+import { course } from '../../data/it110.js';
+import { screenSize, resChoice, refreshPic, hzFps, brightPic, lcdOled, proj3lcd, printerTree, dotMatrix, inkjetLaser, thermalTwo, print3d, ppmDpi, speakerSteps, ancWaves, swingSketch } from '../../lib/it110-out-pics.js';
+import { pixelZoom, frameRate, micSteps } from '../../lib/it110-io-pics.js';
+import { roughen } from '../../lib/it110-os-pics.js';
+import { photo, photoRow, photoCredits } from '../../data/it110-photos.js';
+// real-life photos used on this page, in page order (credits listed in References)
+const photoKeys = ['monitor', 'projector', 'oledPhones', 'projClass', 'dotMatrix', 'mfp', 'laserPr', 'receiptPr', 'print3dPh', 'photoPr', 'ledPr', 'plotter', 'spkDesk', 'spkBt', 'spkSmart', 'studioMon', 'overEar', 'onEar', 'earWired', 'earTws', 'ancPhones', 'headset'];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Peeks back to Input devices (her rule: every back-reference comes with its picture right there)
+const pixPeek = '<div class="peek-pic">' + pixelZoom() + '</div><p>A digital picture is a grid of tiny colored squares called <b>pixels</b>.</p>';
+const fpsPeek = '<div class="peek-pic">' + frameRate() + '</div><p><b>Frame rate</b> (fps, frames per second): how many still pictures a video holds for each second.</p>';
+const micPeek = '<div class="peek-pic">' + micSteps() + '</div><p>A microphone turns <b>sound</b> into an electrical <b>signal</b>.</p>';
+
+// Part 1 (module Part 5 pages 1-3)
+const part1 = [
+  { q: 'A screen is 1920 × 1080. What does this number describe?', opts: ['Its size', 'Its resolution', 'Its refresh rate', 'Its brightness'], a: 1, why: '1920 × 1080 is the number of pixels across and down. Size is measured diagonally, in inches.' },
+  { q: 'How is screen size measured?', opts: ['Across the top edge', 'From one corner to the opposite corner', 'From top to bottom'], a: 1, why: 'Screen size is measured diagonally, usually in inches.' },
+  { q: 'A gamer wants motion on screen to look smoother. Which spec should be higher?', opts: ['Screen size', 'Refresh rate', 'Brightness'], a: 1, why: 'Refresh rate (Hz) is how many times each second the screen redraws its picture. The game must also give enough fps.' },
+  { q: 'What unit is used for screen brightness?', opts: ['Hertz (Hz)', 'Nits', 'Inches', 'Pixels'], a: 1, why: '1 nit = 1 candela per square meter (cd/m²). Hertz is for refresh rate.' },
+  { q: 'A video is 30 fps. It plays on a 60 Hz screen. How many different pictures do you see each second?', opts: ['30', '60', '90'], a: 0, why: 'The screen shows each video frame twice. It still shows only 30 different pictures.' },
+  { q: 'On a MacBook Air, you choose "Larger Text" in Settings. What changes?', opts: ['The number of real pixels in the screen', 'How big things look on the screen'], a: 1, why: 'The screen keeps its real pixels. The setting only changes how big buttons and letters look, so less or more fits.' },
+];
+// Part 2 (module Part 5 pages 3-4)
+const part2 = [
+  { q: 'Which screen has no backlight?', opts: ['LCD', 'OLED'], a: 1, why: 'OLED pixels make their own light. An LCD needs a backlight behind it.' },
+  { q: 'A TV in the store is labeled "LED TV". What is it, usually?', opts: ['An OLED screen', 'An LCD with an LED backlight'], a: 1, why: 'The LEDs are the light behind the screen. The picture is still made by liquid crystals.' },
+  { q: 'Why can an OLED screen show true black?', opts: ['Its backlight is very dark', 'A pixel that is off gives no light at all', 'It uses black color filters'], a: 1, why: 'OLED has no backlight. Each pixel glows by itself, so an off pixel is completely dark.' },
+  { q: 'In an LCD, which layer opens or blocks the light for each pixel?', opts: ['The backlight', 'The liquid crystals', 'The color filters'], a: 1, why: 'The backlight gives the light, the liquid crystals open or block it, and the color filters color it.' },
+  { q: 'In a 3LCD projector, what combines the red, green, and blue pictures into one?', opts: ['The lamp', 'The prism', 'The lens'], a: 1, why: 'The prism combines the three colors. Then the lens projects the result onto the screen.' },
+  { q: 'A teacher wants 40 students to see the same lesson at once. Which display fits?', opts: ['A laptop screen', 'A projector', 'A smartwatch'], a: 1, why: 'A projector enlarges the picture onto a screen or wall, big enough for the whole class.' },
+];
+// Part 3 (module Part 5 pages 5-8)
+const part3 = [
+  { q: 'Which printer strikes an ink ribbon with tiny pins?', opts: ['Inkjet', 'Laser', 'Dot matrix', 'Thermal'], a: 2, why: 'A dot matrix printer is an impact printer. The others are nonimpact: nothing strikes the page.' },
+  { q: 'A store needs fast receipts, with no ink or toner to buy. Which fits?', opts: ['Direct thermal', 'Inkjet', '3D printer'], a: 0, why: 'Heat darkens special heat-sensitive paper, so no ink is needed.' },
+  { q: 'A computer shop prints many pages of reports every day. Which printer fits best?', opts: ['Inkjet', 'Laser', 'Thermal'], a: 1, why: 'Laser printers print sharp text fast and are often cheaper per page for people who print a lot.' },
+  { q: 'Is "multifunction" a printing technology, like inkjet or laser?', opts: ['Yes', 'No'], a: 1, why: 'Multifunction describes the jobs it does (print, scan, copy). A multifunction printer can use inkjet or laser technology.' },
+  { q: 'A printer is rated 1200 dpi. What does dpi tell you?', opts: ['How fast it prints', 'How sharp the print is', 'How big the paper can be'], a: 1, why: 'dpi is dots per inch: more dots mean finer detail. Speed is ppm (pages per minute).' },
+  { q: 'A student needs a small plastic part for a project. Which printer makes it?', opts: ['Laser printer', '3D printer', 'Plotter'], a: 1, why: 'A 3D printer builds a real object, one thin layer at a time.' },
+];
+// Part 4 (module Part 5 pages 9-11)
+const part4 = [
+  { q: 'Inside a speaker, which part vibrates and pushes the air to make sound waves?', opts: ['The magnet', 'The cone', 'The cable'], a: 1, why: 'The voice coil vibrates against the magnet. The coil is attached to the cone, so the cone vibrates and pushes the air.' },
+  { q: 'Is a smart speaker an input device, an output device, or both?', opts: ['Input only', 'Output only', 'Both'], a: 2, why: 'Its microphone listens for your voice (input). Its speaker talks back (output).' },
+  { q: 'What do noise-cancelling headphones do?', opts: ['Block all outside noise', 'Reduce noise by playing an opposite sound (anti-noise)'], a: 1, why: 'The anti-noise cancels part of the noise. Some noise remains, so "reduce" is the right word, not "block".' },
+  { q: 'Noise cancelling works best on which kind of sound?', opts: ['A steady engine hum', 'A sudden shout'], a: 0, why: 'It works best on steady sounds. How well it works depends on the type of noise.' },
+  { q: 'In a headset, which part gives output?', opts: ['The earpieces', 'The microphone'], a: 0, why: 'The earpieces play sound to you. The microphone captures your voice (input).' },
+  { q: 'Your barkada wants to listen to music together in one room. Which fits?', opts: ['Earbuds', 'A speaker', 'A headset'], a: 1, why: 'A speaker fills the room, so everyone can hear at once.' },
+];
+// Self-check (module Review pages 46-48 + new)
+const choose = [
+  { q: 'A teacher wants to project a lesson so 40 students can see it.', opts: ['Monitor', 'Projector', 'Smart speaker'], a: 1, why: 'A projector enlarges the picture for the whole class.' },
+  { q: 'A canteen needs quick receipts for every sale.', opts: ['Inkjet printer', 'Direct thermal printer', 'Plotter'], a: 1, why: 'Fast receipts with no ink or toner: heat darkens special paper.' },
+  { q: 'A gamer wants smoother motion on screen.', opts: ['A bigger screen', 'A display with a higher refresh rate', 'A brighter display'], a: 1, why: 'More screen updates each second. The game must also give enough fps.' },
+  { q: 'An architecture office prints big building plans on wide paper.', opts: ['Plotter (large-format printer)', 'Portable photo printer', 'Dot matrix printer'], a: 0, why: 'Plotters print large drawings, plans, and posters on wide paper.' },
+  { q: 'A barangay office prints forms with carbon copies (original + copies in one go).', opts: ['Laser printer', 'Dot matrix printer', 'Inkjet printer'], a: 1, why: 'Its pins press hard, so the marks go through to the copies below.' },
+  { q: 'A student rides a pedicab on a noisy road and wants to hear a recorded lecture.', opts: ['Noise-cancelling earbuds or headphones', 'A Bluetooth speaker', 'Studio monitors'], a: 0, why: 'Noise cancelling reduces the steady road noise. A speaker would also disturb others.' },
+  { q: 'A field worker uses a laptop outdoors in the sun.', opts: ['A display with high brightness', 'A display with a higher refresh rate', 'An OLED smartwatch'], a: 0, why: 'High brightness (more nits) keeps the screen visible in bright light.' },
+];
+const final = [
+  { q: 'Which one is an output device?', opts: ['Microphone', 'Scanner', 'Projector', 'Webcam'], a: 2, why: 'A projector shows the computer\'s picture. The others send data in.' },
+  { q: 'A screen is 3840 × 2160. What is this called?', opts: ['Full HD', '4K', '60 Hz'], a: 1, why: '4K is 3840 × 2160 pixels. Full HD is 1920 × 1080.' },
+  { q: 'Which screen needs a backlight?', opts: ['LCD', 'OLED'], a: 0, why: 'An LCD\'s liquid crystals do not make light, so a backlight shines through them. OLED pixels glow by themselves.' },
+  { q: 'Which printer melts toner powder onto the paper with heat?', opts: ['Inkjet', 'Laser', 'Direct thermal'], a: 1, why: 'Inkjet sprays liquid ink. Direct thermal darkens special paper and uses no toner.' },
+  { q: 'A store\'s receipts faded after a few months. Which printer made them, most likely?', opts: ['Direct thermal', 'Laser', 'Dot matrix'], a: 0, why: 'Direct thermal prints can fade over time. For long-lasting labels, thermal transfer is used instead.' },
+  { q: 'Which pair tells how fast and how sharp a printer is?', opts: ['Hz and nits', 'ppm and dpi', 'fps and pixels'], a: 1, why: 'ppm = pages per minute (how fast). dpi = dots per inch (how sharp).' },
+  { q: 'Which one describes a feature, not how the printer makes marks?', opts: ['Laser', 'Multifunction', 'Inkjet', 'Thermal'], a: 1, why: 'Multifunction means it also scans and copies. Laser, inkjet, and thermal are printing technologies.' },
+  { q: 'In a speaker, the electrical signal first goes to the:', opts: ['Cone', 'Voice coil', 'Magnet'], a: 1, why: 'The signal makes the voice coil push and pull against the magnet. The coil then moves the cone.' },
+  { q: 'Noise-cancelling headphones make anti-noise. What is anti-noise?', opts: ['A louder copy of the noise', 'An opposite sound wave: up where the noise goes down', 'Music played over the noise'], a: 1, why: 'The two waves cancel each other, so you hear less of the noise.' },
+  { q: 'Both lessons: on a touchscreen phone, which part is the output part?', opts: ['The screen showing the picture', 'The layer that senses your finger'], a: 0, why: 'Showing the picture is output. Sensing your touch is input (Input devices, Part 1).' },
+  { q: 'Both lessons: a video is "4K, 60 fps". Which part tells how many pictures each second?', opts: ['4K', '60 fps'], a: 1, why: '4K is the resolution (pixels in each picture). 60 fps is the frame rate (pictures each second).' },
+  { q: 'Both lessons: a microphone turns sound into a signal. A speaker turns...', opts: ['a signal into sound', 'sound into a signal', 'light into a signal'], a: 0, why: 'A speaker is like a microphone working backward: input vs. output.' },
+];
+---
+<Base title="Output Devices · IT 110" description="Output devices: display specs (size, resolution, refresh rate, brightness), LCD vs. OLED, projectors, printers (dot matrix, inkjet, laser, thermal, 3D), speakers, headphones, earbuds, and noise cancelling." course={{ code: course.code, href: base + course.href }} theme="it110" toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>IT 110</a> › Midterm › Input and output</p>
+    <p class="kicker">Input and output · Lesson 2 of 2</p>
+    <h1>Output Devices</h1>
+    <p class="lede">How a computer gives its results back to you: on a screen, on paper, and as sound.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>compare displays using four specs: <b>screen size, resolution, refresh rate, and brightness</b>;</li>
+        <li>explain how LCD and OLED screens and projectors make pictures, in simple terms;</li>
+        <li>tell <b>impact</b> from <b>nonimpact</b> printers, and explain how dot matrix, inkjet, laser, thermal, and 3D printers work;</li>
+        <li>explain how speakers and noise-cancelling headphones work;</li>
+        <li>choose the right output device for a situation.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>Built from:</b> your Week 8 self-learning module (Part 5 and the Review) and the IT 1A group reports, checked against the sources at the end. Photos show what each device looks like in real life; drawings show how it works. <b>Before this:</b> the <a href={base + '/it110/input-devices/'}>Input devices</a> lesson.</p>
+  </header>
+
+  <section class="chapter wrap" id="displays">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · Displays</p>
+      <h2>Display devices and their specs</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Display device</p><p>An output device that shows the computer's output as <b>pictures and text</b>. What you see on a screen is called a <b>soft copy</b>: you can see it, but you cannot hold it.</p></div>
+      <p>Two common display devices are a monitor for a desktop computer and a projector for a big screen:</p>
+      {photoRow([['monitor', 'A monitor for a desktop computer.'], ['projector', 'A projector, for a big screen or a wall.']])}
+      <p>When you compare displays, look at four numbers, called <b>specs</b> (specifications). Each one answers a different question:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Spec</th><th>Question it answers</th><th>Unit</th></tr></thead>
+        <tbody>
+          <tr><td><b>Screen size</b></td><td>How big?</td><td>inches</td></tr>
+          <tr><td><b>Resolution</b></td><td>How detailed?</td><td>pixels</td></tr>
+          <tr><td><b>Refresh rate</b></td><td>How smooth?</td><td>hertz (Hz)</td></tr>
+          <tr><td><b>Brightness</b></td><td>How visible?</td><td>nits</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Screen size: how big?</h3>
+      <p><b>Screen size</b> is measured <b>diagonally</b>, from one corner of the screen to the opposite corner, usually in inches:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={screenSize()} /><figcaption>Not across the top, not from top to bottom: corner to corner.</figcaption></figure>
+      <div class="look">
+        <p class="note-label">Just so you know</p>
+        <p>Model names are rounded. The "13-inch" MacBook Air really has a <b>13.6-inch</b> screen. Its corners are rounded, so Apple measures it as if it were a full rectangle; the area you can actually see is a little smaller.</p>
+      </div>
+
+      <h3>Resolution: how detailed?</h3>
+      <p>A screen's <b>resolution</b> is how many <Peek label="pixels" title="From Input devices" html={pixPeek} /> it has, written as <b>across × down</b>. More pixels in the same space make a sharper picture. Two common resolutions are listed below:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Name</th><th>Pixels across × down</th></tr></thead>
+        <tbody>
+          <tr><td><b>Full HD</b></td><td>1920 × 1080</td></tr>
+          <tr><td><b>4K</b></td><td>3840 × 2160</td></tr>
+        </tbody>
+      </table></div>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>A screen is like a <b>mosaic</b> of tiny tiles. More tiles in the same space make a sharper picture.</p>
+      </div>
+      <h3>Why can I choose different resolutions?</h3>
+      <p>The 13-inch MacBook Air (M2 and later) really has 2560 × 1664 pixels. When you pick a different "resolution" in Settings, you do not change those real pixels. You choose <b>how big things look</b>:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={resChoice()} /><figcaption>Larger text: easier to read, but less fits. More space: more windows fit, but everything looks smaller.</figcaption></figure>
+      <p>Apple recommends keeping the default setting. Windows has a similar setting called <b>Scale</b>.</p>
+
+      <h3>Refresh rate: how smooth?</h3>
+      <p>Your screen does not show one still picture. It redraws its whole picture again and again, many times each second. <b>Refresh rate</b> is how many times per second it does this, measured in <b>hertz (Hz)</b>:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={refreshPic()} /><figcaption>At 120 Hz, the ball is redrawn twice as often, so it moves in smaller, smoother jumps.</figcaption></figure>
+      <p><b>60 Hz</b> (60 redraws per second) is standard. <b>144 Hz</b> is popular for gaming.</p>
+      <div class="look">
+        <p class="note-label">Do not confuse: refresh rate (Hz) vs. frame rate (fps)</p>
+        <p><Peek label="Frame rate (fps)" title="From Input devices" html={fpsPeek} /> is how many new pictures the <b>video or game</b> makes each second. Refresh rate (Hz) is how many times the <b>screen</b> can show a new picture each second.</p>
+      </div>
+      <p>The two work together. A video has 30 fps, so it holds 30 frames for each second. The screen runs at 60 Hz, so it refreshes 60 times each second. The screen simply shows each video frame twice:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={hzFps()} /><figcaption>A faster screen does not add new motion steps that the video does not have.</figcaption></figure>
+      <p>To show 120 different pictures per second, you need both: a video or game that gives <b>120 fps</b>, and a screen that can refresh at <b>120 Hz</b>.</p>
+
+      <h3>Brightness: how visible?</h3>
+      <p><b>Brightness</b> is how much light the screen gives. Its unit is the <b>nit</b>: 1 nit = 1 candela per square meter (cd/m²). More nits = a brighter screen:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={brightPic()} /><figcaption>Match the brightness to the room, not always to the maximum.</figcaption></figure>
+
+      <div class="sub">
+        <h3>Quick check: Part 1</h3>
+        <p>Tap an answer to see why. For self-study, not for grading.</p>
+        <Quiz id="quiz-p1" questions={part1} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="screen-tech">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Screen technology</p>
+      <h2>How screens make pictures</h2>
+    </div>
+    <div class="flow">
+      <p>Screens make pictures in two main ways: <b>LCD</b> and <b>OLED</b>. The big difference is <b>where the light comes from</b>:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={lcdOled()} /><figcaption>Arrows show the light going to your eyes. Drawn apart so you can see each layer; real layers are thin and pressed together.</figcaption></figure>
+      <div class="sticky">
+        <p class="note-label">Think of Christmas lights</p>
+        <p>An <b>LCD</b> is like a lamp behind window blinds: one light at the back, and the blinds open or block it. An <b>OLED</b> is like a string of Christmas lights: each little bulb lights by itself, and a bulb that is off is completely dark.</p>
+      </div>
+      <p>This table compares the two:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th></th><th>LCD (liquid crystal display)</th><th>OLED (organic light-emitting diode)</th></tr></thead>
+        <tbody>
+          <tr><td><b>Light comes from</b></td><td>a <b>backlight</b> behind the screen, usually LEDs</td><td>each <b>pixel</b>, by itself</td></tr>
+          <tr><td><b>How</b></td><td>liquid crystals open or block the light for each pixel; color filters color it</td><td>each pixel is made of organic material that glows when electricity passes through it</td></tr>
+          <tr><td><b>Black</b></td><td>light blocked: dark, but a little light leaks</td><td>pixel off: no light, <b>true black</b></td></tr>
+          <tr><td><b>Seen in</b></td><td>most laptops, monitors, and many TVs and phones</td><td>many newer smartphones, smartwatches, and high-end TVs</td></tr>
+        </tbody>
+      </table></div>
+      <div class="look">
+        <p class="note-label">Clarification: "LED" screens</p>
+        <p>A screen sold as an "LED" TV or monitor is usually an <b>LCD with an LED backlight</b>. The LEDs only give the light from behind; the liquid crystals still make the picture. "Organic" in OLED means carbon-based compounds that give off light. It does not mean the screen contains anything living.</p>
+      </div>
+      <Fragment set:html={photo("oledPhones", "Phones with OLED screens showing solid red, green, and blue.")} />
+
+      <h3>Projectors</h3>
+      <p>A <b>projector</b> shines an enlarged image onto a screen or wall, so a whole class can see it. Projectors use different technologies. For example, Epson's <b>3LCD</b> projectors work like this:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={proj3lcd()} /><figcaption>How a 3LCD projector makes a color picture.</figcaption></figure>
+      <ol>
+        <li>The light from the lamp is split into <b>red, green, and blue</b>.</li>
+        <li>Each color goes through its own <b>small LCD panel</b>.</li>
+        <li>A <b>prism</b> combines the three colors.</li>
+        <li>A <b>lens</b> projects the color picture onto the screen.</li>
+      </ol>
+      <p>Many newer projectors use LEDs or lasers as the light source instead of a lamp, but the idea is the same.</p>
+      <Fragment set:html={photo("projClass", "A projector mounted on a classroom ceiling.")} />
+
+      <h3>Which display fits the job?</h3>
+      <p>Start with what the display is mostly for. This table gives a good starting point for common situations:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Situation</th><th>Look for</th></tr></thead>
+        <tbody>
+          <tr><td>Schoolwork</td><td>comfortable size, sharp text (good resolution)</td></tr>
+          <tr><td>Gaming</td><td>higher refresh rate</td></tr>
+          <tr><td>Using it outdoors</td><td>high brightness</td></tr>
+          <tr><td>Showing a whole class</td><td>projector</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="sub">
+        <h3>Quick check: Part 2</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p2" questions={part2} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="printers">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Printers</p>
+      <h2>Printers</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Printer</p><p>An output device that makes a <b>physical copy</b> of text or images, usually on paper. A printed copy is called a <b>hard copy</b>: you can hold it.</p></div>
+      <p>Printers are first grouped into two types by <b>how they put marks on the page</b>:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={printerTree()} /><figcaption>Impact: something strikes the page. Nonimpact: nothing strikes the page.</figcaption></figure>
+
+      <h3>Impact printer: dot matrix</h3>
+      <p><b>Impact printers</b> use a mechanism that strikes an ink ribbon against the paper. The common example is the <b>dot matrix printer</b>. Its print head has tiny pins (for example, 24 pins). Each pin that strikes the ribbon leaves one dot, and dots form letters:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={dotMatrix()} /><figcaption>Simplified: real print heads have 9 or 24 pins in a column.</figcaption></figure>
+      <p>Its special skill: because it presses hard, it can print <b>multipart forms</b>, such as 1 original + 3 copies in one go. That is why you still see dot matrix printers in some offices, banks, and government counters.</p>
+      <Fragment set:html={photo("dotMatrix", "A dot matrix printer.")} />
+
+      <h3>Nonimpact printers: inkjet and laser</h3>
+      <p><b>Nonimpact printers</b> make marks without striking the paper. The two you see most often are inkjet and laser printers:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={inkjetLaser()} /><figcaption>Inkjet uses liquid ink. Laser uses toner powder and heat.</figcaption></figure>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Inkjet printer</p><p><b>How:</b> sprays tiny drops of liquid ink through very small nozzles.</p><p><b>Best for:</b> colorful photos and color documents.</p><Fragment set:html={photo("mfp", "An inkjet printer (this one also scans).", "card")} /></div>
+        <div class="fn-card"><p class="fn-t">Laser printer</p><p><b>How:</b> a laser draws the page on a drum with electric charges. Toner powder sticks to the charged spots, moves to the paper, and is melted on with heat.</p><p><b>Best for:</b> many pages of sharp text, fast. Often cheaper per page for people who print a lot.</p><Fragment set:html={photo("laserPr", "A small laser printer.", "card")} /></div>
+      </div>
+
+      <h3>Nonimpact printers: thermal</h3>
+      <p>A <b>thermal printer</b> uses <b>heat</b> to make the print. Its printhead has tiny heaters. It comes in two kinds:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={thermalTwo()} /><figcaption>Both use a hot printhead. Only thermal transfer uses a ribbon.</figcaption></figure>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Direct thermal</p><p><b>How:</b> heat darkens special heat-sensitive paper. No ink at all.</p><p><b>Example:</b> store and ATM receipts. These prints can fade over time.</p></div>
+        <div class="def"><p class="note-label">Thermal transfer</p><p><b>How:</b> heat melts ink (wax or resin) from a ribbon onto a label.</p><p><b>Example:</b> long-lasting barcode labels and tags.</p></div>
+      </div>
+      <Fragment set:html={photo("receiptPr", "A receipt printer at a store counter.")} />
+
+      <h3>3D printers</h3>
+      <p>A <b>3D printer</b> does not print on paper. It <b>builds a real object</b>. It starts with a digital 3D model, then adds thin layers of material one on top of another, using plastic filament, liquid resin, or powder:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={print3d()} /><figcaption>Example: filament-based 3D printing.</figcaption></figure>
+      <Fragment set:html={photo("print3dPh", "A 3D printer building an object from plastic filament.")} />
+
+      <h3>Features: multifunction and portable</h3>
+      <p>Some printer names describe <b>features</b> (what else it does, or its size), not how the printer makes marks. Two common ones are listed below:</p>
+      <ul>
+        <li><b>Multifunction printer (MFP):</b> also scans, copies, and sometimes faxes. The inkjet printer in the photo above is one.</li>
+        <li><b>Portable printer:</b> small, and prints from a phone, often over Bluetooth.</li>
+      </ul>
+      <Fragment set:html={photo("photoPr", "A portable photo printer, about the size of a phone.")} />
+      <div class="look">
+        <p class="note-label">Clarification: one printer, two names</p>
+        <p>One printer can have more than one name. An <b>inkjet multifunction printer</b> uses inkjet technology (how it prints) and also scans and copies (its features). So when a list says "8 types of printers" and mixes inkjet and laser with multifunction and portable, it is mixing <b>technologies</b> with <b>features</b>.</p>
+      </div>
+
+      <h3>Printer specs: how fast and how sharp</h3>
+      <p>When you compare or buy printers, two numbers tell you how fast and how sharp the printer is:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={ppmDpi()} /><figcaption>ppm for speed, dpi for sharpness.</figcaption></figure>
+      <div class="two-col">
+        <div class="def"><p class="note-label">ppm: pages per minute</p><p>How many pages it can print in one minute. Example: a laser printer rated "up to 30 ppm."</p></div>
+        <div class="def"><p class="note-label">dpi: dots per inch</p><p>How many printed dots fit into one inch. More dots: finer detail and smoother edges.</p></div>
+      </div>
+
+      <div class="look">
+        <p class="note-label">Good to know: LED printers and plotters</p>
+        <p>An <b>LED printer</b> works like a laser printer, but a row of tiny LED lights marks the drum instead of a laser beam. A <b>plotter</b> (today usually a <b>large-format printer</b>) prints big drawings, building plans, maps, and posters on wide paper or rolls. Both are output devices: they make hard copies. A plotter is not an audio device, even if it appears in a list of output examples next to speakers.</p>
+      </div>
+      {photoRow([['ledPr', 'An LED printer.'], ['plotter', 'A plotter printing on a wide roll of paper.']])}
+
+      <h3>Which printer fits the job?</h3>
+      <p>Each kind of printer is good at a different job. This table matches common situations to a good choice:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Situation</th><th>Good choice</th></tr></thead>
+        <tbody>
+          <tr><td>A computer shop printing many pages of reports</td><td>laser</td></tr>
+          <tr><td>Printing colorful photos</td><td>inkjet</td></tr>
+          <tr><td>A store printing receipts</td><td>direct thermal</td></tr>
+          <tr><td>Forms with carbon copies</td><td>dot matrix</td></tr>
+          <tr><td>Making a small plastic part</td><td>3D printer</td></tr>
+          <tr><td>Printing big building plans or posters</td><td>plotter (large-format printer)</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="sub">
+        <h3>Quick check: Part 3</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p3" questions={part3} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="audio">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Sound</p>
+      <h2>Audio output devices</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Audio output device</p><p>An output device that turns electrical signals into <b>sound you can hear</b>. Examples: speakers, headphones, and earbuds.</p></div>
+
+      <h3>Inside a speaker</h3>
+      <p>Every speaker, from a big sound system to a tiny earbud, works on the same idea. This is what happens inside, step by step:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={speakerSteps()} /></figure>
+        <ol class="tag-list io">
+          <li>The computer sends an electrical <b>signal</b> to the speaker's <b>voice coil</b>.</li>
+          <li>The signal makes the coil push and pull against a <b>magnet</b>, so the coil vibrates.</li>
+          <li>The coil is attached to a <b>cone</b>, so the cone vibrates too.</li>
+          <li>The moving cone pushes the air. Those air vibrations are the <b>sound waves</b> you hear.</li>
+        </ol>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>A speaker is a <Peek label="microphone" title="From Input devices" html={micPeek} /> working backward: a microphone turns sound into a signal (input); a speaker turns a signal into sound (output).</p>
+      </div>
+
+      <h3>Kinds of speakers</h3>
+      <p>Speakers come in different kinds, depending on where and how they are used. These are four common kinds:</p>
+      <div class="photo-row">
+        <Fragment set:html={photo("spkDesk", "Desktop speakers for a computer.")} />
+        <Fragment set:html={photo("spkBt", "Bluetooth speakers: portable and wireless.")} />
+        <Fragment set:html={photo("spkSmart", "A smart speaker: voice-controlled.")} />
+        <Fragment set:html={photo("studioMon", "A studio monitor, for music production.")} />
+      </div>
+      <div class="look">
+        <p class="note-label">Clarification: smart speakers do both</p>
+        <p>A smart speaker listens for your voice, so it has a <b>microphone</b> (input) as well as a <b>speaker</b> (output).</p>
+      </div>
+
+      <h3>Kinds of headphones and earbuds</h3>
+      <p>Headphones and earbuds are small speakers worn on or in your ears. They come in these kinds:</p>
+      <div class="photo-row">
+        <Fragment set:html={photo("overEar", "Over-ear: the cups cover the ears.")} />
+        <Fragment set:html={photo("onEar", "On-ear: smaller pads rest on the ears.")} />
+        <Fragment set:html={photo("earWired", "Wired earbuds.")} />
+        <Fragment set:html={photo("earTws", "True wireless earbuds with a charging case.")} />
+      </div>
+
+      <h3>Noise cancelling</h3>
+      <p>Sound is made of tiny changes in air pressure: higher, lower, higher, lower. The curves below are drawings of those pressure changes. <b>Noise-cancelling</b> headphones fight noise with sound:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={ancWaves()} /><figcaption>Simplified: some noise remains.</figcaption></figure>
+      <ol>
+        <li>Tiny <b>microphones</b> on the headphones listen to the noise around you.</li>
+        <li>A chip makes an opposite sound wave, called <b>anti-noise</b>: where the noise goes up, the anti-noise goes down.</li>
+        <li>The headphones play the anti-noise. The two waves cancel each other, so you hear <b>less</b> of that noise.</li>
+      </ol>
+      <p>It works best on <b>steady sounds</b>, like an engine hum. How well it works depends on the type of noise. So noise cancelling <b>reduces</b> noise; it does not block all of it.</p>
+      <div class="sticky">
+        <p class="note-label">Think of a swing</p>
+        <p>Two people push a swing from opposite sides at the same time. The pushes cancel, and the swing barely moves.</p>
+      </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(swingSketch())} /></figure>
+      <Fragment set:html={photo("ancPhones", "Noise-cancelling over-ear headphones.")} />
+
+      <h3>Headsets</h3>
+      <p>A <b>headset</b> is headphones (output) with a <b>microphone</b> (input), made for both listening and speaking, as in online classes, calls, and games:</p>
+      <Fragment set:html={photo("headset", "A headset: earpieces (output) and a microphone (input).")} />
+      <div class="look">
+        <p class="note-label">Do not confuse: headset vs. headphones</p>
+        <p>The earpieces give <b>output</b>. A microphone gives <b>input</b>. Many products sold as headphones or earbuds also have microphones, so check what the device includes.</p>
+      </div>
+
+      <h3>Which one fits the situation?</h3>
+      <p>This table matches common situations to a good audio choice:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Situation</th><th>Good choice</th></tr></thead>
+        <tbody>
+          <tr><td>Online class or calls</td><td>headset</td></tr>
+          <tr><td>Commuting on a noisy road</td><td>noise-cancelling headphones or earbuds</td></tr>
+          <tr><td>Group listening in a room</td><td>speaker</td></tr>
+          <tr><td>Low budget</td><td>wired earbuds</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="sub">
+        <h3>Quick check: Part 4</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p4" questions={part4} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="self-check">
+    <div class="chapter-head">
+      <p class="chapter-num">Self-check</p>
+      <h2>Self-check: output devices</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Use this to see what you remember from the whole lesson, then go back to any part you missed.</p>
+
+      <h3>Do not confuse: summary</h3>
+      <p>These pairs are often mixed up. The right column says what makes the two different:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>These two...</th><th>...are different because</th></tr></thead>
+        <tbody>
+          <tr><td><b>Screen size vs. resolution</b></td><td>how big (inches, corner to corner) vs. how many pixels</td></tr>
+          <tr><td><b>Resolution vs. refresh rate</b></td><td>pixels in the picture vs. redraws each second</td></tr>
+          <tr><td><b>Hz vs. fps</b></td><td>screen updates vs. frames from the video or game</td></tr>
+          <tr><td><b>LCD vs. OLED</b></td><td>backlight vs. pixels make their own light</td></tr>
+          <tr><td><b>Soft copy vs. hard copy</b></td><td>on a screen vs. printed (you can hold it)</td></tr>
+          <tr><td><b>Impact vs. nonimpact printer</b></td><td>something strikes a ribbon vs. nothing strikes</td></tr>
+          <tr><td><b>Inkjet vs. laser</b></td><td>drops of liquid ink vs. toner powder melted on</td></tr>
+          <tr><td><b>Direct thermal vs. thermal transfer</b></td><td>special paper darkens vs. ribbon ink melts onto a label</td></tr>
+          <tr><td><b>Technology vs. feature</b></td><td>how it prints (inkjet, laser) vs. what else it does (multifunction, portable)</td></tr>
+          <tr><td><b>ppm vs. dpi</b></td><td>how fast vs. how sharp</td></tr>
+          <tr><td><b>Earpieces vs. microphone</b></td><td>output (play sound) vs. input (capture voice)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Choose the device</h3>
+      <p>For each situation, choose the best device. Tap an answer to see why.</p>
+      <Quiz id="quiz-choose" questions={choose} />
+
+      <h3>Final quiz</h3>
+      <p>Twelve questions: nine from this lesson and three that mix both lessons. For self-study, not for grading.</p>
+      <Quiz id="quiz-final" questions={final} />
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="refs">
+    <div class="flow">
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. C. J. J. Nanual, <i>IT 110 Self-Learning Module, Week 8: Input and Output Devices</i>. Davao Oriental State University, 2026, built from the IT 1A group reports.</li>
+          <li>Microsoft Support, "All about device screens and displays."</li>
+          <li>Apple, "MacBook Air technical specifications"; Apple, "Change your display's resolution on Mac," macOS User Guide.</li>
+          <li>AMD Support, "Adjusting display brightness, resolution and refresh rate"; HP Tech Takes, "Monitor buying guide: How to choose your next display."</li>
+          <li>Elo Touch Solutions, "Definition: Nit (nt)."</li>
+          <li>Lenovo Glossary, "What is a liquid crystal display (LCD)?"; Samsung Display Newsroom, "OLED."</li>
+          <li>Seiko Epson Corporation, "Projector technologies."</li>
+          <li>Epson, "Epson LQ-310 dot matrix printer," product page.</li>
+          <li>HP Tech Takes, "Differences between printer toner vs. ink"; HP Tech Takes, "What types of printers are available today?"</li>
+          <li>Zebra Technologies, "What is a thermal printer?"</li>
+          <li>HP Tech Takes, "How does a 3D printer work?"</li>
+          <li>Canon Australia, "DPI," Canon Glossary.</li>
+          <li>Printerland, "What is an LED printer?"; OKI, "30 years of LED."</li>
+          <li>Canon, "What are plotters or plotter printers? Meaning, features, and uses of plotters."</li>
+          <li>National High Magnetic Field Laboratory, Florida State University, "Speaker," Molecular Expressions.</li>
+          <li>BBC Science Focus, "How do noise-cancelling headphones work?"; Sony Support, "The noise canceling function is weak."</li>
+        </ol>
+        <p class="note-label">Photo credits</p>
+        <p>Real-life photos are from Wikimedia Commons, used under the free licenses shown. Brand names in the photos are there only because the photographers used those products; this lesson does not recommend any brand. The drawings were made for this lesson.</p>
+        <ul set:html={photoCredits(photoKeys)} />
+      </div>
+    </div>
+  </section>
+</Base>
