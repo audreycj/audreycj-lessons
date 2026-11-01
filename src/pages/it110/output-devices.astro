@@ -104,7 +104,7 @@ const final = [
     <div class="flow">
       <div class="def"><p class="note-label">Display device</p><p>An output device that shows the computer's output as <b>pictures and text</b>. What you see on a screen is called a <b>soft copy</b>: you can see it, but you cannot hold it.</p></div>
       <p>Two common display devices are a monitor for a desktop computer and a projector for a big screen:</p>
-      {photoRow([['monitor', 'A monitor for a desktop computer.'], ['projector', 'A projector, for a big screen or a wall.']])}
+      <Fragment set:html={photoRow([['monitor', 'A monitor for a desktop computer.'], ['projector', 'A projector, for a big screen or a wall.']])} />
       <p>When you compare displays, look at four numbers, called <b>specs</b> (specifications). Each one answers a different question:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Spec</th><th>Question it answers</th><th>Unit</th></tr></thead>
@@ -288,7 +288,7 @@ const final = [
         <p class="note-label">Good to know: LED printers and plotters</p>
         <p>An <b>LED printer</b> works like a laser printer, but a row of tiny LED lights marks the drum instead of a laser beam. A <b>plotter</b> (today usually a <b>large-format printer</b>) prints big drawings, building plans, maps, and posters on wide paper or rolls. Both are output devices: they make hard copies. A plotter is not an audio device, even if it appears in a list of output examples next to speakers.</p>
       </div>
-      {photoRow([['ledPr', 'An LED printer.'], ['plotter', 'A plotter printing on a wide roll of paper.']])}
+      <Fragment set:html={photoRow([['ledPr', 'An LED printer.'], ['plotter', 'A plotter printing on a wide roll of paper.']])} />
 
       <h3>Which printer fits the job?</h3>
       <p>Each kind of printer is good at a different job. This table matches common situations to a good choice:</p>
@@ -439,7 +439,7 @@ const final = [
     </div>
   </section>
 
-  <section class="chapter wrap" id="refs">
+  <section class="wrap" id="refs">
     <div class="flow">
       <div class="refs small muted">
         <p class="note-label">References</p>
