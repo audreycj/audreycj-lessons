@@ -3,10 +3,13 @@ import Base from '../../layouts/Base.astro';
 import Quiz from '../../components/Quiz.astro';
 import SortTap from '../../components/SortTap.astro';
 import { course } from '../../data/it110.js';
-import { ipoPic, bothDevices, onlineClass, keyMembrane, keyScissor, keyMech, layoutRows, kbOnscreen, kbWireless, kbErgo, ballMouse, opticalBottom, opticalSteps, padGestures, touchResistive, touchCapacitive, stylusBasic, stylusDigital, mouseMoves, trackballPic,
-  barcodeSteps, barQr, rfidPic, tollGate, lineOfSight, bioSteps, verifyIdentify, faceDots, paperData, scanFlatbed, scanSheetfed, scanPortable, scanHandheld, scanMfp, omrSheet, ocrPhone, fpOptical, fpCapacitive, fpUltrasonic,
-  camPhone, camWebcam, camDslr, camSteps, pixelZoom, videoRes, frameRate, micSteps, micDynamic, micCondenser, micUsb, micLav, micHeadset, micBuiltin, speechSpeaker } from '../../lib/it110-io-pics.js';
+import { ipoPic, bothDevices, onlineClass, keyMembrane, keyScissor, keyMech, layoutRows, kbOnscreen, ballMouse, opticalBottom, opticalSteps, padGestures, touchResistive, touchCapacitive, stylusBasic, stylusDigital, mouseMoves, trackballPic,
+  barcodeSteps, barQr, rfidPic, tollGate, lineOfSight, bioSteps, verifyIdentify, faceDots, paperData, scanPortable, scanHandheld, omrSheet, ocrPhone, fpOptical, fpCapacitive, fpUltrasonic,
+  camSteps, pixelZoom, videoRes, frameRate, micSteps, micDynamic, micCondenser, micBuiltin, speechSpeaker } from '../../lib/it110-io-pics.js';
 import { roughen } from '../../lib/it110-os-pics.js';
+import { photo, photoRow, photoCredits } from '../../data/it110-photos.js';
+// real-life photos used on this page, in page order (credits listed in References)
+const photoKeys = ['kbMembrane', 'kbLaptop', 'kbMech', 'kbWireless', 'kbErgo', 'mouseBall', 'mouseOptical', 'touchpad', 'touchResist', 'touchCap', 'stylus', 'trackball', 'bcScanner', 'qrPhone', 'rfidTags', 'rfidReader', 'fpReader', 'fpClock', 'flatbed', 'sheetfed', 'mfp', 'camPhone', 'webcam', 'dslr', 'micDyn', 'micCond', 'micUsb', 'lav', 'headset'];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Part 1: input, output, or both? (checked against the module and the group reports; chat 43)
@@ -88,7 +91,7 @@ const final = [
         <li>choose the right input device for a situation.</li>
       </ol>
     </div>
-    <p class="muted small"><b>Built from:</b> your Week 8 self-learning module and the IT 1A group reports, checked against the sources at the end. <b>You need:</b> your phone, and a computer if you have one.</p>
+    <p class="muted small"><b>Built from:</b> your Week 8 self-learning module and the IT 1A group reports, checked against the sources at the end. Photos show what each device looks like in real life; drawings show how it works. <b>You need:</b> your phone, and a computer if you have one.</p>
   </header>
 
   <section class="chapter wrap" id="in-out">
@@ -153,11 +156,12 @@ const final = [
     <div class="flow">
       <h3>Keyboards</h3>
       <div class="def"><p class="note-label">Keyboard</p><p>An input device for entering <b>text, numbers, and commands</b>. It is one of the most common input devices: plugged into a desktop computer, or built into a laptop.</p></div>
+      <Fragment set:html={photo("kbMembrane", "A desktop keyboard, like the ones in most offices and computer labs.")} />
       <p>Keyboards are grouped into types by <b>what happens under each key</b> when you press it. These are three common types:</p>
       <div class="fn-grid fn-center">
         <div class="fn-card"><p class="fn-t">Membrane keyboard</p><Fragment set:html={keyMembrane()} /><p>Pressing a key squashes a small <b>rubber dome</b>, which pushes two contact sheets together. The dome then pushes the key back up.</p><p class="fn-can">Soft and quiet. A common, affordable choice for everyday typing, like most office keyboards.</p></div>
-        <div class="fn-card"><p class="fn-t">Scissor-switch keyboard</p><Fragment set:html={keyScissor()} /><p>Still a rubber dome inside, but two <b>crossed plastic parts</b> (like an X, or open scissors) hold a thin keycap steady, so the key can be low and press a short distance.</p><p class="fn-can">Thin and stable. Used in most laptop keyboards.</p></div>
-        <div class="fn-card"><p class="fn-t">Mechanical keyboard</p><Fragment set:html={keyMech()} /><p>Every key has its <b>own switch</b> with a spring inside. Pressing the key closes metal contacts in that switch.</p><p class="fn-can">The feel depends on the switch. Usually costs more, and usually lasts longer.</p></div>
+        <div class="fn-card"><p class="fn-t">Scissor-switch keyboard</p><Fragment set:html={keyScissor()} /><p>Still a rubber dome inside, but two <b>crossed plastic parts</b> (like an X, or open scissors) hold a thin keycap steady, so the key can be low and press a short distance.</p><p class="fn-can">Thin and stable. Used in most laptop keyboards.</p><Fragment set:html={photo("kbLaptop", "Laptop keys: thin and low.", "card")} /></div>
+        <div class="fn-card"><p class="fn-t">Mechanical keyboard</p><Fragment set:html={keyMech()} /><p>Every key has its <b>own switch</b> with a spring inside. Pressing the key closes metal contacts in that switch.</p><p class="fn-can">The feel depends on the switch. Usually costs more, and usually lasts longer.</p><Fragment set:html={photo("kbMech", "A mechanical keyboard: taller keys, each on its own switch.", "card")} /></div>
       </div>
       <p>Mechanical switches come in three common feels. These are examples, not more keyboard types:</p>
       <ul>
@@ -178,8 +182,8 @@ const final = [
       <p>Keyboards can also be described by <b>where the keys are</b>, <b>how they connect</b>, and <b>how they are shaped</b>. Three examples:</p>
       <div class="fn-grid fn-center">
         <div class="fn-card"><p class="fn-t">On-screen keyboard</p><Fragment set:html={kbOnscreen()} /><p>The keys are pictures on a touchscreen. You tap them with your finger.</p></div>
-        <div class="fn-card"><p class="fn-t">Wireless keyboard</p><Fragment set:html={kbWireless()} /><p>Sends key presses through the air to a small receiver or by Bluetooth, so there is no cable.</p></div>
-        <div class="fn-card"><p class="fn-t">Ergonomic keyboard</p><Fragment set:html={kbErgo()} /><p>Shaped to reduce awkward hand positions. A split design helps wrists that bend to the side, but it does not fix every wrist problem. Keeping the wrists flat also matters.</p></div>
+        <div class="fn-card"><p class="fn-t">Wireless keyboard</p><Fragment set:html={photo("kbWireless", "", "card")} /><p>Sends key presses through the air to a small receiver or by Bluetooth, so there is no cable.</p></div>
+        <div class="fn-card"><p class="fn-t">Ergonomic keyboard</p><Fragment set:html={photo("kbErgo", "", "card")} /><p>Shaped to reduce awkward hand positions. A split design helps wrists that bend to the side, but it does not fix every wrist problem. Keeping the wrists flat also matters.</p></div>
       </div>
       <div class="look">
         <p class="note-label">Do not confuse: type vs. layout</p>
@@ -200,8 +204,8 @@ const final = [
       <h3>Mouse</h3>
       <p>A <b>mouse</b> moves the pointer as you slide it on the desk. Its usual controls: the <b>left button</b> to select or open, the <b>right button</b> for a menu of options, and the <b>scroll wheel</b> to move up and down a page. Mice come in two designs, seen here from below:</p>
       <div class="fn-grid fn-center">
-        <div class="fn-card"><p class="fn-t">Old ball mouse</p><Fragment set:html={ballMouse()} /><p>A rubber ball underneath rolls on the desk, and parts inside measure how it turns. Found in older computers.</p></div>
-        <div class="fn-card"><p class="fn-t">Optical mouse</p><Fragment set:html={opticalBottom()} /><p>No ball: a small light and a sensor. With no ball, there are fewer moving parts to wear out or collect dirt.</p></div>
+        <div class="fn-card"><p class="fn-t">Old ball mouse</p><Fragment set:html={ballMouse()} /><p>A rubber ball underneath rolls on the desk, and parts inside measure how it turns. Found in older computers.</p><Fragment set:html={photo("mouseBall", "Opened: the rubber ball and the circuit board.", "card")} /></div>
+        <div class="fn-card"><p class="fn-t">Optical mouse</p><Fragment set:html={opticalBottom()} /><p>No ball: a small light and a sensor. With no ball, there are fewer moving parts to wear out or collect dirt.</p><Fragment set:html={photo("mouseOptical", "The red light and the sensor, seen from below.", "card")} /></div>
       </div>
       <p>The optical mouse replaced the ball mouse. This is how it works, step by step:</p>
       <div class="tag-fig">
@@ -218,12 +222,13 @@ const final = [
       <h3>Touchpad</h3>
       <p>A <b>touchpad</b> is built into laptops. It senses your finger on its surface, so you can move the pointer without a mouse. It can sense <b>several fingers at once</b> (multi-touch), which makes gestures like these possible:</p>
       <figure class="fig illus-fig illus"><Fragment set:html={padGestures()} /><figcaption>Common touchpad gestures. Many laptops add more, such as three-finger swipes to switch between apps.</figcaption></figure>
+      <Fragment set:html={photo("touchpad", "A real laptop touchpad, with two buttons below it.")} />
 
       <h3>Touchscreen</h3>
       <p>A <b>touchscreen</b> is both an <b>output</b> device (it shows the picture) and an <b>input</b> device (it senses your touch). You find them on phones, tablets, and the point-of-sale screens at store counters. Touchscreens are grouped into two main types by how they sense your touch:</p>
       <div class="fn-grid fn-center">
-        <div class="fn-card"><p class="fn-t">Resistive: by pressure</p><Fragment set:html={touchResistive()} /><p>Two thin layers with a tiny gap. Pressing bends the top layer down to touch the bottom layer, and the device detects where.</p><p class="fn-can">Works with a finger, a gloved finger, or any stylus that presses. Traditional resistive screens usually sense only one touch at a time. Seen in older devices and places where people wear gloves.</p></div>
-        <div class="fn-card"><p class="fn-t">Capacitive: by electricity</p><Fragment set:html={touchCapacitive()} /><p>Your body carries a small electrical charge. Your finger on the glass changes the electrical field of a grid under it, and the device detects where.</p><p class="fn-can">Can do multi-touch, such as pinch-to-zoom. Seen in smartphones and tablets.</p></div>
+        <div class="fn-card"><p class="fn-t">Resistive: by pressure</p><Fragment set:html={touchResistive()} /><p>Two thin layers with a tiny gap. Pressing bends the top layer down to touch the bottom layer, and the device detects where.</p><p class="fn-can">Works with a finger, a gloved finger, or any stylus that presses. Traditional resistive screens usually sense only one touch at a time. Seen in older devices and places where people wear gloves.</p><Fragment set:html={photo("touchResist", "The lower screen of this game console is resistive: you press it with a plastic stylus.", "card")} /></div>
+        <div class="fn-card"><p class="fn-t">Capacitive: by electricity</p><Fragment set:html={touchCapacitive()} /><p>Your body carries a small electrical charge. Your finger on the glass changes the electrical field of a grid under it, and the device detects where.</p><p class="fn-can">Can do multi-touch, such as pinch-to-zoom. Seen in smartphones and tablets.</p><Fragment set:html={photo("touchCap", "A phone screen: your finger is enough.", "card")} /></div>
       </div>
       <div class="sticky">
         <p class="note-label">Think of it this way</p>
@@ -234,7 +239,7 @@ const final = [
       <p>A <b>stylus</b> is a pen-like tool for touchscreens. It lets you point and write more precisely than a finger. There are two common kinds:</p>
       <div class="fn-grid fn-center">
         <div class="fn-card"><p class="fn-t">Basic stylus</p><Fragment set:html={stylusBasic()} /><p>A soft, conductive tip acts like your fingertip on a capacitive screen. No pressure sensing.</p><p class="fn-can">Best for tapping, scrolling, and simple notes.</p></div>
-        <div class="fn-card"><p class="fn-t">Digital (active) pen</p><Fragment set:html={stylusDigital()} /><p>Works with a matching device that tracks the pen tip electronically. Often senses pressure: press harder for a thicker line.</p><p class="fn-can">Best for drawing and handwriting, with finer control over the line.</p></div>
+        <div class="fn-card"><p class="fn-t">Digital (active) pen</p><Fragment set:html={stylusDigital()} /><p>Works with a matching device that tracks the pen tip electronically. Often senses pressure: press harder for a thicker line.</p><p class="fn-can">Best for drawing and handwriting, with finer control over the line.</p><Fragment set:html={photo("stylus", "A digital pen with its matching drawing tablet.", "card")} /></div>
       </div>
       <p>Many digital pens have a battery, but some get their power from the screen they work with, so a battery is not what makes a pen "active." A digital pen works only with devices made for it. Both kinds can be used for drawing, handwritten notes, and <b>handwriting recognition</b>, which turns handwriting into typed text.</p>
 
@@ -242,7 +247,7 @@ const final = [
       <p>A <b>trackball</b> moves the pointer like a mouse, but the device <b>stays still</b>. You roll the ball with your thumb, fingers, or palm, and sensors detect which way and how far it turns. Compare the two:</p>
       <div class="fn-grid fn-center">
         <div class="fn-card"><p class="fn-t">Mouse</p><Fragment set:html={mouseMoves()} /><p>The whole device moves across the desk.</p></div>
-        <div class="fn-card"><p class="fn-t">Trackball</p><Fragment set:html={trackballPic()} /><p>Only the ball moves. The base stays put.</p></div>
+        <div class="fn-card"><p class="fn-t">Trackball</p><Fragment set:html={trackballPic()} /><p>Only the ball moves. The base stays put.</p><Fragment set:html={photo("trackball", "A thumb trackball: the base never moves.", "card")} /></div>
       </div>
       <p>A trackball is helpful in two situations:</p>
       <ul>
@@ -275,6 +280,7 @@ const final = [
         <div class="def"><p class="note-label">Barcode</p><p>A pattern of bars and spaces that stores data, such as a <b>product number</b>, in a form a machine can read.</p></div>
         <div class="def"><p class="note-label">Barcode reader</p><p>An input device that reads a barcode <b>with light</b> and sends its data to the computer.</p></div>
       </div>
+      <Fragment set:html={photo("bcScanner", "A handheld barcode reader, like the ones at store counters.")} />
       <p>This is what happens at a supermarket checkout. Orange numbers are input, the blue number is output:</p>
       <div class="tag-fig">
         <figure class="illus"><Fragment set:html={barcodeSteps()} /></figure>
@@ -296,6 +302,7 @@ const final = [
         <p>A 1D barcode is like <b>one line of text</b>. A QR code is like a <b>whole page of text</b>: it uses both width and height, so it holds more.</p>
       </div>
       <p>You do not need a special device to read QR codes. Your <b>phone camera</b> can be a QR reader: the camera captures the code, and software decodes it. That is how you open a restaurant's menu, or pay by scanning a QR code with GCash or Maya.</p>
+      <Fragment set:html={photo("qrPhone", "A phone camera reading a QR code on a sign.")} />
       <div class="look">
         <p class="note-label">Clarification: barcode vs. QR code</p>
         <p>A QR code <b>is</b> a barcode. So "barcode vs. QR code" really means 1D barcode vs. 2D barcode.</p>
@@ -313,6 +320,8 @@ const final = [
         <li><b>The tag:</b> a tiny chip plus a small antenna (it may look like a coil or a flat metal strip), hidden inside a card, sticker, or key chain. It holds an ID number, and sometimes other information.</li>
         <li><b>The reader:</b> its antenna sends out radio waves. When a tag is near, the tag answers with its ID.</li>
       </ul>
+      <p>This is what tags and readers look like in real life:</p>
+      <Fragment set:html={photoRow([["rfidTags", "RFID tags: cards and key fobs, with a chip and antenna inside."], ["rfidReader", "An RFID reader on a wall, for opening doors with a card."]])} />
       <p>RFID tags are grouped into two common types, based on <b>where they get their power</b>:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Type</th><th>Power</th><th>Example</th></tr></thead>
@@ -370,6 +379,8 @@ const final = [
         <div class="fn-card"><p class="fn-t">Capacitive</p><Fragment set:html={fpCapacitive()} /><p>Tiny metal plates sense the small <b>electrical charge</b> where the ridges of your skin touch.</p><p class="fn-can">Common in phones, for example in the power button.</p></div>
         <div class="fn-card"><p class="fn-t">Ultrasonic</p><Fragment set:html={fpUltrasonic()} /><p>Sends <b>sound pulses</b> up to your finger and maps the ridges from the echoes. It can sit under a phone's screen.</p><p class="fn-can">Used in some phones. Often still works when the finger is a little wet.</p></div>
       </div>
+      <p>Fingerprint readers in real life:</p>
+      <Fragment set:html={photoRow([["fpReader", "A fingerprint reader at a building entrance."], ["fpClock", "A fingerprint time clock where employees clock in."]])} />
 
       <h3>Verify or identify?</h3>
       <p>A biometric reader does one of two jobs. The picture shows the difference:</p>
@@ -403,11 +414,11 @@ const final = [
       <h3>Kinds of scanners</h3>
       <p>Scanners come in different forms for different jobs. These are five common kinds:</p>
       <div class="fn-grid fn-center">
-        <div class="fn-card"><p class="fn-t">Flatbed</p><Fragment set:html={scanFlatbed()} /><p>The page lies face down on the glass, under a lid.</p><p class="fn-can">Good for books, photos, and delicate pages.</p></div>
-        <div class="fn-card"><p class="fn-t">Sheet-fed</p><Fragment set:html={scanSheetfed()} /><p>Pulls pages through, one after another.</p><p class="fn-can">Good for scanning many pages quickly.</p></div>
+        <div class="fn-card"><p class="fn-t">Flatbed</p><Fragment set:html={photo("flatbed", "", "card")} /><p>The page lies face down on the glass, under a lid.</p><p class="fn-can">Good for books, photos, and delicate pages.</p></div>
+        <div class="fn-card"><p class="fn-t">Sheet-fed</p><Fragment set:html={photo("sheetfed", "", "card")} /><p>Pulls pages through, one after another.</p><p class="fn-can">Good for scanning many pages quickly.</p></div>
         <div class="fn-card"><p class="fn-t">Portable</p><Fragment set:html={scanPortable()} /><p>Small and light enough to carry in a bag.</p><p class="fn-can">Good for students and people who work away from an office.</p></div>
         <div class="fn-card"><p class="fn-t">Handheld</p><Fragment set:html={scanHandheld()} /><p>You slide it across the page by hand.</p><p class="fn-can">Good for quick, occasional scanning.</p></div>
-        <div class="fn-card"><p class="fn-t">Multifunction printer</p><Fragment set:html={scanMfp()} /><p>One machine that can print, scan, and copy.</p><p class="fn-can">Common in homes, schools, and offices.</p></div>
+        <div class="fn-card"><p class="fn-t">Multifunction printer</p><Fragment set:html={photo("mfp", "", "card")} /><p>One machine that can print, scan, and copy.</p><p class="fn-can">Common in homes, schools, and offices.</p></div>
       </div>
 
       <h3>OCR and OMR in real life</h3>
@@ -450,9 +461,9 @@ const final = [
       <div class="def"><p class="note-label">Digital camera</p><p>An input device that captures <b>photos and videos</b> and saves them as digital files.</p></div>
       <p>There are three common kinds of digital cameras:</p>
       <div class="fn-grid fn-center">
-        <div class="fn-card"><p class="fn-t">Phone camera</p><Fragment set:html={camPhone()} /><p>Built into a smartphone.</p><p class="fn-can">Always with you, and easy to share from.</p></div>
-        <div class="fn-card"><p class="fn-t">Webcam</p><Fragment set:html={camWebcam()} /><p>Built into a laptop or monitor, or plugged in by USB. Made mainly for <b>live video</b>.</p><p class="fn-can">For online classes, video calls, and streaming.</p></div>
-        <div class="fn-card"><p class="fn-t">Dedicated digital camera</p><Fragment set:html={camDslr()} /><p>Made mainly for photography, such as compact, DSLR, and mirrorless cameras.</p><p class="fn-can">DSLR and mirrorless cameras have manual controls and lenses you can change.</p></div>
+        <div class="fn-card"><p class="fn-t">Phone camera</p><Fragment set:html={photo("camPhone", "", "card")} /><p>Built into a smartphone.</p><p class="fn-can">Always with you, and easy to share from.</p></div>
+        <div class="fn-card"><p class="fn-t">Webcam</p><Fragment set:html={photo("webcam", "", "card")} /><p>Built into a laptop or monitor, or plugged in by USB. Made mainly for <b>live video</b>.</p><p class="fn-can">For online classes, video calls, and streaming.</p></div>
+        <div class="fn-card"><p class="fn-t">Dedicated digital camera</p><Fragment set:html={photo("dslr", "", "card")} /><p>Made mainly for photography, such as compact, DSLR, and mirrorless cameras.</p><p class="fn-can">DSLR and mirrorless cameras have manual controls and lenses you can change.</p></div>
       </div>
       <p>Some cameras send video over a network instead of to one computer. These are called <b>network (IP) cameras</b>, and they are often used for security.</p>
 
@@ -528,14 +539,14 @@ const final = [
       </div>
       <p>Microphones are grouped into two common types by <b>how they turn the movement into a signal</b>:</p>
       <div class="fn-grid fn-center">
-        <div class="fn-card"><p class="fn-t">Dynamic microphone</p><Fragment set:html={micDynamic()} /><p>A tiny <b>coil</b> attached to the diaphragm moves near a <b>magnet</b>, which makes the signal.</p><p class="fn-can">Tough, and handles loud sound. Good for live shows.</p></div>
-        <div class="fn-card"><p class="fn-t">Condenser microphone</p><Fragment set:html={micCondenser()} /><p>A very <b>thin film</b> moves near a back plate and changes the electrical charge between them.</p><p class="fn-can">More sensitive and detailed. Good for studios.</p></div>
+        <div class="fn-card"><p class="fn-t">Dynamic microphone</p><Fragment set:html={micDynamic()} /><p>A tiny <b>coil</b> attached to the diaphragm moves near a <b>magnet</b>, which makes the signal.</p><p class="fn-can">Tough, and handles loud sound. Good for live shows.</p><Fragment set:html={photo("micDyn", "A handheld dynamic mic.", "card")} /></div>
+        <div class="fn-card"><p class="fn-t">Condenser microphone</p><Fragment set:html={micCondenser()} /><p>A very <b>thin film</b> moves near a back plate and changes the electrical charge between them.</p><p class="fn-can">More sensitive and detailed. Good for studios.</p><Fragment set:html={photo("micCond", "A studio condenser mic in a spring mount.", "card")} /></div>
       </div>
       <p>Microphones are also named by <b>how they connect</b> or <b>where they sit</b>. Four examples:</p>
       <div class="fn-grid fn-center">
-        <div class="fn-card"><p class="fn-t">USB mic</p><Fragment set:html={micUsb()} /><p>Plugs straight into a computer.</p></div>
-        <div class="fn-card"><p class="fn-t">Lavalier mic</p><Fragment set:html={micLav()} /><p>Small, and clipped to clothes.</p></div>
-        <div class="fn-card"><p class="fn-t">Headset mic</p><Fragment set:html={micHeadset()} /><p>On an arm, close to the mouth.</p></div>
+        <div class="fn-card"><p class="fn-t">USB mic</p><Fragment set:html={photo("micUsb", "", "card")} /><p>Plugs straight into a computer.</p></div>
+        <div class="fn-card"><p class="fn-t">Lavalier mic</p><Fragment set:html={photo("lav", "", "card")} /><p>Small, and clipped to clothes.</p></div>
+        <div class="fn-card"><p class="fn-t">Headset mic</p><Fragment set:html={photo("headset", "", "card")} /><p>On an arm, close to the mouth.</p></div>
         <div class="fn-card"><p class="fn-t">Built-in mic</p><Fragment set:html={micBuiltin()} /><p>Inside phones and laptops.</p></div>
       </div>
       <div class="look">
@@ -637,6 +648,9 @@ const final = [
           <li>Audio-Technica, "A brief guide to microphones: What a microphone does"; Universal Audio, "What are the differences between dynamic and condenser microphones?"</li>
           <li>IBM, "What is speech recognition?"</li>
         </ol>
+        <p class="note-label">Photo credits</p>
+        <p>Real-life photos are from Wikimedia Commons, used under the free licenses shown. The drawings were made for this lesson.</p>
+        <ul set:html={photoCredits(photoKeys)} />
       </div>
     </div>
   </section>

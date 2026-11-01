@@ -1284,3 +1284,16 @@ table.tbl.cat thead th { background: var(--cat); }
 /* IT 110 Input and output (chat 43): numbered tags, orange = input, blue = output */
 .tag-list.io > li::before { background: var(--teal); }
 .tag-list.io > li.in::before { background: var(--orange); }
+
+/* IT 110 real-life photos (chat 44): .photo figure with credit line; .photo-card inside fn-cards; .photo-row side by side */
+.photo { margin: 1rem auto; max-width: 28rem; }
+.photo img { display: block; width: 100%; height: auto; max-height: 22rem; object-fit: contain; border-radius: 10px; background: #fff; border: 1px solid #d9dee6; }
+.photo figcaption { font-size: .8rem; line-height: 1.35; margin-top: .35rem; text-align: center; opacity: .9; }
+.photo .ph-cap { display: block; font-size: .92rem; margin-bottom: .1rem; }
+.photo .ph-credit { opacity: .75; }
+.photo .ph-credit a { color: inherit; text-decoration: underline; }
+.photo.photo-card { margin: .7rem 0 .2rem; max-width: none; }
+.photo.photo-card img { height: 9.5rem; max-height: none; }
+.photo-row { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin: 1rem 0; }
+.photo-row .photo { margin: 0; max-width: none; }
+.photo-row .photo img { height: 13rem; max-height: none; }
