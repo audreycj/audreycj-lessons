@@ -1280,3 +1280,7 @@ table.tbl.cat thead th { background: var(--cat); }
 .wp-grid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
 .wp-grid figure { margin: 0; }
 .wp-grid svg.clean { max-width: none; }
+
+/* IT 110 Input and output (chat 43): numbered tags, orange = input, blue = output */
+.tag-list.io > li::before { background: var(--teal); }
+.tag-list.io > li.in::before { background: var(--orange); }

@@ -34,7 +34,8 @@ export const terms = [
     note: 'Weeks 8 to 12. Everything you need for the midterm exam.',
     units: [
       { name: 'Computer hardware: input and output', icon: 'io', lessons: [
-        { title: 'Input and output devices', href: '/it110/input-output/', status: 'soon' },
+        { title: 'Input devices', href: '/it110/input-devices/', status: 'soon' },
+        { title: 'Output devices', href: '/it110/output-devices/', status: 'soon' },
       ] },
       { name: 'Software', icon: 'app', lessons: [
         { title: 'System software: operating systems and utility programs', href: '/it110/system-software/', status: 'live', blurb: 'What an operating system does, how it makes the computer faster, which OS runs on which device, and the utility programs that keep it healthy.' },

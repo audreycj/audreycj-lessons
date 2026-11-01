@@ -1,0 +1,238 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import SortTap from '../../components/SortTap.astro';
+import { course } from '../../data/it110.js';
+import { ipoPic, bothDevices, onlineClass, keyMembrane, keyScissor, keyMech, layoutRows, kbOnscreen, kbWireless, kbErgo, ballMouse, opticalBottom, opticalSteps, padGestures, touchResistive, touchCapacitive, stylusBasic, stylusDigital, mouseMoves, trackballPic } from '../../lib/it110-io-pics.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Part 1: input, output, or both? (checked against the module and the group reports; chat 43)
+const inOut = [
+  { t: 'Microphone', a: 0, why: 'It captures your voice and sends it into the computer: input.' },
+  { t: 'Printer', a: 1, why: 'It puts the computer\'s results on paper: output.' },
+  { t: 'Touchscreen', a: 2, why: 'It senses your touch (input) and shows the picture (output).' },
+  { t: 'Scanner', a: 0, why: 'It sends a picture of a page into the computer: input.' },
+  { t: 'Projector', a: 1, why: 'It shows the computer\'s picture on a wall or screen: output.' },
+  { t: 'Headset (headphones with a microphone)', a: 2, why: 'The earpieces play sound (output) and the microphone captures your voice (input).' },
+  { t: 'Webcam', a: 0, why: 'It captures video of you and sends it into the computer: input.' },
+  { t: 'Smart speaker', a: 2, why: 'It listens for your voice with a microphone (input) and talks back through its speaker (output).' },
+];
+
+// Part 2 quick check (from the module's Part 2 self-check, plus scissor-switch)
+const part2 = [
+  { q: 'Which one tells how the letters are arranged on a keyboard?', opts: ['Membrane', 'Mechanical', 'QWERTY', 'Wireless'], a: 2, why: 'QWERTY is a layout. Membrane and mechanical are types (how the keys work). Wireless is how it connects.' },
+  { q: 'Which keyboard type uses rubber domes to press contact sheets together?', opts: ['Membrane', 'Mechanical'], a: 0, why: 'A mechanical keyboard uses a separate switch with a spring under each key instead.' },
+  { q: 'Most laptop keys are thin and press only a short distance. Which kind of key is that, usually?', opts: ['Mechanical', 'Scissor-switch', 'On-screen'], a: 1, why: 'Two crossed plastic parts hold a thin keycap steady over a small rubber dome, so the key can be short.' },
+  { q: 'What does an optical mouse use to detect movement?', opts: ['A rubber ball', 'Light and a sensor', 'Radio waves', 'Pressure'], a: 1, why: 'The sensor takes quick pictures of the desk and compares them. A rubber ball was used in old mice.' },
+  { q: 'Which type of touchscreen senses touch by pressure, pushing two layers together?', opts: ['Resistive', 'Capacitive'], a: 0, why: 'Capacitive screens sense the small electrical charge of your skin instead. That is why a traditional resistive screen works with a gloved finger.' },
+  { q: 'Which pointing device stays still while you roll a ball with your thumb or fingers?', opts: ['Optical mouse', 'Trackball', 'Touchpad', 'Old ball mouse'], a: 1, why: 'Only the trackball\'s ball turns. An old ball mouse moved across the desk, and the desk turned its ball underneath.' },
+];
+---
+<Base title="Input Devices · IT 110" description="Input devices: input vs. output, keyboards, mouse and touchpad, touchscreens and stylus, trackballs, barcode, QR, RFID and biometric readers, scanners, cameras, and microphones." course={{ code: course.code, href: base + course.href }} theme="it110" toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>IT 110</a> › Midterm › Input and output</p>
+    <p class="kicker">Input and output · Lesson 1 of 2</p>
+    <h1>Input Devices</h1>
+    <p class="lede">How data gets into a computer: by typing, pointing, touching, scanning, and capturing pictures and sound.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>tell <b>input devices</b> from <b>output devices</b>, and spot devices that do both;</li>
+        <li>explain how keyboards, the mouse, the touchpad, touchscreens, the stylus, and the trackball work, in simple terms;</li>
+        <li>compare devices that people often mix up, such as a keyboard's type vs. its layout;</li>
+        <li>choose the right input device for a situation.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>Built from:</b> your Week 8 self-learning module and the IT 1A group reports, checked against the sources at the end. <b>You need:</b> your phone, and a computer if you have one.</p>
+  </header>
+
+  <section class="chapter wrap" id="in-out">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · In and out</p>
+      <h2>Input and output</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky">
+        <p class="note-label">Think of a sari-sari store window</p>
+        <p>Your money and your order go <b>in</b> through the window. The store owner works on it. Then your goods come <b>out</b>, through the same window. A computer works the same way with data.</p>
+      </div>
+      <p>A computer takes data in, works on it, then gives the results out. These three steps are called <b>input, process, output</b>. The picture shows common devices for each step:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={ipoPic()} /><figcaption>Input devices send data in. The CPU (the computer's "brain") processes it. Output devices give the results back to you.</figcaption></figure>
+      <p>So devices come in two main kinds, based on which way the data goes:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Input device</p><p>Sends data or commands <b>into</b> the computer. Examples: keyboard, mouse, microphone, scanner, camera.</p></div>
+        <div class="def"><p class="note-label">Output device</p><p>Shows or plays the computer's results <b>out</b> to you: on a screen, on paper, or as sound. Examples: screen, printer, speaker, headphones.</p></div>
+      </div>
+
+      <h3>Some devices do both</h3>
+      <p>Some devices have an input part and an output part in one body. To tell which is which, look at what each part does. In the picture, the input part is circled in orange and the output part in blue:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={bothDevices()} /><figcaption>One body, two jobs, like the sari-sari store window.</figcaption></figure>
+      <p>This table lists the input part and the output part of each device:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Device</th><th>Input part</th><th>Output part</th></tr></thead>
+        <tbody>
+          <tr><td><b>Touchscreen</b></td><td>senses your touch</td><td>shows the picture</td></tr>
+          <tr><td><b>Headset</b></td><td>microphone</td><td>headphones (earpieces)</td></tr>
+          <tr><td><b>Multifunction printer</b></td><td>scanner</td><td>printer</td></tr>
+          <tr><td><b>Smart speaker</b></td><td>microphone</td><td>speaker</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Example: your online class</h3>
+      <p>When you join an online class on a laptop or phone, input and output devices work at the same time. Orange numbers are input, blue numbers are output:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={onlineClass()} /></figure>
+        <ol class="tag-list io">
+          <li class="in"><b>Camera</b> captures your face.</li>
+          <li class="in"><b>Microphone</b> captures your voice.</li>
+          <li class="in"><b>Keyboard</b> sends what you type in the chat.</li>
+          <li><b>Screen</b> shows your teacher and classmates.</li>
+          <li><b>Speakers</b> (or your headphones) play their voices.</li>
+        </ol>
+      </div>
+      <p>Your face, voice, and typing go in. Your teacher's and classmates' faces and voices come out.</p>
+
+      <div class="sub">
+        <h3>Try it: input, output, or both?</h3>
+        <p>Tap a choice for each device. Read the reason after each tap.</p>
+        <SortTap id="sort-io" cats={['Input', 'Output', 'Both']} items={inOut} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="text-pointing">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Typing and pointing</p>
+      <h2>Entering text and pointing</h2>
+    </div>
+    <div class="flow">
+      <h3>Keyboards</h3>
+      <div class="def"><p class="note-label">Keyboard</p><p>An input device for entering <b>text, numbers, and commands</b>. It is one of the most common input devices: plugged into a desktop computer, or built into a laptop.</p></div>
+      <p>Keyboards are grouped into types by <b>what happens under each key</b> when you press it. These are three common types:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Membrane keyboard</p><Fragment set:html={keyMembrane()} /><p>Pressing a key squashes a small <b>rubber dome</b>, which pushes two contact sheets together. The dome then pushes the key back up.</p><p class="fn-can">Soft and quiet. A common, affordable choice for everyday typing, like most office keyboards.</p></div>
+        <div class="fn-card"><p class="fn-t">Scissor-switch keyboard</p><Fragment set:html={keyScissor()} /><p>Still a rubber dome inside, but two <b>crossed plastic parts</b> (like an X, or open scissors) hold a thin keycap steady, so the key can be low and press a short distance.</p><p class="fn-can">Thin and stable. Used in most laptop keyboards.</p></div>
+        <div class="fn-card"><p class="fn-t">Mechanical keyboard</p><Fragment set:html={keyMech()} /><p>Every key has its <b>own switch</b> with a spring inside. Pressing the key closes metal contacts in that switch.</p><p class="fn-can">The feel depends on the switch. Usually costs more, and usually lasts longer.</p></div>
+      </div>
+      <p>Mechanical switches come in three common feels. These are examples, not more keyboard types:</p>
+      <ul>
+        <li><b>Linear:</b> smooth all the way down.</li>
+        <li><b>Tactile:</b> you feel a small bump when the key registers.</li>
+        <li><b>Clicky:</b> a bump plus a click sound.</li>
+      </ul>
+
+      <h3>Keyboard layouts</h3>
+      <p>A <b>layout</b> is the arrangement of the letter keys. Each layout is named after its first six letter keys, here are three of them:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={layoutRows()} /><figcaption>Only a few letters move: AZERTY swaps Q with A and W with Z; QWERTZ swaps Y and Z.</figcaption></figure>
+      <ul>
+        <li><b>QWERTY</b> is the layout on most keyboards and phones here. It became popular through the Sholes and Glidden Type-Writer, a typewriter first produced in 1873.</li>
+        <li><b>AZERTY</b> is used for French, and <b>QWERTZ</b> for German and some other Central European languages. Phone keyboards let you pick a layout to match your language.</li>
+      </ul>
+
+      <h3>More kinds of keyboards</h3>
+      <p>Keyboards can also be described by <b>where the keys are</b>, <b>how they connect</b>, and <b>how they are shaped</b>. Three examples:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">On-screen keyboard</p><Fragment set:html={kbOnscreen()} /><p>The keys are pictures on a touchscreen. You tap them with your finger.</p></div>
+        <div class="fn-card"><p class="fn-t">Wireless keyboard</p><Fragment set:html={kbWireless()} /><p>Sends key presses through the air to a small receiver or by Bluetooth, so there is no cable.</p></div>
+        <div class="fn-card"><p class="fn-t">Ergonomic keyboard</p><Fragment set:html={kbErgo()} /><p>Shaped to reduce awkward hand positions. A split design helps wrists that bend to the side, but it does not fix every wrist problem. Keeping the wrists flat also matters.</p></div>
+      </div>
+      <div class="look">
+        <p class="note-label">Do not confuse: type vs. layout</p>
+        <p><b>Type</b> is how the keys work (membrane, scissor-switch, mechanical). <b>Layout</b> is how the letters are arranged (QWERTY, AZERTY). One keyboard can be mechanical, wireless, and QWERTY at the same time.</p>
+      </div>
+
+      <h3>Pointing devices</h3>
+      <div class="def"><p class="note-label">Pointing device</p><p>An input device that moves a <b>pointer</b> (the arrow or cursor) on the screen, so you can select, click, drag, and scroll.</p></div>
+      <p>Pointing devices can be sorted into two groups by <b>where your hand works</b>:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th></th><th>Direct pointing</th><th>Indirect pointing</th></tr></thead>
+        <tbody>
+          <tr><td><b>Where you point</b></td><td>Right on the screen, at the thing you want</td><td>On a separate device; the pointer on the screen follows</td></tr>
+          <tr><td><b>Examples</b></td><td>touchscreen, stylus</td><td>mouse, touchpad, trackball</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Mouse</h3>
+      <p>A <b>mouse</b> moves the pointer as you slide it on the desk. Its usual controls: the <b>left button</b> to select or open, the <b>right button</b> for a menu of options, and the <b>scroll wheel</b> to move up and down a page. Mice come in two designs, seen here from below:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Old ball mouse</p><Fragment set:html={ballMouse()} /><p>A rubber ball underneath rolls on the desk, and parts inside measure how it turns. Found in older computers.</p></div>
+        <div class="fn-card"><p class="fn-t">Optical mouse</p><Fragment set:html={opticalBottom()} /><p>No ball: a small light and a sensor. With no ball, there are fewer moving parts to wear out or collect dirt.</p></div>
+      </div>
+      <p>The optical mouse replaced the ball mouse. This is how it works, step by step:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={opticalSteps()} /></figure>
+        <ol class="tag-list io">
+          <li class="in">A small <b>light</b> (LED or laser) under the mouse shines on the desk.</li>
+          <li class="in">A <b>sensor</b> takes many quick pictures of the desk surface.</li>
+          <li class="in">It <b>compares</b> the pictures to tell which way, and how far, the mouse moved.</li>
+          <li>The computer moves the <b>pointer</b> on the screen in that same direction, by a matching distance.</li>
+        </ol>
+      </div>
+      <p>A mouse can be <b>wired</b> or <b>wireless</b> (with a small USB receiver or Bluetooth). A <b>gaming mouse</b> adds extra buttons and is made for fast, precise movement.</p>
+
+      <h3>Touchpad</h3>
+      <p>A <b>touchpad</b> is built into laptops. It senses your finger on its surface, so you can move the pointer without a mouse. It can sense <b>several fingers at once</b> (multi-touch), which makes gestures like these possible:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={padGestures()} /><figcaption>Common touchpad gestures. Many laptops add more, such as three-finger swipes to switch between apps.</figcaption></figure>
+
+      <h3>Touchscreen</h3>
+      <p>A <b>touchscreen</b> is both an <b>output</b> device (it shows the picture) and an <b>input</b> device (it senses your touch). You find them on phones, tablets, and the point-of-sale screens at store counters. Touchscreens are grouped into two main types by how they sense your touch:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Resistive: by pressure</p><Fragment set:html={touchResistive()} /><p>Two thin layers with a tiny gap. Pressing bends the top layer down to touch the bottom layer, and the device detects where.</p><p class="fn-can">Works with a finger, a gloved finger, or any stylus that presses. Traditional resistive screens usually sense only one touch at a time. Seen in older devices and places where people wear gloves.</p></div>
+        <div class="fn-card"><p class="fn-t">Capacitive: by electricity</p><Fragment set:html={touchCapacitive()} /><p>Your body carries a small electrical charge. Your finger on the glass changes the electrical field of a grid under it, and the device detects where.</p><p class="fn-can">Can do multi-touch, such as pinch-to-zoom. Seen in smartphones and tablets.</p></div>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>Resistive is like pressing a <b>doorbell</b>: it needs a real push. Capacitive is like a <b>light that turns on when you come near</b>: it senses you, not your force.</p>
+      </div>
+
+      <h3>Stylus</h3>
+      <p>A <b>stylus</b> is a pen-like tool for touchscreens. It lets you point and write more precisely than a finger. There are two common kinds:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Basic stylus</p><Fragment set:html={stylusBasic()} /><p>A soft, conductive tip acts like your fingertip on a capacitive screen. No pressure sensing.</p><p class="fn-can">Best for tapping, scrolling, and simple notes.</p></div>
+        <div class="fn-card"><p class="fn-t">Digital (active) pen</p><Fragment set:html={stylusDigital()} /><p>Works with a matching device that tracks the pen tip electronically. Often senses pressure: press harder for a thicker line.</p><p class="fn-can">Best for drawing and handwriting, with finer control over the line.</p></div>
+      </div>
+      <p>Many digital pens have a battery, but some get their power from the screen they work with, so a battery is not what makes a pen "active." A digital pen works only with devices made for it. Both kinds can be used for drawing, handwritten notes, and <b>handwriting recognition</b>, which turns handwriting into typed text.</p>
+
+      <h3>Trackball</h3>
+      <p>A <b>trackball</b> moves the pointer like a mouse, but the device <b>stays still</b>. You roll the ball with your thumb, fingers, or palm, and sensors detect which way and how far it turns. Compare the two:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Mouse</p><Fragment set:html={mouseMoves()} /><p>The whole device moves across the desk.</p></div>
+        <div class="fn-card"><p class="fn-t">Trackball</p><Fragment set:html={trackballPic()} /><p>Only the ball moves. The base stays put.</p></div>
+      </div>
+      <p>A trackball is helpful in two situations:</p>
+      <ul>
+        <li><b>Small desks:</b> you do not slide it around.</li>
+        <li><b>Long sessions:</b> the hand moves less, which may mean less strain.</li>
+      </ul>
+      <div class="look">
+        <p class="note-label">Do not confuse: ball mouse vs. trackball</p>
+        <p>An old ball mouse had its ball <b>underneath</b>, turned by the desk. A trackball's ball is <b>on top</b>, and you turn it directly. Using a mouse is like walking across a room; using a trackball is like spinning a globe on its stand.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 2</h3>
+        <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+        <Quiz id="quiz-p2" questions={part2} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="refs">
+    <div class="flow">
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>A. C. J. J. Nanual, <i>IT 110 Self-Learning Module, Week 8: Input and Output Devices</i>. Davao Oriental State University, 2026, built from the IT 1A group reports.</li>
+          <li>Logitech, "Mechanical vs. membrane keyboards: How to choose the right one"; Logitech G, "Advanced mechanical switches."</li>
+          <li>Lenovo Glossary: "What is a scissor switch?", "What is an optical mouse?", "What is a touchpad?", "What is a stylus?", "What is a trackball?"</li>
+          <li>Library of Congress, "Production on the Sholes and Glidden Type-Writer began," This Month in Business History.</li>
+          <li>Microsoft Support, "How do I change the keyboard layout (e.g. QWERTY to AZERTY) in Microsoft SwiftKey Keyboard?"</li>
+          <li>Cornell University Ergonomics Web, "Keyboards" (DEA 3250 course notes).</li>
+          <li>Elo Touch Solutions, "What information is available regarding the different Elo touchscreen technologies?"</li>
+          <li>Wacom, "EMR (Electro-Magnetic Resonance)" technology overview.</li>
+          <li>R. J. K. Jacob, "Human-Computer Interaction: Input Devices," Tufts University (direct vs. indirect pointing).</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</Base>
