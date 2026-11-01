@@ -3,7 +3,10 @@ import Base from '../../layouts/Base.astro';
 import Quiz from '../../components/Quiz.astro';
 import SortTap from '../../components/SortTap.astro';
 import { course } from '../../data/it110.js';
-import { ipoPic, bothDevices, onlineClass, keyMembrane, keyScissor, keyMech, layoutRows, kbOnscreen, kbWireless, kbErgo, ballMouse, opticalBottom, opticalSteps, padGestures, touchResistive, touchCapacitive, stylusBasic, stylusDigital, mouseMoves, trackballPic } from '../../lib/it110-io-pics.js';
+import { ipoPic, bothDevices, onlineClass, keyMembrane, keyScissor, keyMech, layoutRows, kbOnscreen, kbWireless, kbErgo, ballMouse, opticalBottom, opticalSteps, padGestures, touchResistive, touchCapacitive, stylusBasic, stylusDigital, mouseMoves, trackballPic,
+  barcodeSteps, barQr, rfidPic, tollGate, lineOfSight, bioSteps, verifyIdentify, faceDots, paperData, scanFlatbed, scanSheetfed, scanPortable, scanHandheld, scanMfp, omrSheet, ocrPhone, fpOptical, fpCapacitive, fpUltrasonic,
+  camPhone, camWebcam, camDslr, camSteps, pixelZoom, videoRes, frameRate, micSteps, micDynamic, micCondenser, micUsb, micLav, micHeadset, micBuiltin, speechSpeaker } from '../../lib/it110-io-pics.js';
+import { roughen } from '../../lib/it110-os-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Part 1: input, output, or both? (checked against the module and the group reports; chat 43)
@@ -27,6 +30,48 @@ const part2 = [
   { q: 'Which type of touchscreen senses touch by pressure, pushing two layers together?', opts: ['Resistive', 'Capacitive'], a: 0, why: 'Capacitive screens sense the small electrical charge of your skin instead. That is why a traditional resistive screen works with a gloved finger.' },
   { q: 'Which pointing device stays still while you roll a ball with your thumb or fingers?', opts: ['Optical mouse', 'Trackball', 'Touchpad', 'Old ball mouse'], a: 1, why: 'Only the trackball\'s ball turns. An old ball mouse moved across the desk, and the desk turned its ball underneath.' },
 ];
+
+// Part 3 quick check (from the module's Part 3 self-check)
+const part3 = [
+  { q: 'Which statement is correct?', opts: ['A QR code is not a barcode.', 'A QR code is a 2D barcode.', 'A QR code uses radio waves.'], a: 1, why: 'A QR code is a two-dimensional barcode, read by a camera. It does not use radio waves: that is RFID.' },
+  { q: 'A warehouse wants to identify tagged boxes without opening them or pointing at each label. Which fits best?', opts: ['1D barcode', 'QR code', 'RFID'], a: 2, why: 'RFID does not need line of sight. A suitable RFID system can read several tags without seeing them.' },
+  { q: 'Unlocking your own phone with your face is:', opts: ['verify (1:1)', 'identify (1:N)'], a: 0, why: 'The phone checks your face against your own saved template only.' },
+  { q: 'Rico took a photo of a handout and wants to copy one paragraph. What does he need?', opts: ['OMR', 'OCR', 'RFID'], a: 1, why: 'His photo is only a picture. OCR turns the letters in it into text he can copy.' },
+  { q: 'The guidance office will check 300 shaded answer sheets. Which fits best?', opts: ['OCR', 'OMR', 'A webcam'], a: 1, why: 'OMR checks which bubble is shaded in fixed spots. Reading letters is not needed.' },
+];
+
+// Part 4 quick check (from the module's Part 4 self-check)
+const part4 = [
+  { q: 'A webcam is labeled "1080p, 30 fps." What does 30 fps tell you?', opts: ['How sharp each picture is', 'How many pictures it captures each second', 'How loud the microphone is'], a: 1, why: 'fps means frames per second. 1080p describes the size of each frame: 1,080 rows of pixels.' },
+  { q: 'Which part of a camera turns light into electrical charges?', opts: ['Lens', 'Image sensor', 'Memory card'], a: 1, why: 'Its photosites turn light into electrical charges. The lens only focuses the light.' },
+  { q: 'A band needs a tough mic for a loud outdoor fiesta stage. Which type fits?', opts: ['Dynamic', 'Condenser'], a: 0, why: 'Dynamic mics are more durable and handle loud sound, which suits live shows.' },
+  { q: 'Your phone types the words you say into a text message. This is:', opts: ['Speech recognition', 'Speaker recognition'], a: 0, why: 'It works out what you said. Speaker recognition works out who is speaking.' },
+];
+
+// Self-check: choose the device (3 from the module's review + 4 new; chat 44)
+const choose = [
+  { q: "A barangay health center records patients' visits. The table is small, and the worker uses the pointer all day.", opts: ['Trackball', 'Scanner', 'Webcam', 'Barcode reader'], a: 0, why: 'A trackball stays still, so it needs little desk space, and the hand moves less. A mouse also works if there is room.' },
+  { q: 'A student wants to put notes from a printed book into a document without retyping them.', opts: ['Webcam', 'Scanner (or phone camera) + OCR', 'OMR reader', 'Barcode reader'], a: 1, why: 'The scanner or camera captures the page. OCR turns the letters into text the student can edit.' },
+  { q: 'A school wants doors that open with ID cards, without showing the card to a camera.', opts: ['QR code reader', 'RFID reader and RFID cards', '1D barcode reader'], a: 1, why: 'Radio waves do not need line of sight, so the card only has to be near the reader.' },
+  { q: 'A sari-sari store owner wants faster checkout and a record of what was sold.', opts: ['Barcode reader', 'Microphone', 'OMR reader', 'Trackball'], a: 0, why: "It reads each product's barcode and sends the number to the computer, which looks up the name and price and records the sale." },
+  { q: 'A teacher gives a talk while walking around the room and needs both hands free.', opts: ['Lavalier mic', 'USB desk mic', 'Built-in laptop mic'], a: 0, why: 'It clips to clothes, so it moves with the speaker and leaves both hands free. A headset mic also works.' },
+  { q: 'An office wants a time clock that finds which employee scanned a finger, without typing a name or ID.', opts: ['Fingerprint reader that verifies (1:1)', 'Fingerprint reader that identifies (1:N)', 'Barcode reader'], a: 1, why: 'Identify searches all the saved employees to find who it is. Verify needs to know who you claim to be first, for example from a typed ID number.' },
+  { q: 'A student will join an online class from a desktop computer that has no camera.', opts: ['Webcam', 'Scanner', 'Trackball', 'OMR reader'], a: 0, why: 'A webcam is made for live video and plugs in by USB. Check whether it has a microphone too.' },
+];
+
+// Self-check: final quiz (new questions, not repeats of the part checks; chat 44)
+const final = [
+  { q: 'Which one is an input device?', opts: ['Projector', 'Speaker', 'Microphone', 'Printer'], a: 2, why: 'A microphone sends your voice into the computer. The others give results out.' },
+  { q: 'A keyboard is mechanical, wireless, and QWERTY. Which word tells its layout?', opts: ['Mechanical', 'Wireless', 'QWERTY'], a: 2, why: 'QWERTY is how the letters are arranged. Mechanical is its type, and wireless is how it connects.' },
+  { q: 'Which one is direct pointing?', opts: ['Mouse', 'Touchpad', 'Stylus on a tablet screen', 'Trackball'], a: 2, why: 'You point right on the screen, at the thing you want. With the others, you work on a separate device and the pointer follows.' },
+  { q: 'Which one must the reader be able to "see" directly?', opts: ['An RFID tag inside a closed box', 'A barcode on a can', 'Neither'], a: 1, why: 'Barcodes are read with light, so they need line of sight. RFID uses radio waves, which pass through cardboard.' },
+  { q: 'An Easytrip sticker has no battery. What kind of RFID tag is it?', opts: ['Passive', 'Active'], a: 0, why: "The reader's radio waves give it just enough power to answer. Active tags have their own battery." },
+  { q: 'What does a biometric system save when you enroll?', opts: ['Your password', 'A template: a list of numbers that describes your trait', 'A barcode of your ID'], a: 1, why: 'Each later scan is turned into a new template and compared with the saved one.' },
+  { q: 'Which one is hardware?', opts: ['A scanner', 'A scanner app', 'OCR'], a: 0, why: "A scanner app and OCR are software. A scanner app uses the phone's camera as its hardware." },
+  { q: 'A webcam is labeled "1080p, 30 fps." What does 1080p tell you?', opts: ['How many pictures it makes each second', 'How many rows of pixels each picture has', 'How loud its microphone is'], a: 1, why: 'The p number is the rows of pixels in each frame. The 30 fps is how many frames each second.' },
+  { q: 'A 12 MP camera makes photos with about how many pixels?', opts: ['12 thousand', '12 million', '12 billion'], a: 1, why: 'One megapixel is one million pixels, so 12 MP is about 12 million, such as 4,000 × 3,000.' },
+  { q: 'An app checks that the voice on a call really belongs to the account owner. This is:', opts: ['Speech recognition', 'Speaker recognition'], a: 1, why: 'It checks who is speaking, not what was said.' },
+];
 ---
 <Base title="Input Devices · IT 110" description="Input devices: input vs. output, keyboards, mouse and touchpad, touchscreens and stylus, trackballs, barcode, QR, RFID and biometric readers, scanners, cameras, and microphones." course={{ code: course.code, href: base + course.href }} theme="it110" toc>
   <header class="wrap lesson-hero flow">
@@ -38,8 +83,8 @@ const part2 = [
       <p class="note-label">By the end, you can:</p>
       <ol>
         <li>tell <b>input devices</b> from <b>output devices</b>, and spot devices that do both;</li>
-        <li>explain how keyboards, the mouse, the touchpad, touchscreens, the stylus, and the trackball work, in simple terms;</li>
-        <li>compare devices that people often mix up, such as a keyboard's type vs. its layout;</li>
+        <li>explain how keyboards, pointing devices, barcode, QR, and RFID readers, biometric readers, scanners, cameras, and microphones work, in simple terms;</li>
+        <li>compare things that people often mix up, such as QR vs. RFID, OCR vs. OMR, and speech vs. speaker recognition;</li>
         <li>choose the right input device for a situation.</li>
       </ol>
     </div>
@@ -217,6 +262,349 @@ const part2 = [
     </div>
   </section>
 
+  <section class="chapter wrap" id="readers">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Codes, traits, and documents</p>
+      <h2>Capturing codes, traits, and documents</h2>
+    </div>
+    <div class="flow">
+      <p>Some input devices do not wait for you to type or point. They <b>read</b> something: a printed code, a hidden tag, a part of your body, or a whole page. This part covers three groups of these readers: (1) barcode, QR, and RFID readers, (2) biometric readers, and (3) scanners, with OCR and OMR.</p>
+
+      <h3>Barcode readers</h3>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Barcode</p><p>A pattern of bars and spaces that stores data, such as a <b>product number</b>, in a form a machine can read.</p></div>
+        <div class="def"><p class="note-label">Barcode reader</p><p>An input device that reads a barcode <b>with light</b> and sends its data to the computer.</p></div>
+      </div>
+      <p>This is what happens at a supermarket checkout. Orange numbers are input, the blue number is output:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={barcodeSteps()} /></figure>
+        <ol class="tag-list io">
+          <li class="in">The cashier points the <b>reader</b> at the barcode.</li>
+          <li class="in">The reader shines <b>light</b> and reads the pattern of bars.</li>
+          <li class="in">It sends the <b>product number</b> to the computer.</li>
+          <li>The computer finds the item's <b>name and price</b> and shows them.</li>
+        </ol>
+      </div>
+      <p>The barcode holds only the number. The name and price are stored in the store's computer, so the store can change a price without reprinting the labels.</p>
+      <p>This common kind is called a <b>1D (one-dimensional) barcode</b>, because its data is arranged along one line of bars and spaces. The U.P.C. code on grocery items is an example.</p>
+
+      <h3>QR codes: 2D barcodes</h3>
+      <p>A <b>QR code</b> (Quick Response code) is a <b>two-dimensional (2D) barcode</b>: a square made of small black squares on white. Its data is spread across and down the square, so it can hold much more data than a 1D barcode. Compare the two:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={barQr()} /><figcaption>Drawings only, not real codes. The three big squares in the corners help the reader find the code and tell which way it is turned.</figcaption></figure>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>A 1D barcode is like <b>one line of text</b>. A QR code is like a <b>whole page of text</b>: it uses both width and height, so it holds more.</p>
+      </div>
+      <p>You do not need a special device to read QR codes. Your <b>phone camera</b> can be a QR reader: the camera captures the code, and software decodes it. That is how you open a restaurant's menu, or pay by scanning a QR code with GCash or Maya.</p>
+      <div class="look">
+        <p class="note-label">Clarification: barcode vs. QR code</p>
+        <p>A QR code <b>is</b> a barcode. So "barcode vs. QR code" really means 1D barcode vs. 2D barcode.</p>
+      </div>
+      <div class="look">
+        <p class="note-label">Good to know: a little history</p>
+        <p>The barcode idea was patented in <b>1952</b>. The first item scanned with a U.P.C. barcode at a store checkout was a pack of chewing gum, in <b>1974</b>, in the United States. The QR code came later: the Japanese company <b>Denso Wave</b> made it in <b>1994</b> to track car parts in factories, long before phones could scan it. QR became an international ISO/IEC standard in 2000. No need to memorize these dates. If your group's slides say otherwise, follow this lesson.</p>
+      </div>
+
+      <h3>RFID readers</h3>
+      <div class="def"><p class="note-label">RFID (Radio Frequency Identification)</p><p>A way to identify things using <b>radio waves</b> instead of light.</p></div>
+      <p>An RFID system has two parts, shown in the picture:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={rfidPic()} /><figcaption>The reader sends out radio waves. The tag answers with its ID.</figcaption></figure>
+      <ul>
+        <li><b>The tag:</b> a tiny chip plus a small antenna (it may look like a coil or a flat metal strip), hidden inside a card, sticker, or key chain. It holds an ID number, and sometimes other information.</li>
+        <li><b>The reader:</b> its antenna sends out radio waves. When a tag is near, the tag answers with its ID.</li>
+      </ul>
+      <p>RFID tags are grouped into two common types, based on <b>where they get their power</b>:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Type</th><th>Power</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><b>Passive tag</b></td><td>No battery. The reader's radio waves give it just enough power to answer.</td><td>ID cards, sticker tags</td></tr>
+          <tr><td><b>Active tag</b></td><td>Has its own battery.</td><td>Larger tags used to track equipment</td></tr>
+        </tbody>
+      </table></div>
+      <p>You may have seen RFID on the expressway. Cars with an <b>Easytrip RFID sticker</b> on the windshield do not pay cash at the toll gate. A reader above the lane reads the sticker, checks the account, and takes the toll fee from the preloaded balance. Then the gate opens:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={roughen(tollGate())} /><figcaption>An RFID toll lane. The windshield sticker is a passive tag: it has no battery.</figcaption></figure>
+      <div class="look">
+        <p class="note-label">Good to know: tap to pay is RFID too</p>
+        <p>When you tap a phone or a card to pay, it usually uses <b>NFC</b> (Near Field Communication). NFC is a <b>short-range kind of RFID</b>: it works only within a few centimeters, which is why you hold the phone or card right next to the reader.</p>
+      </div>
+
+      <h3>Line of sight</h3>
+      <p><b>Line of sight</b> means the reader must be able to "see" the code directly, with nothing blocking it. A barcode needs line of sight. RFID does not:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={lineOfSight()} /><figcaption>Light cannot pass through the box. Radio waves can.</figcaption></figure>
+      <p>Radio waves pass through paper, cardboard, and plastic, so a suitable RFID system can read several tags inside a closed box, or a card inside a wallet, without seeing them. How well it works still depends on the distance, where the tag is placed, nearby materials such as metal, and the reader used.</p>
+      <p>This table compares the three ways of reading codes and tags:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th></th><th>1D barcode</th><th>QR code</th><th>RFID</th></tr></thead>
+        <tbody>
+          <tr><td><b>Read with</b></td><td>light</td><td>a camera (light)</td><td>radio waves</td></tr>
+          <tr><td><b>Must the reader see it?</b></td><td>yes</td><td>yes</td><td>no</td></tr>
+          <tr><td><b>Example</b></td><td>grocery item</td><td>menu, payment</td><td>toll sticker, ID card</td></tr>
+        </tbody>
+      </table></div>
+      <div class="look">
+        <p class="note-label">Do not confuse: QR vs. RFID</p>
+        <p>A QR code is a <b>printed picture</b>, read by a camera. RFID is a <b>chip with an antenna</b>, read by radio waves.</p>
+      </div>
+
+      <h3>Biometric readers</h3>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Biometrics</p><p>Measuring a person's <b>physical or behavioral traits</b>, such as fingerprints, faces, irises (the colored part of the eye), or voice, to identify them.</p></div>
+        <div class="def"><p class="note-label">Biometric reader</p><p>The input device that <b>captures the trait</b>: a fingerprint sensor, a camera, or an iris scanner.</p></div>
+      </div>
+      <p>Before you can use a biometric reader, you <b>enroll</b>: the system captures your fingerprint or face once and saves a reference <b>template</b> linked to you. After that, every time you use it, these four steps happen:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={bioSteps()} /></figure>
+        <ol class="tag-list io">
+          <li class="in"><b>Capture:</b> a sensor records the trait (finger, face, voice).</li>
+          <li class="in"><b>Find features:</b> software finds the details that make it different from others, such as where fingerprint ridges end or split.</li>
+          <li class="in"><b>Make a template:</b> the features become a list of numbers.</li>
+          <li class="in"><b>Compare:</b> the new template is compared with the saved one. If they are similar enough, it is a match.</li>
+        </ol>
+      </div>
+      <p>A real template is much more detailed than the few numbers in the picture. Whether the system also keeps the original fingerprint or face image depends on the system.</p>
+
+      <h3>Three kinds of fingerprint sensors</h3>
+      <p>Fingerprint readers are grouped by <b>how they sense the ridges</b> of your finger. These are three common kinds:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Optical</p><Fragment set:html={fpOptical()} /><p>Shines <b>light</b> on your finger and takes a picture of the ridges with a tiny camera.</p><p class="fn-can">Common in time clocks and door locks.</p></div>
+        <div class="fn-card"><p class="fn-t">Capacitive</p><Fragment set:html={fpCapacitive()} /><p>Tiny metal plates sense the small <b>electrical charge</b> where the ridges of your skin touch.</p><p class="fn-can">Common in phones, for example in the power button.</p></div>
+        <div class="fn-card"><p class="fn-t">Ultrasonic</p><Fragment set:html={fpUltrasonic()} /><p>Sends <b>sound pulses</b> up to your finger and maps the ridges from the echoes. It can sit under a phone's screen.</p><p class="fn-can">Used in some phones. Often still works when the finger is a little wet.</p></div>
+      </div>
+
+      <h3>Verify or identify?</h3>
+      <p>A biometric reader does one of two jobs. The picture shows the difference:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={verifyIdentify()} /><figcaption>Verify checks one record. Identify searches many.</figcaption></figure>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Verify (1:1)</p><p>"Is this really Ana?" It compares your trait with <b>one</b> saved record: yours. This is called one-to-one matching. Example: unlocking your own phone.</p></div>
+        <div class="def"><p class="note-label">Identify (1:N)</p><p>"Who is this?" It compares your trait with <b>many</b> saved records to find a match. This is called one-to-many matching. Example: an office time clock that finds which employee just scanned a finger.</p></div>
+      </div>
+
+      <h3>Not every face unlock is the same</h3>
+      <p>Face unlock on phones works in different ways, and some ways are safer than others:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={faceDots()} /><figcaption>A 3D dot map vs. a flat camera picture.</figcaption></figure>
+      <p>Apple's <b>Face ID</b> shines thousands of invisible dots on your face to make a depth map, and also takes an infrared picture. So it measures the <b>3D shape</b> of the face, not just a flat photo. Some other phones only compare a <b>normal camera picture</b>. For example, Samsung's support page about the Galaxy S10 says its face recognition is less secure than a PIN, pattern, or password, and that the phone could be unlocked by someone or something that looks like you.</p>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>A 3D dot map is like checking a real <b>clay statue</b>. A flat camera picture is like checking a <b>printed photo</b>: easier to fool.</p>
+      </div>
+      <div class="look">
+        <p class="note-label">Biometrics can make mistakes</p>
+        <p>Apple says the chance that a random person can unlock your phone with Face ID is less than 1 in 1,000,000. The chance is higher for identical twins, siblings who look alike, and children under 13. That is why phones also ask for a passcode. (No need to memorize the number.)</p>
+      </div>
+
+      <h3>Scanners, OCR, and OMR</h3>
+      <p>These three often work together, but each does a different job. A scanner captures a page as a picture. Then, depending on the task, OCR or OMR recognizes what is on it:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={paperData()} /><figcaption>Scanning makes a picture. OCR recognizes text. OMR detects marked spots. (Some dedicated OMR machines read the marks directly, without saving a picture.)</figcaption></figure>
+      <p>Here is what each one is:</p>
+      <div class="def"><p class="note-label">Scanner</p><p>An input device (hardware) that shines light on a page and records it as a <b>digital picture</b>.</p></div>
+      <div class="def"><p class="note-label">OCR (Optical Character Recognition)</p><p>Software that finds the <b>letters and numbers</b> in that picture and turns them into real text you can edit and search.</p></div>
+      <div class="def"><p class="note-label">OMR (Optical Mark Recognition)</p><p>Technology that checks whether a <b>mark</b>, like a shaded oval, is in fixed spots on a form.</p></div>
+
+      <h3>Kinds of scanners</h3>
+      <p>Scanners come in different forms for different jobs. These are five common kinds:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Flatbed</p><Fragment set:html={scanFlatbed()} /><p>The page lies face down on the glass, under a lid.</p><p class="fn-can">Good for books, photos, and delicate pages.</p></div>
+        <div class="fn-card"><p class="fn-t">Sheet-fed</p><Fragment set:html={scanSheetfed()} /><p>Pulls pages through, one after another.</p><p class="fn-can">Good for scanning many pages quickly.</p></div>
+        <div class="fn-card"><p class="fn-t">Portable</p><Fragment set:html={scanPortable()} /><p>Small and light enough to carry in a bag.</p><p class="fn-can">Good for students and people who work away from an office.</p></div>
+        <div class="fn-card"><p class="fn-t">Handheld</p><Fragment set:html={scanHandheld()} /><p>You slide it across the page by hand.</p><p class="fn-can">Good for quick, occasional scanning.</p></div>
+        <div class="fn-card"><p class="fn-t">Multifunction printer</p><Fragment set:html={scanMfp()} /><p>One machine that can print, scan, and copy.</p><p class="fn-can">Common in homes, schools, and offices.</p></div>
+      </div>
+
+      <h3>OCR and OMR in real life</h3>
+      <p>You have probably used both already:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">OCR: reading letters</p><Fragment set:html={ocrPhone()} /><p>Phone apps such as <b>Google Lens</b> let you point your camera at text, select it, and copy it.</p><p class="fn-can">Offices use OCR to turn scanned papers into documents they can edit and search.</p></div>
+        <div class="fn-card"><p class="fn-t">OMR: checking marks</p><Fragment set:html={omrSheet()} /><p>Tests and surveys where you <b>shade a bubble</b>.</p><p class="fn-can">Philippine elections since 2010 count ballots with machines that read the shaded oval beside each candidate's name.</p></div>
+      </div>
+      <p>OMR works best with a well-printed form and careful, dark shading inside each bubble.</p>
+      <div class="look">
+        <p class="note-label">Do not confuse: scanning vs. OCR</p>
+        <p>Scanning alone captures an <b>image</b>: you cannot edit its words yet. OCR makes the text searchable or editable. Some scanning apps do both steps automatically.</p>
+      </div>
+      <div class="look">
+        <p class="note-label">Do not confuse: OCR vs. OMR</p>
+        <p>OCR <b>reads letters and numbers</b>. OMR only <b>checks whether a bubble or box is marked</b>.</p>
+      </div>
+      <div class="look">
+        <p class="note-label">Clarification: scanner vs. scanner app</p>
+        <p>A scanner is <b>hardware</b>. A scanner app on your phone is <b>software</b>: it uses the phone's camera as the capture hardware.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 3</h3>
+        <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+        <Quiz id="quiz-p3" questions={part3} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="images-sound">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Images and sound</p>
+      <h2>Capturing images and sound</h2>
+    </div>
+    <div class="flow">
+      <p>Cameras and microphones capture the world around you as data: <b>light</b> becomes pictures, and <b>sound</b> becomes audio.</p>
+
+      <h3>Digital cameras and webcams</h3>
+      <div class="def"><p class="note-label">Digital camera</p><p>An input device that captures <b>photos and videos</b> and saves them as digital files.</p></div>
+      <p>There are three common kinds of digital cameras:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Phone camera</p><Fragment set:html={camPhone()} /><p>Built into a smartphone.</p><p class="fn-can">Always with you, and easy to share from.</p></div>
+        <div class="fn-card"><p class="fn-t">Webcam</p><Fragment set:html={camWebcam()} /><p>Built into a laptop or monitor, or plugged in by USB. Made mainly for <b>live video</b>.</p><p class="fn-can">For online classes, video calls, and streaming.</p></div>
+        <div class="fn-card"><p class="fn-t">Dedicated digital camera</p><Fragment set:html={camDslr()} /><p>Made mainly for photography, such as compact, DSLR, and mirrorless cameras.</p><p class="fn-can">DSLR and mirrorless cameras have manual controls and lenses you can change.</p></div>
+      </div>
+      <p>Some cameras send video over a network instead of to one computer. These are called <b>network (IP) cameras</b>, and they are often used for security.</p>
+
+      <h3>How a digital camera works</h3>
+      <p>Every digital camera, from a phone to a DSLR, works in these four steps:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={camSteps()} /></figure>
+        <ol class="tag-list io">
+          <li class="in"><b>Light</b> from the scene enters the camera.</li>
+          <li class="in">The <b>lens</b> focuses the light into a sharp image.</li>
+          <li class="in">The <b>image sensor</b> holds millions of tiny light catchers called <b>photosites</b>. Each one turns light into an electrical charge: more light, stronger charge.</li>
+          <li class="in">The <b>processor</b> turns those charges into pixels and saves a photo or video file.</li>
+        </ol>
+      </div>
+
+      <h3>Pixels, resolution, and megapixels</h3>
+      <p>A digital picture is made of tiny colored squares. Zoom in far enough and you can see them:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={pixelZoom()} /><figcaption>The smooth hill is really a grid of tiny squares.</figcaption></figure>
+      <p>Three words describe these squares:</p>
+      <div class="def"><p class="note-label">Pixel</p><p>One tiny colored dot (a square) in a digital picture. A digital picture is made of many pixels.</p></div>
+      <div class="def"><p class="note-label">Resolution</p><p>How many pixels are in a picture, written as <b>width × height</b>. Example: 1920 × 1080 means 1,920 pixels across and 1,080 pixels down.</p></div>
+      <div class="def"><p class="note-label">Megapixel (MP)</p><p>One million pixels. Example: a 12 MP camera makes photos of about 12 million pixels, such as 4,000 × 3,000.</p></div>
+      <p>So megapixels and resolution describe the same thing in two ways: the <b>total count</b> (megapixels) or the <b>width × height</b> (resolution). For example, 1920 × 1080 = 2,073,600 pixels, which is about 2 MP. Camera photos usually use megapixels; screens and videos usually use width × height.</p>
+      <p class="muted small">More pixels can hold more detail, but focus, lighting, and file compression also affect how clear a picture looks.</p>
+
+      <h3>Video resolution: what the "p" means</h3>
+      <p>Videos are named by their resolution too. Here is the same part of a picture at three common video resolutions:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={videoRes()} /><figcaption>More rows of pixels make smoother, sharper edges. Simplified: the squares are not to scale.</figcaption></figure>
+      <p>In names like 720p and 1080p, the number is how many <b>rows of pixels</b> make up each picture. The <b>p</b> means <b>progressive</b>: each frame contains all of its rows, instead of alternating sets of rows. So 1080p has 1,080 rows of pixels.</p>
+
+      <h3>Frame rate</h3>
+      <p>A video is really many still pictures, called <b>frames</b>, shown one after another very fast. <b>Frame rate</b> is how many frames are shown each second, written as <b>fps</b> (frames per second). The picture shows a ball moving for one second:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={frameRate()} /><figcaption>Fewer frames: jumpier. More frames: smoother. Simplified: real videos use many more frames.</figcaption></figure>
+      <p>If a video looks choppy or jumpy, its frame rate may be too low. Common examples: about 25 to 30 fps for TV and most online videos, and about 50 to 60 fps for fast action like sports.</p>
+      <div class="look">
+        <p class="note-label">Do not confuse: resolution vs. frame rate</p>
+        <p><b>Resolution</b> asks: how many pixels are in each picture? <b>Frame rate</b> asks: how many pictures are shown each second? A photo has only a resolution. A video has both. A webcam labeled "1080p, 30 fps" makes pictures that are 1,080 pixels tall, and it makes 30 of them every second.</p>
+      </div>
+
+      <h3>Choosing a camera</h3>
+      <p>Which camera fits which job? Here is a guide:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Need</th><th>Good choice</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><b>Online class</b></td><td>webcam or phone</td><td>made for live video</td></tr>
+          <tr><td><b>Quick photos</b></td><td>phone camera</td><td>always with you</td></tr>
+          <tr><td><b>Sports video</b></td><td>a camera with a high frame rate</td><td>smooth fast motion</td></tr>
+          <tr><td><b>Professional photos</b></td><td>DSLR or mirrorless</td><td>manual controls and changeable lenses</td></tr>
+        </tbody>
+      </table></div>
+      <p>Two terms from the table:</p>
+      <ul>
+        <li><b>Manual controls</b> let the photographer set things like focus, brightness, and how blurry the background is, instead of letting the camera guess.</li>
+        <li><b>Changeable lenses</b> let you swap a <b>wide-angle</b> lens (fits big groups and places into the photo) for a <b>telephoto</b> lens (brings far subjects closer, like a player across a field).</li>
+      </ul>
+      <p class="muted small">Not every webcam has a built-in microphone. Check the product details before you buy.</p>
+
+      <h3>Microphones</h3>
+      <div class="def"><p class="note-label">Microphone</p><p>An input device that turns <b>sound</b> into an electrical signal that a computer can use.</p></div>
+      <p>This is what happens inside a microphone when you speak:</p>
+      <div class="tag-fig">
+        <figure class="illus"><Fragment set:html={micSteps()} /></figure>
+        <ol class="tag-list io">
+          <li class="in">When you speak, you make the air vibrate. These vibrations are <b>sound waves</b>.</li>
+          <li class="in">The sound waves push on a very thin part inside the microphone, the <b>diaphragm</b>, making it move back and forth.</li>
+          <li class="in">That movement is turned into a matching <b>electrical signal</b>.</li>
+          <li class="in">A <b>converter chip</b> (ADC, analog-to-digital converter) turns the signal into digital data, 0s and 1s, that can be recorded or sent.</li>
+        </ol>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>The diaphragm works like your <b>eardrum</b>: sound makes it shake, and the shaking becomes a message.</p>
+      </div>
+      <p>Microphones are grouped into two common types by <b>how they turn the movement into a signal</b>:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">Dynamic microphone</p><Fragment set:html={micDynamic()} /><p>A tiny <b>coil</b> attached to the diaphragm moves near a <b>magnet</b>, which makes the signal.</p><p class="fn-can">Tough, and handles loud sound. Good for live shows.</p></div>
+        <div class="fn-card"><p class="fn-t">Condenser microphone</p><Fragment set:html={micCondenser()} /><p>A very <b>thin film</b> moves near a back plate and changes the electrical charge between them.</p><p class="fn-can">More sensitive and detailed. Good for studios.</p></div>
+      </div>
+      <p>Microphones are also named by <b>how they connect</b> or <b>where they sit</b>. Four examples:</p>
+      <div class="fn-grid fn-center">
+        <div class="fn-card"><p class="fn-t">USB mic</p><Fragment set:html={micUsb()} /><p>Plugs straight into a computer.</p></div>
+        <div class="fn-card"><p class="fn-t">Lavalier mic</p><Fragment set:html={micLav()} /><p>Small, and clipped to clothes.</p></div>
+        <div class="fn-card"><p class="fn-t">Headset mic</p><Fragment set:html={micHeadset()} /><p>On an arm, close to the mouth.</p></div>
+        <div class="fn-card"><p class="fn-t">Built-in mic</p><Fragment set:html={micBuiltin()} /><p>Inside phones and laptops.</p></div>
+      </div>
+      <div class="look">
+        <p class="note-label">Clarification: these names overlap</p>
+        <p><b>Dynamic</b> and <b>condenser</b> describe how the mic works inside. <b>USB, lavalier, headset,</b> and <b>built-in</b> describe its form or use. So a USB mic can also be a condenser mic.</p>
+      </div>
+
+      <h3>Speech vs. speaker recognition</h3>
+      <p><b>Voice input</b> is the general idea of using your voice with a device: dictating a message, giving a command, or calling someone. Software can do two very different things with your voice:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={speechSpeaker()} /><figcaption>Same voice, two different questions.</figcaption></figure>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Speech recognition</p><p><b>What</b> was said? Software that turns spoken words into written text, also called <b>speech-to-text</b>. Examples: voice typing a message, auto-captions on videos, spoken commands.</p></div>
+        <div class="def"><p class="note-label">Speaker recognition</p><p><b>Who</b> is speaking? Software that identifies a person by their voice. The traits of your voice are a <b>biometric</b>, like a fingerprint (Part 3).</p></div>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>Speech recognition is a <b>stenographer</b>: it writes down what you say. Speaker recognition is a <b>guard who knows your voice</b>: it checks who you are.</p>
+      </div>
+      <div class="look">
+        <p class="note-label">Do not confuse: speech vs. voice recognition</p>
+        <p>IBM uses "voice recognition" for identifying <b>who</b> is speaking, but many people also use it loosely for speech-to-text. To avoid mix-ups, this lesson says <b>speaker recognition</b> for "who" and <b>speech recognition</b> for "what." (Terms like "speech input vs. voice input" are not standard, so we do not use them.)</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 4</h3>
+        <p>Not graded. Tap an answer to see if you got it, and read why.</p>
+        <Quiz id="quiz-p4" questions={part4} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="self-check">
+    <div class="chapter-head">
+      <p class="chapter-num">Self-check</p>
+      <h2>Self-check: input devices</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Use this to see what you remember from the whole lesson, then go back to any part you missed.</p>
+
+      <h3>Do not confuse: summary</h3>
+      <p>These pairs are often mixed up. The right column says what makes the two different:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>These two...</th><th>...are different because</th></tr></thead>
+        <tbody>
+          <tr><td><b>Keyboard type vs. layout</b></td><td>how the keys work vs. how the letters are arranged</td></tr>
+          <tr><td><b>Direct vs. indirect pointing</b></td><td>you point on the screen itself vs. on a separate device</td></tr>
+          <tr><td><b>Resistive vs. capacitive touchscreen</b></td><td>senses pressure vs. senses the electrical charge of your skin</td></tr>
+          <tr><td><b>Ball mouse vs. trackball</b></td><td>ball underneath (the desk turns it) vs. on top (you turn it)</td></tr>
+          <tr><td><b>1D barcode vs. QR code</b></td><td>data along one line vs. across a square; both are barcodes</td></tr>
+          <tr><td><b>QR code vs. RFID</b></td><td>printed picture read by a camera vs. chip read by radio waves</td></tr>
+          <tr><td><b>Verify vs. identify</b></td><td>1 to 1 vs. 1 to many</td></tr>
+          <tr><td><b>Scanning vs. OCR</b></td><td>capture a picture vs. recognize the letters</td></tr>
+          <tr><td><b>OCR vs. OMR</b></td><td>reads letters vs. checks marks</td></tr>
+          <tr><td><b>Resolution vs. frame rate</b></td><td>pixels in each picture vs. pictures each second</td></tr>
+          <tr><td><b>Dynamic vs. condenser mic</b></td><td>tough, for loud sound vs. sensitive, for studios</td></tr>
+          <tr><td><b>Speech vs. speaker recognition</b></td><td>what was said vs. who said it</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Choose the device</h3>
+      <p>For each situation, choose the best device. Tap an answer to see why.</p>
+      <Quiz id="quiz-choose" questions={choose} />
+
+      <h3>Final quiz</h3>
+      <p>Ten questions from all four parts. For self-study, not for grading.</p>
+      <Quiz id="quiz-final" questions={final} />
+    </div>
+  </section>
+
   <section class="chapter wrap" id="refs">
     <div class="flow">
       <div class="refs small muted">
@@ -231,6 +619,23 @@ const part2 = [
           <li>Elo Touch Solutions, "What information is available regarding the different Elo touchscreen technologies?"</li>
           <li>Wacom, "EMR (Electro-Magnetic Resonance)" technology overview.</li>
           <li>R. J. K. Jacob, "Human-Computer Interaction: Input Devices," Tufts University (direct vs. indirect pointing).</li>
+          <li>GS1, "Barcodes"; GS1 Support, "What is a QR Code?"</li>
+          <li>GS1 UK, "The history of the barcode"; Smithsonian Magazine, "The History of the Bar Code."</li>
+          <li>Denso Wave, "History of QR Code," QRcode.com.</li>
+          <li>U.S. Food and Drug Administration, "Radio frequency identification (RFID)"; GS1 Australia, "EPC/RFID."</li>
+          <li>Easytrip Services Corporation, "Easytrip RFID ultimate guide: Everything you need to know."</li>
+          <li>Electronics Notes, "NFC technology" (NFC as a short-range form of RFID).</li>
+          <li>National Institute of Standards and Technology, "Biometrics at NIST."</li>
+          <li>"A review of fingerprint sensors: Mechanism, characteristics, and applications," PubMed Central, PMC10305017 (optical, capacitive, and ultrasonic sensors).</li>
+          <li>Apple Support, "About Face ID advanced technology"; Samsung Support, "Is it true that one can unlock the device using a picture when the Galaxy S10 series is locked by face recognition?"</li>
+          <li>U.S. Geological Survey, "Digital scanning hardware"; HP Tech Takes, "What types of printers are available today?"</li>
+          <li>Adobe, "Edit scanned PDFs," Acrobat Help; Google Search Help, "Search with Google Lens."</li>
+          <li>University of Hawaii at Manoa, "What is OMR scanning?"; GMA News (2009), "Comelec to use OMR system for 2010 polls."</li>
+          <li>Canon Europe, "Image sensors explained"; Canon, "Different types of camera lenses and when to use them."</li>
+          <li>Microsoft Support, "All about device screens and displays"; Oxford Learner's Dictionaries, "Megapixel."</li>
+          <li>Sony Support, "What is the difference between 1080i and 1080p?"; Canon Academy, "Quick tip on filming with the EOS: Frame rate and exposure time."</li>
+          <li>Audio-Technica, "A brief guide to microphones: What a microphone does"; Universal Audio, "What are the differences between dynamic and condenser microphones?"</li>
+          <li>IBM, "What is speech recognition?"</li>
         </ol>
       </div>
     </div>
