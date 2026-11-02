@@ -179,7 +179,9 @@ const quiz = [
       <h2>The insert method</h2>
     </div>
     <div class="flow">
-      <p>Here is one way to write insert in Java. It uses a loop, like the search method, and builds new nodes with <Peek label="the TreeNode class" title="From the Trees lesson" html={`<pre class="code"><code>${hi(treeNodeCode)}</code></pre>` + treeNodePic()} />. Before reading it line by line, meet the names it uses. This table lists each one:</p>
+      <p>Here is one way to write insert in Java. It uses a loop, like the search method, and builds new nodes with <Peek label="the TreeNode class" title="From the Trees lesson" html={`<pre class="code"><code>${hi(treeNodeCode)}</code></pre>` + treeNodePic()} />. Read through it once first. Do not worry if it is not clear yet: the rest of this part explains it, using the line numbers on the left.</p>
+      <pre class="code"><code set:html={hiN(insertCode)} /></pre>
+      <p>Before reading it line by line, meet the names it uses. This table lists each one:</p>
       <table class="tbl">
         <thead><tr><th>Name</th><th>Meaning</th></tr></thead>
         <tbody>
@@ -192,7 +194,7 @@ const quiz = [
       </table>
       <div class="sub">
         <h3>The two actions</h3>
-        <p>To understand the code, learn these two actions first. Each one has a picture pair: the tree <b>before</b> the line runs (left) and <b>after</b> it runs (right). The arrow between them means "after this line runs." On a phone, the pictures stack, and the arrow points down.</p>
+        <p>Look at lines 12, 15, 18, and 21 in the code above. Each of them does one of only two actions: it <b>moves</b> <code>current</code>, or it <b>connects</b> a new node. Learn these two actions first, and the rest of the code is easy to follow. Each action has a picture pair: the tree <b>before</b> the line runs (left) and <b>after</b> it runs (right). The arrow between them means "after this line runs." On a phone, the pictures stack, and the arrow points down.</p>
         <div class="paper flow">
           <p class="note-label is-plain">Action 1: Move current (line 15 or 21)</p>
           <Fragment set:html={figs.move} />
