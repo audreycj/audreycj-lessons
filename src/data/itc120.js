@@ -42,17 +42,12 @@ export const terms = [
         { title: 'AVL trees', href: '/itc120/avl-trees/', status: 'live', kind: ['ds', 'algo'], blurb: 'Why a BST can lean, balance factors, and the four rotations. Insert your own numbers and watch the tree fix itself.' },
         { title: 'Red-black trees', href: '/itc120/red-black-trees/', status: 'live', kind: ['ds', 'algo'], blurb: 'The five color rules, and how to fix an insert: red uncle means recolor, black uncle means rotate.' },
       ] },
-      { name: 'Graphs', icon: 'graph', lessons: [
-        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: 'live', kind: ['ds'], blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
-        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: 'live', kind: ['algo'], blurb: 'Visit a graph level by level with a queue. Find levels, shortest paths, and what can be reached.' },
-        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: 'live', kind: ['algo'], blurb: 'Go deep with a stack, backtrack at dead ends. Find what is reachable, find a path, and compare with BFS.' },
-      ] },
     ],
   },
   {
     id: 'final',
     name: 'Final topics',
-    note: 'After the midterm: sets, maps, searching, sorting, hashing, and algorithm complexity.',
+    note: 'After the midterm: sets, maps, searching, sorting, hashing, graphs, and algorithm complexity.',
     units: [
       { name: 'Sets and maps', icon: 'venn', lessons: [
         { title: 'Sets in Java', href: '/itc120/sets/', status: 'live', kind: ['adt'], blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },
@@ -67,6 +62,11 @@ export const terms = [
       ] },
       { name: 'Hashing', icon: 'venn', lessons: [
         { title: 'Hashing and hash tables', href: '/itc120/hashing/', status: 'live', kind: ['tech', 'ds'], blurb: 'Hash functions, collisions, chaining and open addressing, and how fast a hash table really is.' },
+      ] },
+      { name: 'Graphs', icon: 'graph', lessons: [
+        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: 'live', kind: ['ds'], blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
+        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: 'live', kind: ['algo'], blurb: 'Visit a graph level by level with a queue. Find levels, shortest paths, and what can be reached.' },
+        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: 'live', kind: ['algo'], blurb: 'Go deep with a stack, backtrack at dead ends. Find what is reachable, find a path, and compare with BFS.' },
       ] },
       { name: 'Algorithm complexity analysis', icon: 'list', lessons: [
         { title: 'Algorithm complexity analysis', href: '/itc120/complexity/', status: 'soon', blurb: 'Time and space complexity, best, worst, and average cases, Big-O, Big-Omega, and Big-Theta, and counting operations by hand.' },
