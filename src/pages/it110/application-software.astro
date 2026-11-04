@@ -215,15 +215,14 @@ const quiz = [
     </div>
   </section>
 
-  <section class="chapter wrap" id="word-sheet">
+  <section class="chapter wrap" id="word">
     <div class="chapter-head">
-      <p class="chapter-num">Part 4 · Words and numbers</p>
-      <h2>Word processing and spreadsheet software</h2>
+      <p class="chapter-num">Part 4 · Word processing</p>
+      <h2>Word processing software</h2>
     </div>
     <div class="flow">
       <p>From here on, each kind of app has its own color. Word processing, spreadsheet, database, and presentation use the colors of Microsoft Word, Excel, Access, and PowerPoint:</p>
       <div class="cat-key"><span class="cat-chip cat-word">Word processing</span><span class="cat-chip cat-sheet">Spreadsheet</span><span class="cat-chip cat-db">Database</span><span class="cat-chip cat-slides">Presentation</span><span class="cat-chip cat-media">Graphics and multimedia</span></div>
-      <h3 class="cat-h cat-word">Word processing software</h3>
       <div class="def cat cat-word"><p class="note-label">Word processing software</p><p>An app for making <b>text documents</b>: letters, reports, essays, resumes, and modules. Examples: Microsoft Word, Google Docs, LibreOffice Writer, WPS Writer, Apple Pages.</p></div>
       <p>Word processors from different companies look different, but they have the same parts and do the same jobs. The numbers mark the same three parts in each app:</p>
       <ol class="tag-list cat-word">
@@ -256,8 +255,15 @@ const quiz = [
           <li><b>Page formatting</b> changes the whole page: margins (the dashed line), paper size, orientation (portrait or landscape), the header and footer, and page numbers.</li>
         </ol>
       </div>
+    </div>
+  </section>
 
-      <h3 class="cat-h cat-sheet">Spreadsheet software</h3>
+  <section class="chapter wrap" id="sheets">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Spreadsheets</p>
+      <h2>Spreadsheet software</h2>
+    </div>
+    <div class="flow">
       <div class="def cat cat-sheet"><p class="note-label">Spreadsheet software</p><p>An app for working with <b>numbers in rows and columns</b>: grades, budgets, sales, and inventories. It computes for you, and it can turn numbers into <b>charts</b>. Examples: Microsoft Excel, Google Sheets, LibreOffice Calc, WPS Spreadsheets.</p></div>
       <p>A spreadsheet window has its own parts. The numbers match the notes:</p>
       <div class="tag-fig">
@@ -293,13 +299,12 @@ const quiz = [
     </div>
   </section>
 
-  <section class="chapter wrap" id="db-slides">
+  <section class="chapter wrap" id="databases">
     <div class="chapter-head">
-      <p class="chapter-num">Part 5 · Records and slides</p>
-      <h2>Database and presentation graphics software</h2>
+      <p class="chapter-num">Part 6 · Databases</p>
+      <h2>Database software</h2>
     </div>
     <div class="flow">
-      <h3 class="cat-h cat-db">Database software</h3>
       <div class="def cat cat-db"><p class="note-label">Database and DBMS</p><p>A <b>database</b> is an organized collection of related data, such as every student's record in the university. A <b>database management system (DBMS)</b> is the software for creating, using, and managing it. Examples: Microsoft Access, LibreOffice Base, and for large systems, MySQL, Oracle Database, and Microsoft SQL Server.</p></div>
       <p>A database and a DBMS are not the same thing. The picture shows how they work together:</p>
       <figure class="fig illus-fig illus"><Fragment set:html={dbmsPic()} /><figcaption>The database is the data. The DBMS is the software that manages it. You and your apps do not touch the data directly: you ask the DBMS.</figcaption></figure>
@@ -336,8 +341,15 @@ const quiz = [
         <p>Not really. Excel is a spreadsheet. It can hold a simple list, such as a class list, and sort and filter it, so many people use it like a small database. With Microsoft 365, a few people can even edit one workbook together. But it is not a DBMS: by itself it does not enforce rules such as unique IDs, link tables of related data, or control who may see and change each record. For large, shared data such as a university's student records, organizations use a DBMS. Microsoft's database programs are <b>Access</b> and <b>SQL Server</b>.</p>
       </div>
       <p class="small muted">You will learn databases in detail in the Finals (Week 16).</p>
+    </div>
+  </section>
 
-      <h3 class="cat-h cat-slides">Presentation graphics software</h3>
+  <section class="chapter wrap" id="presentations">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Presentation graphics</p>
+      <h2>Presentation graphics software</h2>
+    </div>
+    <div class="flow">
       <div class="def cat cat-slides"><p class="note-label">Presentation graphics software</p><p>An app for making <b>electronic slide shows</b>: a set of slides shown one at a time while someone talks. Examples: Microsoft PowerPoint, Google Slides, Canva, Apple Keynote.</p></div>
       <figure class="fig illus-fig illus"><Fragment set:html={roughen(slideShow())} /><figcaption>The audience sees the slide show on the big screen. The speaker sees presenter view on the laptop.</figcaption></figure>
       <p>In the app itself, the window has these parts. The numbers match the notes:</p>
@@ -370,7 +382,7 @@ const quiz = [
 
   <section class="chapter wrap" id="other">
     <div class="chapter-head">
-      <p class="chapter-num">Part 6 · Pictures, sound, and video</p>
+      <p class="chapter-num">Part 8 · Graphics and multimedia</p>
       <h2>Graphics and multimedia software</h2>
     </div>
     <div class="flow">
@@ -425,7 +437,7 @@ const quiz = [
 
   <section class="chapter wrap" id="more-apps">
     <div class="chapter-head">
-      <p class="chapter-num">Part 7 · Apps you already use</p>
+      <p class="chapter-num">Part 9 · Other apps</p>
       <h2>Other application software</h2>
     </div>
     <div class="flow">
@@ -445,7 +457,7 @@ const quiz = [
 
   <section class="chapter wrap" id="check">
     <div class="chapter-head">
-      <p class="chapter-num">Part 8 · Check yourself</p>
+      <p class="chapter-num">Part 10 · Check yourself</p>
       <h2>Self-check</h2>
     </div>
     <div class="flow">
