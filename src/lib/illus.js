@@ -4516,3 +4516,62 @@ export function halvingStrip() {
   b += sT(170, 290, '10 cuts to reach 1, so log₂ 1,024 = 10', { size: 13, w: 800, fill: '#0b544e' });
   return `<svg class="objbox" viewBox="0 0 340 304" role="img" aria-label="1,024 cut in half again and again: 512, 256, 128, 64, 32, 16, 8, 4, 2, 1. Each row's bar is half as long as the one above. It takes 10 cuts to reach 1, so log base 2 of 1,024 is 10.">${b}</svg>`;
 }
+
+/** Graphs lesson, map-apps box (chat 47): a map app screen on top, the weighted graph it stores below.
+ *  Same roads and minutes as the lesson's weighted graph (A–B 7, A–D 4, B–C 12, B–D 5); fastest A to C = A → B → C, 19 min. */
+export function mapAppGraph() {
+  const s = new Sketch(340, 592, 47);
+  const BLUE = '#2f6fa8';
+  const names = { A: 'Home', B: 'Plaza', C: 'DOrSU', D: 'Market' };
+  const P = { A: [62, 92], B: [212, 80], C: [288, 178], D: [140, 220] };
+  const roads = [['A', 'B', 7], ['A', 'D', 4], ['B', 'C', 12], ['B', 'D', 5]];
+  const route = [['A', 'B'], ['B', 'C']];
+  const trim = (a, b, ta, tb) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+    return [a[0] + ux * ta, a[1] + uy * ta, b[0] - ux * tb, b[1] - uy * tb].map((v) => Math.round(v * 10) / 10);
+  };
+
+  // 1. What you see: the map app
+  s.text(170, 22, '1. What you see in the map app', { font: 'body', size: 15, weight: 800, color: BLUE });
+  s.round(14, 34, 312, 224, 14, { fill: '#efe9da', sw: 1.6, stroke: C.soft, rough: 0.5 });
+  // a few side streets for a map look (not part of the graph)
+  [[30, 150, 110, 140], [250, 120, 318, 110], [200, 240, 300, 232], [96, 44, 120, 250]].forEach(([a, b, c, d]) => s.line(a, b, c, d, { sw: 5, stroke: '#ddd3bd', single: true, rough: 0.4 }));
+  roads.forEach(([a, b]) => s.line(...P[a], ...P[b], { sw: 11, stroke: '#cfc4aa', single: true, rough: 0.4 }));
+  roads.forEach(([a, b]) => s.line(...P[a], ...P[b], { sw: 7, stroke: '#ffffff', single: true, rough: 0.4 }));
+  route.forEach(([a, b]) => s.line(...P[a], ...P[b], { sw: 6, stroke: BLUE, single: true, rough: 0.4 }));
+  const lab = { A: [0, -36, 'middle'], B: [0, -36, 'middle'], C: [0, 22, 'middle'], D: [0, 24, 'middle'] };
+  Object.entries(P).forEach(([k, [x, y]]) => {
+    const t = y; // pin tip sits on the place
+    s.path(`M${x} ${t} C${x - 4} ${t - 8} ${x - 11} ${t - 13} ${x - 11} ${t - 20} A11 11 0 1 1 ${x + 11} ${t - 20} C${x + 11} ${t - 13} ${x + 4} ${t - 8} ${x} ${t} Z`, { fill: C.orangeWash, sw: 1.5, stroke: C.red });
+    s.circle(x, t - 20, 7, { fill: C.card, sw: 1, rough: 0.2 });
+    const [dx, dy, an] = lab[k];
+    s.text(x + dx, y + dy, `${names[k]} (${k})`, { font: 'body', size: 13, weight: 800, anchor: an });
+  });
+  // the app's route bubble
+  s.round(206, 210, 108, 40, 10, { fill: BLUE, sw: 1.2, stroke: BLUE, rough: 0.4 });
+  s.text(260, 227, '19 min', { font: 'body', size: 14, weight: 800, color: '#ffffff' });
+  s.text(260, 243, 'fastest route', { font: 'body', size: 11, weight: 700, color: '#ffffff' });
+
+  // arrow between the two pictures
+  s.arrow(170, 268, 170, 300, { sw: 2, stroke: C.soft, head: 10 });
+  s.text(182, 290, 'stored as', { font: 'body', size: 13, weight: 700, color: C.soft, anchor: 'start' });
+
+  // 2. What the app stores: the weighted graph
+  const dy = 300;
+  const G = Object.fromEntries(Object.entries(P).map(([k, [x, y]]) => [k, [x, y + dy]]));
+  s.text(170, 330, '2. What the app stores: a weighted graph', { font: 'body', size: 15, weight: 800, color: C.orange });
+  s.round(14, 342, 312, 240, 14, { fill: C.card, sw: 1.4, stroke: C.soft, rough: 0.5 });
+  const onRoute = (a, b) => route.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+  roads.forEach(([a, b]) => s.line(...trim(G[a], G[b], 18, 18), { sw: onRoute(a, b) ? 4.5 : 2, stroke: onRoute(a, b) ? C.orange : C.ink }));
+  roads.forEach(([a, b, w]) => {
+    const m = [(G[a][0] + G[b][0]) / 2, (G[a][1] + G[b][1]) / 2];
+    s.circle(m[0], m[1], 26, { fill: C.card, sw: 1.3, stroke: onRoute(a, b) ? C.orange : C.soft });
+    s.text(m[0], m[1] + 5, String(w), { font: 'body', size: 14, weight: 800, color: onRoute(a, b) ? C.orange : C.ink });
+  });
+  Object.entries(G).forEach(([k, [x, y]]) => {
+    s.circle(x, y, 36, { fill: k === 'A' || k === 'C' ? C.orangeWash : C.tealWash, sw: 1.8 });
+    s.text(x, y + 6, k, { font: 'body', size: 16, weight: 800 });
+  });
+  s.text(170, 568, 'A → B → C = 7 + 12 = 19 minutes', { font: 'body', size: 13, weight: 800, color: C.orange });
+  return s.svg('Top: a map app showing Home (A), Plaza (B), DOrSU (C), and Market (D) joined by roads, with the fastest route Home to Plaza to DOrSU drawn in blue and a bubble saying 19 min, fastest route. Bottom: the same map stored as a weighted graph: vertices A, B, C, D; edges A–B 7, A–D 4, B–C 12, B–D 5 minutes; the path A to B to C is highlighted, 7 + 12 = 19 minutes.');
+}

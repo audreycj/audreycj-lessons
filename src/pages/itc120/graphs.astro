@@ -9,7 +9,7 @@ import GraphFig from '../../components/GraphFig.astro';
 import MatrixLab from '../../components/MatrixLab.astro';
 import Quiz from '../../components/Quiz.astro';
 import PinScript from '../../components/PinScript.astro';
-import { graphsInIT, llDefPic } from '../../lib/illus.js';
+import { graphsInIT, llDefPic, mapAppGraph } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { small, smallDir, weighted, withLoop } from '../../data/graphs.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -400,6 +400,8 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
             <li><b>Edges:</b> the road segments between them. A one-way street is a <b>directed</b> edge.</li>
             <li><b>Weights:</b> usually the expected travel time, updated with live traffic. That is why the app may reroute you mid-trip.</li>
           </ul>
+          <p>The picture below shows a small made-up map in a map app (top) and the weighted graph the app stores for it (bottom). The places and minutes are the same as in the graph above, with A as your home and C as DOrSU.</p>
+          <figure class="fig illus-fig illus map-app-fig"><Fragment set:html={mapAppGraph()} /><figcaption>The blue line in the app and the orange path in the graph are the same route. The app adds up the minutes along each possible path and shows the smallest total: A → B → C, 19 minutes. (Made-up map and travel times.)</figcaption></figure>
           <p>To suggest a route, the app looks for the path with the <b>smallest total weight</b>, just like A → B → C (19 minutes) above. So the "shortest" route usually means the <b>fastest</b>, not the fewest kilometers. To see how a program finds it, try the <a href="#java-route">mini map app in Part 8</a>.</p>
         </div>
       </div>

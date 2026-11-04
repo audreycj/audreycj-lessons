@@ -1297,3 +1297,6 @@ table.tbl.cat thead th { background: var(--cat); }
 .photo-row { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin: 1rem 0; }
 .photo-row .photo { margin: 0; max-width: none; }
 .photo-row .photo img { height: 13rem; max-height: none; }
+
+/* graphs: map-app picture (chat 47) */
+.map-app-fig svg { display: block; max-width: 24rem; margin-inline: auto; }
