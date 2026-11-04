@@ -301,7 +301,20 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
             <p class="small">Each edge is an <b>arrow</b>. A → B lets you go from A to B, but not back. Like following someone on TikTok: they do not have to follow you back.</p>
           </figure>
         </div>
-        <p>In a directed graph, degree splits in two. The <b>out-degree</b> counts arrows leaving a vertex; the <b>in-degree</b> counts arrows coming in. In the directed graph above, A has out-degree 2 (to B and D) and in-degree 1 (from C).</p>
+        <p>In a directed graph, degree splits in two. The <b>out-degree</b> counts arrows leaving a vertex; the <b>in-degree</b> counts arrows coming in. The two pictures below show both counts for vertex A in the directed graph above:</p>
+        <div class="two-col">
+          <figure class="fig">
+            <p class="fig-cap">Out-degree of A = 2</p>
+            <GraphFig g={smallDir} nodeMarks={{ A: 'current', B: 'seen', D: 'seen' }} edgeMarks={{ 'A-B': 'path', 'A-D': 'path' }} label="Directed graph: the arrows A to B and A to D, leaving A, are highlighted" />
+            <p class="small">Count the <b>arrows leaving A</b> (highlighted): A → B and A → D. That makes 2. In TikTok terms, this is how many accounts A <b>follows</b>.</p>
+          </figure>
+          <figure class="fig">
+            <p class="fig-cap">In-degree of A = 1</p>
+            <GraphFig g={smallDir} nodeMarks={{ A: 'current', C: 'seen' }} edgeMarks={{ 'C-A': 'tree' }} label="Directed graph: the arrow C to A, coming into A, is highlighted" />
+            <p class="small">Count the <b>arrows coming into A</b> (highlighted): only C → A. That makes 1. In TikTok terms, this is how many <b>followers</b> A has.</p>
+          </figure>
+        </div>
+        <p>Tip: look at the arrowhead. If the arrowhead touches the vertex, the arrow counts toward its in-degree; if the tail starts there, it counts toward its out-degree.</p>
       </div>
 
       <div class="sub">
