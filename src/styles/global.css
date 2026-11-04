@@ -1300,3 +1300,5 @@ table.tbl.cat thead th { background: var(--cat); }
 
 /* graphs: map-app picture (chat 47) */
 .map-app-fig svg { display: block; max-width: 24rem; margin-inline: auto; }
+/* avl four cases: shape inside a full tree (chat 47) */
+.mini-tree.case-tree { width: 14rem; max-width: 100%; }

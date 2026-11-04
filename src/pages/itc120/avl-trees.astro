@@ -296,13 +296,14 @@ const avlPeek = '<div class="flow"><p class="small">From Part 1: an <b>AVL tree<
 const floatPic = svgTreeP(buildBstP([35]), { marks: { 35: 'moved' }, label: '35, floating, not connected to the tree' });
 const insertPeek = '<div class="flow"><p class="small"><b>Insert checklist</b> (from the BST insertion lesson): start at the root. Smaller? Look left. Larger? Look right. Empty spot? Attach the value there. Not empty? Go down to that node and compare again.</p><p class="small">For 35 in the halfway tree: 35 &gt; 30, look right: 40 is there, go down. 35 &lt; 40, look left: empty! Attach 35 there.</p>' +
   svgTreeP(buildBstP([30, 20, 40, 10, 35, 50]), { pathKeys: [30, 40, 35], marks: { 30: 'path', 40: 'path', 35: 'new' }, minW: 240, label: 'The walk for 35: from 30 go right to 40, then left to the empty spot, where 35 is attached.' }) + '</div>';
-// Four-cases table: a tiny tree per case (red = unbalanced node, orange = value just inserted).
-const caseMini = (vals, label) => '<span class="mini-tree">' + svgTreeP(buildBstP(vals), { marks: { [vals[0]]: 'bad', [vals[2]]: 'new' }, label }) + '</span>';
+// Four-cases table (chat 47, her idea): each case shape sits inside a real AVL tree right after an insert.
+// red = unbalanced node (the only ±2), teal = its child on the path, orange = value just inserted; thick orange edges = the case path.
+const caseMini = (vals, [bad, mid, ins], label) => '<span class="mini-tree case-tree">' + svgTreeP(buildBstP(vals), { marks: { [bad]: 'bad', [mid]: 'path', [ins]: 'new' }, pathKeys: [bad, mid, ins], label }) + '</span>';
 const caseShape = {
-  LL: caseMini([30, 20, 10], 'LL shape: 30 at the top, 20 on its left, 10 on the left of 20'),
-  RR: caseMini([10, 20, 30], 'RR shape: 10 at the top, 20 on its right, 30 on the right of 20'),
-  LR: caseMini([30, 10, 20], 'LR shape: 30 at the top, 10 on its left, 20 on the right of 10'),
-  RL: caseMini([10, 30, 20], 'RL shape: 10 at the top, 30 on its right, 20 on the left of 30'),
+  LL: caseMini([40, 20, 60, 10, 30, 50, 45], [60, 50, 45], 'LL inside a tree: 40 at the top, 20 and 60 under it. 45 was just inserted below 50, which is the left child of 60. The path 60, left to 50, left to 45 is highlighted; 60 is unbalanced.'),
+  RR: caseMini([40, 20, 60, 30, 50, 70, 35], [20, 30, 35], 'RR inside a tree: 40 at the top, 20 and 60 under it. 35 was just inserted below 30, which is the right child of 20. The path 20, right to 30, right to 35 is highlighted; 20 is unbalanced.'),
+  LR: caseMini([40, 20, 60, 10, 30, 50, 55], [60, 50, 55], 'LR inside a tree: 40 at the top, 20 and 60 under it. 55 was just inserted as the right child of 50, which is the left child of 60. The path 60, left to 50, right to 55 is highlighted; 60 is unbalanced.'),
+  RL: caseMini([40, 20, 60, 30, 50, 70, 25], [20, 30, 25], 'RL inside a tree: 40 at the top, 20 and 60 under it. 25 was just inserted as the left child of 30, which is the right child of 20. The path 20, right to 30, left to 25 is highlighted; 20 is unbalanced.'),
 };
 const bfPeek = `<div class="def"><p class="note-label">Height and balance factor</p><p>The height of a node is the number of edges on the longest path from it down to a leaf. A leaf has height <b>0</b>; an empty spot (null) has height <b>−1</b>.</p><p>Balance factor = height(left) − height(right).</p></div>`;
 const rotMarks = { 40: 'down', 30: 'pivot', 35: 'moved' };
@@ -590,7 +591,7 @@ const rotPeek = `<p class="small"><b>Before</b></p>${svgTreeP(buildBstP([40, 30,
             <tr><td><b>RL</b></td><td>right, then left</td><td><Fragment set:html={caseShape.RL} />zigzag</td><td>right rotation at the child, then left rotation at the unbalanced node</td></tr>
           </tbody>
         </table></div>
-        <p class="small muted">In the small trees: <b style="color:var(--red-pen)">red</b> = the unbalanced node (±2), <b style="color:var(--orange-ink, #b4461a)">orange</b> = the value just inserted.</p>
+        <p class="small muted">Each small tree shows the case inside a full AVL tree, right after an insert: <b style="color:var(--red-pen)">red</b> = the unbalanced node (±2), <b style="color:var(--teal)">teal</b> = its child on the path, <b style="color:var(--orange-ink, #b4461a)">orange</b> = the value just inserted, and the thick orange lines = the path that names the case. Only these three nodes decide the case; the white nodes are the rest of the tree. Notice that the unbalanced node is not always the root: in RR and RL it is 20.</p>
       </div>
 
       <div class="sub">
