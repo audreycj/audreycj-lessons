@@ -29,11 +29,22 @@ function rotLeft(z) { const y = z.r; z.r = y.l; y.l = z; return y; }
 
 /** Snapshot = what one picture of the tree shows. */
 function snap(root, caption, opts = {}) {
-  return { tree: clone(root), caption, tag: opts.tag || '', marks: opts.marks || {}, showBf: !!opts.showBf };
+  return { tree: clone(root), caption, tag: opts.tag || '', marks: opts.marks || {}, showBf: !!opts.showBf, ...(opts.float != null ? { float: opts.float } : {}) };
 }
 
 const sign = (b) => (b > 0 ? '+' + b : b < 0 ? '−' + -b : '0');
 export { sign };
+
+/** Chat 47 (her idea): when a rotation pushes a child off, show it floating first, then re-attached.
+ *  P = node moving down, Q = node moving up, dir = 'right' | 'left', m = the child that changes parent. */
+function floatPair(root, steps, head, P, Q, dir, m, tag, marks) {
+  const qSide = dir === 'right' ? 'right' : 'left';   // the side of Q that P takes
+  const pSide = dir === 'right' ? 'left' : 'right';   // the side of P where m lands (Q used to be there)
+  const below = []; (function d(n) { if (!n) return; if (n !== m) below.push(n.v); d(n.l); d(n.r); })(m);
+  const sub = below.length ? ` (with ${below.join(', ')} under it)` : '';
+  steps.push(snap(root, `${head} But ${Q.v} already had a ${qSide} child, <b>${m.v}</b>. ${P.v} takes that spot, so ${m.v}${sub} is pushed off: for a moment it is <b>floating</b>, attached to nothing.`, { tag, marks: { ...marks, [m.v]: 'moved' }, showBf: false, float: m.v }));
+  steps.push(snap(root, `<b>Re-attach ${m.v}.</b> ${P.v}'s ${pSide} spot is now empty (its old ${pSide} child, ${Q.v}, moved up), so ${m.v}${sub} goes there. Check: ${Math.min(P.v, Q.v)} &lt; ${m.v} &lt; ${Math.max(P.v, Q.v)}, so the BST rule still holds. No search from the root is needed: this empty spot is always there, and a normal BST search for ${m.v} would end at this same spot.`, { tag, marks: { ...marks, [m.v]: 'moved' }, showBf: true }));
+}
 
 /**
  * AVL insert, recorded as teaching steps.
@@ -104,20 +115,24 @@ export function avlInsertSteps(root, v) {
     else { x = y.l; moved = x.r; z.r = rotRight(y); }
     const mv = moved ? ` ${x.v}'s old ${kase === 'LR' ? 'left' : 'right'} child, <b>${moved.v}</b>, moves over to become ${y.v}'s ${kase === 'LR' ? 'right' : 'left'} child.` : '';
     const d1 = kase === 'LR' ? 'left' : 'right', d2 = kase === 'LR' ? 'right' : 'left';
-    steps.push(snap(root, `<b>Step 4a. Rotate ${d1} at ${y.v}.</b> This is a normal ${d1} rotation, done at the child ${y.v} instead of at ${z.v}: ${x.v} (${y.v}'s ${d2} child) moves up into ${y.v}'s spot, and ${y.v} moves down to become ${x.v}'s ${d1} child.${mv}${moved ? '' : ` With so few nodes, it looks like ${x.v} and ${y.v} just swapped places, but it is a rotation.`} Now ${z.v} → ${x.v} → ${y.v} all go ${d1}: a straight line, the ${kase === 'LR' ? 'LL' : 'RR'} case.`, { tag: 'Rotation 1 of 2', marks: { [z.v]: 'bad', [x.v]: 'pivot', ...(moved ? { [moved.v]: 'moved' } : {}) }, showBf: true }));
+    const head4a = `<b>Step 4a. Rotate ${d1} at ${y.v}.</b> This is a normal ${d1} rotation, done at the child ${y.v} instead of at ${z.v}: ${x.v} (${y.v}'s ${d2} child) moves up into ${y.v}'s spot, and ${y.v} moves down to become ${x.v}'s ${d1} child.`;
+    if (moved) floatPair(root, steps, head4a, y, x, d1, moved, 'Rotation 1 of 2', { [x.v]: 'pivot', [y.v]: 'down' });
+    else steps.push(snap(root, `<b>Step 4a. Rotate ${d1} at ${y.v}.</b> This is a normal ${d1} rotation, done at the child ${y.v} instead of at ${z.v}: ${x.v} (${y.v}'s ${d2} child) moves up into ${y.v}'s spot, and ${y.v} moves down to become ${x.v}'s ${d1} child.${mv}${moved ? '' : ` With so few nodes, it looks like ${x.v} and ${y.v} just swapped places, but it is a rotation.`} Now ${z.v} → ${x.v} → ${y.v} all go ${d1}: a straight line, the ${kase === 'LR' ? 'LL' : 'RR'} case.`, { tag: 'Rotation 1 of 2', marks: { [z.v]: 'bad', [x.v]: 'pivot', ...(moved ? { [moved.v]: 'moved' } : {}) }, showBf: true }));
     // second rotation at z
     const top = kase === 'LR' ? z.l : z.r; // == x
     const moved2 = kase === 'LR' ? top.r : top.l;
     const sub = kase === 'LR' ? rotRight(z) : rotLeft(z);
     attach(sub);
     const mv2 = moved2 ? ` ${top.v}'s old ${kase === 'LR' ? 'right' : 'left'} child, <b>${moved2.v}</b>, moves over to become ${z.v}'s ${kase === 'LR' ? 'left' : 'right'} child.` : '';
-    steps.push(snap(root, `<b>Step 4b. Rotate ${kase === 'LR' ? 'right' : 'left'} at ${z.v}.</b> ${top.v} moves up to ${z.v}'s old spot, and ${z.v} moves down to its ${kase === 'LR' ? 'right' : 'left'}.${mv2}`, { tag: 'Rotation 2 of 2', marks: { [top.v]: 'pivot', [z.v]: 'down', ...(moved2 ? { [moved2.v]: 'moved' } : {}) }, showBf: true }));
+    if (moved2) floatPair(root, steps, `<b>Step 4b. Rotate ${kase === 'LR' ? 'right' : 'left'} at ${z.v}.</b> ${top.v} moves up to ${z.v}'s old spot, and ${z.v} moves down to become ${top.v}'s ${kase === 'LR' ? 'right' : 'left'} child.`, z, top, kase === 'LR' ? 'right' : 'left', moved2, 'Rotation 2 of 2', { [top.v]: 'pivot', [z.v]: 'down' });
+    else steps.push(snap(root, `<b>Step 4b. Rotate ${kase === 'LR' ? 'right' : 'left'} at ${z.v}.</b> ${top.v} moves up to ${z.v}'s old spot, and ${z.v} moves down to its ${kase === 'LR' ? 'right' : 'left'}.${mv2}`, { tag: 'Rotation 2 of 2', marks: { [top.v]: 'pivot', [z.v]: 'down', ...(moved2 ? { [moved2.v]: 'moved' } : {}) }, showBf: true }));
   } else {
     const moved = kase === 'LL' ? y.r : y.l;
     const sub = kase === 'LL' ? rotRight(z) : rotLeft(z);
     attach(sub);
     const mv = moved ? ` ${y.v}'s old ${kase === 'LL' ? 'right' : 'left'} child, <b>${moved.v}</b>, moves over to become ${z.v}'s ${kase === 'LL' ? 'left' : 'right'} child (it still fits the BST rule there).` : '';
-    steps.push(snap(root, `<b>Step 4. Rotate ${kase === 'LL' ? 'right' : 'left'} at ${z.v}.</b> ${y.v} moves up to ${z.v}'s old spot, and ${z.v} moves down to ${y.v}'s ${kase === 'LL' ? 'right' : 'left'}.${mv}`, { tag: 'Rotation', marks: { [y.v]: 'pivot', [z.v]: 'down', ...(moved ? { [moved.v]: 'moved' } : {}) }, showBf: true }));
+    if (moved) floatPair(root, steps, `<b>Step 4. Rotate ${kase === 'LL' ? 'right' : 'left'} at ${z.v}.</b> ${y.v} moves up to ${z.v}'s old spot, and ${z.v} moves down to become ${y.v}'s ${kase === 'LL' ? 'right' : 'left'} child.`, z, y, kase === 'LL' ? 'right' : 'left', moved, 'Rotation', { [y.v]: 'pivot', [z.v]: 'down' });
+    else steps.push(snap(root, `<b>Step 4. Rotate ${kase === 'LL' ? 'right' : 'left'} at ${z.v}.</b> ${y.v} moves up to ${z.v}'s old spot, and ${z.v} moves down to ${y.v}'s ${kase === 'LL' ? 'right' : 'left'}.${mv}`, { tag: 'Rotation', marks: { [y.v]: 'pivot', [z.v]: 'down', ...(moved ? { [moved.v]: 'moved' } : {}) }, showBf: true }));
   }
   steps.push(snap(root, `<b>Done.</b> Every balance factor is −1, 0, or +1 again, and the in-order list is still sorted. You do <b>not</b> need to check the nodes above ${z.v} again: after an insertion, this one fix balances the whole tree. Go on to the next value.`, { tag: 'Balanced', marks: {}, showBf: true }));
   return { root, steps };
@@ -163,7 +178,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
 /**
  * Draw a tree as an SVG string.
- * opts: { marks, pathKeys (node keys whose connecting edges are drawn thick orange), showBf, showH, showNil, spot ({ key, side: 'l'|'r' }: highlight one empty slot), pos (override positions), alpha (per-node opacity), label, minW }
+ * opts: { floatKey (a node drawn with no edge to its parent: 'floating' during a rotation), marks, pathKeys (node keys whose connecting edges are drawn thick orange), showBf, showH, showNil, spot ({ key, side: 'l'|'r' }: highlight one empty slot), pos (override positions), alpha (per-node opacity), label, minW }
  * Red-black nodes carry n.c = 'R' or 'B'; their marks are drawn as a ring (halo) so the fill keeps its color.
  */
 export function svgTree(root, opts = {}) {
@@ -178,6 +193,7 @@ export function svgTree(root, opts = {}) {
   for (const [a, b] of L.edges) {
     const p = pos[a], q = pos[b];
     if (!p || !q) continue;
+    if (opts.floatKey != null && String(b) === String(opts.floatKey)) continue;   // floating node: no edge to its parent
     const hot = opts.pathKeys && opts.pathKeys.map(String).includes(String(a)) && opts.pathKeys.map(String).includes(String(b)) ? ' class="is-path"' : '';
     s += `<line${hot} x1="${p.x + off}" y1="${p.y}" x2="${q.x + off}" y2="${q.y}" />`;
   }
@@ -201,7 +217,8 @@ export function svgTree(root, opts = {}) {
     const a = opts.alpha && opts.alpha[key] != null ? opts.alpha[key] : 1;
     const x = p.x + off, y = p.y;
     const rb = n.c ? ' rb-' + n.c : '';
-    s += `<g class="t-node${rb} ${m ? 'm-' + m : ''}" data-v="${n.v}" data-k="${key}" opacity="${a}">`;
+    const fl = opts.floatKey != null && String(key) === String(opts.floatKey) ? ' is-float' : '';
+    s += `<g class="t-node${rb}${fl} ${m ? 'm-' + m : ''}" data-v="${n.v}" data-k="${key}" opacity="${a}">`;
     if (n.c && m) s += `<circle class="halo" cx="${x}" cy="${y}" r="${R + 6}" />`;
     s += `<circle class="body" cx="${x}" cy="${y}" r="${R}" />`;
     s += `<text x="${x}" y="${y}">${n.v}</text>`;

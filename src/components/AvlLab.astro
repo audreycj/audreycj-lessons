@@ -131,7 +131,7 @@ const config = JSON.stringify({ presets, custom, kind });
 
     function draw(snap: any, pos: any, alpha?: any) {
       svgBox.innerHTML = snap.tree
-        ? svgTree(snap.tree, { marks: snap.marks, showBf: snap.showBf, padBf: true, showNil: nil && nil.checked, pos, alpha, minW: W, minH: H, label: (cfg.kind === 'rb' ? 'Red-black' : 'AVL') + ' tree, step ' + at })
+        ? svgTree(snap.tree, { marks: snap.marks, showBf: snap.showBf, padBf: true, floatKey: snap.float, showNil: nil && nil.checked, pos, alpha, minW: W, minH: H, label: (cfg.kind === 'rb' ? 'Red-black' : 'AVL') + ' tree, step ' + at })
         : `<p class="muted small" style="text-align:center">(empty tree)</p>`;
     }
 
@@ -149,6 +149,10 @@ const config = JSON.stringify({ presets, custom, kind });
       cancelAnimationFrame(anim);
       if (!snap.tree) { shown = {}; draw(snap, {}); return; }
       const to = targetPos(snap.tree);
+      if (snap.float != null) {   // floating child (and its subtree): hangs a little below its new spot, with no edge to its parent
+        const find = (n: any): any => (!n ? null : String(n.v) === String(snap.float) ? n : find(n.l) || find(n.r));
+        (function drop(n: any) { if (!n) return; const k = String(n.id != null ? n.id : n.v); if (to[k]) to[k] = { x: to[k].x, y: to[k].y + 22 }; drop(n.l); drop(n.r); })(find(snap.tree));
+      }
       const from = shown;
       if (!animate) { shown = to; draw(snap, to); return; }   // moves even with Reduce Motion: tapped by the student, and the movement is the lesson
       const t0 = performance.now(), dur = 650;

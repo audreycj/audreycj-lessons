@@ -1300,3 +1300,5 @@ table.tbl.cat thead th { background: var(--cat); }
 
 /* graphs: map-app picture (chat 47) */
 .map-app-fig svg { display: block; max-width: 24rem; margin-inline: auto; }
+/* AVL lab: a child floating during a rotation (chat 47) */
+.tree-svg .t-node.is-float circle { stroke-dasharray: 5 4; }
