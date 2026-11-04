@@ -158,6 +158,69 @@ const code1 = String.raw`public class MatrixGraph {
   }
 }`;
 
+const codeRoute = String.raw`public class FastestRoute {
+  static char[] names = {'A', 'B', 'C', 'D'};
+  static int n = names.length;
+  static int[][] mins = new int[n][n];   // travel minutes; 0 = no road
+  static final int INF = Integer.MAX_VALUE;   // "not reached yet"
+
+  // two-way road: set both cells
+  static void addRoad(int a, int b, int minutes) {
+    mins[a][b] = minutes;
+    mins[b][a] = minutes;
+  }
+
+  public static void main(String[] args) {
+    addRoad(0, 1, 7);    // A - B: 7 min
+    addRoad(0, 3, 4);    // A - D: 4 min
+    addRoad(1, 2, 12);   // B - C: 12 min
+    addRoad(1, 3, 5);    // B - D: 5 min
+
+    int start = 0, goal = 2;           // from A to C
+    int[] best = new int[n];           // fastest time found so far
+    int[] cameFrom = new int[n];       // the place just before it
+    boolean[] done = new boolean[n];   // time is final
+    for (int i = 0; i < n; i++) {
+      best[i] = INF;
+      cameFrom[i] = -1;
+    }
+    best[start] = 0;
+
+    for (int round = 0; round < n; round++) {
+      // 1. pick the unfinished place with the smallest time
+      int u = -1;
+      for (int i = 0; i < n; i++) {
+        if (done[i]) continue;
+        if (u == -1 || best[i] < best[u]) u = i;
+      }
+      if (best[u] == INF) break;   // the rest cannot be reached
+      done[u] = true;
+
+      // 2. try every road out of u: is going through u faster?
+      for (int v = 0; v < n; v++) {
+        if (mins[u][v] > 0 && !done[v]) {
+          int t = best[u] + mins[u][v];
+          if (t < best[v]) {
+            best[v] = t;
+            cameFrom[v] = u;
+          }
+        }
+      }
+    }
+
+    // 3. walk back from the goal to build the route
+    String route = "" + names[goal];
+    for (int v = cameFrom[goal]; v != -1; v = cameFrom[v]) {
+      route = names[v] + " -> " + route;
+    }
+    System.out.println("Fastest route: " + route);
+    System.out.println("Time: " + best[goal] + " minutes");
+    // prints: Fastest route: A -> B -> C
+    //         Time: 19 minutes
+  }
+}`;
+const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minutes on the edges' })}<p class="small">Travel minutes (made-up numbers): A–B 7, A–D 4, B–C 12, B–D 5. Fastest A to C: A → B → C, 19 minutes.</p>`;
+
 const code2 = String.raw`import java.util.ArrayList;
 
 public class ListGraph {
@@ -329,6 +392,16 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
             </div>
           </div>
         </figure>
+        <div class="remember">
+          <p class="note-label">Where you see this: map apps</p>
+          <p>Map apps such as Google Maps and Waze store roads as a weighted graph. Here is what each part stands for:</p>
+          <ul>
+            <li><b>Vertices:</b> intersections and places, like your house, DOrSU, or the public market.</li>
+            <li><b>Edges:</b> the road segments between them. A one-way street is a <b>directed</b> edge.</li>
+            <li><b>Weights:</b> usually the expected travel time, updated with live traffic. That is why the app may reroute you mid-trip.</li>
+          </ul>
+          <p>To suggest a route, the app looks for the path with the <b>smallest total weight</b>, just like A → B → C (19 minutes) above. So the "shortest" route usually means the <b>fastest</b>, not the fewest kilometers. To see how a program finds it, try the <a href="#java-route">mini map app in Part 8</a>.</p>
+        </div>
       </div>
 
       <div class="sub">
@@ -543,6 +616,43 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
           <p>Row <code>i</code> is the <b>from</b> vertex and column <code>j</code> is the <b>to</b> vertex, so a 1 in <code>adj[i][j]</code> goes into <b>i's</b> list. And because <code>j</code> counts up from 0, every list comes out in alphabetical order. BFS and DFS use that order in the next lessons.</p>
           <p>A common mistake is <code>list.get(j).add(i)</code>, the wrong way around. Test 2 still passes: an undirected matrix is a <a href="#matrix">mirror image</a>, so every edge is stored both ways. Test 1 catches it. It prints <code>A: B</code>, <code>B: C D</code>, <code>C: A</code>, <code>D: A</code>, <code>E: D</code>: the arrows coming <b>into</b> each vertex, not going out. That is why the tests include a directed graph.</p>
         </div></details>
+      </div>
+      <div class="sub" id="java-route">
+        <h3>Real-life application: a mini map app</h3>
+        <p class="xtra-note"><b>Extra topic.</b> This goes a step beyond the lesson and is not in the self-check. Read it if you are curious how map apps find a route.</p>
+        <p>This program finds the fastest route from A to C in the <Peek label="travel-time graph" title="From Part 2 · Weighted or unweighted?" html={travelPeek} />. The method is called <b>Dijkstra's algorithm</b> (say "DIKE-struh"), named after the Dutch computer scientist Edsger Dijkstra, who came up with it in 1956. It follows four steps, the same ones you would do by hand:</p>
+        <ol>
+          <li>Start at A with a time of 0. Every other place is "not reached yet."</li>
+          <li>Each round, pick the unfinished place with the <b>smallest time so far</b>. Its time is now final.</li>
+          <li>From that place, check each road. If going through it is <b>faster</b> than the time written for a neighbor, write the new time and remember where you came from.</li>
+          <li>When every place is done, walk back from C using "came from" to read the route.</li>
+        </ol>
+        <pre class="code"><code set:html={hiN(codeRoute)} /></pre>
+        <TryIt cls="FastestRoute" />
+        <p>Here is how to read the new lines aloud:</p>
+        <div class="tbl-wrap"><table class="tbl ra">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>Integer.MAX_VALUE</code></td><td>"the biggest number an <code>int</code> can hold." We use it to mean "not reached yet": any real time is smaller.</td></tr>
+            <tr><td><code>boolean[] done</code></td><td>"done is an array of true/false values." <code>done[i]</code> becomes true once place i's time is final. It starts all false.</td></tr>
+            <tr><td><code>if (done[i]) continue;</code></td><td>"if place i is done, skip it and go to the next i."</td></tr>
+            <tr><td><code>if (t &lt; best[v])</code></td><td>"if going through u is faster than v's best time so far": then update v's time and write that v came from u.</td></tr>
+            <tr><td class="nowrap"><code>v = cameFrom[v]</code></td><td>"step back to the place before v." The walk stops at A, whose <code>cameFrom</code> is -1.</td></tr>
+          </tbody>
+        </table></div>
+        <p>The table below traces the program round by round, so you can check each step:</p>
+        <div class="tbl-wrap scroll-x"><table class="tbl">
+          <thead><tr><th>Round</th><th>Picked (smallest time)</th><th>Roads checked</th><th>What changes</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>A (0 min)</td><td>A–B: 0 + 7 = 7<br />A–D: 0 + 4 = 4</td><td>B = 7 (from A), D = 4 (from A)</td></tr>
+            <tr><td>2</td><td>D (4 min)</td><td>D–B: 4 + 5 = 9</td><td>9 is not faster than 7, so B stays 7</td></tr>
+            <tr><td>3</td><td>B (7 min)</td><td>B–C: 7 + 12 = 19</td><td>C = 19 (from B)</td></tr>
+            <tr><td>4</td><td>C (19 min)</td><td>no unfinished neighbors</td><td>all done</td></tr>
+          </tbody>
+        </table></div>
+        <p>Walking back: C came from B, and B came from A. So the route is <b>A → B → C, 19 minutes</b>, the same answer as in Part 2.</p>
+        <p>Why is the picked time final? Every other unfinished place already takes longer to reach, and travel times are never negative, so no detour through them can be faster. (This is also why Dijkstra's algorithm does not work if a weight can be negative.)</p>
+        <p class="small muted">Real map apps have millions of places, so they use faster versions of this idea, with shortcuts worked out ahead of time. The core question is the same: which path has the smallest total weight?</p>
       </div>
     </div>
   </section>
