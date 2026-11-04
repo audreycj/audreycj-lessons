@@ -7,7 +7,7 @@ import SheetLab from '../../components/SheetLab.astro';
 import { course } from '../../data/it110.js';
 import { installedCloud, dbTable, softwareLayers } from '../../lib/it110-illus.js';
 import { roughen } from '../../lib/it110-os-pics.js';
-import { imgWindow, vidWindow, piracyPic, wpWord, wpWriter, wpDocs, wpPages, formatPage, sheetWindow, slideWindow, dbmsPic, othWeb, othComm, othEdu, othNotes, othPay, othDtp, othPm, cloudPic, phoneApps, licensePic, ownScale, appWindow, saveCard, clipCard, editCard, cellGrid, dbShared, slideShow, transAnim, pixelVector, mediaKit } from '../../lib/it110-app-pics.js';
+import { commonSheet, commonDesign, imgWindow, vidWindow, piracyPic, wpWord, wpWriter, wpDocs, wpPages, formatPage, sheetWindow, slideWindow, dbmsPic, othWeb, othComm, othEdu, othNotes, othPay, othDtp, othPm, cloudPic, phoneApps, licensePic, ownScale, appWindow, saveCard, clipCard, editCard, cellGrid, dbShared, slideShow, transAnim, pixelVector, mediaKit } from '../../lib/it110-app-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back to Lesson 1 (her rule: every back-reference comes with its picture right there)
@@ -163,7 +163,19 @@ const quiz = [
     </div>
     <div class="flow">
       <p>Learn these once, and they work in almost every app, from Word to Canva. First, the parts of an app window:</p>
-      <figure class="fig illus-fig illus wide-win"><Fragment set:html={appWindow()} /><figcaption>The parts of a word processor window. Most apps put their commands in the same kinds of places.</figcaption></figure>
+      <figure class="fig illus-fig illus wide-win"><Fragment set:html={appWindow()} /><figcaption>The parts of a word processor window. The File menu is open: a list of commands that drops down when you click it.</figcaption></figure>
+      <p>These parts are not only in word processors. Below are two very different apps, a spreadsheet and a design app, with the same parts marked by the same numbers:</p>
+      <ol class="small">
+        <li><b>Title bar or name:</b> the file or design you are working on</li>
+        <li><b>Menus and tabs:</b> groups of commands (File, Home, Insert, Resize)</li>
+        <li><b>Ribbon or toolbar:</b> the buttons you use most (font, size, Bold), plus side panels in some apps</li>
+        <li><b>Your work:</b> the document, sheet, or design</li>
+      </ol>
+      <div class="two-col">
+        <figure class="fig illus-fig illus"><Fragment set:html={commonSheet()} /><figcaption>A spreadsheet (like Excel)</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={commonDesign()} /><figcaption>A design app in a web browser (like Canva)</figcaption></figure>
+      </div>
+      <p>Once you know where these parts are in one app, you can find your way around a new one.</p>
       <p>The table explains the ideas that most apps share:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Concept</th><th>What it means</th></tr></thead>
@@ -171,7 +183,7 @@ const quiz = [
           <tr><td><b>Document / file</b></td><td>The work you make and save: a report, a worksheet, a slide deck.</td></tr>
           <tr><td><b>Save vs. Save As</b></td><td><b>Save</b> keeps changes in the same file. <b>Save As</b> makes a new copy with a new name, place, or format.</td></tr>
           <tr><td><b>File format</b></td><td>The type of file, shown by its <b>extension</b>: .docx (Word), .xlsx (Excel), .pptx (PowerPoint), .pdf (PDF), .jpg or .png (pictures).</td></tr>
-          <tr><td><b>Ribbon, menus, toolbars</b></td><td>Where the commands are. Office groups them in <b>tabs</b> (Home, Insert, Layout) on the <b>ribbon</b>.</td></tr>
+          <tr><td><b>Ribbon, menus, toolbars</b></td><td>Where the commands are. A <b>menu</b> is a list of commands that drops down when you click its name (File, Edit). A <b>toolbar</b> is a row of buttons. Office groups its buttons in <b>tabs</b> (Home, Insert, Layout) on the <b>ribbon</b>.</td></tr>
           <tr><td><b>Dialog box</b></td><td>A small window that asks you for choices, like the Print box.</td></tr>
           <tr><td><b>Editing vs. formatting</b></td><td><b>Editing</b> changes the content (add, delete, move words). <b>Formatting</b> changes how it looks (font, size, color, alignment).</td></tr>
           <tr><td><b>Clipboard</b></td><td>A temporary holding place for what you cut or copy, until you paste it.</td></tr>

@@ -87,10 +87,10 @@ export function ownScale() {
 /* ---------- Part 3 ---------- */
 export function appWindow() {
   let b = R(8, 8, 244, 232, { r: 6, f: B.card, sw: 2 });
-  b += `<path d="M14 8 H246 Q252 8 252 14 V32 H8 V14 Q8 8 14 8 Z" fill="${B.blue}" stroke="${B.ink}" stroke-width="2"/>` + T(118, 25, 'Report.docx - Word', { size: 11.5, c: '#fff' });
+  b += `<path d="M14 8 H246 Q252 8 252 14 V32 H8 V14 Q8 8 14 8 Z" fill="${B.blue}" stroke="${B.ink}" stroke-width="2"/>` + T(118, 25, 'Report.docx', { size: 11.5, c: '#fff' });
   b += L(214, 20, 222, 20, '#fff', 1.6) + R(228, 15, 8, 8, { r: 1, f: 'none', s: '#fff', sw: 1.4 }) + L(240, 15, 247, 24, '#fff', 1.6) + L(247, 15, 240, 24, '#fff', 1.6);
-  [['File', 26], ['Home', 66], ['Insert', 112], ['Layout', 162]].forEach(([n, x], i) => { b += T(x, 47, n, { size: 11, c: i === 1 ? B.blue : B.soft }); });
-  b += L(52, 52, 80, 52, B.blue, 3);
+  [['File', 26], ['Home', 66], ['Insert', 112], ['Layout', 162]].forEach(([n, x], i) => { b += T(x, 47, n, { size: 11, c: i === 0 ? B.orangeInk : B.soft }); });
+  b += R(12, 35, 28, 17, { r: 3, f: 'none', s: B.orange, sw: 1.6 });
   b += R(8, 53, 244, 40, { r: 0, f: B.blueWash, sw: 1.4 });
   b += R(18, 60, 20, 26, { r: 3, f: B.amber, sw: 1.4 }) + R(23, 57, 10, 6, { r: 1, f: B.grey, sw: 1.2 });
   b += R(48, 59, 62, 13, { r: 2, f: B.card, sw: 1.2 }) + T(52, 69, 'Nunito  12', { size: 8.5, w: 700, a: 'start' });
@@ -104,9 +104,12 @@ export function appWindow() {
   b += R(130, 124, 112, 84, { r: 6, f: B.card, sw: 2 }) + `<path d="M136 124 H236 Q242 124 242 130 V142 H130 V130 Q130 124 136 124 Z" fill="${B.blueWash}" stroke="${B.ink}" stroke-width="1.6"/>` + T(186, 137, 'Print', { size: 11 });
   b += T(140, 162, 'Copies: 1', { size: 10.5, w: 700, a: 'start' });
   b += R(140, 180, 44, 18, { r: 4, f: B.blue, sw: 1.2 }) + T(162, 193, 'Print', { size: 10, c: '#fff' }) + R(190, 180, 44, 18, { r: 4, f: B.card, sw: 1.2 }) + T(212, 193, 'Cancel', { size: 10 });
+  // the File menu, opened: a drop-down list of commands
+  b += R(16, 56, 74, 92, { r: 4, f: 'rgba(24,35,58,0.18)', s: 'none', sw: 0 }) + R(12, 52, 74, 92, { r: 4, f: B.card, sw: 1.6 });
+  ['New', 'Open', 'Save', 'Save As', 'Print'].forEach((n, i) => { if (i === 3) b += R(14, 52 + 6 + i * 17, 70, 15, { r: 2, f: B.blueWash, s: 'none', sw: 0 }); b += T(20, 52 + 17 + i * 17, n, { size: 10.5, w: 700, a: 'start' }); });
   const lab = (y, t1, t2, tx) => ARROW(266, y, tx, y, B.orange, 2) + T(270, y + 4, t1, { size: 12.5, a: 'start', c: B.orangeInk }) + (t2 ? T(270, y + 19, t2, { size: 10.5, w: 700, a: 'start', c: B.soft }) : '');
-  b += lab(20, 'Title bar', '', 254) + lab(46, 'Tabs', '', 190) + lab(76, 'Ribbon', 'the commands', 254) + lab(150, 'Dialog box', 'asks for choices', 244) + lab(224, 'Document', 'your work', 178);
-  return svgWrap(362, 248, 'A word processor window. At the top, the title bar shows the file name, Report.docx. Below it are the tabs File, Home, Insert, and Layout, and the ribbon with the commands, such as Paste, Bold, Italic, Underline, and alignment. The document page fills the middle. A small Print dialog box asks how many copies.', b);
+  b += lab(20, 'Title bar', '', 254) + lab(46, 'Tabs', '', 190) + lab(76, 'Ribbon', 'the buttons', 254) + `<path d="M266 112 H150 L90 112" fill="none" stroke="${B.orange}" stroke-width="2"/>` + ARROW(120, 112, 88, 112, B.orange, 2) + T(270, 116, 'Menu', { size: 12.5, a: 'start', c: B.orangeInk }) + T(270, 131, 'a list of commands', { size: 10.5, w: 700, a: 'start', c: B.soft }) + lab(162, 'Dialog box', 'asks for choices', 244) + lab(224, 'Document', 'your work', 178);
+  return svgWrap(362, 248, 'A word processor window. At the top, the title bar shows the file name, Report.docx. Below it are the tabs File, Home, Insert, and Layout, and the ribbon with buttons such as Paste, Bold, Italic, Underline, and alignment. The File menu is open: a drop-down list with New, Open, Save, Save As, and Print. The document page fills the middle. A small Print dialog box asks how many copies.', b);
 }
 export function saveCard() {
   let b = T(8, 38, 'Save', { size: 13, a: 'start', c: B.blueInk }) + T(8, 104, 'Save As', { size: 13, a: 'start', c: B.orangeInk });
@@ -624,4 +627,58 @@ export function vidWindow() {
   b += frameEnd(W, H);
   b += tag(110, 32, 1, c) + tag(322, 38, 2, c) + tag(322, 160, 3, c) + tag(104, 158, 4, c) + tag(262, 14, 5, c);
   return svgWrap(W, H, 'A video editor like CapCut or Premiere Pro. At the top left is the media panel with video clips and a music file. At the top right, the preview plays the video, now at 00:12 of 01:30, showing a beach scene with the text Day 1!. At the bottom is the timeline: a text track, a video track with four clips, and an audio track with the music waveform. A red playhead marks the current moment. The Export button is at the top right.', b);
+}
+
+
+/* ---------- Part 3: the same parts in other apps (chat 46) ---------- */
+// Orange numbered tags match one legend on the page: 1 title, 2 menus/tabs, 3 ribbon/toolbar, 4 your work.
+const otag = (x, y, n) => `<circle cx="${x}" cy="${y}" r="9.5" fill="${B.orange}" stroke="#fff" stroke-width="1.8"/>` + T(x, y + 4, String(n), { size: 11.5, c: '#fff', w: 900 });
+
+/** A spreadsheet window (like Excel) with the four common parts tagged. */
+export function commonSheet() {
+  const c = CAT.sheet, W = 280, H = 210;
+  let b = R(4, 4, W - 8, H - 8, { r: 6, f: '#fff', s: 'none', sw: 0 }) + ttl(4, W - 8, c) + T(W / 2, 18, 'Grades.xlsx', { size: 10, c: '#fff' });
+  b += L(232, 14, 240, 14, '#fff', 1.4) + `<rect x="245" y="10" width="8" height="8" fill="none" stroke="#fff" stroke-width="1.2"/>` + L(258, 10, 266, 18, '#fff', 1.4) + L(266, 10, 258, 18, '#fff', 1.4);
+  b += tabsRow(12, 37, ['File', 'Home', 'Insert', 'Formulas', 'Data', 'View'], ['Home'], c, 8.5, 4.4, 9).s;
+  b += `<rect x="4" y="44" width="${W - 8}" height="28" fill="#f3f5f8"/>` + L(4, 44, W - 4, 44, B.line, 1) + L(4, 72, W - 4, 72, B.line, 1);
+  b += R(12, 48, 15, 19, { r: 2, f: B.amber, sw: 1 }) + R(34, 49, 44, 10, { r: 1, f: '#fff', sw: 0.8 }) + t8(37, 56.5, 'Calibri', { size: 6.5, c: B.ink }) + biuS(34, 61, 8);
+  b += L(86, 48, 86, 68, B.line, 1) + alignS(92, 52) + L(148, 48, 148, 68, B.line, 1) + t8(154, 57, 'Σ AutoSum', { size: 7, c: B.ink }) + t8(154, 66, 'Sort & Filter', { size: 7, c: B.ink });
+  const xs = [6, 26, 96, 146, 196, 246], y0 = 78, rh = 16;
+  const rows = [['Name', 'Quiz', 'Exam', 'Final'], ['Ana', '18', '45', '88'], ['Ben', '15', '40', '79'], ['Cara', '20', '47', '93'], ['Dan', '17', '42', '83']];
+  b += `<rect x="6" y="${y0}" width="${W - 12}" height="${rh}" fill="#eef1f5"/><rect x="6" y="${y0}" width="20" height="${rh * 8}" fill="#eef1f5"/>`;
+  for (let j = 0; j <= 8; j++) b += L(6, y0 + j * rh, W - 6, y0 + j * rh, '#d5dbe4', 0.8);
+  xs.forEach((v) => { b += L(v, y0, v, y0 + rh * 8, '#d5dbe4', 0.8); }); b += L(W - 6, y0, W - 6, y0 + rh * 8, '#d5dbe4', 0.8);
+  ['A', 'B', 'C', 'D', 'E'].forEach((n, i) => { b += T((xs[i + 1] + (xs[i + 2] || W - 6)) / 2, y0 + 11.5, n, { size: 8, w: 800, c: B.soft }); });
+  for (let j = 1; j <= 7; j++) b += T(16, y0 + j * rh + 11.5, String(j), { size: 7.5, w: 800, c: B.soft });
+  rows.forEach((r, j) => r.forEach((v, i) => { b += t8(i ? xs[i + 2] - 6 : xs[1] + 5, y0 + (j + 1) * rh + 11.5, v, { size: 8, c: B.ink, w: j === 0 ? 800 : 600, a: i ? 'end' : 'start' }); }));
+  b += frameEnd(W, H);
+  b += otag(28, 14, 1) + otag(W - 22, 37, 2) + otag(W - 22, 58, 3) + otag(W - 24, y0 + rh * 6 + 4, 4);
+  return svgWrap(W, H, 'A spreadsheet window like Excel. Tag 1, the title bar, shows the file name, Grades.xlsx. Tag 2 marks the tabs, File to View. Tag 3 marks the ribbon with buttons such as Bold, alignment, AutoSum, and Sort and Filter. Tag 4 marks your work: a grid of student grades.', b);
+}
+
+/** A design app window (like Canva in a browser) with the same four parts tagged. No logo. */
+export function commonDesign() {
+  const c = '#6b4fbb', W = 280, H = 210;
+  let b = R(4, 4, W - 8, H - 8, { r: 6, f: '#eef0f4', s: 'none', sw: 0 }) + ttl(4, W - 8, c, 24);
+  [['File', 14], ['Resize', 40], ['Edit', 78]].forEach(([n, x]) => { b += t8(x, 20, n, { size: 8.5, c: '#fff', w: 800 }); });
+  b += t8(180, 20, 'Club Poster', { size: 9, c: '#fff', w: 900, a: 'middle' }) + R(220, 9, 48, 15, { r: 7.5, f: '#fff', s: 'none', sw: 0 }) + t8(244, 19.5, 'Share', { size: 8, c, w: 900, a: 'middle' });
+  b += `<rect x="4" y="28" width="44" height="${H - 32}" fill="#ffffff"/>` + L(48, 28, 48, H - 4, B.line, 1);
+  [['Design', 'M0 0'], ['Elements', ''], ['Text', 'T'], ['Uploads', '']].forEach(([n], i) => {
+    const y = 36 + i * 40;
+    b += R(16, y, 20, 20, { r: 5, f: i === 2 ? '#e7e0f7' : '#f1f3f6', s: i === 2 ? c : B.line, sw: 1 });
+    if (i === 0) b += R(21, y + 5, 10, 10, { r: 1, f: 'none', s: B.soft, sw: 1.3 });
+    if (i === 1) b += `<circle cx="23" cy="${y + 8}" r="3.5" fill="none" stroke="${B.soft}" stroke-width="1.3"/>` + R(26, y + 10, 6, 6, { r: 1, f: 'none', s: B.soft, sw: 1.3 });
+    if (i === 2) b += T(26, y + 15, 'T', { size: 12, w: 900, c });
+    if (i === 3) b += ARROW(26, y + 16, 26, y + 5, B.soft, 1.4);
+    b += t8(26, y + 29, n, { size: 6.4, a: 'middle', c: B.soft, w: 800 });
+  });
+  b += `<rect x="48" y="28" width="${W - 52}" height="22" fill="#fff"/>` + L(48, 50, W - 4, 50, B.line, 1);
+  b += R(56, 33, 50, 12, { r: 2, f: '#fff', sw: 0.8 }) + t8(60, 42, 'Fredoka', { size: 7, c: B.ink }) + R(110, 33, 20, 12, { r: 2, f: '#fff', sw: 0.8 }) + t8(120, 42, '36', { size: 7, c: B.ink, a: 'middle' }) + biuS(136, 33, 11) + R(182, 33, 12, 12, { r: 2, f: B.orange, sw: 0.8 }) + alignS(202, 35);
+  b += R(96, 58, 120, 140, { r: 2, f: '#fff', sw: 1.2 });
+  b += R(96, 58, 120, 60, { r: 0, f: '#c9dcf3', s: 'none', sw: 0 }) + P('M96 118 L130 88 L152 104 L172 86 L216 118 Z', '#7fa7d6', 'none', 0) + `<circle cx="196" cy="74" r="7" fill="${B.amber}"/>`;
+  b += T(156, 140, 'JOIN THE', { size: 9, w: 900, c: B.soft }) + T(156, 160, 'IT CLUB', { size: 17, w: 900, c }) + L(116, 174, 196, 174, '#9aa6b8', 1.3) + L(126, 182, 186, 182, '#9aa6b8', 1.3);
+  b += R(96, 58, 120, 140, { r: 2, f: 'none', sw: 1.2 });
+  b += frameEnd(W, H);
+  b += otag(138, 16, 1) + otag(110, 16, 2) + otag(W - 22, 39, 3) + otag(46, 112, 3) + otag(226, 168, 4);
+  return svgWrap(W, H, 'A design app window like Canva, used in a web browser. Tag 1 marks the design name, Club Poster, at the top. Tag 2 marks the menus File, Resize, and Edit. Tag 3 marks the toolbar with the font, size, Bold, Italic, Underline, color, and alignment, and also the side panel with Design, Elements, Text, and Uploads. Tag 4 marks your work: a poster that says Join the IT Club.', b);
 }
