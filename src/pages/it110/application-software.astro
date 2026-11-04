@@ -95,17 +95,23 @@ const quiz = [
         <tbody>
           <tr><td><b>Where it runs</b></td><td>On your own computer or phone</td><td>On the provider's servers; you use a browser or a small app</td></tr>
           <tr><td><b>Internet</b></td><td>The app can run without it, but many features need it (Facebook feeds, GCash payments, online games, syncing files)</td><td>Usually needed</td></tr>
-          <tr><td><b>Updates</b></td><td>Downloaded and installed on your device, often automatically (Windows Update, Play Store, App Store)</td><td>Done by the provider on its servers: everyone gets the new version at once, with nothing to install</td></tr>
+          <tr><td><b>Updates</b></td><td>Downloaded and installed on your device, often automatically (Windows Update, Play Store, App Store)</td><td>Done by the provider on its servers, for every user, with nothing to install</td></tr>
           <tr><td><b>Your files</b></td><td>Saved on your device</td><td>Saved online: open them on any device, and share easily</td></tr>
           <tr><td><b>Examples</b></td><td>Microsoft Word (desktop app), VLC, most games</td><td>Google Docs, Canva in a browser, Word on the web</td></tr>
         </tbody>
       </table></div>
-      <p>Cloud-based software is often sold as <b>SaaS</b> (software as a service). With SaaS, you do not buy a copy to install. The provider runs the software on its servers, updates it, and keeps your files backed up, and you pay for the <b>service</b>, usually as a monthly or yearly subscription (many also have a free plan). Examples: Google Workspace (Docs, Sheets, Gmail), Microsoft 365, Canva, and Zoom. Many SaaS products are <b>web apps</b>: apps that run inside a web browser, with nothing to install.</p>
-      <p>Many apps are now both: Word comes as an installed app and a web app, and phone apps such as GCash are installed but need the Internet to work.</p>
-      <div class="two-col">
-        <div class="def"><p class="note-label">Desktop app</p><p>Installed on a desktop or laptop computer (Windows, macOS, or Linux).</p></div>
-        <div class="def"><p class="note-label">Mobile app</p><p>Installed on a phone or tablet from an app store (Google Play, App Store, AppGallery).</p></div>
+      <p>Apps also come in different forms, depending on how you use them. These are the three forms:</p>
+      <div class="two-col three">
+        <div class="def"><p class="note-label">Desktop app</p><p>Installed on a desktop or laptop computer (Windows, macOS, or Linux). Examples: Microsoft Word, VLC.</p></div>
+        <div class="def"><p class="note-label">Mobile app</p><p>Installed on a phone or tablet from an app store (Google Play, App Store, AppGallery). Examples: GCash, the Google Docs app.</p></div>
+        <div class="def"><p class="note-label">Web app</p><p>Used inside a <b>web browser</b>, with nothing to install. It runs on the provider's servers. Examples: Google Docs, Gmail, Canva on the web.</p></div>
       </div>
+      <p>One product can come in more than one form. Microsoft Word is a desktop app, a mobile app, and a web app (Word on the web). Google Docs is a web app and a mobile app.</p>
+      <div class="sticky">
+        <p class="note-label">A web app is not just a website</p>
+        <p>A <b>website</b> mostly shows you information, such as a news site or the university's homepage. A <b>web app</b> lets you <b>do a task</b> in the browser: write a document, edit a photo, or compute grades.</p>
+      </div>
+      <p>How is cloud software sold? Often as <b>SaaS</b> (software as a service). With SaaS, you do not buy a copy to install. The provider runs the software on its servers, updates it, and keeps your files backed up, and you pay for the <b>service</b>, usually as a monthly or yearly subscription (many also have a free plan). Examples: Google Workspace (Docs, Sheets, Gmail), Microsoft 365, Canva, and Zoom. SaaS is about <b>how the software is sold</b>, so one SaaS product can come as a web app, a mobile app, and a desktop app.</p>
     </div>
   </section>
 
@@ -128,9 +134,9 @@ const quiz = [
         <thead><tr><th>Kind</th><th>Pay?</th><th>Copy and share?</th><th>See and change the code?</th><th>Examples</th></tr></thead>
         <tbody>
           <tr><td><b>Commercial</b></td><td>Yes (once, or a subscription)</td><td>No</td><td>No</td><td>Windows, Adobe Premiere Pro, Minecraft</td></tr>
-          <tr><td><b>Shareware</b></td><td>Free to try, then pay</td><td>Often allowed for the trial</td><td>No</td><td>WinRAR (after its 40-day trial, it keeps asking you to buy it), free trials such as the Microsoft 365 free trial, game demos</td></tr>
+          <tr><td><b>Shareware</b></td><td>Free to try, then pay</td><td>Often allowed for the trial</td><td>No</td><td>WinRAR (after its 40-day trial, it keeps asking you to buy it), game demos, free trial versions of paid apps</td></tr>
           <tr><td><b>Freeware</b></td><td>No</td><td>Usually yes, but the owner keeps the rights</td><td>No</td><td>Google Chrome, Microsoft Edge</td></tr>
-          <tr><td><b>Public domain</b></td><td>No</td><td>Yes, no rules at all (no copyright)</td><td>Usually (the code is often shared)</td><td>SQLite, a small database program inside almost every phone. Public domain software is rare.</td></tr>
+          <tr><td><b>Public domain</b></td><td>No</td><td>Yes, no rules at all (no copyright)</td><td>Usually (the code is often shared)</td><td>SQLite, a small database program inside almost every phone; ImageJ, an image program for scientists made by the US National Institutes of Health. Public domain software is rare.</td></tr>
           <tr><td><b>Open source</b></td><td>No</td><td>Yes, under its license</td><td>Yes</td><td>Firefox, the core of Android, Linux, Blender, OBS Studio (used by many streamers)</td></tr>
         </tbody>
       </table></div>
@@ -309,7 +315,7 @@ const quiz = [
       <figure class="fig illus-fig illus"><Fragment set:html={roughen(dbShared())} /><figcaption>The registrar, the cashier, and the dean work on the same student records at the same time. A spreadsheet file on one laptop cannot do that.</figcaption></figure>
       <div class="look cat cat-db">
         <p class="note-label">Is Excel a database?</p>
-        <p>Not really. Excel is a spreadsheet. It can hold a simple list, such as a class list, and sort and filter it, so many people use it like a small database. But it is not a DBMS: by itself it does not enforce rules such as unique IDs, link tables together, or let many people safely update the same records at once. Microsoft's database programs are <b>Access</b> and <b>SQL Server</b>.</p>
+        <p>Not really. Excel is a spreadsheet. It can hold a simple list, such as a class list, and sort and filter it, so many people use it like a small database. With Microsoft 365, a few people can even edit one workbook together. But it is not a DBMS: by itself it does not enforce rules such as unique IDs, link tables of related data, or control who may see and change each record. For large, shared data such as a university's student records, organizations use a DBMS. Microsoft's database programs are <b>Access</b> and <b>SQL Server</b>.</p>
       </div>
       <p class="small muted">You will learn databases in detail in the Finals (Week 16).</p>
 
@@ -431,7 +437,7 @@ const quiz = [
         <p class="note-label">Key takeaways</p>
         <ol>
           <li>Application software does a specific job for the user, and runs on top of the OS.</li>
-          <li>Installed software runs on your device; cloud-based software runs on a server and is used over the Internet.</li>
+          <li>Installed software runs on your device; cloud-based software runs on a server and is used over the Internet. Apps come as desktop apps, mobile apps, and web apps (used in a browser).</li>
           <li>You buy a <b>license</b>, not the software. Kinds: commercial, shareware, freeware, public domain, and open source.</li>
           <li>Most apps share the same ideas: Save and Save As, file formats, editing vs. formatting, the clipboard, and shortcuts like Ctrl + C, V, Z, S.</li>
           <li>Word processors make text documents. Spreadsheets compute with cells, formulas, and functions such as =SUM(D2:D5).</li>
