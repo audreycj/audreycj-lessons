@@ -7,7 +7,7 @@ import SheetLab from '../../components/SheetLab.astro';
 import { course } from '../../data/it110.js';
 import { installedCloud, dbTable, softwareLayers } from '../../lib/it110-illus.js';
 import { roughen } from '../../lib/it110-os-pics.js';
-import { commonSheet, commonDesign, imgWindow, vidWindow, piracyPic, wpWord, wpWriter, wpDocs, wpPages, formatPage, sheetWindow, slideWindow, dbmsPic, othWeb, othComm, othEdu, othNotes, othPay, othDtp, othPm, cloudPic, phoneApps, licensePic, ownScale, appWindow, saveCard, clipCard, editCard, cellGrid, dbShared, slideShow, transAnim, pixelVector, mediaKit } from '../../lib/it110-app-pics.js';
+import { dbQuery, dbForm, dbReport, commonSheet, commonDesign, imgWindow, vidWindow, piracyPic, wpWord, wpWriter, wpDocs, wpPages, formatPage, sheetWindow, slideWindow, dbmsPic, othWeb, othComm, othEdu, othNotes, othPay, othDtp, othPm, cloudPic, phoneApps, licensePic, ownScale, appWindow, saveCard, clipCard, editCard, cellGrid, dbShared, slideShow, transAnim, pixelVector, mediaKit } from '../../lib/it110-app-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back to Lesson 1 (her rule: every back-reference comes with its picture right there)
@@ -312,11 +312,17 @@ const quiz = [
           <tr><td><b>Field</b></td><td>One column: one kind of data, such as Last name.</td></tr>
           <tr><td><b>Record</b></td><td>One row: all the data about one item, such as one student.</td></tr>
           <tr><td><b>Primary key</b></td><td>A field whose value is different for every record, such as Student ID. Two students can share a last name, but never an ID.</td></tr>
-          <tr><td><b>Query</b></td><td>A question you ask the database, such as "all BSIT students in section 1A".</td></tr>
+          <tr><td><b>Query</b></td><td>A question you ask the database, such as "all BSIT students". Many databases use a language called <b>SQL</b> (Structured Query Language) to ask it.</td></tr>
           <tr><td><b>Form</b></td><td>A screen for typing in or viewing one record at a time.</td></tr>
           <tr><td><b>Report</b></td><td>A formatted printout or summary, such as a class list.</td></tr>
         </tbody>
       </table></div>
+      <p>Here is what a query, a form, and a report look like:</p>
+      <div class="two-col three">
+        <figure class="fig illus-fig illus"><Fragment set:html={dbQuery()} /><figcaption><b>Query:</b> a question written in SQL, and the records it finds</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={dbForm()} /><figcaption><b>Form:</b> one record at a time, with boxes to fill in</figcaption></figure>
+        <figure class="fig illus-fig illus"><Fragment set:html={dbReport()} /><figcaption><b>Report:</b> a neat printout, such as a class list</figcaption></figure>
+      </div>
       <p>Why not just use a spreadsheet? For small lists, a spreadsheet is fine. A database is better when the data is big and shared, because it:</p>
       <ul>
         <li>stores each fact <b>once</b> (less repeated data, fewer mistakes);</li>

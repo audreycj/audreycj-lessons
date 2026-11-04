@@ -682,3 +682,47 @@ export function commonDesign() {
   b += otag(138, 16, 1) + otag(110, 16, 2) + otag(W - 22, 39, 3) + otag(46, 112, 3) + otag(226, 168, 4);
   return svgWrap(W, H, 'A design app window like Canva, used in a web browser. Tag 1 marks the design name, Club Poster, at the top. Tag 2 marks the menus File, Resize, and Edit. Tag 3 marks the toolbar with the font, size, Bold, Italic, Underline, color, and alignment, and also the side panel with Design, Elements, Text, and Uploads. Tag 4 marks your work: a poster that says Join the IT Club.', b);
 }
+
+/* ---------- Part 5: query, form, and report (chat 46) ---------- */
+const MONO = 'font-family="&quot;IBM Plex Mono&quot;, monospace" font-weight="600"';
+/** A query: an SQL statement and the records it returns. */
+export function dbQuery() {
+  const c = CAT.db, W = 240, H = 180;
+  const kw = (t) => `<tspan fill="${B.amber}">${t}</tspan>`, st = (t) => `<tspan fill="#9fd3a8">${t}</tspan>`;
+  let b = R(6, 6, W - 12, 64, { r: 6, f: '#1f2a3d', sw: 1.6 });
+  b += `<text x="16" y="25" ${MONO} font-size="10" fill="#ffffff">${kw('SELECT')} LastName, FirstName</text>`;
+  b += `<text x="16" y="42" ${MONO} font-size="10" fill="#ffffff">${kw('FROM')} Students</text>`;
+  b += `<text x="16" y="59" ${MONO} font-size="10" fill="#ffffff">${kw('WHERE')} Course = ${st('&apos;BSIT&apos;')};</text>`;
+  b += ARROW(120, 74, 120, 92, B.orange, 2.2);
+  const x0 = 38, w1 = 82, w2 = 82, y0 = 96, rh = 17;
+  b += `<rect x="${x0}" y="${y0}" width="${w1 + w2}" height="${rh}" fill="${c}"/>` + T(x0 + w1 / 2, y0 + 12, 'LastName', { size: 9, c: '#fff' }) + T(x0 + w1 + w2 / 2, y0 + 12, 'FirstName', { size: 9, c: '#fff' });
+  [['Abad', 'Ana'], ['Bautista', 'Ben'], ['Dela Cruz', 'Dan']].forEach(([a, f], j) => { const y = y0 + rh * (j + 1); b += `<rect x="${x0}" y="${y}" width="${w1 + w2}" height="${rh}" fill="${j % 2 ? '#fff' : '#f8eeee'}"/>` + T(x0 + w1 / 2, y + 12, a, { size: 9, w: 700 }) + T(x0 + w1 + w2 / 2, y + 12, f, { size: 9, w: 700 }); });
+  b += R(x0, y0, w1 + w2, rh * 4, { r: 0, f: 'none', sw: 1.4 }) + L(x0 + w1, y0, x0 + w1, y0 + rh * 4, B.ink, 1);
+  b += T(W / 2, 176, 'The answer: 3 records', { size: 9.5, c: B.soft, w: 800 });
+  return svgWrap(W, H, 'A query written in SQL: SELECT LastName, FirstName FROM Students WHERE Course = BSIT. An arrow points to the answer, a small table of 3 records: Abad Ana, Bautista Ben, and Dela Cruz Dan.', b);
+}
+/** A form: one record at a time, with boxes to type in and buttons to move between records. */
+export function dbForm() {
+  const c = CAT.db, W = 240, H = 180;
+  let b = R(6, 6, W - 12, H - 12, { r: 6, f: '#fff', s: 'none', sw: 0 }) + ttl(6, W - 12, c, 22) + T(W / 2, 21, 'Student form', { size: 10.5, c: '#fff' });
+  [['Student ID', '2026-0102'], ['Last name', 'Bautista'], ['First name', 'Ben'], ['Course', 'BSIT']].forEach(([l, v], j) => {
+    const y = 38 + j * 25;
+    b += T(18, y + 13, l, { size: 9.5, w: 800, a: 'start', c: B.soft }) + R(92, y, 132, 19, { r: 3, f: '#fff', sw: 1.2 }) + T(99, y + 13.5, v, { size: 10, w: 700, a: 'start' });
+  });
+  b += R(16, 144, 58, 20, { r: 4, f: B.card, sw: 1.2 }) + T(45, 158, '◀ Back', { size: 9.5 }) + T(W / 2, 158, '2 of 4', { size: 9.5, c: B.soft }) + R(166, 144, 58, 20, { r: 4, f: c, sw: 1.2 }) + T(195, 158, 'Next ▶', { size: 9.5, c: '#fff' });
+  b += R(6, 6, W - 12, H - 12, { r: 6, f: 'none', sw: 1.8 });
+  return svgWrap(W, H, 'A student form showing one record: Student ID 2026-0102, Last name Bautista, First name Ben, Course BSIT. At the bottom are Back and Next buttons and the text 2 of 4.', b);
+}
+/** A report: a formatted printout, here a class list. */
+export function dbReport() {
+  const c = CAT.db, W = 240, H = 180;
+  let b = R(50, 10, 148, 166, { r: 2, f: 'rgba(24,35,58,0.15)', s: 'none', sw: 0 }) + R(44, 4, 148, 166, { r: 2, f: '#fff', sw: 1.6 });
+  b += T(118, 26, 'Class List', { size: 13, c }) + T(118, 40, 'Course: BSIT', { size: 9, w: 700, c: B.soft }) + L(56, 47, 180, 47, c, 1.6);
+  b += T(58, 61, 'ID', { size: 8.5, a: 'start', c: B.soft }) + T(112, 61, 'Name', { size: 8.5, a: 'start', c: B.soft });
+  [['2026-0101', 'Abad, Ana'], ['2026-0102', 'Bautista, Ben'], ['2026-0104', 'Dela Cruz, Dan']].forEach(([id, n], j) => {
+    const y = 78 + j * 16;
+    b += `<text x="58" y="${y}" ${MONO} font-size="8.5" fill="${B.ink}">${id}</text>` + T(112, y, n, { size: 9, w: 700, a: 'start' });
+  });
+  b += L(56, 120, 180, 120, '#c9d2df', 1.2) + T(58, 134, 'Total: 3 students', { size: 9, a: 'start' }) + T(118, 162, 'Page 1 of 1', { size: 8, w: 700, c: B.greyInk });
+  return svgWrap(W, H, 'A report printed on a page: Class List, Course BSIT, with student IDs and names: Abad Ana, Bautista Ben, Dela Cruz Dan, then Total: 3 students and Page 1 of 1.', b);
+}
