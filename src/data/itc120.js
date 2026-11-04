@@ -52,7 +52,7 @@ export const terms = [
   {
     id: 'final',
     name: 'Final topics',
-    note: 'After the midterm: sets, maps, searching, sorting, and hashing.',
+    note: 'After the midterm: sets, maps, searching, sorting, hashing, and algorithm complexity.',
     units: [
       { name: 'Sets and maps', icon: 'venn', lessons: [
         { title: 'Sets in Java', href: '/itc120/sets/', status: 'live', kind: ['adt'], blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },
@@ -67,6 +67,9 @@ export const terms = [
       ] },
       { name: 'Hashing', icon: 'venn', lessons: [
         { title: 'Hashing and hash tables', href: '/itc120/hashing/', status: 'live', kind: ['tech', 'ds'], blurb: 'Hash functions, collisions, chaining and open addressing, and how fast a hash table really is.' },
+      ] },
+      { name: 'Algorithm complexity analysis', icon: 'list', lessons: [
+        { title: 'Algorithm complexity analysis', href: '/itc120/complexity/', status: 'soon', blurb: 'Time and space complexity, best, worst, and average cases, Big-O, Big-Omega, and Big-Theta, and counting operations by hand.' },
       ] },
     ],
   },
