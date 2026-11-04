@@ -242,7 +242,8 @@ export function pixelVector() {
   return svgWrap(350, 216, 'The same circle zoomed in. On the left, a photo-style image made of tiny squares called pixels looks blocky. On the right, a vector drawing made of points and curves stays smooth and sharp at any size.', b);
 }
 export function mediaKit() {
-  const tileBox = (x, y, name, draw) => R(x, y, 104, 74, { r: 10, f: B.card, s: B.line, sw: 1.6 }) + draw(x + 52, y + 30) + T(x + 52, y + 64, name, { size: 11.5 });
+  // chat 46: top row = graphics (blue), bottom row = multimedia (orange), each row labeled, with more space between rows
+  const tileBox = (x, y, name, draw, g) => R(x, y, 104, 74, { r: 10, f: g ? B.blueWash : B.orangeWash, s: g ? B.blue : B.orange, sw: 1.8 }) + draw(x + 52, y + 30) + T(x + 52, y + 64, name, { size: 11.5 });
   const items = [
     ['Image editing', (x, y) => R(x - 20, y - 15, 40, 30, { r: 3, f: B.blueWash, sw: 1.8 }) + P(`M${x - 16} ${y + 11} L${x - 5} ${y - 3} L${x + 2} ${y + 5} L${x + 7} ${y} L${x + 16} ${y + 11} Z`, B.green, B.ink, 1.2) + `<circle cx="${x + 9}" cy="${y - 7}" r="3.5" fill="${B.amber}"/>`],
     ['Drawing (vector)', (x, y) => P(`M${x} ${y - 18} L${x + 10} ${y + 2} L${x} ${y + 14} L${x - 10} ${y + 2} Z`, B.orangeWash, B.ink, 1.8) + L(x, y - 4, x, y + 14, B.ink, 1.4) + `<circle cx="${x}" cy="${y - 1}" r="2.6" fill="${B.ink}"/>`],
@@ -252,8 +253,9 @@ export function mediaKit() {
     ['Media player', (x, y) => C(x, y, 17, B.orange, B.ink, 1.8) + P(`M${x - 5} ${y - 8} L${x + 9} ${y} L${x - 5} ${y + 8} Z`, '#fff', '#fff', 1)],
   ];
   let b = '';
-  items.forEach(([n, d], i) => { b += tileBox(6 + (i % 3) * 116, 6 + Math.floor(i / 3) * 84, n, d); });
-  return svgWrap(352, 172, 'Six kinds of graphics and multimedia apps as icons: image editing (a photo), drawing (a pen tip), CAD and 3D (a cube), audio editing (a sound wave), video editing (a movie clapper), and media player (a play button).', b);
+  b += T(6, 17, 'Graphics: pictures', { size: 12.5, a: 'start', c: B.blueInk }) + T(6, 129, 'Multimedia: sound and video', { size: 12.5, a: 'start', c: B.orangeInk });
+  items.forEach(([n, d], i) => { const g = i < 3; b += tileBox(6 + (i % 3) * 116, g ? 26 : 138, n, d, g); });
+  return svgWrap(352, 218, 'Six kinds of apps as icons in two rows. Top row, graphics apps for pictures: image editing (a photo), drawing (a pen tip), and CAD and 3D (a cube). Bottom row, multimedia apps for sound and video: audio editing (a sound wave), video editing (a movie clapper), and media player (a play button).', b);
 }
 
 /* ---------- chat 42 round 3: piracy sketch + four word processors ---------- */
