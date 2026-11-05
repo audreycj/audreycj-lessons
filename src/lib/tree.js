@@ -157,6 +157,20 @@ export function traverse(n, order, out = []) {
 /* ---------------- Layout + SVG ---------------- */
 export const GAP_X = 42, GAP_Y = 60, R = 17, PAD = 26;
 
+/** Chat 47 (her request): fixed columns for a step lab. Every value that appears in any of the trees
+ *  gets its own column, by sorted value, so inserting a node never pushes the others sideways.
+ *  Rotations keep the in-order order, so during a rotation nodes only move up or down.
+ *  Use only for BSTs of numbers (AVL, red-black, BST insert). Returns { col: value -> x, w }. */
+export function fixedCols(trees) {
+  const vals = new Set();
+  const walk = (n) => { if (!n) return; vals.add(n.v); walk(n.l); walk(n.r); };
+  trees.forEach(walk);
+  const sorted = [...vals].sort((a, b) => a - b);
+  const col = {};
+  sorted.forEach((v, i) => (col[v] = PAD + R + i * GAP_X));
+  return { col, w: Math.max(2 * (PAD + R), PAD * 2 + R * 2 + (sorted.length - 1) * GAP_X) };
+}
+
 /** Position by in-order index (x) and depth (y): never overlaps, keeps BST order left-to-right. */
 export function layout(root) {
   const pos = {}, edges = [];

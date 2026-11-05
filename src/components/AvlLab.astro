@@ -85,7 +85,7 @@ const config = JSON.stringify({ presets, custom, kind });
 
 <script>
   import { reserve } from '../lib/stable.js';
-  import { avlInsertSteps, layout, svgTree } from '../lib/tree.js';
+  import { avlInsertSteps, layout, svgTree, fixedCols } from '../lib/tree.js';
   import { rbInsertSteps } from '../lib/rb.js';
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -101,7 +101,7 @@ const config = JSON.stringify({ presets, custom, kind });
 
     const nil = fig.querySelector<HTMLInputElement>('.lab-nil');
     nil?.addEventListener('change', () => { fitSvg(); paint(false); });
-    let steps: any[] = [], values: number[] = [], at = 0, W = 0, H = 0, shown: Record<string, { x: number; y: number }> = {}, anim = 0;
+    let steps: any[] = [], values: number[] = [], at = 0, W = 0, H = 0, cols: any = null, shown: Record<string, { x: number; y: number }> = {}, anim = 0;
 
     function load(vals: number[]) {
       values = vals; steps = [];
@@ -114,6 +114,7 @@ const config = JSON.stringify({ presets, custom, kind });
       });
       W = 0; H = 0;
       steps.forEach((s) => { if (s.snap.tree) { const L = layout(s.snap.tree); W = Math.max(W, L.w); H = Math.max(H, L.h); } });
+      cols = fixedCols(steps.map((s) => s.snap.tree)); W = Math.max(W, cols.w);   // chat 47: fixed columns, so old nodes never slide when a new one is added
       seqEl.innerHTML = vals.map((v) => `<li>${v}</li>`).join('');
       shown = {}; at = 0; reserve(capEl as HTMLElement, steps.map((s) => s.snap.caption)); fitSvg(); paint(false);
     }
@@ -124,8 +125,8 @@ const config = JSON.stringify({ presets, custom, kind });
     }
 
     function targetPos(tree: any) {
-      const L = layout(tree); const off = (W - L.w) / 2; const p: Record<string, { x: number; y: number }> = {};
-      for (const k in L.pos) p[k] = { x: L.pos[k].x + off, y: L.pos[k].y };
+      const L = layout(tree); const off = (W - L.w) / 2, coff = cols ? (W - cols.w) / 2 : 0; const p: Record<string, { x: number; y: number }> = {};
+      for (const k in L.pos) { const v = L.pos[k].n.v; p[k] = { x: cols && cols.col[v] != null ? cols.col[v] + coff : L.pos[k].x + off, y: L.pos[k].y }; }
       return p;
     }
 

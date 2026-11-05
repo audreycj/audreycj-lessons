@@ -84,7 +84,7 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
 
 <script>
   import { reserve } from '../lib/stable.js';
-  import { layout, svgTree, clone } from '../lib/tree.js';
+  import { layout, svgTree, clone, fixedCols } from '../lib/tree.js';
   import { build, fromSpec, searchSteps, insertSteps, deleteSteps, traversalSteps, callStackSteps } from '../lib/bst.js';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -95,7 +95,7 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
     const tagEl = fig.querySelector<HTMLElement>('.bl-tag')!, extraEl = fig.querySelector<HTMLElement>('.bl-extra')!;
     const back = fig.querySelector<HTMLButtonElement>('[data-go="back"]')!, next = fig.querySelector<HTMLButtonElement>('[data-go="next"]')!;
     const err = fig.querySelector<HTMLElement>('.bl-err');
-    let preset: any = cfg.presets[0], tree: any = null, steps: any[] = [], at = 0, W = 0, H = 0, shown: any = {}, anim = 0, order = 'pre';
+    let preset: any = cfg.presets[0], tree: any = null, steps: any[] = [], at = 0, W = 0, H = 0, cols: any = null, shown: any = {}, anim = 0, order = 'pre';
 
     const baseTree = (p: any) => (p.spec ? fromSpec(p.spec) : build(p.values || []));
 
@@ -111,6 +111,7 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
       if (out.root !== undefined && mode !== 'search') tree = out.root; // insert/delete keep their result
       W = 0; H = 0;
       steps.forEach((s) => { if (s.tree) { const L = layout(s.tree); W = Math.max(W, L.w); H = Math.max(H, L.h); } });
+      cols = mode === 'insert' ? fixedCols(steps.map((s) => s.tree)) : null; if (cols) W = Math.max(W, cols.w);   // chat 47: insert keeps old nodes still
       at = 0; shown = {}; fit(); paint(false);
     }
     function fit() { reserve(capEl, steps.map((s) => s.caption)); reserve(extraEl, steps.map((s) => s.extra || '')); }
@@ -120,11 +121,11 @@ const verb = { search: 'Search', insert: 'Insert', delete: 'Delete' } as Record<
       fig.querySelectorAll('[data-order]').forEach((b) => b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.order === order)));
       if (mode === 'traverse' || mode === 'code') run();
       else if (p.op != null) run(p.op);
-      else { steps = [{ snap: null }]; steps = [{ tree: clone(tree), caption: 'Type a value and tap the button.', tag: '', marks: {}, tags: {}, extra: '' }]; W = layout(tree).w; H = layout(tree).h; at = 0; shown = {}; fit(); paint(false); }
+      else { cols = null; steps = [{ snap: null }]; steps = [{ tree: clone(tree), caption: 'Type a value and tap the button.', tag: '', marks: {}, tags: {}, extra: '' }]; W = layout(tree).w; H = layout(tree).h; at = 0; shown = {}; fit(); paint(false); }
     }
     function target(t: any) {
-      const L = layout(t); const off = (W - L.w) / 2; const p: any = {};
-      for (const k in L.pos) p[k] = { x: L.pos[k].x + off, y: L.pos[k].y };
+      const L = layout(t); const off = (W - L.w) / 2, coff = cols ? (W - cols.w) / 2 : 0; const p: any = {};
+      for (const k in L.pos) { const v = L.pos[k].n.v; p[k] = { x: cols && cols.col[v] != null ? cols.col[v] + coff : L.pos[k].x + off, y: L.pos[k].y }; }
       return p;
     }
     function draw(s: any, pos: any, alpha?: any) {
