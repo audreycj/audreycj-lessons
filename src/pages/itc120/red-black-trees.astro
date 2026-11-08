@@ -30,8 +30,8 @@ function summarize(values) {
     tags.forEach((t, k) => {
       const up = k > 0 && tags[k - 1] === 'Recolor' ? 'the problem moved up to the grandparent; there, ' : '';
       if (t === 'Recolor') acts.push('uncle is red → <b>recolor</b>');
-      else if (t === 'LL shape' || t === 'RR shape') acts.push(`${up}uncle is black, <b>line (${t.slice(0, 2)})</b> → 1 rotation + swap colors`);
-      else if (t === 'LR shape' || t === 'RL shape') acts.push(`${up}uncle is black, <b>triangle (${t.slice(0, 2)})</b> → 2 rotations + swap colors`);
+      else if (t === 'LL shape' || t === 'RR shape') acts.push(`${up}uncle is black, <b>${t.slice(0, 2)}</b> → 1 rotation + swap colors`);
+      else if (t === 'LR shape' || t === 'RL shape') acts.push(`${up}uncle is black, <b>${t.slice(0, 2)}</b> → 2 rotations + swap colors`);
       else if (t === 'Recolor root') acts.push('root turned red, so color it <b>black</b>');
     });
     if (acts.length) notes.push(`<b>${v}</b>: ${acts.join('; then ')}.`);
@@ -53,11 +53,11 @@ const quiz = [
   { q: 'What color is every newly inserted node (before any fixing)?', opts: ['Black', 'Red', 'The same color as its parent', 'The opposite color of its parent'], a: 1, why: 'New nodes are always <b>red</b>. Adding a red node never changes the black counts (rule 5), so the only possible problem is red-red (rule 4), or a red root if the tree was empty.' },
   { q: 'Which of these is <b>not</b> a red-black tree rule?', opts: ['The root is black', 'A red node cannot have a red child', 'Every path from a node down to a NIL leaf has the same number of black nodes', 'Red and black nodes must alternate on every level'], a: 3, why: 'Colors do not have to alternate. Two black nodes in a row are fine; even an all-black tree is valid if its black counts match. Only <b>two reds in a row</b> are forbidden.' },
   { q: 'You insert a node. Its parent is red and its <b>uncle is red</b>. What do you do?', opts: ['Rotate at the grandparent', 'Recolor: parent and uncle become black, grandparent becomes red', 'Delete the new node', 'Nothing; this is allowed'], a: 1, why: 'Red uncle → <b>recolor only</b>, no rotation. Then check the grandparent, because it just turned red and may now clash with its own parent.' },
-  { q: 'Parent is red, uncle is black (or NIL), and the new node forms a <b>straight line</b> with its parent and grandparent (left-left). What is the fix?', opts: ['Recolor only', 'Rotate left at the parent', 'Rotate right at the grandparent, then swap the colors of parent and grandparent', 'Two rotations'], a: 2, why: 'A line (LL) gets one <b>right</b> rotation at the grandparent, just like AVL. Then the parent (now on top) becomes black and the old grandparent becomes red.' },
-  { q: 'Insert 10, 30, 20 into an empty red-black tree. Which shape appears when 20 is inserted?', opts: ['Line (RR)', 'Triangle (RL)', 'Triangle (LR)', 'No problem appears'], a: 1, why: 'From 10 the path goes right (30), then left (20): a <b>triangle</b>, RL. The uncle is NIL (black), so: right rotation at 30, then left rotation at 10, then swap colors. Result: 20 black on top, 10 and 30 red.' },
+  { q: 'Parent is red, uncle is black (or NIL), and the path from the grandparent to the new node is <b>LL</b> (left, then left). What is the fix?', opts: ['Recolor only', 'Rotate left at the parent', 'Rotate right at the grandparent, then swap the colors of parent and grandparent', 'Two rotations'], a: 2, why: 'LL gets one <b>right</b> rotation at the grandparent, just like AVL. Then the parent (now on top) becomes black and the old grandparent becomes red.' },
+  { q: 'Insert 10, 30, 20 into an empty red-black tree. Which case (LL, RR, LR, RL) appears when 20 is inserted?', opts: ['RR', 'RL', 'LR', 'No problem appears'], a: 1, why: 'From 10 the path goes right (30), then left (20): <b>RL</b>. The uncle is NIL (black), so: right rotation at 30, then left rotation at 10, then swap colors. Result: 20 black on top, 10 and 30 red.' },
   { q: 'An empty child (NIL) counts as what color?', opts: ['Red', 'Black', 'No color; it is ignored', 'The same color as its sibling'], a: 1, why: 'Every NIL leaf is <b>black</b> (rule 3). That is why an empty uncle means "uncle is black → rotate".' },
   { q: 'After recoloring, the root has become red. What do you do?', opts: ['Rotate at the root', 'Color the root black', 'Leave it red', 'Start over'], a: 1, why: 'Rule 2: the root is always black. Turning the root black never breaks any other rule (it adds one black to every path equally).' },
-  { q: 'Compared with an AVL tree, a red-black tree is:', opts: ['More strictly balanced', 'Less strictly balanced, but usually needs fewer rotations', 'Not a binary search tree', 'Always taller than a plain BST'], a: 1, why: 'AVL keeps heights within 1, so it is usually shorter. Red-black only promises the longest path is at most twice the shortest, so it rotates less often. Both are BSTs.' },
+  { q: 'Compared with an AVL tree, a red-black tree is:', opts: ['More strictly balanced', 'Less strictly balanced, but usually needs fewer rotations', 'Not a binary search tree', 'Always taller than a plain BST'], a: 1, why: 'AVL keeps heights within 1, so it is usually shorter. Red-black only makes sure the longest path is at most 2 times the shortest path, so it rotates less often. Both are BSTs.' },
 ];
 // Peeks back to earlier parts/lessons (chat 23)
 const procHtml = `<ol class="procedure">
@@ -66,7 +66,7 @@ const procHtml = `<ol class="procedure">
         <li>If the parent is red, <b>check the uncle</b>.
           <ul>
             <li><b>Red uncle:</b> recolor, then repeat step 2 from the grandparent.</li>
-            <li><b>Black uncle:</b> name the shape (line or triangle), rotate, swap colors. Done.</li>
+            <li><b>Black uncle:</b> name the case (LL, RR, LR, or RL), rotate, swap colors. Done.</li>
           </ul>
         </li>
         <li>Finally, make sure the <b>root is black</b>.</li>
@@ -77,8 +77,8 @@ const decideHtml = `<table class="tbl decide">
             <tr><td><b>Parent is black</b></td><td>Nothing. No rule is broken.</td></tr>
             <tr><td><b>Parent red, uncle red</b></td><td><b>Recolor:</b> parent and uncle → black, grandparent → red. Then check the grandparent (it is red now, so its parent might also be red). If the grandparent is the root, just make it black.</td></tr>
             <tr><td><b>Parent red, uncle black</b> (or NIL)</td><td><b>Rotate</b>, using the same shapes as AVL:<br/>
-              <b>Line</b> (LL or RR): 1 rotation at the grandparent, then swap the colors of parent and grandparent.<br/>
-              <b>Triangle</b> (LR or RL): first rotate at the parent to make a line, then do the line fix.</td></tr>
+              <b>LL or RR:</b> 1 rotation at the grandparent, then swap the colors of parent and grandparent.<br/>
+              <b>LR or RL:</b> first rotate at the parent (this makes it LL or RR), then do the LL or RR fix.</td></tr>
           </tbody>
         </table>`;
 const procPeek = '<p class="note-label is-plain">The insertion procedure: follow it for every value you insert</p>' + procHtml;
@@ -98,8 +98,8 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
       <p class="note-label">By the end, you can:</p>
       <ol>
         <li>state the <b>five rules</b>, and say whether a colored tree follows them (and which rule it breaks);</li>
-        <li>explain why the rules keep the longest path at most twice as long as the shortest;</li>
-        <li>fix a red-red problem after an insertion: check the <b>uncle</b>, then recolor or rotate (line or triangle);</li>
+        <li>explain why, with these rules, the longest path is at most 2 times the shortest path;</li>
+        <li>fix a red-red problem after an insertion: check the <b>uncle</b>, then recolor or rotate (LL, RR, LR, RL);</li>
         <li>insert a list of values into a red-black tree <b>by hand</b>, showing every fix;</li>
         <li>match each part of the Java insertion code to a step of the procedure;</li>
         <li>write the <code>rotateRight</code> method for the given code and check it with the built-in tests.</li>
@@ -128,10 +128,10 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
 
       <div class="sticky">
         <p class="note-label">Think of lining up</p>
-        <p>Imagine a school rule for lining up: <b>the first student in every line wears black</b>, <b>no two "red-shirt" students may stand next to each other</b>, and <b>every line must have the same number of "black-shirt" students</b>. With those rules, no line can get much longer than the others. The shortest a line can be is all black. The longest goes black, red, black, red..., with at most one red after each black, so it is at most <b>twice</b> as long.</p>
+        <p>Imagine a school rule for lining up: <b>the first student in every line wears black</b>, <b>no two "red-shirt" students may stand next to each other</b>, and <b>every line must have the same number of "black-shirt" students</b>. With those rules, no line can get much longer than the others. The shortest a line can be is all black. The longest goes black, red, black, red..., with at most one red after each black. So the longest line has at most <b>2 times</b> as many students as the shortest line.</p>
       </div>
 
-      <figure class="fig illus-fig illus"><Fragment set:html={schoolLines()} /><figcaption>Both allowed lines have 3 black shirts. The longest line can add only one red after each black, so it has at most 6 students: twice the shortest. In a red-black tree, each line is a path from the root down, and the shirts are the node colors (the black first student is the black root).</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={schoolLines()} /><figcaption>Both allowed lines have 3 black shirts. The longest line can add only one red after each black, so it has at most 6 students: 2 times the shortest (3). In a red-black tree, each line is a path from the root down, and the shirts are the node colors (the black first student is the black root).</figcaption></figure>
 
       <div class="remember">
         <p class="note-label">Where you see this in IT</p>
@@ -237,7 +237,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
 
       <div class="plain">
         <p class="note-label">Why the rules keep it balanced</p>
-        <p>The shortest possible path is <b>all black</b>. The longest possible path <b>alternates</b> black, red, black, red (rule 4 stops two reds in a row). Both have the same number of blacks (rule 5). So the longest path is <b>at most twice</b> as long as the shortest (like the <Peek label="lining-up picture in Part 1" title="From Part 1 · Think of lining up" html={linesPeek} />). The tree can lean a little, but it can never become a chain.</p>
+        <p>The shortest possible path is <b>all black</b>. The longest possible path <b>alternates</b> black, red, black, red (rule 4 stops two reds in a row). Both have the same number of blacks (rule 5). So the longest path is <b>at most 2 times</b> the shortest path (like the <Peek label="lining-up picture in Part 1" title="From Part 1 · Think of lining up" html={linesPeek} />). The tree can lean a little, but it can never become a chain.</p>
       </div>
 
       <div class="sub">
@@ -344,10 +344,10 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
 
       <AvlLab id="lab-rb-cases" kind="rb" cap="Watch each situation" hint="Pick one, then tap Next step. Watch the uncle (dashed ring) to decide: recolor or rotate?" presets={[
         { label: 'Uncle red', values: [20, 10, 30, 5] },
-        { label: 'Line LL', values: [30, 20, 10] },
-        { label: 'Line RR', values: [10, 20, 30] },
-        { label: 'Triangle LR', values: [30, 10, 20] },
-        { label: 'Triangle RL', values: [10, 30, 20] },
+        { label: 'LL', values: [30, 20, 10] },
+        { label: 'RR', values: [10, 20, 30] },
+        { label: 'LR', values: [30, 10, 20] },
+        { label: 'RL', values: [10, 30, 20] },
       ]} />
 
       <div class="trap">
@@ -371,7 +371,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
       <p>This is the full procedure. Use it for every value, in order:</p>
       <Fragment set:html={procHtml} />
 
-      <AvlLab id="lab-rb-full" kind="rb" cap="Worked example" hint="This list shows all three situations from the table, with both shapes (a triangle at 25 and a line at 60), including a recolor that moves the problem up the tree (watch 60). Turn on NIL leaves to see why an empty uncle counts as black. Then try your own numbers." custom presets={[
+      <AvlLab id="lab-rb-full" kind="rb" cap="Worked example" hint="This list shows all three situations from the table, with both kinds of rotation (two rotations at 25, one at 60), including a recolor that moves the problem up the tree (watch 60). Turn on NIL leaves to see why an empty uncle counts as black. Then try your own numbers." custom presets={[
         { label: 'Worked example', values: [5, 45, 25, 10, 35, 75, 70, 90, 60] },
       ]} />
 
@@ -435,7 +435,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
           <tr><td><b>Extra info per node</b></td><td>height (or balance factor)</td><td>one color: red or black</td></tr>
           <tr><td><b>Balance promise</b></td><td>left and right heights differ by at most 1</td><td>longest path is at most 2× the shortest</td></tr>
           <tr><td><b>Shape</b></td><td>more tightly balanced (shorter)</td><td>a little looser (can be a bit taller)</td></tr>
-          <tr><td><b>Search, insert, delete</b></td><td>about log₂ n steps (see <a href={base + '/itc120/avl-trees/#speed'}>How fast?</a>)</td><td>about log₂ n steps (the height can be up to twice as tall as AVL's)</td></tr>
+          <tr><td><b>Search, insert, delete</b></td><td>about log₂ n steps (see <a href={base + '/itc120/avl-trees/#speed'}>How fast?</a>)</td><td>about log₂ n steps (the tree can be a little taller than an AVL tree)</td></tr>
           <tr><td><b>How it fixes</b></td><td>rotations</td><td>recoloring first; rotations only when the uncle is black</td></tr>
           <tr><td><b>Good for</b></td><td>lots of searching, fewer changes</td><td>lots of inserts and deletes</td></tr>
         </tbody>
@@ -493,7 +493,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
     </div>
     <div class="flow">
       <p>Part 7 showed the whole insertion code except one method: <code>rotateRight</code>. Your task is to write it. Everything else, including the tests, is given to you in one file.</p>
-      <p>Why this method? Every line fix (LL) and both triangle fixes (LR and RL) use it, so the tests can only pass when it is right. It is also the part that is new compared with AVL: a rotation must keep every <code>parent</code> link correct, and the tests check every link.</p>
+      <p>Why this method? The LL fix and both two-rotation fixes (LR and RL) use it, so the tests can only pass when it is right. It is also the part that is new compared with AVL: a rotation must keep every <code>parent</code> link correct, and the tests check every link.</p>
 
       <div class="sub">
         <h3>1. Prepare on paper</h3>
@@ -601,7 +601,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
           <li>A red-black tree is a BST where every node is red or black.</li>
           <li>Root is black. NIL leaves are black. No two reds in a row. Same number of blacks on every path down.</li>
           <li>New nodes are red. The only possible problem is red-red (or a red root in an empty tree).</li>
-          <li><b>Red uncle → recolor</b> (and check higher). <b>Black uncle → rotate</b> (line: 1, triangle: 2) and swap colors.</li>
+          <li><b>Red uncle → recolor</b> (and check higher). <b>Black uncle → rotate</b> (LL or RR: 1 rotation; LR or RL: 2) and swap colors.</li>
           <li>The root always ends up black.</li>
           <li>In code, a rotation must also fix every <code>parent</code> link.</li>
           <li>Red-black trees are a little less balanced than AVL trees but rotate less often. Java's <code>TreeMap</code> uses one.</li>

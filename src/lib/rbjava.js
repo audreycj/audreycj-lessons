@@ -63,12 +63,12 @@ export const code3 = String.raw`static void fixUp(RBNode x) {
         g.color = RED;
         x = g;                    // check g next
       } else {                    // uncle black: rotate
-        if (x == p.right) {       // triangle (LR)
+        if (x == p.right) {       // LR case
           rotateLeft(p);
           x = p;
           p = x.parent;
         }
-        rotateRight(g);           // line (LL)
+        rotateRight(g);           // LL case
         p.color = BLACK;
         g.color = RED;
       }
@@ -80,12 +80,12 @@ export const code3 = String.raw`static void fixUp(RBNode x) {
         g.color = RED;
         x = g;
       } else {
-        if (x == p.left) {        // triangle (RL)
+        if (x == p.left) {        // RL case
           rotateRight(p);
           x = p;
           p = x.parent;
         }
-        rotateLeft(g);            // line (RR)
+        rotateLeft(g);            // RR case
         p.color = BLACK;
         g.color = RED;
       }
@@ -279,13 +279,13 @@ static void show(int[] values) {
 public static void main(String[] args) {
   test("Uncle red: recolor  (20, 10, 30, 5)",
        new int[] {20, 10, 30, 5}, "20B(10B(5R,-),30B)");
-  test("Line RR  (10, 20, 30)",
+  test("RR case  (10, 20, 30)",
        new int[] {10, 20, 30}, "20B(10R,30R)");
-  test("Line LL  (30, 20, 10)",
+  test("LL case  (30, 20, 10)",
        new int[] {30, 20, 10}, "20B(10R,30R)");
-  test("Triangle LR  (30, 10, 20)",
+  test("LR case  (30, 10, 20)",
        new int[] {30, 10, 20}, "20B(10R,30R)");
-  test("Triangle RL  (10, 30, 20)",
+  test("RL case  (10, 30, 20)",
        new int[] {10, 30, 20}, "20B(10R,30R)");
   test("Worked example (Part 4)",
        new int[] {5, 45, 25, 10, 35, 75, 70, 90, 60},

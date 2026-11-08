@@ -5,7 +5,7 @@
 //     leaf passes through the same number of black nodes.
 // New nodes are inserted red. Fix-up looks at the UNCLE:
 //  uncle red   -> recolor (parent + uncle black, grandparent red), continue from grandparent
-//  uncle black -> triangle (LR/RL): rotate at parent first; line (LL/RR): rotate at grandparent, swap colors
+//  uncle black -> LR/RL: rotate at parent first; LL/RR: rotate at grandparent, swap colors
 
 const nn = (v) => ({ v, c: 'R', l: null, r: null, p: null });
 
@@ -85,15 +85,15 @@ export function rbInsertSteps(root, v) {
       x = g;
       continue;
     }
-    // uncle black: triangle or line
+    // uncle black: LR/RL or LL/RR
     const xSide = x === p.l ? 'L' : 'R';
     const kase = pSide + xSide;
     if (pSide !== xSide) {
-      steps.push(snap(t.root, `<b>Uncle is black → rotate.</b> From grandparent ${g.v}, the path goes <b>${word[pSide]}</b> (to ${p.v}), then <b>${word[xSide]}</b> (to ${x.v}). That is a <b>triangle</b> (the ${kase} shape, like in AVL). First, straighten it: rotate <b>${pSide === 'L' ? 'left' : 'right'}</b> at ${p.v}.`,
+      steps.push(snap(t.root, `<b>Uncle is black → rotate.</b> From grandparent ${g.v}, the path goes <b>${word[pSide]}</b> (to ${p.v}), then <b>${word[xSide]}</b> (to ${x.v}). That is <b>${kase}</b> (two rotations, like in AVL). First, straighten it: rotate <b>${pSide === 'L' ? 'left' : 'right'}</b> at ${p.v}.`,
         kase + ' shape', { [x.v]: 'problem', [p.v]: 'problem', [g.v]: 'uncle' }));
       const moved = pSide === 'L' ? x.l : x.r;
       if (pSide === 'L') rotL(p); else rotR(p);
-      steps.push(snap(t.root, `<b>Rotate ${pSide === 'L' ? 'left' : 'right'} at ${p.v}.</b> ${x.v} moves up and ${p.v} moves down.${moved ? ` ${moved.v} changes parent.` : ''} Now it is a straight line: ${p.v} under ${x.v} under ${g.v}. Colors have not changed yet.`,
+      steps.push(snap(t.root, `<b>Rotate ${pSide === 'L' ? 'left' : 'right'} at ${p.v}.</b> ${x.v} moves up and ${p.v} moves down.${moved ? ` ${moved.v} changes parent.` : ''} Now it is straight (LL or RR): ${p.v} under ${x.v} under ${g.v}. Colors have not changed yet.`,
         'Rotation 1 of 2', { [x.v]: 'pivot', [p.v]: 'problem', ...(moved ? { [moved.v]: 'moved' } : {}) }));
       x = p; // continue as a line with the old parent as the bottom node
     }
@@ -101,7 +101,7 @@ export function rbInsertSteps(root, v) {
     const gg = top.p;
     const lineKase = (top === gg.l ? 'L' : 'R') + (x === top.l ? 'L' : 'R');
     if (pSide === xSide) {
-      steps.push(snap(t.root, `<b>Uncle is black → rotate.</b> From grandparent ${gg.v}, the path goes <b>${word[lineKase[0]]}</b>, then <b>${word[lineKase[1]]}</b>: a straight <b>line</b> (the ${lineKase} shape). Fix: rotate <b>${lineKase === 'LL' ? 'right' : 'left'}</b> at ${gg.v}, then swap the colors of ${top.v} and ${gg.v}.`,
+      steps.push(snap(t.root, `<b>Uncle is black → rotate.</b> From grandparent ${gg.v}, the path goes <b>${word[lineKase[0]]}</b>, then <b>${word[lineKase[1]]}</b>: <b>${lineKase}</b> (one rotation). Fix: rotate <b>${lineKase === 'LL' ? 'right' : 'left'}</b> at ${gg.v}, then swap the colors of ${top.v} and ${gg.v}.`,
         lineKase + ' shape', { [x.v]: 'problem', [top.v]: 'problem', [gg.v]: 'uncle' }));
     }
     const moved2 = lineKase === 'LL' ? top.r : top.l;
