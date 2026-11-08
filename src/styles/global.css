@@ -1302,3 +1302,20 @@ table.tbl.cat thead th { background: var(--cat); }
 .map-app-fig svg { display: block; max-width: 24rem; margin-inline: auto; }
 /* AVL lab: a child floating during a rotation (chat 47) */
 .tree-svg .t-node.is-float circle { stroke-dasharray: 5 4; }
+
+/* Red-black Part 2: one card per rule, with follows / breaks pictures */
+.rule-card { border: 1.5px solid var(--line); border-radius: 12px; background: #fff; padding: 0.8rem 0.9rem 0.6rem; }
+.rule-head { display: flex; gap: 0.6rem; align-items: flex-start; margin: 0 0 0.5rem; }
+.rule-num { flex: none; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--ink); color: #fff; font-family: 'Fredoka', sans-serif; font-weight: 600; display: grid; place-items: center; }
+.rule-pics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+.rule-pics.is-solo { grid-template-columns: minmax(0, 22rem); justify-content: center; }
+.rule-pics figure { margin: 0; border-radius: 10px; padding: 0.3rem 0.5rem 0.5rem; border: 1.5px solid; }
+.rule-pics .rule-ok { border-color: var(--teal); background: var(--teal-wash); }
+.rule-pics .rule-bad { border-color: var(--red-pen); background: #fbeceb; }
+.rule-pics .tree-svg { display: block; margin: 0 auto; width: 100%; max-height: 9.5rem; }
+.rule-pics figcaption { font-size: 0.92rem; line-height: 1.35; }
+.rule-pics figcaption b:first-child { display: block; font-family: 'Fredoka', sans-serif; font-weight: 600; }
+.rule-ok figcaption b:first-child { color: var(--teal-ink); }
+.rule-bad figcaption b:first-child { color: var(--red-pen); }
+.rule-nocolor .t-node[data-v="10"] circle.body { fill: #fff; stroke: var(--ink-soft); stroke-dasharray: 4 3; }
+.rule-nocolor .t-node[data-v="10"] text { fill: var(--ink); }

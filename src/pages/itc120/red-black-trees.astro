@@ -84,6 +84,7 @@ const decideHtml = `<table class="tbl decide">
 const procPeek = '<p class="note-label is-plain">The insertion procedure: follow it for every value you insert</p>' + procHtml;
 const decidePeek = '<p class="note-label is-plain">Which fix to use after inserting a red node</p>' + decideHtml;
 const rotLPeek = `<pre class="code"><code>${hi(code4)}</code></pre>`;
+const linesPeek = '<figure class="fig illus-fig illus">' + schoolLines() + '</figure>';
 const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</li>').join('') + '</ol>';
 ---
 <Base title="Red-Black Trees · ITC 120" description="Red-black trees: the five rules, recoloring, rotations, and step-by-step insertion you can play with." course={{ code: course.code, href: base + course.href }} toc>
@@ -146,14 +147,69 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
       <h2>The five rules</h2>
     </div>
     <div class="flow">
-      <p>Every red-black tree follows these five rules at all times. Rules 4 and 5 are the important ones; the others set things up.</p>
-      <ol class="rules">
-        <li><b>Color rule.</b> Every node is either red or black.</li>
-        <li><b>Root rule.</b> The root is black.</li>
-        <li><b>NIL rule.</b> Every empty spot (a <code>null</code> child, called a <b>NIL leaf</b>) counts as black. See "What is NIL?" below.</li>
-        <li><b>Red rule.</b> A red node cannot have a red child. <span class="hl">No two reds in a row.</span></li>
-        <li><b>Black rule.</b> From any node, every path down to a NIL leaf passes through the <span class="hl">same number of black nodes</span>.</li>
-      </ol>
+      <p>Every red-black tree follows these five rules at all times. Rules 4 and 5 are the important ones; the others set things up. Each rule below comes with small pictures: a tree that <b>follows</b> the rule (green check) and, where it helps, a tree that <b>breaks</b> it (red cross, with the problem node circled in gold).</p>
+      <div class="rule-card">
+        <p class="rule-head"><span class="rule-num">1</span><span><b>Color rule.</b> Every node is either red or black.</span></p>
+        <div class="rule-pics">
+          <figure class="rule-ok">
+            <TreeFig values={[20, 10, 30]} mode="bst" colors={{ 20: 'B', 10: 'R', 30: 'R' }} label="Tree with 20 black, 10 red, 30 red" />
+            <figcaption><b>✓ Follows the rule</b>Every node is red or black.</figcaption>
+          </figure>
+          <figure class="rule-bad rule-nocolor">
+            <TreeFig values={[20, 10, 30]} mode="bst" colors={{ 20: 'B', 10: 'B', 30: 'B' }} marks={{ 10: "problem" }} label="Tree where node 10 has no color" />
+            <figcaption><b>✗ Breaks the rule</b>10 has no color. Every node needs one.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="rule-card">
+        <p class="rule-head"><span class="rule-num">2</span><span><b>Root rule.</b> The root (the top node) is black.</span></p>
+        <div class="rule-pics">
+          <figure class="rule-ok">
+            <TreeFig values={[20, 10, 30]} mode="bst" colors={{ 20: 'B', 10: 'R', 30: 'R' }} label="Tree with a black root 20 and red children" />
+            <figcaption><b>✓ Follows the rule</b>The root, 20, is black.</figcaption>
+          </figure>
+          <figure class="rule-bad">
+            <TreeFig values={[20, 10, 30]} mode="bst" colors={{ 20: 'R', 10: 'B', 30: 'B' }} marks={{ 20: "problem" }} label="Tree with a red root 20" />
+            <figcaption><b>✗ Breaks the rule</b>The root, 20, is red.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="rule-card">
+        <p class="rule-head"><span class="rule-num">3</span><span><b>NIL rule.</b> Every empty spot (a <code>null</code> child, called a <b>NIL leaf</b>) counts as black. See "What is NIL?" below.</span></p>
+        <div class="rule-pics is-solo">
+          <figure class="rule-ok">
+            <TreeFig values={[20, 10]} mode="bst" colors={{ 20: 'B', 10: 'R' }} showNil label="Tree 20 with left child 10, NIL leaves drawn as small black boxes" />
+            <figcaption><b>✓ Follows the rule</b>The small boxes are the empty spots: two under 10 and one on the right of 20. All three count as black.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="rule-card">
+        <p class="rule-head"><span class="rule-num">4</span><span><b>Red rule.</b> A red node cannot have a red child. <span class="hl">No two reds in a row.</span></span></p>
+        <div class="rule-pics">
+          <figure class="rule-ok">
+            <TreeFig values={[20, 10, 30, 25, 35]} mode="bst" colors={{ 20: 'B', 10: 'B', 30: 'R', 25: 'B', 35: 'B' }} label="Tree where red 30 has black children 25 and 35" />
+            <figcaption><b>✓ Follows the rule</b>Red 30 has black children. Black under red is fine.</figcaption>
+          </figure>
+          <figure class="rule-bad">
+            <TreeFig values={[20, 10, 30, 5]} mode="bst" colors={{ 20: 'B', 10: 'R', 30: 'R', 5: 'R' }} marks={{ 10: "problem", 5: "problem" }} label="Tree where red 10 has a red child 5" />
+            <figcaption><b>✗ Breaks the rule</b>Red 10 has a red child, 5: two reds in a row.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="rule-card">
+        <p class="rule-head"><span class="rule-num">5</span><span><b>Black rule.</b> From any node, every path down to a NIL leaf passes through the <span class="hl">same number of black nodes</span>.</span></p>
+        <div class="rule-pics">
+          <figure class="rule-ok">
+            <TreeFig values={[20, 10, 30, 25]} mode="bst" colors={{ 20: 'B', 10: 'B', 30: 'B', 25: 'R' }} showNil label="Tree where every path from 20 to a NIL box has 2 black nodes" />
+            <figcaption><b>✓ Follows the rule</b>Walk from 20 down to <b>any</b> box: you always pass <b>2</b> black nodes (red 25 does not count).</figcaption>
+          </figure>
+          <figure class="rule-bad">
+            <TreeFig values={[20, 10, 30, 25]} mode="bst" colors={{ 20: 'B', 10: 'B', 30: 'R', 25: 'B' }} marks={{ 30: "problem" }} showNil label="Tree where one path has 2 black nodes and another has only 1" />
+            <figcaption><b>✗ Breaks the rule</b>20 → 10 → box passes <b>2</b> blacks (20, 10), but 20 → 30 → box on the right passes only <b>1</b> (20).</figcaption>
+          </figure>
+        </div>
+      </div>
+
 
       <div class="def">
         <p class="note-label">What is NIL?</p>
@@ -181,7 +237,7 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
 
       <div class="plain">
         <p class="note-label">Why the rules keep it balanced</p>
-        <p>The shortest possible path is <b>all black</b>. The longest possible path <b>alternates</b> black, red, black, red (rule 4 stops two reds in a row). Both have the same number of blacks (rule 5). So the longest path is <b>at most twice</b> as long as the shortest. The tree can lean a little, but it can never become a chain.</p>
+        <p>The shortest possible path is <b>all black</b>. The longest possible path <b>alternates</b> black, red, black, red (rule 4 stops two reds in a row). Both have the same number of blacks (rule 5). So the longest path is <b>at most twice</b> as long as the shortest (like the <Peek label="lining-up picture in Part 1" title="From Part 1 · Think of lining up" html={linesPeek} />). The tree can lean a little, but it can never become a chain.</p>
       </div>
 
       <div class="sub">
