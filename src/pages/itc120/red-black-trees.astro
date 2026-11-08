@@ -291,6 +291,47 @@ const probPeek = '<ol>' + practice.map((p) => '<li>' + p.values.join(', ') + '</
       </div>
 
       <div class="sub">
+        <h3>The steps, as a flowchart</h3>
+        <p>Here is the whole insertion procedure. Start at the top. Each question has two answers: <b>yes</b> goes to the box on the right, <b>no</b> goes down to the next question. (N = new node, P = parent, G = grandparent, U = uncle.)</p>
+        <div class="rbflow">
+          <div class="rbf-start"><b>START</b> Insert N like a BST. Color N <span class="rbf-red">red</span>.</div>
+          <div class="rbf-down"><svg class="rbf-varrow" viewBox="0 0 24 56" aria-hidden="true"><line x1="12" y1="0" x2="12" y2="42" /><polygon points="2,40 22,40 12,56" /></svg></div>
+          <div class="rbf-row">
+            <div class="rbf-q">Is N the root?</div><div class="rbf-yes"><span>yes</span><svg class="rbf-harrow" viewBox="0 0 72 24" aria-hidden="true"><line x1="0" y1="12" x2="56" y2="12" /><polygon points="54,2 54,22 72,12" /></svg></div>
+            <div class="rbf-a"><b>BLACK.</b> Make N black. Done.</div>
+          </div>
+          <div class="rbf-down"><svg class="rbf-varrow" viewBox="0 0 24 56" aria-hidden="true"><line x1="12" y1="0" x2="12" y2="42" /><polygon points="2,40 22,40 12,56" /></svg><span>no</span></div>
+          <div class="rbf-row">
+            <div class="rbf-q">Is P black?</div><div class="rbf-yes"><span>yes</span><svg class="rbf-harrow" viewBox="0 0 72 24" aria-hidden="true"><line x1="0" y1="12" x2="56" y2="12" /><polygon points="54,2 54,22 72,12" /></svg></div>
+            <div class="rbf-a"><b>DONE.</b> No red under red.</div>
+          </div>
+          <div class="rbf-down"><svg class="rbf-varrow" viewBox="0 0 24 56" aria-hidden="true"><line x1="12" y1="0" x2="12" y2="42" /><polygon points="2,40 22,40 12,56" /></svg><span>no</span></div>
+          <div class="rbf-row">
+            <div class="rbf-q">P is red. Is U red?</div><div class="rbf-yes"><span>yes</span><svg class="rbf-harrow" viewBox="0 0 72 24" aria-hidden="true"><line x1="0" y1="12" x2="56" y2="12" /><polygon points="54,2 54,22 72,12" /></svg></div>
+            <div class="rbf-a is-recolor"><b>RECOLOR.</b> P and U → black, G → red. N stays red. Then check G again (if G is the root, it turns black).</div>
+          </div>
+          <div class="rbf-down"><svg class="rbf-varrow" viewBox="0 0 24 56" aria-hidden="true"><line x1="12" y1="0" x2="12" y2="42" /><polygon points="2,40 22,40 12,56" /></svg><span>no</span></div>
+          <div class="rbf-row">
+            <div class="rbf-q">P is red. U is black or empty.</div><div class="rbf-yes"><span></span><svg class="rbf-harrow" viewBox="0 0 72 24" aria-hidden="true"><line x1="0" y1="12" x2="56" y2="12" /><polygon points="54,2 54,22 72,12" /></svg></div>
+            <div class="rbf-a is-rotate"><b>ROTATE</b> (like AVL). LL or RR: rotate at G. LR or RL: rotate at P, then at G. Then the new top → black, G → red.</div>
+          </div>
+        </div>
+        <p class="small">No balance factors here: the <b>colors</b> decide whether to fix, and the path from G toward N (LL, RR, LR, RL) decides how to rotate.</p>
+      </div>
+
+      <div class="sub">
+        <h3>One example, every step</h3>
+        <p>Below, 5 is inserted into a small red-black tree. Read the four pictures in order:</p>
+        <div class="rbwalk">
+          <figure><p class="note-label is-plain">1. Start</p><TreeFig values={[20, 10, 30]} mode="bst" colors={{ 20: 'B', 10: 'R', 30: 'R' }} label="20 black, 10 red, 30 red" /><figcaption>A valid red-black tree.</figcaption></figure>
+          <figure><p class="note-label is-plain">2. Insert 5</p><TreeFig values={[20, 10, 30, 5]} mode="bst" colors={{ 20: 'B', 10: 'R', 30: 'R', 5: 'R' }} marks={{ 5: 'new' }} label="5 red under red 10" /><figcaption>5 is red, under red 10: <b>red under red</b>.</figcaption></figure>
+          <figure><p class="note-label is-plain">3. Recolor</p><TreeFig values={[20, 10, 30, 5]} mode="bst" colors={{ 20: 'R', 10: 'B', 30: 'B', 5: 'R' }} label="10 and 30 black, 20 red" /><figcaption>Uncle 30 is red: 10, 30 → black, 20 → red.</figcaption></figure>
+          <figure><p class="note-label is-plain">4. Check 20</p><TreeFig values={[20, 10, 30, 5]} mode="bst" colors={{ 20: 'B', 10: 'B', 30: 'B', 5: 'R' }} label="20 black again" /><figcaption>20 is the root, so 20 → black. Done.</figcaption></figure>
+        </div>
+        <p>20 went red in step 3 and back to black in step 4. Recoloring always turns G red; the root rule then turns it back. In a bigger tree, where G is not the root, G stays red.</p>
+      </div>
+
+      <div class="sub">
         <h3>The decision</h3>
         <p>The fix depends on two questions. There are three types of situations:</p>
         <Fragment set:html={decideHtml} />

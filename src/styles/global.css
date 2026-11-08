@@ -1319,3 +1319,32 @@ table.tbl.cat thead th { background: var(--cat); }
 .rule-bad figcaption b:first-child { color: var(--red-pen); }
 .rule-nocolor .t-node[data-v="10"] circle.body { fill: #fff; stroke: var(--ink-soft); stroke-dasharray: 4 3; }
 .rule-nocolor .t-node[data-v="10"] text { fill: var(--ink); }
+
+/* Red-black Part 3: insertion flowchart + four-step walkthrough */
+.rbflow { display: grid; gap: 0.35rem; }
+.rbf-start { background: var(--ink); color: #fff; border-radius: 10px; padding: 0.6rem 0.9rem; text-align: center; }
+.rbf-start b { color: var(--amber); margin-right: 0.3rem; }
+.rbf-red { color: #ff8a80; font-weight: 700; }
+.rbf-down { display: flex; align-items: center; gap: 0.5rem; padding-left: 1.4rem; font-weight: 800; color: var(--ink); }
+.rbf-varrow { width: 1.3rem; height: 3rem; flex: none; }
+.rbf-varrow line { stroke: var(--ink); stroke-width: 5; }
+.rbf-varrow polygon { fill: var(--ink); }
+.rbf-row { display: grid; grid-template-columns: minmax(0, 1fr) 7rem minmax(0, 1.4fr); gap: 0.5rem; align-items: center; }
+.rbf-q { border: 2.5px solid var(--ink); border-radius: 10px; background: #fff; padding: 0.55rem 0.7rem; font-weight: 700; text-align: center; }
+.rbf-yes { display: flex; align-items: center; gap: 0.35rem; font-weight: 800; color: var(--ink); white-space: nowrap; }
+.rbf-yes span { min-width: 1.9rem; }
+.rbf-harrow { width: 4.2rem; height: 1.4rem; flex: none; }
+.rbf-harrow line { stroke: var(--ink); stroke-width: 5; }
+.rbf-harrow polygon { fill: var(--ink); }
+.rbf-a { border: 2px solid var(--line); border-radius: 10px; background: #eef2f2; padding: 0.55rem 0.7rem; }
+.rbf-a.is-recolor { border-color: var(--teal); background: var(--teal-wash); }
+.rbf-a.is-rotate { border-color: var(--orange); background: #fce9e0; }
+@media (max-width: 40rem) {
+  .rbf-row { grid-template-columns: 1fr; }
+  .rbf-yes { padding-left: 1.4rem; }
+  .rbf-harrow { transform: rotate(90deg); width: 3rem; margin: 0.4rem 0; }
+}
+.rbwalk { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.6rem; }
+.rbwalk figure { margin: 0; background: #eef2f2; border-radius: 10px; padding: 0.5rem; text-align: center; }
+.rbwalk figcaption { font-size: 0.95rem; line-height: 1.35; }
+.rbwalk .tree-svg { max-height: 8rem; margin: 0 auto; display: block; }
