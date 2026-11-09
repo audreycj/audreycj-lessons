@@ -76,10 +76,19 @@ export const photos = {
   irRemote: { src: T + 'b/b6/Remote_controls_emitting_infrared_at_Nagoya_City_Science_Museum.jpg/500px-Remote_controls_emitting_infrared_at_Nagoya_City_Science_Museum.jpg', w: 500, h: 512, page: C + 'Remote_controls_emitting_infrared_at_Nagoya_City_Science_Museum.jpg', lic: 'CC0', by: 'Syced', alt: 'Remote controls seen through a camera: their infrared lights glow, which our eyes cannot see.' },
   dataCenter: { src: T + 'b/b3/Datacenter_Server_Racks_%2822370909788%29.jpg/500px-Datacenter_Server_Racks_%2822370909788%29.jpg', w: 500, h: 333, page: C + 'Datacenter_Server_Racks_(22370909788).jpg', lic: 'CC BY 2.0', by: 'Carl Lender', alt: 'Rows of server racks in a data center.' },
   pocketWifi: { src: T + '8/8b/Modem_Wifi_internet_isol%C3%A9_sur_un_fond_blanc_bleu_02.jpg/500px-Modem_Wifi_internet_isol%C3%A9_sur_un_fond_blanc_bleu_02.jpg', w: 500, h: 375, page: C + 'Modem_Wifi_internet_isol%C3%A9_sur_un_fond_blanc_bleu_02.jpg', lic: 'CC BY-SA 4.0', by: 'Adoscam', alt: 'Two pocket Wi-Fi devices (mobile hotspots).' },
+  // chat 51: Internet page (tables + timeline)
+  dslSplit: { src: T + 'c/cd/Adsl_splitter_n3.jpg/500px-Adsl_splitter_n3.jpg', w: 500, h: 324, page: C + 'Adsl_splitter_n3.jpg', lic: 'CC BY 3.0', by: 'ChibaRagi', alt: 'A DSL splitter with telephone-line jacks: it lets the phone and the Internet share one copper line.' },
+  nextServer: { src: T + 'd/d1/First_Web_Server.jpg/500px-First_Web_Server.jpg', w: 500, h: 375, page: C + 'First_Web_Server.jpg', lic: 'CC BY-SA 3.0', by: 'Coolcaesar', alt: 'The NeXT computer that Tim Berners-Lee used as the first web server.' },
+  vidCall: { src: T + '1/12/Older_woman_enjoying_a_video_call_at_home_while_smiling_and_expressing_gratitude.jpg/500px-Older_woman_enjoying_a_video_call_at_home_while_smiling_and_expressing_gratitude.jpg', w: 500, h: 333, page: C + 'Older_woman_enjoying_a_video_call_at_home_while_smiling_and_expressing_gratitude.jpg', lic: 'CC BY 2.0', by: 'Shixart1985', alt: 'A woman on a video call on her laptop at home.' },
+  phonesSocial: { src: T + '5/55/Smartphone_use_at_railway_station.jpg/500px-Smartphone_use_at_railway_station.jpg', w: 500, h: 333, page: C + 'Smartphone_use_at_railway_station.jpg', lic: 'CC0', by: 'Rawpixel.com', alt: 'Friends looking at posts on their phones at a train station.' },
+  podcast: { src: T + '2/24/Podcasting-wcwc.jpg/500px-Podcasting-wcwc.jpg', w: 500, h: 375, page: C + 'Podcasting-wcwc.jpg', lic: 'CC BY-SA 4.0', by: 'JKizzieHumanities', alt: 'People recording a podcast with microphones around a table.' },
+  qrPay: { src: T + '2/21/FutaBus_POS_QR_code_payment_screen_for_bus_tickets.jpg/500px-FutaBus_POS_QR_code_payment_screen_for_bus_tickets.jpg', w: 500, h: 889, page: C + 'FutaBus_POS_QR_code_payment_screen_for_bus_tickets.jpg', lic: 'CC0', by: 'Pk.over', alt: 'A QR code on a payment screen, ready to be scanned with an e-wallet app.' },
+  studyLaptop: { src: T + 'b/ba/JtPhoto.jpg/500px-JtPhoto.jpg', w: 500, h: 667, page: C + 'JtPhoto.jpg', lic: 'CC BY-SA 4.0', by: 'Epeck1234', alt: 'A student working on a laptop.' },
+  workHome: { src: T + '1/14/Woman_working_at_home_with_laptop_and_documents_on_a_table.jpg/500px-Woman_working_at_home_with_laptop_and_documents_on_a_table.jpg', w: 500, h: 333, page: C + 'Woman_working_at_home_with_laptop_and_documents_on_a_table.jpg', lic: 'CC BY 2.0', by: 'Shixart1985', alt: 'A woman working from home with a laptop and papers.' },
 };
 const LIC = {
   'CC BY 2.0': 'https://creativecommons.org/licenses/by/2.0/', 'CC BY 4.0': 'https://creativecommons.org/licenses/by/4.0/',
-  'CC BY-SA 2.0': 'https://creativecommons.org/licenses/by-sa/2.0/', 'CC BY-SA 3.0': 'https://creativecommons.org/licenses/by-sa/3.0/', 'CC BY-SA 4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
+  'CC BY 3.0': 'https://creativecommons.org/licenses/by/3.0/', 'CC BY-SA 2.0': 'https://creativecommons.org/licenses/by-sa/2.0/', 'CC BY-SA 3.0': 'https://creativecommons.org/licenses/by-sa/3.0/', 'CC BY-SA 4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
   CC0: 'https://creativecommons.org/publicdomain/zero/1.0/',
 };
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -94,3 +103,6 @@ export function photo(key, cap = '', kind = '') {
 export const photoRow = (items) => `<div class="photo-row">${items.map(([k, c]) => photo(k, c)).join('')}</div>`;
 /** <li> list of every photo used on a page, for the References. */
 export const photoCredits = (keys) => keys.map((k) => { const p = photos[k]; return `<li>${esc(p.alt.replace(/\.$/, ''))}: ${credit(p).replace('Photo: ', '')}.</li>`; }).join('');
+
+/** A small photo for a table cell (chat 51). The credit goes in the page's References (photoCredits). */
+export const thumb = (key) => { const p = photos[key]; return `<img class="tthumb" src="${p.src}" width="${p.w}" height="${p.h}" alt="${esc(p.alt)}" loading="lazy" decoding="async">`; };

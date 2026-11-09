@@ -449,72 +449,163 @@ export function netOfNets() {
   return svgWrap(400, 172, 'The Internet is a network of networks. Data goes from your home LAN to your local ISP, to big national networks, through an undersea cable, to servers abroad. Thousands of separate networks all use TCP/IP, and no single owner runs the whole thing.', b);
 }
 
-/** IPv4 vs. IPv6 address anatomy. */
-export function ipAnatomy() {
-  let b = T(10, 20, 'IPv4', { size: 15, a: 'start', c: B.blueInk }) + lab(56, 20, '4 numbers, each 0 to 255, with dots', { a: 'start', size: 11 });
-  ['192', '0', '2', '53'].forEach((n, i) => { b += R(10 + i * 76, 32, 60, 32, { r: 6, f: B.blueWash, s: B.blue, sw: 1.8 }) + T(40 + i * 76, 54, n, { size: 15, mono: true, w: 700 }); if (i < 3) b += T(78 + i * 76, 56, '.', { size: 20, w: 900 }); });
-  b += lab(10, 84, '32 bits: about 4.3 billion addresses. Not enough today.', { a: 'start', size: 11 });
-  b += T(10, 116, 'IPv6', { size: 15, a: 'start', c: B.orangeInk }) + lab(56, 116, 'groups of hexadecimal digits, with colons', { a: 'start', size: 11 });
-  b += R(10, 128, 300, 32, { r: 6, f: B.orangeWash, s: HOT, sw: 1.8 }) + T(160, 150, '2001:db8::53', { size: 15, mono: true, w: 700 });
-  b += lab(10, 180, '128 bits: about 340 undecillion (340 followed by 36 zeros).', { a: 'start', size: 11 });
-  return svgWrap(350, 190, 'IPv4 address 192.0.2.53: four numbers from 0 to 255 separated by dots, 32 bits, about 4.3 billion possible addresses. IPv6 address 2001:db8::53: hexadecimal groups separated by colons, 128 bits, about 340 undecillion addresses.', b);
+
+/* ================= INTERNET page, chat 51: bigger redraws + new pictures ================= */
+const personI = (x, y, s = 1, c = B.blue) => C(x, y, 6 * s, c, 'none', 0) + P(`M${x - 9 * s} ${y + 22 * s} Q${x - 9 * s} ${y + 8 * s} ${x} ${y + 8 * s} Q${x + 9 * s} ${y + 8 * s} ${x + 9 * s} ${y + 22 * s} Z`, c, 'none', 0);
+const bars = (x, y, n, on = B.green) => [0, 1, 2, 3].map((k) => R(x + k * 7, y - 6 - k * 5, 5, 6 + k * 5, { r: 1, f: k < n ? on : '#d3d9e2', s: 'none', sw: 0 })).join('');
+const gear = (cx, cy, r, f = B.amber) => { let d = ''; for (let k = 0; k < 16; k++) { const a = (k * Math.PI) / 8, rr = k % 2 ? r * 0.72 : r; d += (k ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(1) + ' ' + (cy + rr * Math.sin(a)).toFixed(1) + ' '; } return P(d + 'Z', f, B.ink, 1.8) + C(cx, cy, r * 0.3, B.card, B.ink, 1.6); };
+const ICONS51 = {
+  // timeline
+  arpanet: () => [[12, 13], [36, 13], [12, 35], [36, 35]].map(([x, y], i, a) => '').join('') + P('M12 13 L36 13 L36 35 L12 35 Z M12 13 L36 35', 'none', B.ink, 2) + [[12, 13], [36, 13], [12, 35], [36, 35]].map(([x, y]) => R(x - 7, y - 5, 14, 10, { r: 2, f: B.blueWash, sw: 1.8 })).join(''),
+  tcpip: () => R(2, 12, 17, 24, { r: 6, f: B.blueWash, s: B.blue, sw: 2 }) + R(29, 12, 17, 24, { r: 6, f: B.greenWash, s: B.green, sw: 2 }) + L(17, 24, 31, 24, HOT, 4) + C(24, 24, 4, B.card, HOT, 2.2) + C(10, 19, 2, B.blue, 'none', 0) + C(10, 29, 2, B.blue, 'none', 0) + C(38, 19, 2, B.green, 'none', 0) + C(38, 29, 2, B.green, 'none', 0),
+  web: () => R(3, 7, 42, 34, { r: 4, f: B.card, sw: 2 }) + R(3, 7, 42, 9, { r: 4, f: B.blueWash, sw: 2 }) + C(8.5, 11.5, 1.6, HOT, 'none', 0) + C(24, 29, 8, B.blueWash, B.blue, 1.8) + P('M16 29 L32 29 M24 21 Q19 29 24 37 M24 21 Q29 29 24 37', 'none', B.blue, 1.4),
+  free: () => P('M16 22 L16 14 Q16 4 26 6 Q32 8 32 14', 'none', B.green, 3) + R(10, 22, 28, 20, { r: 3, f: B.green, s: 'none', sw: 0 }) + C(24, 30, 3, '#fff', 'none', 0) + L(24, 31, 24, 37, '#fff', 2.4),
+  ph: () => P('M3 34 Q12 26 20 34 T36 30', 'none', B.blue, 2.6) + P('M36 31 Q26 18 29 11 Q36 2 43 11 Q46 18 36 31 Z', B.red, B.ink, 1.6) + C(36, 13, 3.2, '#fff', 'none', 0) + L(3, 40, 30, 40, B.blueMid, 2, DASH),
+  business: () => R(6, 6, 22, 38, { r: 2, f: B.grey, sw: 2 }) + [0, 1, 2, 3].map((k) => R(10, 11 + k * 8, 5, 4, { r: 0.5, f: B.blueMid, s: 'none', sw: 0 }) + R(19, 11 + k * 8, 5, 4, { r: 0.5, f: B.blueMid, s: 'none', sw: 0 })).join('') + C(36, 32, 8, B.amber, B.ink, 1.8) + L(36, 27, 36, 37, B.ink, 1.8),
+  sat: () => satI(24, 11, 0.6) + L(24, 17, 18, 34, B.blue, 1.8, ' stroke-dasharray="3 3"') + P('M8 38 Q18 30 28 38 Z', B.grey, B.ink, 1.8) + L(18, 38, 18, 44, B.ink, 2) + L(12, 44, 24, 44, B.ink, 2),
+  // community
+  users: () => personI(12, 14, 0.9, B.blueMid) + personI(36, 14, 0.9, B.amber) + personI(24, 20, 1.1, B.blue),
+  isp: () => routerI(6, 30, 36) + wifiArcs(24, 22, AIR, 0.75),
+  infra: () => towerI(16, 4, 30) + P('M2 42 Q10 36 18 42 T34 42 T48 42', 'none', B.blue, 2.6) + R(30, 18, 14, 8, { r: 2, f: B.ink, s: 'none', sw: 0 }) + L(37, 26, 37, 38, B.ink, 2),
+  content: () => R(4, 8, 40, 30, { r: 4, f: B.card, sw: 2 }) + P('M19 16 L19 30 L31 23 Z', HOT, 'none', 0) + L(10, 43, 38, 43, B.line, 2.4),
+  cloudapp: () => cloudP(24, 28, 0.36, B.blueWash, B.blue) + R(16, 22, 16, 12, { r: 2, f: '#3b4659', s: 'none', sw: 0 }) + L(19, 26, 27, 26, '#9fb0c8', 1.6) + L(19, 30, 27, 30, '#9fb0c8', 1.6),
+  makers: () => phoneI(4, 6, 20, 36) + gear(33, 28, 11),
+  gov: () => P('M4 16 L24 5 L44 16 Z', B.blueWash, B.ink, 2) + [9, 18, 27, 36].map((x) => R(x, 18, 4, 18, { r: 0.5, f: B.card, sw: 1.4 })).join('') + R(4, 37, 40, 6, { r: 1, f: B.grey, sw: 1.8 }),
+  // censorship
+  child: () => P('M24 4 L41 10 L41 24 Q41 38 24 45 Q7 38 7 24 L7 10 Z', B.greenWash, B.green, 2.2) + personI(24, 18, 0.85, B.green),
+  illegal: () => C(24, 24, 15, B.amber, B.ink, 2) + C(24, 24, 10, 'none', '#b37f22', 1.6) + L(13, 35, 35, 13, B.red, 3.6),
+  whole: () => [0, 1, 2, 3].map((r) => [0, 1, 2].map((c) => R(4 + c * 14 + (r % 2 ? 7 : 0) - (r % 2 && c === 2 ? 7 : 0), 8 + r * 9, r % 2 && c === 2 ? 7 : 13, 8, { r: 1, f: B.redWash, s: B.red, sw: 1.2 })).join('')).join(''),
+};
+const ICO51_ALT = { arpanet: 'four linked computers', tcpip: 'two networks joined', web: 'a web page', free: 'an open padlock', ph: 'a cable reaching a map pin', business: 'an office building and a coin', sat: 'a satellite and a dish', users: 'people', isp: 'a home router', infra: 'a cell tower and a cable', content: 'a video', cloudapp: 'a cloud with a server', makers: 'a phone and a gear', gov: 'a government building', child: 'a shield around a child', illegal: 'a crossed-out coin', whole: 'a wall' };
+/** Small icons for the Internet page (timeline, community cards, censorship). */
+export function ico51(kind) { return icoWrap(ICO51_ALT[kind] || kind, ICONS51[kind]()); }
+
+/** The Internet today: five small pictures for the feature cards. */
+export function todayPic(kind) {
+  let b = '', alt = '';
+  if (kind === 'huge') {
+    b = T(110, 22, 'about 6 billion online', { size: 16, c: B.blueInk });
+    for (let k = 0; k < 8; k++) b += personI(19 + k * 26, 44, 1.05, k < 6 ? B.blue : '#c3cad6');
+    b += lab(110, 98, 'about 3 of every 4 people', { size: 14, c: B.ink });
+    alt = 'Eight people, six of them colored in: about 3 of every 4 people, about 6 billion, were online in 2025.';
+  } else if (kind === 'unequal') {
+    b = R(14, 34, 22, 48, { r: 2, f: B.grey, sw: 1.8 }) + R(38, 20, 26, 62, { r: 2, f: B.blueWash, sw: 1.8 }) + R(66, 44, 20, 38, { r: 2, f: B.grey, sw: 1.8 }) + bars(68, 32, 4) ;
+    b += houseI(128, 22, 50, B.butter) + bars(184, 32, 1, B.red);
+    b += T(110, 66, '≠', { size: 22, c: B.soft });
+    b += lab(50, 98, 'city', { size: 13.5, c: B.ink }) + lab(50, 114, 'fast', { size: 14, c: B.green }) + lab(160, 98, 'far barangay', { size: 13.5, c: B.ink }) + lab(160, 114, 'slow', { size: 14, c: B.red });
+    alt = 'A city with full signal bars next to a far barangay house with one bar: speed and signal are not equal everywhere.';
+  } else if (kind === 'mobile') {
+    b = phoneI(88, 8, 44, 80) + bars(98, 40, 4) + T(110, 64, '5G', { size: 15, c: B.blueInk }) + wifiArcs(160, 40, AIR, 0.9) + wifiArcs(60, 40, AIR, 0.9);
+    b += lab(110, 108, 'most people go online on a phone', { size: 13.5, c: B.ink });
+    alt = 'A phone with signal bars and 5G: most people go online mainly on a phone.';
+  } else if (kind === 'cloud') {
+    b = cloudP(110, 34, 0.7, B.blueWash, B.blue) + [86, 112].map((x) => R(x, 14, 22, 34, { r: 3, f: '#3b4659', sw: 1.6 }) + [22, 30, 38].map((y) => L(x + 4, y, x + 14, y, '#9fb0c8', 1.6) + C(x + 18, y, 1.6, B.green, 'none', 0)).join('')).join('');
+    b += ARROW(80, 54, 46, 76, HOT, 2.2) + ARROW(140, 54, 172, 76, HOT, 2.2) + phoneI(30, 78, 20, 34) + laptopI(160, 82, 44);
+    alt = 'Servers inside a cloud send files and videos down to a phone and a laptop.';
+  } else if (kind === 'owner') {
+    const box = (x, y, t) => R(x, y, 72, 26, { r: 6, f: B.card, s: B.blue, sw: 1.8 }) + T(x + 36, y + 18, t, { size: 13, c: B.blueInk });
+    b = L(46, 21, 110, 60, B.blueMid, 2) + L(174, 21, 110, 60, B.blueMid, 2) + L(46, 99, 110, 60, B.blueMid, 2) + L(174, 99, 110, 60, B.blueMid, 2);
+    b += box(10, 8, 'ISP') + box(138, 8, 'school') + box(10, 86, 'company') + box(138, 86, 'gov\'t');
+    b += C(110, 60, 24, B.orangeWash, HOT, 2) + T(110, 65, 'TCP/IP', { size: 12.5, c: B.orangeInk });
+    alt = 'Networks of an ISP, a school, a company, and the government all link through TCP/IP. None of them owns the whole Internet.';
+  }
+  return svgWrap(220, 118, alt, b);
 }
 
-/** DNS lookup, step 0..3. */
+/** Censorship: how much gets blocked, from narrow to broad. level 1..3 */
+export function censorPic(level) {
+  const n = [1, 4, 12][level - 1], ic = ['child', 'illegal', 'whole'][level - 1];
+  let b = `<g transform="translate(4 18) scale(1.75)">${ICONS51[ic]()}</g>`;
+  for (let k = 0; k < 12; k++) {
+    const x = 104 + (k % 4) * 30, y = 14 + Math.floor(k / 4) * 26, on = k < n;
+    b += R(x, y, 24, 20, { r: 3, f: on ? B.redWash : B.card, s: on ? B.red : B.line, sw: 1.6 });
+    b += on ? L(x + 6, y + 5, x + 18, y + 15, B.red, 2.2) + L(x + 18, y + 5, x + 6, y + 15, B.red, 2.2) : L(x + 5, y + 7, x + 19, y + 7, B.blueMid, 2) + L(x + 5, y + 13, x + 15, y + 13, B.line, 2);
+  }
+  b += lab(162, 112, ['one kind of content', 'a list of websites', 'whole big services'][level - 1], { size: 14, c: B.red });
+  return svgWrap(230, 120, ['Narrow: only one kind of illegal content is blocked; one tile of twelve is crossed out.', 'Middle: a list of websites is blocked; four tiles of twelve are crossed out.', 'Broad: whole services are blocked; all twelve tiles are crossed out.'][level - 1], b);
+}
+
+/** IPv4 vs. IPv6 address anatomy, with the home-address analogy. */
+export function ipAnatomy() {
+  let b = houseI(14, 8, 62) + R(84, 30, 120, 30, { r: 6, f: B.butter, s: B.amber, sw: 1.8 }) + T(144, 50, 'Purok 3, Mati', { size: 13 });
+  b += T(230, 50, '≈', { size: 22, c: B.soft });
+  b += laptopI(260, 18, 62) + R(334, 30, 118, 30, { r: 6, f: B.blueWash, s: B.blue, sw: 1.8 }) + T(393, 50, '192.0.2.53', { size: 14, mono: true, w: 700, c: B.blueInk });
+  b += lab(230, 88, 'A home address tells the rider where to deliver.', { size: 13 }) + lab(230, 106, 'An IP address tells the network where to send packets.', { size: 13 });
+  // IPv4 panel
+  b += R(6, 120, 448, 124, { r: 10, f: '#f1f6fc', s: B.blue, sw: 1.6 });
+  b += T(20, 146, 'IPv4', { size: 18, a: 'start', c: B.blueInk }) + lab(70, 146, '4 numbers, separated by dots', { a: 'start', size: 13.5 });
+  ['192', '0', '2', '53'].forEach((v, i) => { const x = 24 + i * 108; b += R(x, 158, 84, 38, { r: 7, f: B.card, s: B.blue, sw: 2 }) + T(x + 42, 184, v, { size: 20, mono: true, w: 700 }) + lab(x + 42, 212, '0 to 255', { size: 12.5, c: B.greyInk }); if (i < 3) b += T(x + 96, 190, '.', { size: 26, w: 900 }); });
+  b += lab(230, 234, '32 bits: about 4.3 billion addresses, fewer than the devices online today', { size: 12.5, c: B.blueInk });
+  // IPv6 panel
+  b += R(6, 258, 448, 120, { r: 10, f: '#fdf3ec', s: HOT, sw: 1.6 });
+  b += T(20, 284, 'IPv6', { size: 18, a: 'start', c: B.orangeInk }) + lab(70, 284, 'groups of hexadecimal digits, separated by colons', { a: 'start', size: 13.5 });
+  const g6 = [['2001', 96], [':', 18], ['db8', 80], ['::', 50], ['53', 60]];
+  let x = 54;
+  g6.forEach(([v, w]) => { if (v === ':') b += T(x + w / 2, 324, ':', { size: 22, w: 900 }); else if (v === '::') b += C(x + w / 2, 317, 20, B.orangeWash, HOT, 2) + T(x + w / 2, 324, '::', { size: 20, mono: true, w: 700, c: B.orangeInk }); else b += R(x, 298, w, 38, { r: 7, f: B.card, s: HOT, sw: 2 }) + T(x + w / 2, 324, v, { size: 20, mono: true, w: 700 }); x += w + 12; });
+  b += lab(330, 356, ':: = groups of zeros left out', { size: 12.5, c: B.orangeInk, a: 'start' }).replace('x="330"', 'x="246"');
+  b += lab(230, 372, '128 bits: about 340 undecillion (340 followed by 36 zeros)', { size: 12.5, c: B.orangeInk });
+  return svgWrap(460, 384, 'Like a home address tells a rider where to deliver, an IP address tells the network where to send packets. IPv4 address 192.0.2.53: four numbers from 0 to 255 separated by dots, 32 bits, about 4.3 billion addresses, fewer than the devices online today. IPv6 address 2001:db8::53: groups of hexadecimal digits separated by colons; the double colon means groups of zeros were left out; 128 bits, about 340 undecillion addresses.', b);
+}
+
+/** DNS lookup, step 0..3 (bigger). */
 export function dnsPic(step) {
   const hl = (on) => (on ? HOT : '#c3cad6');
-  let b = phoneI(10, 60, 48, 70, B.card) + T(34, 90, 'dorsu.', { size: 9.5, mono: true, w: 600 }) + T(34, 102, 'edu.ph', { size: 9.5, mono: true, w: 600 }) + lab(34, 148, 'your phone', { size: 10.5 });
-  b += R(160, 14, 92, 56, { r: 8, f: B.butter, s: B.amber, sw: 2 }) + T(206, 38, 'DNS server', { size: 12 }) + lab(206, 56, 'the "phone book"', { size: 10 });
-  b += serverI(320, 80, 40, 56) + lab(340, 152, 'web server', { size: 10.5 }) + lab(340, 166, '(203.0.113.10)', { size: 10, c: B.greyInk });
-  if (step >= 1) b += ARROW(58, 74, 156, 46, hl(step === 1), 2.4);
-  if (step === 1) b += R(50, 16, 106, 22, { r: 4, f: B.card, sw: 1.2 }) + T(103, 31, 'IP of dorsu.edu.ph?', { size: 9.5 });
-  if (step >= 2) b += ARROW(156, 60, 58, 88, hl(step === 2), 2.4);
-  if (step === 2) b += R(76, 96, 96, 22, { r: 4, f: B.card, sw: 1.2 }) + T(124, 111, 'It is 203.0.113.10', { size: 9.5 });
-  if (step >= 3) b += ARROW(58, 116, 314, 116, HOT, 2.4) + ARROW(314, 128, 58, 128, B.blue, 2.4) + lab(186, 110, 'Please send the page.', { size: 10 }) + lab(186, 146, 'Here it is!', { size: 10, c: B.blueInk });
+  let b = phoneI(20, 104, 64, 104, B.card) + T(52, 150, 'dorsu.', { size: 12.5, mono: true, w: 700 }) + T(52, 166, 'edu.ph', { size: 12.5, mono: true, w: 700 }) + lab(52, 230, 'your phone', { size: 14, c: B.ink });
+  b += R(166, 12, 134, 66, { r: 10, f: B.butter, s: B.amber, sw: 2 }) + T(233, 40, 'DNS server', { size: 16 }) + lab(233, 62, 'the "phone book"', { size: 13 });
+  b += serverI(376, 118, 52, 80) + lab(402, 220, 'web server', { size: 14, c: B.ink }) + lab(402, 238, '203.0.113.10', { size: 13, c: B.greyInk });
+  if (step >= 1) b += ARROW(86, 112, 164, 58, hl(step === 1), 2.8);
+  if (step === 1) b += R(6, 18, 150, 50, { r: 8, f: B.card, s: HOT, sw: 1.6 }) + T(81, 39, 'What is the IP', { size: 13.5 }) + T(81, 58, 'of dorsu.edu.ph?', { size: 13.5 });
+  if (step >= 2) b += ARROW(200, 80, 90, 138, hl(step === 2), 2.8);
+  if (step === 2) b += R(196, 100, 166, 34, { r: 8, f: B.card, s: HOT, sw: 1.6 }) + T(279, 122, 'It is 203.0.113.10', { size: 13.5 });
+  if (step >= 3) b += ARROW(90, 172, 368, 172, HOT, 2.8) + ARROW(368, 196, 90, 196, B.blue, 2.8) + lab(229, 162, 'Please send the page.', { size: 13.5, c: B.orangeInk }) + lab(229, 216, 'Here it is!', { size: 13.5, c: B.blueInk });
   const alt = ['You type dorsu.edu.ph on your phone. Your phone needs the IP address of that name.', 'Your phone asks a DNS server: what is the IP address of dorsu.edu.ph?', 'The DNS server answers with the IP address, here the example 203.0.113.10.', 'Your phone contacts the web server at that IP address, and the server sends the page back.'][step];
-  return svgWrap(380, 176, alt, b);
+  return svgWrap(460, 248, alt, b);
 }
 
-/** Parts of a domain name, read right to left. */
+/** Parts of a domain name, read right to left, with the mailing-address analogy. */
 export function domainParts() {
-  const parts = [['www', 'host name', '(the web server)', B.greyInk, '#eef1f5'], ['dorsu', 'the school\'s', 'own name', B.blueInk, B.blueWash], ['edu', 'kind of group', '(education)', B.green, B.greenWash], ['ph', 'country code', '(Philippines)', B.orangeInk, B.orangeWash]];
-  let b = '', x = 14;
-  const ws = [70, 92, 70, 60];
-  parts.forEach(([t, a, c, ink, f], i) => {
-    b += R(x, 18, ws[i], 36, { r: 6, f, s: ink, sw: 2 }) + T(x + ws[i] / 2, 42, t, { size: 17, mono: true, w: 700, c: ink });
-    b += lab(x + ws[i] / 2, 74, a, { size: 10.5, c: ink }) + lab(x + ws[i] / 2, 88, c, { size: 10, c: B.soft });
-    if (i < 3) b += T(x + ws[i] + 7, 46, '.', { size: 22, w: 900 });
-    x += ws[i] + 14;
+  const parts = [['www', 'host name', '(the web server)', B.greyInk, '#eef1f5', 'house'], ['dorsu', 'own name', '(the school)', B.blueInk, B.blueWash, 'city'], ['edu', 'kind of group', '(education)', B.green, B.greenWash, 'province'], ['ph', 'country code', '(Philippines)', B.orangeInk, B.orangeWash, 'country']];
+  const ws = [88, 112, 88, 76];
+  let b = '', x = 21;
+  parts.forEach(([t, a, c, ink, f, an], i) => {
+    const cx = x + ws[i] / 2;
+    b += R(x, 14, ws[i], 50, { r: 8, f, s: ink, sw: 2.2 }) + T(cx, 47, t, { size: 23, mono: true, w: 700, c: ink });
+    b += lab(cx, 88, a, { size: 14, c: ink }) + lab(cx, 106, c, { size: 12.5, c: B.soft });
+    b += R(x + 4, 194, ws[i] - 8, 30, { r: 15, f, s: ink, sw: 1.6 }) + T(cx, 214, an, { size: 13.5, c: ink });
+    if (i < 3) b += T(x + ws[i] + 9, 52, '.', { size: 28, w: 900 }) + T(x + ws[i] + 9, 214, '‹', { size: 18, c: B.soft });
+    x += ws[i] + 18;
   });
-  b += ARROW(350, 112, 30, 112, B.soft, 1.8) + lab(190, 130, 'read from right to left: big group → smaller → one site', { size: 11 });
-  return svgWrap(370, 140, 'The domain name www.dorsu.edu.ph in four parts. ph is the country code for the Philippines. edu is the kind of group, education. dorsu is the school\'s own name. www is the host name of the web server. Read it from right to left, from the biggest group to one site.', b);
+  b += ARROW(436, 130, 24, 130, B.soft, 2) + lab(230, 152, 'Read from right to left: big group → smaller group → one site', { size: 13.5, c: B.ink });
+  b += lab(230, 182, 'Like a mailing address, from the biggest place to one house:', { size: 13 });
+  return svgWrap(460, 234, 'The domain name www.dorsu.edu.ph in four parts. ph is the country code for the Philippines. edu is the kind of group, education. dorsu is the school\'s own name. www is the host name of the web server. Read it from right to left, from the biggest group to one site, like a mailing address: country, province, city, house.', b);
 }
 
-/** GEO vs LEO satellites (not to scale). */
+/** GEO vs LEO satellites (not to scale), with typical delays. */
 export function geoLeo() {
-  let b = P('M0 196 Q200 150 400 196 L400 210 L0 210 Z', '#dcefe2', B.green, 2) + lab(330, 205, 'Earth', { size: 11, c: B.green });
-  b += P('M10 150 Q200 104 390 150', 'none', B.blueMid, 1.4).replace('/>', DASH + '/>');
-  [70, 150, 250, 330].forEach((x) => { b += satI(x, 152 - (x === 150 || x === 250 ? 21 : 6), 0.55); });
-  b += lab(392, 118, 'LEO: below 1,000 km', { size: 11, c: B.blueInk, a: 'end' });
-  b += satI(200, 30, 0.8) + lab(214, 62, 'GEO: about 35,786 km up', { size: 11, c: B.orangeInk, a: 'start' });
-  b += houseI(176, 164, 30, B.butter);
-  b += L(196, 162, 200, 40, HOT, 2, DASH) + L(186, 162, 150, 136, B.blue, 2.4);
-  b += lab(80, 24, 'not to scale', { size: 10, c: B.greyInk });
-  return svgWrap(400, 212, 'Satellites for Internet. Low Earth orbit, LEO, satellites fly below 1,000 kilometers, many of them close to Earth. A geostationary, GEO, satellite sits about 35,786 kilometers up, so the signal travels much farther. Not to scale.', b);
+  let b = P('M0 262 Q230 214 460 262 L460 300 L0 300 Z', '#dcefe2', B.green, 2) + lab(420, 288, 'Earth', { size: 13, c: B.green });
+  b += P('M8 214 Q230 160 452 214', 'none', B.blueMid, 1.6).replace('/>', DASH + '/>');
+  [[52, 200], [150, 186], [318, 187], [412, 200]].forEach(([x, y]) => { b += satI(x, y, 0.7); });
+  b += satI(130, 42, 1.05);
+  b += houseI(196, 216, 40, B.butter) + lab(216, 292, 'you', { size: 13, c: B.ink });
+  b += L(208, 220, 134, 52, HOT, 2.6, DASH) + L(226, 220, 312, 194, B.blue, 3);
+  b += T(184, 30, 'GEO: about 35,786 km up', { size: 15, a: 'start', c: B.orangeInk }) + lab(184, 50, 'one satellite covers a huge area', { size: 13, a: 'start' }) + R(184, 60, 196, 26, { r: 13, f: B.orangeWash, s: HOT, sw: 1.6 }) + T(282, 78, 'reply in about 0.6 s', { size: 13.5, c: B.orangeInk });
+  b += T(452, 118, 'LEO: below 1,000 km', { size: 15, a: 'end', c: B.blueInk }) + lab(452, 138, 'many satellites, moving', { size: 13, a: 'end' }) + R(300, 148, 152, 26, { r: 13, f: B.blueWash, s: B.blue, sw: 1.6 }) + T(376, 166, 'reply in under 0.1 s', { size: 13.5, c: B.blueInk });
+  b += lab(8, 128, 'not to scale:', { size: 12.5, a: 'start', c: B.greyInk }) + lab(8, 144, 'GEO is dozens of', { size: 12.5, a: 'start', c: B.greyInk }) + lab(8, 160, 'times higher', { size: 12.5, a: 'start', c: B.greyInk });
+  return svgWrap(460, 300, 'Satellites for Internet, not to scale. A GEO satellite sits about 35,786 kilometers up; one covers a huge area, but a reply takes about 0.6 seconds. LEO satellites fly below 1,000 kilometers, many of them moving across the sky; a reply takes under 0.1 seconds. GEO is dozens of times higher than LEO.', b);
 }
 
-/** Cookies: first-party (remembers you) and third-party (follows you). */
+/** Cookies: first-party (remembers you) and third-party (follows you), stacked. */
 export function cookiePic() {
-  const cookie = (x, y) => C(x, y, 9, '#d9a35b', '#8a5a22', 1.6) + C(x - 3, y - 2, 1.6, '#5a3412', 'none', 0) + C(x + 3, y + 3, 1.6, '#5a3412', 'none', 0) + C(x + 3, y - 4, 1.2, '#5a3412', 'none', 0);
-  const win = (x, y, w, title, inner = '') => R(x, y, w, 58, { r: 5, f: B.card, sw: 1.8 }) + R(x, y, w, 14, { r: 5, f: B.blueWash, s: 'none', sw: 0 }) + T(x + w / 2, y + 11, title, { size: 9.5, mono: true, w: 600 }) + inner;
-  let b = T(10, 18, '1 · A site remembers you (first-party cookie)', { size: 12, a: 'start' });
-  b += win(10, 28, 130, 'shop.example', lab(75, 66, 'Welcome back, Ana!', { size: 10, c: B.blueInk }) + lab(75, 80, 'Cart: 2 items', { size: 10 }));
-  b += ARROW(146, 56, 222, 56, B.ink, 1.8) + cookie(184, 46) + lab(184, 76, 'saved in your', { size: 9.5 }) + lab(184, 87, 'browser', { size: 9.5 });
-  b += laptopI(240, 34, 70) + cookie(275, 52);
-  b += T(10, 122, '2 · An ad company follows you (third-party cookie)', { size: 12, a: 'start' });
-  b += win(10, 132, 110, 'news.example', R(30, 152, 70, 26, { r: 3, f: B.orangeWash, s: HOT, sw: 1.4 }) + lab(65, 169, 'ad', { size: 10, c: B.orangeInk }));
-  b += win(150, 132, 110, 'recipes.example', R(170, 152, 70, 26, { r: 3, f: B.orangeWash, s: HOT, sw: 1.4 }) + lab(205, 169, 'same ad co.', { size: 9.5, c: B.orangeInk }));
-  b += ARROW(100, 186, 300, 206, HOT, 1.6) + ARROW(240, 186, 300, 200, HOT, 1.6);
-  b += R(300, 182, 92, 40, { r: 6, f: B.orangeWash, s: HOT, sw: 1.6 }) + lab(346, 199, 'Ana likes news', { size: 9.5, c: B.orangeInk }) + lab(346, 212, 'and cooking', { size: 9.5, c: B.orangeInk });
-  return svgWrap(400, 228, 'Top: a shopping site saves a small cookie file in your browser, so next time it says Welcome back, Ana, and remembers your cart. Bottom: the same ad company appears on a news site and a recipe site, so its third-party cookie lets it learn that Ana likes news and cooking.', b);
+  const cookie = (x, y, s = 1) => C(x, y, 11 * s, '#d9a35b', '#8a5a22', 1.8) + C(x - 4 * s, y - 3 * s, 2 * s, '#5a3412', 'none', 0) + C(x + 4 * s, y + 4 * s, 2 * s, '#5a3412', 'none', 0) + C(x + 4 * s, y - 5 * s, 1.5 * s, '#5a3412', 'none', 0);
+  const win = (x, y, w, h, title) => R(x, y, w, h, { r: 7, f: B.card, sw: 2 }) + R(x, y, w, 20, { r: 7, f: B.blueWash, s: B.ink, sw: 2 }) + T(x + w / 2, y + 15, title, { size: 12.5, mono: true, w: 600 });
+  let b = T(10, 22, '1 · A site remembers you', { size: 16, a: 'start' }) + lab(214, 22, '(first-party cookie)', { size: 13.5, a: 'start', c: B.blueInk });
+  b += win(10, 36, 176, 96, 'shop.example') + T(98, 86, 'Welcome back, Ana!', { size: 14, c: B.blueInk }) + lab(98, 110, 'Cart: 2 items', { size: 13.5 });
+  b += ARROW(194, 84, 326, 84, B.ink, 2.2) + cookie(260, 66) + lab(260, 106, 'saved in your browser', { size: 13 });
+  b += laptopI(346, 50, 96) + cookie(394, 80, 0.9);
+  b += L(10, 158, 450, 158, B.line, 1.6, DASH);
+  b += T(10, 188, '2 · An ad company follows you', { size: 16, a: 'start' }) + lab(266, 188, '(third-party cookie)', { size: 13.5, a: 'start', c: B.orangeInk });
+  [[20, 'news.example'], [250, 'recipes.example']].forEach(([x, t]) => { b += win(x, 202, 190, 96, t) + R(x + 30, 232, 130, 50, { r: 5, f: B.orangeWash, s: HOT, sw: 1.8 }) + T(x + 95, 254, 'ad', { size: 14, c: B.orangeInk }) + lab(x + 95, 272, 'same ad company', { size: 12.5, c: B.orangeInk }); });
+  b += ARROW(115, 300, 190, 336, HOT, 2) + ARROW(345, 300, 270, 336, HOT, 2) + cookie(132, 320, 0.7) + cookie(328, 320, 0.7);
+  b += R(100, 338, 260, 52, { r: 8, f: B.orangeWash, s: HOT, sw: 2 }) + T(230, 360, 'The ad company\'s notes:', { size: 13.5, c: B.orangeInk }) + T(230, 380, 'Ana likes news and cooking', { size: 14, c: B.ink });
+  return svgWrap(460, 398, 'Top: a shopping site saves a small cookie file in your browser, so next time it says Welcome back, Ana, and remembers your cart. Bottom: the same ad company shows ads on a news site and a recipe site, so its third-party cookie lets it note that Ana likes news and cooking.', b);
 }

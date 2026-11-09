@@ -5,10 +5,10 @@ import Peek from '../../components/Peek.astro';
 import StepShow from '../../components/StepShow.astro';
 import SortTap from '../../components/SortTap.astro';
 import { course } from '../../data/it110.js';
-import { netOfNets, ipAnatomy, dnsPic, domainParts, geoLeo, cookiePic, packetPic } from '../../lib/it110-net-pics.js';
-import { photo, photoRow, photoCredits } from '../../data/it110-photos.js';
+import { netOfNets, ipAnatomy, dnsPic, domainParts, geoLeo, cookiePic, packetPic, ico51, todayPic, censorPic } from '../../lib/it110-net-pics.js';
+import { photo, photoRow, photoCredits, thumb } from '../../data/it110-photos.js';
 // real-life photos used on this page, in page order (credits listed in References)
-const photoKeys = ['dataCenter', 'fiberDrop', 'pocketWifi', 'vsat', 'starlink'];
+const photoKeys = ['nextServer', 'dataCenter', 'fiberDrop', 'dslSplit', 'coax', 'cellMast', 'mwDish', 'vsat', 'starlink', 'vidCall', 'phonesSocial', 'podcast', 'studyLaptop', 'qrPay', 'workHome'];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back (her rule: every back-reference comes with its meaning right there)
@@ -19,13 +19,13 @@ const urlPeek = '<p>From Weeks 3–4: a <b>URL</b> (Uniform Resource Locator) is
 const credPeek = '<p>From Weeks 3–4, ask four questions before you trust a page: <b>Who</b> wrote it? <b>When</b> was it made or updated? <b>Where</b> is it published (check the domain)? <b>Can you verify</b> the same fact in a second, independent source?</p>';
 
 const community = [
-  { t: 'Users', m: 'Everyone who goes online: you, your family, schools, businesses.' },
-  { t: 'Internet service providers (ISPs)', m: 'Companies that connect you to the Internet for a fee, like PLDT, Globe, Converge, DITO, Smart, and Starlink.' },
-  { t: 'Infrastructure companies', m: 'Own the "roads": fiber lines, cell towers, and the undersea cables between countries.' },
-  { t: 'Content providers', m: 'Make what you see online: news sites, YouTube creators, the DOrSU website, government pages.' },
-  { t: 'Application and cloud providers', m: 'Run apps and services online, like Google, Microsoft, and Amazon Web Services.' },
-  { t: 'Hardware and software makers', m: 'Make the phones, routers, servers, browsers, and apps.' },
-  { t: 'Governments and regulators', m: 'Make laws and rules. In the Philippines, the <b>DICT</b> sets policy and the <b>NTC</b> regulates telecom and Internet companies.' },
+  { t: 'Users', i: 'users', m: 'Everyone who goes online: you, your family, schools, businesses.' },
+  { t: 'Internet service providers (ISPs)', i: 'isp', m: 'Companies that connect you to the Internet for a fee, like PLDT, Globe, Converge, DITO, Smart, and Starlink.' },
+  { t: 'Infrastructure companies', i: 'infra', m: 'Own the "roads": fiber lines, cell towers, and the undersea cables between countries.' },
+  { t: 'Content providers', i: 'content', m: 'Make what you see online: news sites, YouTube creators, the DOrSU website, government pages.' },
+  { t: 'Application and cloud providers', i: 'cloudapp', m: 'Run apps and services online, like Google, Microsoft, and Amazon Web Services.' },
+  { t: 'Hardware and software makers', i: 'makers', m: 'Make the phones, routers, servers, browsers, and apps.' },
+  { t: 'Governments and regulators', i: 'gov', m: 'Make laws and rules. In the Philippines, the <b>DICT</b> sets policy and the <b>NTC</b> regulates telecom and Internet companies.' },
 ];
 const orgs = [
   ['ICANN', 'coordinates the Internet\'s unique names and numbers: domain names and IP addresses.'],
@@ -144,15 +144,16 @@ const final = [
 
       <h3>A short timeline</h3>
       <p>The Internet grew over more than 50 years. These are the key moments, from its start to the Philippines today:</p>
-      <ol class="tl">
-        <li><span class="yr">1969 · ARPANET</span>A U.S. government research network, ARPANET, connects its first four host computers, at UCLA, SRI, UC Santa Barbara, and the University of Utah. It uses <Peek label="packet switching" title="From Computer networks" html={pktPeek} />.</li>
-        <li><span class="yr">1983 · TCP/IP</span>On January 1, every computer on ARPANET switches to TCP/IP at the same time. Separate networks can now join together: the start of the Internet as we know it.</li>
-        <li><span class="yr">1989 · The Web is invented</span>Tim Berners-Lee, working at CERN in Switzerland, invents the World Wide Web. In 1990 he writes the first web browser, and the first website runs on his computer.</li>
-        <li><span class="yr">1993 · The Web is free for all</span>On April 30, CERN puts the Web's software in the public domain, so anyone can use it for free. Websites spread quickly.</li>
-        <li><span class="yr">1994 · The Philippines goes online</span>On March 29, PHNet, a DOST project, opens a 64 Kbps line to the United States and gives the country full Internet access.</li>
-        <li><span class="yr">1995 · Businesses take over</span>The U.S. stops funding its NSFNET backbone, and private companies carry the Internet's traffic from then on.</li>
-        <li><span class="yr">2023 · Internet from low orbit</span>Starlink satellite Internet becomes available in the Philippines in February, the first country in Southeast Asia to have it.</li>
+      <ol class="tl tl-i">
+        <li><span class="tl-ic" set:html={ico51('arpanet')} /><span class="yr">1969 · ARPANET</span>A U.S. government research network, ARPANET, connects its first four host computers, at UCLA, SRI, UC Santa Barbara, and the University of Utah. It uses <Peek label="packet switching" title="From Computer networks" html={pktPeek} />.</li>
+        <li><span class="tl-ic" set:html={ico51('tcpip')} /><span class="yr">1983 · TCP/IP</span>On January 1, every computer on ARPANET switches to TCP/IP at the same time. Separate networks can now join together: the start of the Internet as we know it.</li>
+        <li><span class="tl-ic" set:html={ico51('web')} /><span class="yr">1989 · The Web is invented</span>Tim Berners-Lee, working at CERN in Switzerland, invents the World Wide Web. In 1990 he writes the first web browser, and the first website runs on his computer.</li>
+        <li><span class="tl-ic" set:html={ico51('free')} /><span class="yr">1993 · The Web is free for all</span>On April 30, CERN puts the Web's software in the public domain, so anyone can use it for free. Websites spread quickly.</li>
+        <li><span class="tl-ic" set:html={ico51('ph')} /><span class="yr">1994 · The Philippines goes online</span>On March 29, PHNet, a DOST project, opens a 64 Kbps line to the United States and gives the country full Internet access.</li>
+        <li><span class="tl-ic" set:html={ico51('business')} /><span class="yr">1995 · Businesses take over</span>The U.S. stops funding its NSFNET backbone, and private companies carry the Internet's traffic from then on.</li>
+        <li><span class="tl-ic" set:html={ico51('sat')} /><span class="yr">2023 · Internet from low orbit</span>Starlink satellite Internet becomes available in the Philippines in February, the first country in Southeast Asia to have it.</li>
       </ol>
+      <Fragment set:html={photo('nextServer', 'The first web server: a NeXT computer at CERN, 1990.')} />
       <div class="look">
         <p class="note-label">The Web's building blocks</p>
         <p>Berners-Lee's Web used three ideas that we still use: <b>HTML</b> (the language web pages are written in), <b>URLs</b> (addresses for pages), and <b>HTTP</b> (the protocol that sends pages). Today, <b>CSS</b> styles how pages look.</p>
@@ -160,13 +161,13 @@ const final = [
 
       <h3>The Internet today</h3>
       <p>The Internet now looks very different from ARPANET. Here are some of its main features today:</p>
-      <ul>
-        <li><b>It is huge:</b> about <b>6 billion</b> people were online in 2025, around three-quarters of the world (ITU).</li>
-        <li><b>It is not equal:</b> about <b>2.2 billion</b> people were still offline. Speed, price, and signal still differ a lot between places, like a city and a far barangay.</li>
-        <li><b>It is mostly mobile:</b> many people, including many Filipinos, go online mainly on a phone with mobile data.</li>
-        <li><b>It runs on the cloud:</b> apps, files, and videos are kept in <b>data centers</b> full of servers, not on your own device.</li>
-        <li><b>No one owns it:</b> it is many networks working together. Organizations coordinate it (Part 2), but no single company or government runs the whole Internet.</li>
-      </ul>
+      <div class="fn-grid today-grid">
+        <div class="fn-card today-card"><Fragment set:html={todayPic('huge')} /><p class="fn-t">It is huge</p><p>About <b>6 billion</b> people were online in 2025, around three-quarters of the world (ITU).</p></div>
+        <div class="fn-card today-card"><Fragment set:html={todayPic('unequal')} /><p class="fn-t">It is not equal</p><p>About <b>2.2 billion</b> people were still offline. Speed, price, and signal still differ a lot between places, like a city and a far barangay.</p></div>
+        <div class="fn-card today-card"><Fragment set:html={todayPic('mobile')} /><p class="fn-t">It is mostly mobile</p><p>Many people, including many Filipinos, go online mainly on a phone with mobile data.</p></div>
+        <div class="fn-card today-card"><Fragment set:html={todayPic('cloud')} /><p class="fn-t">It runs on the cloud</p><p>Apps, files, and videos are kept in <b>data centers</b> full of servers, not on your own device.</p></div>
+        <div class="fn-card today-card"><Fragment set:html={todayPic('owner')} /><p class="fn-t">No one owns it</p><p>It is many networks working together. Organizations coordinate it (Part 2), but no single company or government runs the whole Internet.</p></div>
+      </div>
       <Fragment set:html={photo('dataCenter', 'Inside a data center: rows of servers that keep apps, files, and videos online.')} />
 
       <div class="sub">
@@ -185,7 +186,7 @@ const final = [
     <div class="flow">
       <p>Since no one owns the Internet, it works because many people and groups each do their part. These are the main members of the <b>Internet community</b> and their roles:</p>
       <div class="fn-grid">
-        {community.map((c) => (<div class="fn-card"><p class="fn-t">{c.t}</p><p set:html={c.m} /></div>))}
+        {community.map((c) => (<div class="fn-card ico-card"><Fragment set:html={ico51(c.i)} /><p class="fn-t">{c.t}</p><p set:html={c.m} /></div>))}
       </div>
       <p>A few organizations <b>coordinate</b> the Internet so the pieces keep working together. They do not own it or control what people post. Five you should know are:</p>
       <div class="scroll-x"><table class="tbl">
@@ -217,7 +218,7 @@ const final = [
 
       <h3>IP addresses: for devices</h3>
       <div class="def"><p class="note-label">IP address</p><p>A number that identifies a device on a network, so packets can be delivered to it. There are two versions in use today.</p></div>
-      <figure class="fig illus-fig illus"><Fragment set:html={ipAnatomy()} /><figcaption>The addresses shown are sample addresses set aside for examples.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={ipAnatomy()} /><figcaption>The addresses shown are sample addresses set aside for examples.</figcaption></figure>
       <p>IPv4 addresses are running out, so the Internet is slowly moving to <b>IPv6</b>. Both are in use at the same time. ICANN gives blocks of addresses to regional registries (APNIC for our region), which give smaller blocks to ISPs, which give addresses to their customers.</p>
       <div class="look">
         <p class="note-label">Good to know</p>
@@ -226,7 +227,7 @@ const final = [
 
       <h3>Domain names and DNS: for websites</h3>
       <p>Numbers are hard for people to remember, so websites also have names. A <b>domain name</b> is the easy-to-remember name of a website, like <span class="mono">dorsu.edu.ph</span>. Each part of it means something:</p>
-      <figure class="fig illus-fig illus"><Fragment set:html={domainParts()} /><figcaption>The last part is the top-level domain (TLD).</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={domainParts()} /><figcaption>The last part is the top-level domain (TLD).</figcaption></figure>
       <p>The last part, the <b>top-level domain (TLD)</b>, comes in two main kinds:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Kind</th><th>Examples</th></tr></thead>
@@ -243,7 +244,7 @@ const final = [
 
       <h3>Usernames and email addresses: for people</h3>
       <p>People are identified online by <b>usernames</b> (account names) and <b>email addresses</b>. An email address has two parts around the <b>@</b> ("at") sign:</p>
-      <p class="mono" style="text-align:center;font-size:1.1rem"><b style="color:var(--teal)">juan.delacruz</b>@<b style="color:var(--orange)">dorsu.edu.ph</b></p>
+      <div class="mail-addr" role="img" aria-label="Email address juan.delacruz@dorsu.edu.ph: username juan.delacruz, then the at sign, then the domain name dorsu.edu.ph"><span class="ma-to">To:</span><span class="ma-part ma-u"><b>juan.delacruz</b><small>username</small></span><span class="ma-at">@<small>at</small></span><span class="ma-part ma-d"><b>dorsu.edu.ph</b><small>domain name</small></span></div>
       <ul>
         <li><b>Before the @:</b> the username, which names one mailbox.</li>
         <li><b>After the @:</b> the domain name of the organization or service that holds the mailbox.</li>
@@ -264,18 +265,18 @@ const final = [
     </div>
     <div class="flow">
       <p>To go online you need two things: a <b>device</b> that can connect (a phone, computer, smart TV, or game console) and a <b>connection</b> from an Internet service provider. Today's fast, always-on connections are called <b>broadband</b>. The table lists the main kinds:</p>
-      <div class="scroll-x"><table class="tbl">
+      <div class="scroll-x"><table class="tbl conn-tbl">
         <thead><tr><th>Connection</th><th>How it reaches you</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td><b>Fiber (FTTH)</b></td><td>light through fiber optic cable, all the way to the home</td><td>the fastest and most stable home option, where available</td></tr>
-          <tr><td><b>DSL</b></td><td>the copper telephone line</td><td>older; the farther from the provider's equipment, the slower</td></tr>
-          <tr><td><b>Cable</b></td><td>the coaxial cable TV line</td><td>shares the line with cable TV</td></tr>
-          <tr><td><b>Mobile data (4G, 5G)</b></td><td>radio from the nearest cell tower</td><td>works anywhere with signal; often has data limits</td></tr>
-          <tr><td><b>Fixed wireless</b></td><td>radio from a tower to an antenna on your house</td><td>for areas without cables; needs a clear line to the tower</td></tr>
-          <tr><td><b>Satellite</b></td><td>a dish that talks to a satellite</td><td>reaches remote places; weather can affect it</td></tr>
+          <tr><td class="th-cell"><Fragment set:html={thumb('fiberDrop')} /><b>Fiber (FTTH)</b></td><td>light through fiber optic cable, all the way to the home</td><td>the fastest and most stable home option, where available</td></tr>
+          <tr><td class="th-cell"><Fragment set:html={thumb('dslSplit')} /><b>DSL</b></td><td>the copper telephone line</td><td>older; the farther from the provider's equipment, the slower</td></tr>
+          <tr><td class="th-cell"><Fragment set:html={thumb('coax')} /><b>Cable</b></td><td>the coaxial cable TV line</td><td>shares the line with cable TV</td></tr>
+          <tr><td class="th-cell"><Fragment set:html={thumb('cellMast')} /><b>Mobile data (4G, 5G)</b></td><td>radio from the nearest cell tower</td><td>works anywhere with signal; a phone or pocket Wi-Fi can share it; often has data limits</td></tr>
+          <tr><td class="th-cell"><Fragment set:html={thumb('mwDish')} /><b>Fixed wireless</b></td><td>radio from a tower to an antenna on your house</td><td>for areas without cables; needs a clear line to the tower</td></tr>
+          <tr><td class="th-cell"><Fragment set:html={thumb('vsat')} /><b>Satellite</b></td><td>a dish that talks to a satellite</td><td>reaches remote places; weather can affect it</td></tr>
         </tbody>
       </table></div>
-      <Fragment set:html={photoRow([['fiberDrop', 'A fiber cable: the line for fiber Internet.'], ['pocketWifi', 'Pocket Wi-Fi: mobile data shared with nearby devices.']])} />
+      <p class="small">Photos, top to bottom: a fiber cable, a DSL splitter on a phone line, a coaxial cable cut open, a cell tower, a tower with dish antennas, and a satellite dish set up for a remote camp. Credits are in References.</p>
       <div class="look">
         <p class="note-label">Do not forget: Wi-Fi hotspots</p>
         <p>A <b>Wi-Fi hotspot</b> is a place where you can connect to someone else's Wi-Fi, like a café or a campus. Under RA 10929, many public places offer free Wi-Fi. Public Wi-Fi is shared with strangers, so avoid logging in to banks or entering passwords on it.</p>
@@ -283,7 +284,7 @@ const final = [
 
       <h3>Satellite: high or low?</h3>
       <p>Satellite Internet comes in two kinds, and the difference is <b>how high</b> the satellites fly:</p>
-      <figure class="fig illus-fig illus"><Fragment set:html={geoLeo()} /><figcaption>The farther the satellite, the longer each signal takes to go up and come back down.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={geoLeo()} /><figcaption>The farther the satellite, the longer each signal takes to go up and come back down.</figcaption></figure>
       <div class="two-col">
         <div class="def"><p class="note-label">GEO satellite</p><p>Sits about <b>35,786 km</b> above the Earth and seems to stay in one spot. One satellite covers a huge area, but the long trip adds delay.</p></div>
         <div class="def"><p class="note-label">LEO satellite</p><p>Flies in <b>low Earth orbit</b>, below 1,000 km, and moves across the sky. Many satellites work together. Shorter trip, much less delay. Example: Starlink.</p></div>
@@ -326,16 +327,16 @@ const final = [
       <p>A <b>search engine</b>, like Google or Bing, is a website that finds pages for the words you type. Good searching saves time, and good citing gives credit. This part covers both.</p>
 
       <h3>Search techniques</h3>
-      <p>Start with <b>specific keywords</b>: <i>six basic types of computers</i> works better than <i>computer</i>. Then use <b>search operators</b>, special symbols and words that tell the search engine exactly what you want. These work in Google:</p>
-      <div class="scroll-x"><table class="tbl">
+      <p>Start with <b>specific keywords</b>: <i>six basic types of computers</i> works better than <i>computer</i>. Then use <b>search operators</b>, special symbols and words that tell the search engine exactly what you want. These work in Google. The examples show what you type in the search box:</p>
+      <div class="scroll-x"><table class="tbl ops-tbl">
         <thead><tr><th>Operator</th><th>What it does</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><span class="mono">" "</span></td><td>exact phrase</td><td><span class="mono">"network topology"</span></td></tr>
-          <tr><td><span class="mono">-</span></td><td>removes a word (no space after the minus)</td><td><span class="mono">jaguar -car</span></td></tr>
-          <tr><td><span class="mono">OR</span></td><td>either word (in capital letters)</td><td><span class="mono">fiber OR DSL</span></td></tr>
-          <tr><td><span class="mono">site:</span></td><td>only one site or domain</td><td><span class="mono">site:gov.ph flood advisory</span></td></tr>
-          <tr><td><span class="mono">filetype:</span></td><td>only one kind of file</td><td><span class="mono">network topology filetype:pdf</span></td></tr>
-          <tr><td><span class="mono">after:</span> / <span class="mono">before:</span></td><td>only pages updated after or before a date</td><td><span class="mono">5G Philippines after:2025</span></td></tr>
+          <tr><td><span class="op-chip">" "</span></td><td>exact phrase</td><td><span class="sbar"><span class="sbar-q">"network topology"</span></span></td></tr>
+          <tr><td><span class="op-chip">-</span></td><td>removes a word (no space after the minus)</td><td><span class="sbar"><span class="sbar-q">jaguar -car</span></span></td></tr>
+          <tr><td><span class="op-chip">OR</span></td><td>either word (in capital letters)</td><td><span class="sbar"><span class="sbar-q">fiber OR DSL</span></span></td></tr>
+          <tr><td><span class="op-chip">site:</span></td><td>only one site or domain</td><td><span class="sbar"><span class="sbar-q">site:gov.ph flood advisory</span></span></td></tr>
+          <tr><td><span class="op-chip">filetype:</span></td><td>only one kind of file</td><td><span class="sbar"><span class="sbar-q">network topology filetype:pdf</span></span></td></tr>
+          <tr><td><span class="op-chip">after:</span> <span class="op-chip">before:</span></td><td>only pages updated after or before a date</td><td><span class="sbar"><span class="sbar-q">5G Philippines after:2025</span></span></td></tr>
         </tbody>
       </table></div>
       <p>Found something? Check it before you use it, with the <Peek label="four questions" title="From Weeks 3–4" html={credPeek} /> from your Weeks 3–4 lecture.</p>
@@ -419,6 +420,7 @@ const final = [
           <tr><td><b>Webinars</b></td><td>live online seminars, talks, and classes</td><td>online training sessions</td></tr>
         </tbody>
       </table></div>
+      <Fragment set:html={photoRow([['vidCall', 'A video call from home.'], ['phonesSocial', 'Social networking on phones.'], ['podcast', 'Recording a podcast.']])} />
       <p>The Web also lets you get many things done without leaving home. These are useful <b>Web activities</b>:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Activity</th><th>Example</th></tr></thead>
@@ -433,6 +435,7 @@ const final = [
           <tr><td><b>Job hunting and working online</b></td><td>finding jobs, freelancing, working from home</td></tr>
         </tbody>
       </table></div>
+      <Fragment set:html={photoRow([['studyLaptop', 'Research and e-learning on a laptop.'], ['qrPay', 'Paying by scanning a QR code with an e-wallet.'], ['workHome', 'Working online from home.']])} />
 
       <div class="sub">
         <h3>Quick check: Part 6</h3>
@@ -455,7 +458,7 @@ const final = [
         <div class="def"><p class="note-label">Cookie</p><p>A small file that a website saves in your browser, so it can remember you: your login, language, or shopping cart.</p></div>
         <div class="def"><p class="note-label">Digital footprint</p><p>The trail of data you leave online: posts, photos, comments, searches, and the data apps collect about you.</p></div>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={cookiePic()} /><figcaption>First-party cookies are from the site you visit. Third-party cookies are from another company, usually for ads.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={cookiePic()} /><figcaption>First-party cookies are from the site you visit. Third-party cookies are from another company, usually for ads.</figcaption></figure>
       <p>In the Philippines, <b>RA 10173</b>, the <b>Data Privacy Act of 2012</b>, protects personal information. It says how organizations may collect and use it, gives people rights over their data (such as the right to be informed and to object), and created the <b>National Privacy Commission (NPC)</b> to enforce it.</p>
       <p>You can protect your own privacy with a few habits:</p>
       <ul>
@@ -468,12 +471,12 @@ const final = [
 
       <h3>Censorship: who decides what you can see?</h3>
       <div class="def"><p class="note-label">Internet censorship</p><p>Blocking, filtering, or removing online content so people cannot see or share it. It can be done by governments, by ISPs on official orders, or by platforms that remove posts.</p></div>
-      <p>Countries censor in very different ways. Here are three real examples, from narrow to broad:</p>
-      <ul>
-        <li><b>Protecting children:</b> under <b>RA 11930</b> (2022), Philippine ISPs must block child sexual abuse material within 24 hours of a proper notice and report it to the DOJ.</li>
-        <li><b>Blocking illegal businesses:</b> in December 2025, at the request of the Bangko Sentral ng Pilipinas, the NTC ordered ISPs to block 50 unregistered online crypto trading platforms.</li>
-        <li><b>Blocking whole services:</b> China blocks many foreign sites and apps, including Google, Facebook, and YouTube.</li>
-      </ul>
+      <p>Countries censor in very different ways. Here are three real examples, from narrow (one kind of content) to broad (whole services):</p>
+      <div class="fn-grid censor-grid">
+        <div class="fn-card"><Fragment set:html={censorPic(1)} /><p class="fn-t">Protecting children</p><p>Under <b>RA 11930</b> (2022), Philippine ISPs must block child sexual abuse material within 24 hours of a proper notice and report it to the DOJ.</p></div>
+        <div class="fn-card"><Fragment set:html={censorPic(2)} /><p class="fn-t">Blocking illegal businesses</p><p>In December 2025, at the request of the Bangko Sentral ng Pilipinas, the NTC ordered ISPs to block 50 unregistered online crypto trading platforms.</p></div>
+        <div class="fn-card"><Fragment set:html={censorPic(3)} /><p class="fn-t">Blocking whole services</p><p>China blocks many foreign sites and apps, including Google, Facebook, and YouTube.</p></div>
+      </div>
       <div class="look">
         <p class="note-label">Two sides of the debate</p>
         <p>Supporters say some blocking protects people from crime, scams, and harmful content. Critics warn that blocking can go too far: it can silence news, criticism, or ideas the public has a right to see. Many people agree on blocking material like child abuse, but argue over where the line should be and <b>who</b> should draw it.</p>
@@ -560,6 +563,7 @@ const final = [
           <li>Republic Act No. 10929 (2017), Free Internet Access in Public Places Act; Republic Act No. 12234 (2025), Konektadong Pinoy Act. Lawphil.</li>
           <li>U.S. Federal Communications Commission, "Types of broadband connections," broadband.gov (archived).</li>
           <li>European Space Agency, "Types of orbits."</li>
+          <li>Viasat, "Satellite internet latency: What's the big deal?" (GEO delay); Light Reading, "Starlink smokes GEO satellite operators in speed, latency – report" (Ookla data).</li>
           <li>Manila Bulletin, "First in Southeast Asia: DICT welcomes Musk's Starlink to PH," 24 February 2023.</li>
           <li>Google Search Help, "Refine Google searches."</li>
           <li>American Psychological Association, "Webpage on a website references," APA Style, 7th edition.</li>
