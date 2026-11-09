@@ -12,10 +12,10 @@ const photoKeys = ['cableDiver', 'cableSamples', 'nextServer', 'dataCenter', 'lo
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back (her rule: every back-reference comes with its meaning right there)
-const webPeek = '<p>From your Weeks 3–4 lecture: the <b>Internet</b> is the worldwide network that connects computers and devices. The <b>World Wide Web</b> is one service that uses the Internet: linked web pages that you open in a browser. Email, video calls, and online games use the Internet too, but they are not the Web.</p>';
+const webPeek = '<p>From your Weeks 3–4 lecture: the <b>Internet</b> is the worldwide network that connects computers and devices. The <b>World Wide Web</b> is one service that uses the Internet. It is made of web pages that are linked to each other, and you open them in a browser. Email, video calls, and online games use the Internet too, but they are not the Web.</p>';
 const tcpPeek = '<p>From <b>Computer networks</b>, Part 5: <b>TCP/IP</b> is the set of protocols every device on the Internet follows. TCP cuts data into numbered packets and checks that all arrive; IP puts an address on each packet so routers can deliver it.</p>';
-const pktPeek = '<div class="peek-pic">' + packetPic(2) + '</div><p><b>Packet switching</b> (Computer networks, Part 3): data is cut into numbered packets that each find their own route.</p>';
-const urlPeek = '<p>From Weeks 3–4: a <b>URL</b> (Uniform Resource Locator) is the full address of one page, like <span class="mono">https://www.dorsu.edu.ph/admission/requirements.html</span>: the protocol (<span class="mono">https://</span>), the domain name, then the path to the page.</p>';
+const pktPeek = '<div class="peek-pic">' + packetPic(2) + '</div><p>You learned <b>packet switching</b> in Computer networks, Part 3. In packet switching, data is cut into small numbered pieces called packets, and each packet finds its own route.</p>';
+const urlPeek = '<p>From Weeks 3–4: a <b>URL</b> (Uniform Resource Locator) is the full address of one page, like <span class="mono">https://www.dorsu.edu.ph/admission/requirements.html</span>. A URL has three parts. It starts with the protocol (<span class="mono">https://</span>), then comes the domain name, and last comes the path to the page.</p>';
 const credPeek = '<p>From Weeks 3–4, ask four questions before you trust a page: <b>Who</b> wrote it? <b>When</b> was it made or updated? <b>Where</b> is it published (check the domain)? <b>Can you verify</b> the same fact in a second, independent source?</p>';
 
 const community = [
@@ -28,11 +28,11 @@ const community = [
   { t: 'Governments and regulators', i: 'gov', m: 'Make laws and rules. In the Philippines, the <b>DICT</b> sets policy and the <b>NTC</b> regulates telecom and Internet companies.' },
 ];
 const orgs = [
-  ['ICANN', 'logoICANN', 'coordinates the Internet\'s unique names and numbers: domain names and IP addresses.'],
-  ['IETF', 'logoIETF', 'Internet Engineering Task Force: develops Internet standards, like TCP/IP.'],
-  ['W3C', 'logoW3C', 'World Wide Web Consortium: develops Web standards, like HTML.'],
-  ['ISOC', 'logoISOC', 'Internet Society: supports an open Internet that everyone can use.'],
-  ['APNIC', '', 'gives out blocks of IP addresses in the Asia-Pacific region, including the Philippines.'],
+  ['ICANN', 'logoICANN', 'Makes sure every domain name (like dorsu.edu.ph) and every IP address is unique, so no two websites or devices get the same one.'],
+  ['IETF', 'logoIETF', 'The Internet Engineering Task Force. It writes the rules (standards) that make the Internet work, such as TCP/IP.'],
+  ['W3C', 'logoW3C', 'The World Wide Web Consortium. It writes the rules (standards) for the Web, such as HTML.'],
+  ['ISOC', 'logoISOC', 'The Internet Society. It works for an open Internet that everyone can use.'],
+  ['APNIC', '', 'The Asia Pacific Network Information Centre. It gives out IP addresses to Internet providers in the Asia-Pacific region, including the Philippines.'],
 ];
 const connSort = [
   { t: 'Light through a thin glass line into the house', a: 0, why: 'That is fiber (FTTH): the fastest wired option.' },
@@ -140,7 +140,7 @@ const final = [
       <h2>How the Internet began, and what it is like today</h2>
     </div>
     <div class="flow">
-      <div class="def"><p class="note-label">Internet</p><p>The worldwide <b>network of networks</b>: millions of separate networks, owned by different groups, that connect because they all follow the same protocols, <Peek label="TCP/IP" title="From Computer networks" html={tcpPeek} />.</p></div>
+      <div class="def"><p class="note-label">Internet</p><p>The worldwide <b>network of networks</b>. It is made of millions of separate networks, owned by different groups. They can connect to each other because they all follow the same protocols, called <Peek label="TCP/IP" title="From Computer networks" html={tcpPeek} />.</p></div>
       <figure class="fig illus-fig illus"><Fragment set:html={netOfNets()} /><figcaption>A video you watch may travel through your home network, your ISP, national networks, and an undersea cable.</figcaption></figure>
       <aside class="dyk" id="undersea" aria-label="Did you know: undersea cables">
         <p class="dyk-label">Did you know?</p>
@@ -150,12 +150,12 @@ const final = [
         <ul class="dyk-facts">
           <li><b>They wrap around the world.</b> More than 1.5 million km of undersea cables were in use in early 2026. That is enough to go around the Earth more than 37 times.</li>
           <li><b>They are thinner than you think.</b> In the deep sea, a cable is about as thick as a garden hose and lies right on the ocean floor. Near the shore, extra steel armor makes it thicker, and it is buried under the seabed to protect it.</li>
-          <li><b>The data travels as light.</b> Inside are glass fibers as thin as a human hair: the same fiber optics you met in Computer networks.</li>
+          <li><b>The data travels as light.</b> Inside are glass fibers as thin as a human hair. These are the same fiber optics you met in Computer networks.</li>
           <li><b>They are built to last.</b> Each cable is designed to work for at least 25 years.</li>
         </ul>
         <Fragment set:html={photoRow([['cableDiver', 'A diver wraps steel armor around a seafloor cable in Hawaii, about 30 m deep.'], ['cableSamples', 'Real cable samples, cut open. Left: thick, armored cables for near the shore. Right: thin cables for the deep sea (the coin shows the size).']])} />
-        <figure class="fig illus-fig illus big"><Fragment set:html={oceanSide()} /><figcaption>How a cable is laid from one shore to another: buried near the shores, where fishing gear and ship anchors could damage it, and lying on the deep ocean floor in between.</figcaption></figure>
-        <p><b>Where does each end go?</b> Each end of the cable comes ashore at a <b>cable landing station</b>: a guarded building near the beach, not a home. Inside, one machine sends electric power into the cable's copper tube to run the repeaters, and another sends and receives the light signals in the glass fibers. From there, <b>land cables</b> carry the data to <b>data centers</b>, then through Internet providers (ISPs) to schools, offices, homes, and the cell towers that reach your phone.</p>
+        <figure class="fig illus-fig illus big"><Fragment set:html={oceanSide()} /><figcaption>How a cable is laid from one shore to another. Near the shores, it is buried under the seabed, because fishing gear and ship anchors could damage it there. In between, it lies on the deep ocean floor.</figcaption></figure>
+        <p><b>Where does each end go?</b> Each end of the cable comes ashore at a guarded building near the beach called a <b>cable landing station</b>. It is not a home. Inside, one machine sends electric power into the cable's copper tube to run the repeaters, and another sends and receives the light signals in the glass fibers. From there, <b>land cables</b> carry the data to <b>data centers</b>, then through Internet providers (ISPs) to schools, offices, homes, and the cell towers that reach your phone.</p>
         <figure class="fig illus-fig illus big"><Fragment set:html={cableHand()} /><figcaption>An undersea cable, cut in steps like the real samples in the photo above. Only the thin glass fibers in the middle carry the data; the rest protects them and carries power.</figcaption></figure>
         <p><b>Close to home.</b> The Philippines is made of islands, so undersea cables are how we reach the rest of the world. In 2023, the country had 10 international undersea cable systems. In 2025, the Bifrost cable landed in <b>Davao City</b>, linking us to Singapore, Indonesia, Guam, and the United States, and a landing station for the Apricot cable (to Japan, Taiwan, Guam, Indonesia, and Singapore) opened in <b>Digos, Davao del Sur</b>.</p>
         <figure class="fig illus-fig illus big"><Fragment set:html={phCables()} /><figcaption>Two of the undersea cables that connect the Philippines, on a real map. Their routes are simplified.</figcaption></figure>
@@ -166,7 +166,7 @@ const final = [
       <p>The Internet grew over more than 50 years. These are the key moments, from its start to the Philippines today:</p>
       <ol class="tl tl-i">
         <li><span class="tl-ic" set:html={ico51('arpanet')} /><span class="yr">1969 · ARPANET</span>A U.S. government research network, ARPANET, connects its first four host computers, at UCLA, SRI, UC Santa Barbara, and the University of Utah. It uses <Peek label="packet switching" title="From Computer networks" html={pktPeek} />.</li>
-        <li><span class="tl-ic" set:html={ico51('tcpip')} /><span class="yr">1983 · TCP/IP</span>On January 1, every computer on ARPANET switches to TCP/IP at the same time. Separate networks can now join together: the start of the Internet as we know it.</li>
+        <li><span class="tl-ic" set:html={ico51('tcpip')} /><span class="yr">1983 · TCP/IP</span>On January 1, every computer on ARPANET switches to TCP/IP at the same time. Separate networks can now join together. This is the start of the Internet as we know it.</li>
         <li><span class="tl-ic" set:html={ico51('web')} /><span class="yr">1989 · The Web is invented</span>Tim Berners-Lee, working at CERN in Switzerland, invents the World Wide Web. In 1990 he writes the first web browser, and the first website runs on his computer.</li>
         <li><span class="tl-ic" set:html={ico51('free')} /><span class="yr">1993 · The Web is free for all</span>On April 30, CERN puts the Web's software in the public domain, so anyone can use it for free. Websites spread quickly.</li>
         <li><span class="tl-ic" set:html={ico51('ph')} /><span class="yr">1994 · The Philippines goes online</span>On March 29, PHNet, a DOST project, opens a 64 Kbps line to the United States and gives the country full Internet access.</li>
@@ -256,7 +256,7 @@ const final = [
           <tr><td><b>Country code TLDs</b></td><td><span class="mono">.ph</span> (Philippines), <span class="mono">.jp</span> (Japan), <span class="mono">.uk</span> (United Kingdom)</td></tr>
         </tbody>
       </table></div>
-      <p>Under <span class="mono">.ph</span>, Philippine sites use groups such as <span class="mono">.com.ph</span>, <span class="mono">.edu.ph</span>, and <span class="mono">.gov.ph</span>. But computers still need the IP address. The <b>Domain Name System (DNS)</b> is the Internet's "phone book": it turns a domain name into its IP address. Tap Next to see a lookup:</p>
+      <p>Under <span class="mono">.ph</span>, Philippine sites use groups such as <span class="mono">.com.ph</span>, <span class="mono">.edu.ph</span>, and <span class="mono">.gov.ph</span>. But computers still need the IP address. The <b>Domain Name System (DNS)</b> turns a domain name into its IP address. It works like the Internet's "phone book". You look up a name, and you get a number. Tap Next to see a lookup:</p>
       <StepShow id="dns" steps={dnsSteps} cap="A DNS lookup" hint="Tap Next. The orange arrow is what happens in that step." />
 
       <h3>URLs: for pages</h3>
@@ -284,7 +284,7 @@ const final = [
       <h2>Connection options and choosing an ISP</h2>
     </div>
     <div class="flow">
-      <p>To go online you need two things: a <b>device</b> that can connect (a phone, computer, smart TV, or game console) and a <b>connection</b> from an Internet service provider. Today's fast, always-on connections are called <b>broadband</b>. The table lists the main kinds:</p>
+      <p>To go online, you need two things. The first is a <b>device</b> that can connect (a phone, computer, smart TV, or game console). The second is a <b>connection</b> from an Internet service provider. Today's fast, always-on connections are called <b>broadband</b>. The table lists the main kinds:</p>
       <div class="scroll-x"><table class="tbl conn-tbl">
         <thead><tr><th>Connection</th><th>How it reaches you</th><th>Notes</th></tr></thead>
         <tbody>
@@ -362,7 +362,7 @@ const final = [
       <p>Found something? Check it before you use it, with the <Peek label="four questions" title="From Weeks 3–4" html={credPeek} /> from your Weeks 3–4 lecture.</p>
 
       <h3>Citing web sources in APA style</h3>
-      <p>When you use someone else's facts, words, or pictures, you <b>cite</b> them: you say where they came from. Citing gives the authors credit and lets readers check your facts. Copying without citing is <b>plagiarism</b>.</p>
+      <p>When you use someone else's facts, words, or pictures, you <b>cite</b> them. To cite means to say where the facts, words, or pictures came from. Citing gives the authors credit and lets readers check your facts. Copying without citing is <b>plagiarism</b>.</p>
       <p>APA style (7th edition) cites in two places: a short <b>in-text citation</b> in your sentence, and a full <b>reference</b> in the list at the end. A reference for a web page has five parts, in this order:</p>
       <div class="def apa-key"><p class="note-label">APA reference for a web page</p>
         <p><span class="apa-a">Author.</span> <span class="apa-d">(Date).</span> <span class="apa-t"><i>Title of the page</i>.</span> <span class="apa-s">Site name.</span> <span class="apa-u">URL</span></p>
@@ -433,7 +433,7 @@ const final = [
         <thead><tr><th>Form</th><th>What it is</th><th>Examples</th></tr></thead>
         <tbody>
           <tr><td><b>Messaging</b></td><td>short text, photo, and voice messages in real time</td><td>Messenger, Viber, Telegram</td></tr>
-          <tr><td><b>VoIP and video calls</b></td><td>voice over Internet Protocol: calls over the Internet instead of the phone network</td><td>Messenger calls, Google Meet, Zoom</td></tr>
+          <tr><td><b>VoIP and video calls</b></td><td>VoIP stands for Voice over Internet Protocol. It means calls that go over the Internet instead of the phone network.</td><td>Messenger calls, Google Meet, Zoom</td></tr>
           <tr><td><b>Social networking</b></td><td>sharing posts, photos, and videos with friends and followers</td><td>Facebook, TikTok, Instagram</td></tr>
           <tr><td><b>Online communities and forums</b></td><td>group discussions on one topic</td><td>your class Discord server, Facebook groups</td></tr>
           <tr><td><b>Blogs, vlogs, and podcasts</b></td><td>articles, videos, or audio shows that people publish</td><td>YouTube channels, Spotify podcasts</td></tr>
@@ -472,11 +472,11 @@ const final = [
     </div>
     <div class="flow">
       <h3>Privacy: who sees your data?</h3>
-      <div class="def"><p class="note-label">Privacy</p><p>Your right to control who collects, sees, and uses <b>information about you</b>: your name, location, photos, messages, and what you do online.</p></div>
+      <div class="def"><p class="note-label">Privacy</p><p>Your right to control who collects, sees, and uses <b>information about you</b>, such as your name, location, photos, messages, and what you do online.</p></div>
       <p>Every time you go online, you leave data behind. Two common ways it is collected are <b>cookies</b> and your <b>digital footprint</b>:</p>
       <div class="two-col">
-        <div class="def"><p class="note-label">Cookie</p><p>A small file that a website saves in your browser, so it can remember you: your login, language, or shopping cart.</p></div>
-        <div class="def"><p class="note-label">Digital footprint</p><p>The trail of data you leave online: posts, photos, comments, searches, and the data apps collect about you.</p></div>
+        <div class="def"><p class="note-label">Cookie</p><p>A small file that a website saves in your browser, so it can remember things about you, such as your login, language, or shopping cart.</p></div>
+        <div class="def"><p class="note-label">Digital footprint</p><p>The trail of data you leave online. It includes your posts, photos, comments, and searches, and the data that apps collect about you.</p></div>
       </div>
       <figure class="fig illus-fig illus big"><Fragment set:html={cookiePic()} /><figcaption>First-party cookies are from the site you visit. Third-party cookies are from another company, usually for ads.</figcaption></figure>
       <p>In the Philippines, <b>RA 10173</b>, the <b>Data Privacy Act of 2012</b>, protects personal information. It says how organizations may collect and use it, gives people rights over their data (such as the right to be informed and to object), and created the <b>National Privacy Commission (NPC)</b> to enforce it.</p>
@@ -499,7 +499,7 @@ const final = [
       </div>
       <div class="look">
         <p class="note-label">Two sides of the debate</p>
-        <p>Supporters say some blocking protects people from crime, scams, and harmful content. Critics warn that blocking can go too far: it can silence news, criticism, or ideas the public has a right to see. Many people agree on blocking material like child abuse, but argue over where the line should be and <b>who</b> should draw it.</p>
+        <p>Supporters say some blocking protects people from crime, scams, and harmful content. Critics warn that blocking can go too far, because it can silence news, criticism, or ideas the public has a right to see. Many people agree on blocking material like child abuse, but argue over where the line should be and <b>who</b> should draw it.</p>
       </div>
 
       <div class="sub">
@@ -523,7 +523,7 @@ const final = [
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>These two...</th><th>...are different because</th></tr></thead>
         <tbody>
-          <tr><td><b>Internet vs. the Web</b></td><td>the worldwide network vs. one service on it: linked web pages</td></tr>
+          <tr><td><b>Internet vs. the Web</b></td><td>the Internet is the worldwide network; the Web is one service on it, made of linked web pages</td></tr>
           <tr><td><b>ARPANET vs. the Web</b></td><td>the 1969 network that grew into the Internet vs. the 1989 invention of web pages</td></tr>
           <tr><td><b>IP address vs. domain name</b></td><td>a number for computers vs. a name for people; DNS links the two</td></tr>
           <tr><td><b>Domain name vs. URL</b></td><td>a whole website vs. one page on it</td></tr>
