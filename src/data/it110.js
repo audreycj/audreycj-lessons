@@ -34,16 +34,16 @@ export const terms = [
     note: 'Weeks 8 to 12. Everything you need for the midterm exam.',
     units: [
       { name: 'Computer hardware: input and output', icon: 'io', lessons: [
-        { title: 'Input devices', href: '/it110/input-devices/', status: 'soon' },
-        { title: 'Output devices', href: '/it110/output-devices/', status: 'soon' },
+        { title: 'Input devices', href: '/it110/input-devices/', status: 'live', blurb: 'Keyboards, mice, touchscreens, and pens; barcode, QR, RFID, and biometric readers; scanners; cameras and microphones.' },
+        { title: 'Output devices', href: '/it110/output-devices/', status: 'live', blurb: 'Monitors and projectors and what their specs mean, LCD vs. OLED, printers from inkjet to 3D, and speakers and headphones.' },
       ] },
       { name: 'Software', icon: 'app', lessons: [
         { title: 'System software: operating systems and utility programs', href: '/it110/system-software/', status: 'live', blurb: 'What an operating system does, how it makes the computer faster, which OS runs on which device, and the utility programs that keep it healthy.' },
         { title: 'Application software', href: '/it110/application-software/', status: 'live', blurb: 'Who owns the software, installed vs. cloud apps, and the apps you will use most: word processors, spreadsheets, databases, slides, and more.' },
       ] },
       { name: 'Networks and the Internet', icon: 'net', lessons: [
-        { title: 'Computer networks', href: '/it110/networks/', status: 'soon' },
-        { title: 'The Internet and the World Wide Web', href: '/it110/internet/', status: 'soon' },
+        { title: 'Computer networks', href: '/it110/networks/', status: 'live', blurb: 'What networks are for, topologies, PAN to WAN, how data travels, cables and wireless, protocols like TCP/IP and Wi-Fi, and networking hardware.' },
+        { title: 'The Internet and the World Wide Web', href: '/it110/internet/', status: 'live', blurb: 'How the Internet began, who runs it, IP addresses and DNS, ways to connect and choosing an ISP, searching and citing in APA, and privacy and censorship.' },
       ] },
     ],
   },

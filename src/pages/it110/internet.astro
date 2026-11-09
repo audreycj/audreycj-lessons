@@ -1,0 +1,579 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
+import StepShow from '../../components/StepShow.astro';
+import SortTap from '../../components/SortTap.astro';
+import { course } from '../../data/it110.js';
+import { netOfNets, ipAnatomy, dnsPic, domainParts, geoLeo, cookiePic, packetPic } from '../../lib/it110-net-pics.js';
+import { photo, photoRow, photoCredits } from '../../data/it110-photos.js';
+// real-life photos used on this page, in page order (credits listed in References)
+const photoKeys = ['dataCenter', 'fiberDrop', 'pocketWifi', 'vsat', 'starlink'];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Peeks back (her rule: every back-reference comes with its meaning right there)
+const webPeek = '<p>From your Weeks 3–4 lecture: the <b>Internet</b> is the worldwide network that connects computers and devices. The <b>World Wide Web</b> is one service that uses the Internet: linked web pages that you open in a browser. Email, video calls, and online games use the Internet too, but they are not the Web.</p>';
+const tcpPeek = '<p>From <b>Computer networks</b>, Part 5: <b>TCP/IP</b> is the set of protocols every device on the Internet follows. TCP cuts data into numbered packets and checks that all arrive; IP puts an address on each packet so routers can deliver it.</p>';
+const pktPeek = '<div class="peek-pic">' + packetPic(2) + '</div><p><b>Packet switching</b> (Computer networks, Part 3): data is cut into numbered packets that each find their own route.</p>';
+const urlPeek = '<p>From Weeks 3–4: a <b>URL</b> (Uniform Resource Locator) is the full address of one page, like <span class="mono">https://www.dorsu.edu.ph/admission/requirements.html</span>: the protocol (<span class="mono">https://</span>), the domain name, then the path to the page.</p>';
+const credPeek = '<p>From Weeks 3–4, ask four questions before you trust a page: <b>Who</b> wrote it? <b>When</b> was it made or updated? <b>Where</b> is it published (check the domain)? <b>Can you verify</b> the same fact in a second, independent source?</p>';
+
+const community = [
+  { t: 'Users', m: 'Everyone who goes online: you, your family, schools, businesses.' },
+  { t: 'Internet service providers (ISPs)', m: 'Companies that connect you to the Internet for a fee, like PLDT, Globe, Converge, DITO, Smart, and Starlink.' },
+  { t: 'Infrastructure companies', m: 'Own the "roads": fiber lines, cell towers, and the undersea cables between countries.' },
+  { t: 'Content providers', m: 'Make what you see online: news sites, YouTube creators, the DOrSU website, government pages.' },
+  { t: 'Application and cloud providers', m: 'Run apps and services online, like Google, Microsoft, and Amazon Web Services.' },
+  { t: 'Hardware and software makers', m: 'Make the phones, routers, servers, browsers, and apps.' },
+  { t: 'Governments and regulators', m: 'Make laws and rules. In the Philippines, the <b>DICT</b> sets policy and the <b>NTC</b> regulates telecom and Internet companies.' },
+];
+const orgs = [
+  ['ICANN', 'coordinates the Internet\'s unique names and numbers: domain names and IP addresses.'],
+  ['IETF', 'Internet Engineering Task Force: develops Internet standards, like TCP/IP.'],
+  ['W3C', 'World Wide Web Consortium: develops Web standards, like HTML.'],
+  ['ISOC', 'Internet Society: supports an open Internet that everyone can use.'],
+  ['APNIC', 'gives out blocks of IP addresses in the Asia-Pacific region, including the Philippines.'],
+];
+const connSort = [
+  { t: 'Light through a thin glass line into the house', a: 0, why: 'That is fiber (FTTH): the fastest wired option.' },
+  { t: 'A SIM card in a pocket Wi-Fi', a: 1, why: 'It uses the cell towers: mobile data.' },
+  { t: 'A dish on the roof pointed at the sky', a: 2, why: 'Satellite Internet, for places with no cables or towers.' },
+  { t: 'The old telephone line', a: 0, why: 'That is DSL: a wired connection over copper phone lines.' },
+  { t: 'A 5G signal on your phone', a: 1, why: '5G is the newest generation of mobile data.' },
+  { t: 'A flat dish talking to a low Earth orbit satellite', a: 2, why: 'LEO satellite Internet, like Starlink.' },
+];
+const dnsSteps = [0, 1, 2, 3].map((i) => ({ pic: dnsPic(i), say: [
+  'You type <b>dorsu.edu.ph</b>. Names are easy for people, but computers find each other by <b>IP address</b>.',
+  'Your phone asks a <b>DNS server</b>: "What is the IP address of dorsu.edu.ph?"',
+  'The DNS server looks it up and answers with the IP address. (203.0.113.10 is a sample address, not the real one.)',
+  'Now your phone sends a request to the web server at that address, and the server sends the page back.',
+][i] }));
+
+const part1 = [
+  { q: 'The Internet began in 1969 as which network?', opts: ['NSFNET', 'ARPANET', 'The World Wide Web'], a: 1, why: 'ARPANET first connected four host computers in the United States in 1969.' },
+  { q: 'Who invented the World Wide Web, and where?', opts: ['Tim Berners-Lee, at CERN', 'Bill Gates, at Microsoft', 'The DICT, in Manila'], a: 0, why: 'Tim Berners-Lee invented the Web in 1989 while working at CERN.' },
+  { q: 'When did the Philippines get full Internet access?', opts: ['1969', 'March 29, 1994', '2010'], a: 1, why: 'PHNet, a DOST project, opened a 64 Kbps line to the United States on March 29, 1994.' },
+  { q: 'Which statement about the Internet today is correct?', opts: ['One company owns and runs it', 'It is a network of many separate networks that all use TCP/IP', 'It is the same thing as the Web'], a: 1, why: 'No single owner runs the whole Internet. The Web is one service on it.' },
+  { q: 'About how many people were online in 2025 (ITU)?', opts: ['About 1 billion', 'About 6 billion', 'Everyone on Earth'], a: 1, why: 'About 6 billion, around three-quarters of the world. About 2.2 billion people were still offline.' },
+];
+const part2 = [
+  { q: 'Which company type sells you your Internet connection?', opts: ['A content provider', 'An Internet service provider (ISP)', 'A hardware maker'], a: 1, why: 'An ISP connects you to the Internet for a fee.' },
+  { q: 'Which Philippine agency regulates telecom and Internet companies?', opts: ['NTC', 'DOH', 'PAGASA'], a: 0, why: 'The National Telecommunications Commission. The DICT sets policy.' },
+  { q: 'Which organization coordinates domain names and IP addresses?', opts: ['W3C', 'ICANN', 'IETF'], a: 1, why: 'ICANN coordinates the unique names and numbers. W3C works on Web standards; IETF on Internet standards.' },
+  { q: 'Which organization develops Web standards like HTML?', opts: ['W3C', 'APNIC', 'NTC'], a: 0, why: 'The World Wide Web Consortium.' },
+  { q: 'A YouTuber who uploads lessons is part of the Internet community as a:', opts: ['Content provider', 'Regulator', 'Infrastructure company'], a: 0, why: 'Content providers make what people see online.' },
+];
+const part3 = [
+  { q: 'Which is an IPv4 address?', opts: ['192.0.2.53', '2001:db8::53', 'dorsu.edu.ph'], a: 0, why: 'IPv4 = four numbers from 0 to 255 with dots. The second is IPv6; the third is a domain name.' },
+  { q: 'Why was IPv6 created?', opts: ['IPv4 ran short of addresses', 'IPv4 was too fast', 'To replace domain names'], a: 0, why: 'IPv4 has about 4.3 billion addresses, not enough for every device today. IPv6 has far more.' },
+  { q: 'What does DNS do?', opts: ['Turns domain names into IP addresses', 'Makes Wi-Fi faster', 'Blocks viruses'], a: 0, why: 'DNS works like a phone book for the Internet.' },
+  { q: 'In www.dorsu.edu.ph, which part is the country code?', opts: ['www', 'edu', 'ph'], a: 2, why: '.ph is the country code top-level domain of the Philippines.' },
+  { q: 'In juan.delacruz@dorsu.edu.ph, what is the part before the @?', opts: ['The username', 'The domain name', 'The IP address'], a: 0, why: 'Username @ domain. The domain tells which mail server holds the mailbox.' },
+];
+const part4 = [
+  { q: 'Which connection carries data as light all the way into the house?', opts: ['DSL', 'Fiber (FTTH)', 'Cable'], a: 1, why: 'Fiber to the home. DSL uses phone lines; cable uses the cable TV line.' },
+  { q: 'A fisherman\'s family on a remote island with no cables or cell signal needs Internet. Which fits best?', opts: ['Fiber', 'DSL', 'Satellite'], a: 2, why: 'Satellite reaches places that cables and towers do not.' },
+  { q: 'Why does a GEO satellite connection feel slower to respond than a LEO one?', opts: ['GEO satellites are about 35,786 km up, so signals travel much farther', 'GEO satellites are smaller', 'LEO uses cables'], a: 0, why: 'Longer trip = more delay (latency). LEO satellites fly below 1,000 km.' },
+  { q: 'What is latency?', opts: ['How much data fits per second', 'The delay before data starts to arrive', 'The monthly price'], a: 1, why: 'Latency is a delay, measured in milliseconds (ms). Gamers and video callers want it low.' },
+  { q: 'An ad says "up to 300 Mbps". What does "up to" mean?', opts: ['You always get 300 Mbps', '300 Mbps is the best case; real speeds can be lower', 'You get at least 300 Mbps'], a: 1, why: 'Speeds change with the time of day, Wi-Fi, and how many people share the line. Run a speed test.' },
+];
+const part5 = [
+  { q: 'You want pages with the exact phrase network topology. What do you type?', opts: ['network topology', '"network topology"', 'network -topology'], a: 1, why: 'Quotation marks search for the exact phrase.' },
+  { q: 'What does typing jaguar -car do?', opts: ['Shows only cars', 'Removes pages with the word car', 'Searches for "jaguar car"'], a: 1, why: 'The minus sign (no space after it) excludes a word.' },
+  { q: 'Which search finds only PDF files about network topologies?', opts: ['network topologies site:pdf', 'network topologies filetype:pdf', '"pdf" network topologies'], a: 1, why: 'filetype: limits results to one kind of file.' },
+  { q: 'In APA style, what goes in place of the date when a web page shows no date?', opts: ['(2026)', '(n.d.)', 'Nothing'], a: 1, why: 'n.d. means "no date".' },
+  { q: 'Which in-text citation is correct APA for a page by the group CERN with no date?', opts: ['(CERN, n.d.)', '[CERN]', '(home.cern)'], a: 0, why: 'Author and date in parentheses: (CERN, n.d.).' },
+];
+const part6 = [
+  { q: 'Which is a form of Internet communication other than email?', opts: ['A video call', 'A printed letter', 'A landline fax'], a: 0, why: 'Video calls, chat, social media, forums, and podcasts all run on the Internet.' },
+  { q: 'Making a call over the Internet instead of the phone network is called:', opts: ['VoIP', 'DSL', 'DNS'], a: 0, why: 'VoIP = voice over Internet Protocol. Messenger, Viber, and video meeting apps use it.' },
+  { q: 'Renewing a government ID or checking a government service through the eGov PH app is an example of:', opts: ['E-government', 'E-commerce', 'Online gaming'], a: 0, why: 'E-government = government services online. E-commerce = buying and selling.' },
+  { q: 'Buying a phone case on an online marketplace is:', opts: ['E-commerce', 'E-learning', 'E-government'], a: 0, why: 'Online buying and selling.' },
+];
+const part7 = [
+  { q: 'What is a cookie on the Web?', opts: ['A small file a website saves in your browser', 'A virus', 'A kind of cable'], a: 0, why: 'Cookies remember things like your login and cart. Third-party cookies can also track you across sites.' },
+  { q: 'Which Philippine law protects personal information?', opts: ['RA 10173, the Data Privacy Act of 2012', 'RA 10929', 'RA 12234'], a: 0, why: 'It also created the National Privacy Commission. RA 10929 is about free public Wi-Fi; RA 12234 is the Konektadong Pinoy Act.' },
+  { q: 'Your digital footprint is:', opts: ['The trail of data you leave online', 'The size of your phone', 'Your Wi-Fi password'], a: 0, why: 'Posts, photos, comments, searches, and app data all add to it, and much of it can stay online for years.' },
+  { q: 'What is Internet censorship?', opts: ['Blocking or removing online content so people cannot see it', 'Making the Internet faster', 'Backing up files'], a: 0, why: 'Governments, ISPs (on orders), or platforms can block or remove content.' },
+  { q: 'Under RA 11930, what must Philippine ISPs do with child sexual abuse material online?', opts: ['Block it within 24 hours of a proper notice', 'Nothing', 'Keep it online for evidence'], a: 0, why: 'The 2022 law requires blocking within 24 hours of notice and reporting to the DOJ.' },
+];
+const final = [
+  { q: 'Which is correct?', opts: ['The Web is a service that runs on the Internet', 'The Internet runs on the Web', 'They are the same'], a: 0, why: 'The Internet is the network; the Web is one service on it.' },
+  { q: 'Which happened first?', opts: ['The World Wide Web', 'ARPANET', 'Starlink'], a: 1, why: 'ARPANET 1969, the Web 1989, Starlink in the Philippines 2023.' },
+  { q: 'Who coordinates IP addresses and domain names?', opts: ['ICANN', 'Each ISP alone', 'Nobody'], a: 0, why: 'ICANN coordinates; registries such as APNIC hand out address blocks to ISPs.' },
+  { q: 'Which is an IPv6 address?', opts: ['203.0.113.10', '2001:db8::53', 'www.dorsu.edu.ph'], a: 1, why: 'IPv6 uses hexadecimal groups with colons.' },
+  { q: 'You type a domain name. Which system finds its IP address?', opts: ['DNS', 'HTTP', 'VPN'], a: 0, why: 'DNS turns names into IP addresses.' },
+  { q: 'Which domain ending is for Philippine government offices?', opts: ['.com.ph', '.gov.ph', '.org'], a: 1, why: 'Only eligible government agencies can use .gov.ph. Still check the full domain.' },
+  { q: 'Which connection type uses cell towers?', opts: ['Mobile data (4G, 5G)', 'Fiber', 'DSL'], a: 0, why: 'Mobile data reaches you by radio from the nearest cell tower.' },
+  { q: 'Which matters most for smooth online games and video calls, besides speed?', opts: ['Low latency', 'A long contract', 'A bigger router'], a: 0, why: 'Low latency means short delays.' },
+  { q: 'Which search keeps results to Philippine government sites only?', opts: ['site:gov.ph flood advisory', 'filetype:gov flood advisory', '"gov.ph" -flood'], a: 0, why: 'site: limits results to one site or domain.' },
+  { q: 'Why cite your sources?', opts: ['To give credit and let readers check your facts', 'To make the paper longer', 'Because search engines require it'], a: 0, why: 'Citing gives credit to the authors and lets readers find and check the source.' },
+  { q: 'A third-party cookie from an ad company is mainly used to:', opts: ['Track your visits across many websites', 'Speed up your Wi-Fi', 'Store your photos'], a: 0, why: 'It helps the ad company learn your interests and show you targeted ads.' },
+  { q: 'Both lessons: the Internet sends your data as...', opts: ['packets, using packet switching and TCP/IP', 'one long piece on a reserved path', 'paper mail'], a: 0, why: 'Computer networks, Parts 3 and 5.' },
+];
+---
+<Base title="The Internet and the World Wide Web · IT 110" description="The Internet and the Web: how the Internet began and what it is like today, who makes up the Internet community, IP addresses, DNS and domain names, connection options and choosing an ISP, searching and citing in APA, online communication and Web activities, and privacy and censorship." course={{ code: course.code, href: base + course.href }} theme="it110" toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>IT 110</a> › Midterm › Networks and the Internet</p>
+    <p class="kicker">Networks and the Internet · Lesson 2 of 2</p>
+    <h1>The Internet and the World Wide Web</h1>
+    <p class="lede">The biggest network of all: where it came from, who runs it, how it finds things, how you connect to it, and how to use it well and safely.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>discuss how the Internet evolved and describe what it is like today;</li>
+        <li>identify the people, companies, and organizations in the Internet community and their roles;</li>
+        <li>explain how computers, users, and web pages are identified: <b>IP addresses, DNS, domain names, URLs</b>, and email addresses;</li>
+        <li>describe ways to connect to the Internet, and what to consider when choosing an ISP;</li>
+        <li>search the Web effectively and <b>cite</b> web sources in APA style;</li>
+        <li>identify forms of online communication and useful Web activities;</li>
+        <li>discuss <b>privacy</b> and <b>censorship</b> issues on the Internet.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>Built from:</b> the IT 110 syllabus (Weeks 11–12) and the course textbook, checked against the sources at the end. <b>Before this:</b> <a href={base + '/it110/networks/'}>Computer networks</a>, and the <Peek label="Internet vs. the Web" title="From Weeks 3–4" html={webPeek} /> from your Weeks 3–4 lecture.</p>
+  </header>
+
+  <section class="chapter wrap" id="evolution">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · Evolution</p>
+      <h2>How the Internet began, and what it is like today</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Internet</p><p>The worldwide <b>network of networks</b>: millions of separate networks, owned by different groups, that connect because they all follow the same protocols, <Peek label="TCP/IP" title="From Computer networks" html={tcpPeek} />.</p></div>
+      <figure class="fig illus-fig illus"><Fragment set:html={netOfNets()} /><figcaption>A video you watch may travel through your home network, your ISP, national networks, and an undersea cable.</figcaption></figure>
+
+      <h3>A short timeline</h3>
+      <p>The Internet grew over more than 50 years. These are the key moments, from its start to the Philippines today:</p>
+      <ol class="tl">
+        <li><span class="yr">1969 · ARPANET</span>A U.S. government research network, ARPANET, connects its first four host computers, at UCLA, SRI, UC Santa Barbara, and the University of Utah. It uses <Peek label="packet switching" title="From Computer networks" html={pktPeek} />.</li>
+        <li><span class="yr">1983 · TCP/IP</span>On January 1, every computer on ARPANET switches to TCP/IP at the same time. Separate networks can now join together: the start of the Internet as we know it.</li>
+        <li><span class="yr">1989 · The Web is invented</span>Tim Berners-Lee, working at CERN in Switzerland, invents the World Wide Web. In 1990 he writes the first web browser, and the first website runs on his computer.</li>
+        <li><span class="yr">1993 · The Web is free for all</span>On April 30, CERN puts the Web's software in the public domain, so anyone can use it for free. Websites spread quickly.</li>
+        <li><span class="yr">1994 · The Philippines goes online</span>On March 29, PHNet, a DOST project, opens a 64 Kbps line to the United States and gives the country full Internet access.</li>
+        <li><span class="yr">1995 · Businesses take over</span>The U.S. stops funding its NSFNET backbone, and private companies carry the Internet's traffic from then on.</li>
+        <li><span class="yr">2023 · Internet from low orbit</span>Starlink satellite Internet becomes available in the Philippines in February, the first country in Southeast Asia to have it.</li>
+      </ol>
+      <div class="look">
+        <p class="note-label">The Web's building blocks</p>
+        <p>Berners-Lee's Web used three ideas that we still use: <b>HTML</b> (the language web pages are written in), <b>URLs</b> (addresses for pages), and <b>HTTP</b> (the protocol that sends pages). Today, <b>CSS</b> styles how pages look.</p>
+      </div>
+
+      <h3>The Internet today</h3>
+      <p>The Internet now looks very different from ARPANET. Here are some of its main features today:</p>
+      <ul>
+        <li><b>It is huge:</b> about <b>6 billion</b> people were online in 2025, around three-quarters of the world (ITU).</li>
+        <li><b>It is not equal:</b> about <b>2.2 billion</b> people were still offline. Speed, price, and signal still differ a lot between places, like a city and a far barangay.</li>
+        <li><b>It is mostly mobile:</b> many people, including many Filipinos, go online mainly on a phone with mobile data.</li>
+        <li><b>It runs on the cloud:</b> apps, files, and videos are kept in <b>data centers</b> full of servers, not on your own device.</li>
+        <li><b>No one owns it:</b> it is many networks working together. Organizations coordinate it (Part 2), but no single company or government runs the whole Internet.</li>
+      </ul>
+      <Fragment set:html={photo('dataCenter', 'Inside a data center: rows of servers that keep apps, files, and videos online.')} />
+
+      <div class="sub">
+        <h3>Quick check: Part 1</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p1" questions={part1} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="community">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · The Internet community</p>
+      <h2>Who makes up the Internet community</h2>
+    </div>
+    <div class="flow">
+      <p>Since no one owns the Internet, it works because many people and groups each do their part. These are the main members of the <b>Internet community</b> and their roles:</p>
+      <div class="fn-grid">
+        {community.map((c) => (<div class="fn-card"><p class="fn-t">{c.t}</p><p set:html={c.m} /></div>))}
+      </div>
+      <p>A few organizations <b>coordinate</b> the Internet so the pieces keep working together. They do not own it or control what people post. Five you should know are:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Organization</th><th>Role</th></tr></thead>
+        <tbody>
+          {orgs.map(([n, r]) => (<tr><td><b>{n}</b></td><td>{r}</td></tr>))}
+        </tbody>
+      </table></div>
+      <div class="look">
+        <p class="note-label">Philippine laws to know</p>
+        <p><b>RA 10929</b> (2017), the Free Internet Access in Public Places Act, brings free Wi-Fi to public places such as government offices, public schools and state universities, parks, and terminals, with at least 2 Mbps per user. <b>RA 12234</b> (2025), the Konektadong Pinoy Act, aims to bring more affordable, reliable Internet by opening the industry to more providers, which register with the NTC.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 2</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p2" questions={part2} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="identify">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Identifying things online</p>
+      <h2>How computers, users, and web pages are identified</h2>
+    </div>
+    <div class="flow">
+      <p>To send data to the right place, everything on the Internet needs an address. There are three kinds you should know: <b>IP addresses</b> for devices, <b>domain names</b> and <b>URLs</b> for websites and pages, and <b>usernames</b> and <b>email addresses</b> for people.</p>
+
+      <h3>IP addresses: for devices</h3>
+      <div class="def"><p class="note-label">IP address</p><p>A number that identifies a device on a network, so packets can be delivered to it. There are two versions in use today.</p></div>
+      <figure class="fig illus-fig illus"><Fragment set:html={ipAnatomy()} /><figcaption>The addresses shown are sample addresses set aside for examples.</figcaption></figure>
+      <p>IPv4 addresses are running out, so the Internet is slowly moving to <b>IPv6</b>. Both are in use at the same time. ICANN gives blocks of addresses to regional registries (APNIC for our region), which give smaller blocks to ISPs, which give addresses to their customers.</p>
+      <div class="look">
+        <p class="note-label">Good to know</p>
+        <p>Your home router usually gives your devices <b>private</b> addresses that work only inside your home, often starting with <span class="mono">192.168</span>. Your whole home shares the address your ISP gives it on the Internet.</p>
+      </div>
+
+      <h3>Domain names and DNS: for websites</h3>
+      <p>Numbers are hard for people to remember, so websites also have names. A <b>domain name</b> is the easy-to-remember name of a website, like <span class="mono">dorsu.edu.ph</span>. Each part of it means something:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={domainParts()} /><figcaption>The last part is the top-level domain (TLD).</figcaption></figure>
+      <p>The last part, the <b>top-level domain (TLD)</b>, comes in two main kinds:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Kind</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td><b>Generic TLDs</b></td><td><span class="mono">.com</span> (commercial), <span class="mono">.org</span> (organizations), <span class="mono">.net</span>, <span class="mono">.edu</span>, <span class="mono">.gov</span></td></tr>
+          <tr><td><b>Country code TLDs</b></td><td><span class="mono">.ph</span> (Philippines), <span class="mono">.jp</span> (Japan), <span class="mono">.uk</span> (United Kingdom)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Under <span class="mono">.ph</span>, Philippine sites use groups such as <span class="mono">.com.ph</span>, <span class="mono">.edu.ph</span>, and <span class="mono">.gov.ph</span>. But computers still need the IP address. The <b>Domain Name System (DNS)</b> is the Internet's "phone book": it turns a domain name into its IP address. Tap Next to see a lookup:</p>
+      <StepShow id="dns" steps={dnsSteps} cap="A DNS lookup" hint="Tap Next. The orange arrow is what happens in that step." />
+
+      <h3>URLs: for pages</h3>
+      <p>A domain name leads to a whole website. A <Peek label="URL" title="From Weeks 3–4" html={urlPeek} /> leads to <b>one page or file</b> on it, so it adds the protocol in front and the path after the domain name.</p>
+
+      <h3>Usernames and email addresses: for people</h3>
+      <p>People are identified online by <b>usernames</b> (account names) and <b>email addresses</b>. An email address has two parts around the <b>@</b> ("at") sign:</p>
+      <p class="mono" style="text-align:center;font-size:1.1rem"><b style="color:var(--teal)">juan.delacruz</b>@<b style="color:var(--orange)">dorsu.edu.ph</b></p>
+      <ul>
+        <li><b>Before the @:</b> the username, which names one mailbox.</li>
+        <li><b>After the @:</b> the domain name of the organization or service that holds the mailbox.</li>
+      </ul>
+
+      <div class="sub">
+        <h3>Quick check: Part 3</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p3" questions={part3} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="connect">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Getting connected</p>
+      <h2>Connection options and choosing an ISP</h2>
+    </div>
+    <div class="flow">
+      <p>To go online you need two things: a <b>device</b> that can connect (a phone, computer, smart TV, or game console) and a <b>connection</b> from an Internet service provider. Today's fast, always-on connections are called <b>broadband</b>. The table lists the main kinds:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Connection</th><th>How it reaches you</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><b>Fiber (FTTH)</b></td><td>light through fiber optic cable, all the way to the home</td><td>the fastest and most stable home option, where available</td></tr>
+          <tr><td><b>DSL</b></td><td>the copper telephone line</td><td>older; the farther from the provider's equipment, the slower</td></tr>
+          <tr><td><b>Cable</b></td><td>the coaxial cable TV line</td><td>shares the line with cable TV</td></tr>
+          <tr><td><b>Mobile data (4G, 5G)</b></td><td>radio from the nearest cell tower</td><td>works anywhere with signal; often has data limits</td></tr>
+          <tr><td><b>Fixed wireless</b></td><td>radio from a tower to an antenna on your house</td><td>for areas without cables; needs a clear line to the tower</td></tr>
+          <tr><td><b>Satellite</b></td><td>a dish that talks to a satellite</td><td>reaches remote places; weather can affect it</td></tr>
+        </tbody>
+      </table></div>
+      <Fragment set:html={photoRow([['fiberDrop', 'A fiber cable: the line for fiber Internet.'], ['pocketWifi', 'Pocket Wi-Fi: mobile data shared with nearby devices.']])} />
+      <div class="look">
+        <p class="note-label">Do not forget: Wi-Fi hotspots</p>
+        <p>A <b>Wi-Fi hotspot</b> is a place where you can connect to someone else's Wi-Fi, like a café or a campus. Under RA 10929, many public places offer free Wi-Fi. Public Wi-Fi is shared with strangers, so avoid logging in to banks or entering passwords on it.</p>
+      </div>
+
+      <h3>Satellite: high or low?</h3>
+      <p>Satellite Internet comes in two kinds, and the difference is <b>how high</b> the satellites fly:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={geoLeo()} /><figcaption>The farther the satellite, the longer each signal takes to go up and come back down.</figcaption></figure>
+      <div class="two-col">
+        <div class="def"><p class="note-label">GEO satellite</p><p>Sits about <b>35,786 km</b> above the Earth and seems to stay in one spot. One satellite covers a huge area, but the long trip adds delay.</p></div>
+        <div class="def"><p class="note-label">LEO satellite</p><p>Flies in <b>low Earth orbit</b>, below 1,000 km, and moves across the sky. Many satellites work together. Shorter trip, much less delay. Example: Starlink.</p></div>
+      </div>
+      <Fragment set:html={photoRow([['vsat', 'A satellite dish set up in a remote camp.'], ['starlink', 'A flat dish for LEO satellite Internet.']])} />
+      <h3>Practice: name the connection</h3>
+      <p>Tap the kind of connection.</p>
+      <SortTap id="sort-conn" cats={['Wired line', 'Mobile data', 'Satellite']} items={connSort} />
+
+      <h3>Choosing an ISP</h3>
+      <p>Before you sign up, compare providers on these points. They are a checklist, not a ranking:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Check</th><th>Ask yourself</th></tr></thead>
+        <tbody>
+          <tr><td><b>Availability</b></td><td>Does this ISP actually serve my street or barangay?</td></tr>
+          <tr><td><b>Speed</b></td><td>How many Mbps for download and upload? Ads say "up to", the best case.</td></tr>
+          <tr><td><b>Latency</b></td><td>How long is the delay (in ms)? Low is better for games and video calls.</td></tr>
+          <tr><td><b>Data limits</b></td><td>Is it unlimited, or is there a cap or a "fair use" limit?</td></tr>
+          <tr><td><b>Total cost</b></td><td>Monthly fee, installation fee, and the equipment.</td></tr>
+          <tr><td><b>Contract</b></td><td>How long is the lock-in period? What does it cost to cancel early?</td></tr>
+          <tr><td><b>Reliability and support</b></td><td>Do neighbors say it goes down often? How fast are repairs?</td></tr>
+        </tbody>
+      </table></div>
+      <div class="def"><p class="note-label">Latency</p><p>The <b>delay</b> before data starts to arrive, measured in milliseconds (ms). Speed tests call it <b>ping</b>. Bandwidth is how much data comes; latency is how long you wait for it.</p></div>
+
+      <div class="sub">
+        <h3>Quick check: Part 4</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p4" questions={part4} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="search">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Searching and citing</p>
+      <h2>Searching the Web and citing web sources</h2>
+    </div>
+    <div class="flow">
+      <p>A <b>search engine</b>, like Google or Bing, is a website that finds pages for the words you type. Good searching saves time, and good citing gives credit. This part covers both.</p>
+
+      <h3>Search techniques</h3>
+      <p>Start with <b>specific keywords</b>: <i>six basic types of computers</i> works better than <i>computer</i>. Then use <b>search operators</b>, special symbols and words that tell the search engine exactly what you want. These work in Google:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Operator</th><th>What it does</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><span class="mono">" "</span></td><td>exact phrase</td><td><span class="mono">"network topology"</span></td></tr>
+          <tr><td><span class="mono">-</span></td><td>removes a word (no space after the minus)</td><td><span class="mono">jaguar -car</span></td></tr>
+          <tr><td><span class="mono">OR</span></td><td>either word (in capital letters)</td><td><span class="mono">fiber OR DSL</span></td></tr>
+          <tr><td><span class="mono">site:</span></td><td>only one site or domain</td><td><span class="mono">site:gov.ph flood advisory</span></td></tr>
+          <tr><td><span class="mono">filetype:</span></td><td>only one kind of file</td><td><span class="mono">network topology filetype:pdf</span></td></tr>
+          <tr><td><span class="mono">after:</span> / <span class="mono">before:</span></td><td>only pages updated after or before a date</td><td><span class="mono">5G Philippines after:2025</span></td></tr>
+        </tbody>
+      </table></div>
+      <p>Found something? Check it before you use it, with the <Peek label="four questions" title="From Weeks 3–4" html={credPeek} /> from your Weeks 3–4 lecture.</p>
+
+      <h3>Citing web sources in APA style</h3>
+      <p>When you use someone else's facts, words, or pictures, you <b>cite</b> them: you say where they came from. Citing gives the authors credit and lets readers check your facts. Copying without citing is <b>plagiarism</b>.</p>
+      <p>APA style (7th edition) cites in two places: a short <b>in-text citation</b> in your sentence, and a full <b>reference</b> in the list at the end. A reference for a web page has five parts, in this order:</p>
+      <div class="def apa-key"><p class="note-label">APA reference for a web page</p>
+        <p><span class="apa-a">Author.</span> <span class="apa-d">(Date).</span> <span class="apa-t"><i>Title of the page</i>.</span> <span class="apa-s">Site name.</span> <span class="apa-u">URL</span></p>
+      </div>
+      <p>Some rules for each part:</p>
+      <ul>
+        <li><b>Author:</b> a person as <i>Last name, Initials</i> (Dela Cruz, J. P.), or a group (a company, agency, or school) by its full name.</li>
+        <li><b>Date:</b> the most exact date shown: (2025, November 17). No date on the page? Write <b>(n.d.)</b>, for "no date".</li>
+        <li><b>Title:</b> in <i>italics</i>. Capitalize only the first word, the first word after a colon, and names.</li>
+        <li><b>Site name:</b> leave it out if it is the same as the author.</li>
+        <li><b>Retrieval date:</b> only for pages that keep changing, like a live counter: "Retrieved November 9, 2026, from" before the URL.</li>
+      </ul>
+      <p>Two real references from this lesson, made with these rules:</p>
+      <div class="sticky">
+        <p class="note-label">Examples</p>
+        <p class="hang">CERN. (n.d.). <i>The birth of the Web</i>. https://home.cern/science/computing/the-birth-of-the-web</p>
+        <p class="hang">International Telecommunication Union. (2025, November 17). <i>Global number of Internet users increases, but disparities deepen key digital divides</i>. https://www.itu.int/en/mediacentre/Pages/PR-2025-11-17-Facts-and-Figures.aspx</p>
+        <p>In-text: <b>(CERN, n.d.)</b> or <b>(International Telecommunication Union, 2025)</b>. In a sentence: <b>CERN (n.d.) explains that...</b></p>
+      </div>
+
+      <h3>Try it: build a reference</h3>
+      <p>Fill in the parts from any web page, and see your reference and in-text citation. Nothing is saved or sent.</p>
+      <div class="apa-form" id="apa-form">
+        <label>Author (person: Last, F. M. · or a group name)<input type="text" data-k="a" placeholder="Department of Information and Communications Technology" /></label>
+        <label>Date (2025, May 3 · or n.d.)<input type="text" data-k="d" placeholder="n.d." /></label>
+        <label>Title of the page<input type="text" data-k="t" placeholder="Free Wi-Fi for all" /></label>
+        <label>Site name (leave blank if same as author)<input type="text" data-k="s" placeholder="" /></label>
+        <label>URL<input type="text" data-k="u" placeholder="https://..." /></label>
+        <p class="apa-out" aria-live="polite"><b>Reference:</b> <span data-out="ref">Fill in the boxes above.</span></p>
+        <p class="apa-out"><b>In-text:</b> <span data-out="cite">(Author, date)</span></p>
+      </div>
+      <script is:inline>
+        (function () {
+          var f = document.getElementById('apa-form'); if (!f) return;
+          var ins = f.querySelectorAll('input'), ref = f.querySelector('[data-out="ref"]'), cite = f.querySelector('[data-out="cite"]');
+          function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+          function dot(s) { return /[.?!]$/.test(s) ? s : s + '.'; }
+          function upd() {
+            var v = {}; ins.forEach(function (i) { v[i.dataset.k] = i.value.trim(); });
+            if (!v.a && !v.t) { ref.textContent = 'Fill in the boxes above.'; cite.textContent = '(Author, date)'; return; }
+            var d = v.d || 'n.d.', out = esc(dot(v.a || 'Author')) + ' (' + esc(d) + '). <i>' + esc(v.t || 'Title') + '</i>' + (/[.?!]$/.test(v.t) ? ' ' : '. ');
+            if (v.s && v.s.toLowerCase() !== (v.a || '').toLowerCase()) out += esc(dot(v.s)) + ' ';
+            out += esc(v.u || 'URL');
+            ref.innerHTML = out;
+            var who = (v.a || 'Author'), person = /,\s*[A-Z]\./.test(who);
+            cite.textContent = '(' + (person ? who.split(',')[0] : who.replace(/\.$/, '')) + ', ' + (d.toLowerCase() === 'n.d.' ? 'n.d.' : (d.match(/\d{4}/) || [d])[0]) + ')';
+          }
+          ins.forEach(function (i) { i.addEventListener('input', upd); });
+        })();
+      </script>
+
+      <div class="sub">
+        <h3>Quick check: Part 5</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p5" questions={part5} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="activities">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Online communication and Web activities</p>
+      <h2>Communicating and getting things done online</h2>
+    </div>
+    <div class="flow">
+      <p>Email is only one way to communicate on the Internet. These are other common forms of <b>Internet communication</b>:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Form</th><th>What it is</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td><b>Messaging</b></td><td>short text, photo, and voice messages in real time</td><td>Messenger, Viber, Telegram</td></tr>
+          <tr><td><b>VoIP and video calls</b></td><td>voice over Internet Protocol: calls over the Internet instead of the phone network</td><td>Messenger calls, Google Meet, Zoom</td></tr>
+          <tr><td><b>Social networking</b></td><td>sharing posts, photos, and videos with friends and followers</td><td>Facebook, TikTok, Instagram</td></tr>
+          <tr><td><b>Online communities and forums</b></td><td>group discussions on one topic</td><td>your class Discord server, Facebook groups</td></tr>
+          <tr><td><b>Blogs, vlogs, and podcasts</b></td><td>articles, videos, or audio shows that people publish</td><td>YouTube channels, Spotify podcasts</td></tr>
+          <tr><td><b>Webinars</b></td><td>live online seminars, talks, and classes</td><td>online training sessions</td></tr>
+        </tbody>
+      </table></div>
+      <p>The Web also lets you get many things done without leaving home. These are useful <b>Web activities</b>:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Activity</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><b>Research and news</b></td><td>finding reliable sources for a report; reading the news</td></tr>
+          <tr><td><b>E-learning</b></td><td>online classes, Google Classroom, lessons like this site</td></tr>
+          <tr><td><b>E-commerce</b></td><td>buying and selling online, on marketplaces like Shopee or Lazada</td></tr>
+          <tr><td><b>Online banking and e-wallets</b></td><td>paying bills or sending money with a bank app, GCash, or Maya</td></tr>
+          <tr><td><b>E-government</b></td><td>government services online, like the DICT's eGov PH app (launched 2023)</td></tr>
+          <tr><td><b>Entertainment</b></td><td>streaming music and shows, online games</td></tr>
+          <tr><td><b>Cloud storage</b></td><td>keeping files in Google Drive or iCloud to open on any device</td></tr>
+          <tr><td><b>Job hunting and working online</b></td><td>finding jobs, freelancing, working from home</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="sub">
+        <h3>Quick check: Part 6</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p6" questions={part6} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="privacy">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 7 · Privacy and censorship</p>
+      <h2>Internet privacy and censorship</h2>
+    </div>
+    <div class="flow">
+      <h3>Privacy: who sees your data?</h3>
+      <div class="def"><p class="note-label">Privacy</p><p>Your right to control who collects, sees, and uses <b>information about you</b>: your name, location, photos, messages, and what you do online.</p></div>
+      <p>Every time you go online, you leave data behind. Two common ways it is collected are <b>cookies</b> and your <b>digital footprint</b>:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Cookie</p><p>A small file that a website saves in your browser, so it can remember you: your login, language, or shopping cart.</p></div>
+        <div class="def"><p class="note-label">Digital footprint</p><p>The trail of data you leave online: posts, photos, comments, searches, and the data apps collect about you.</p></div>
+      </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={cookiePic()} /><figcaption>First-party cookies are from the site you visit. Third-party cookies are from another company, usually for ads.</figcaption></figure>
+      <p>In the Philippines, <b>RA 10173</b>, the <b>Data Privacy Act of 2012</b>, protects personal information. It says how organizations may collect and use it, gives people rights over their data (such as the right to be informed and to object), and created the <b>National Privacy Commission (NPC)</b> to enforce it.</p>
+      <p>You can protect your own privacy with a few habits:</p>
+      <ul>
+        <li>Check your <b>privacy settings</b> on social media: who can see your posts?</li>
+        <li>Check <b>app permissions</b>: does a flashlight app really need your contacts and location?</li>
+        <li>Choose <b>"reject"</b> or "necessary only" on cookie banners when you can.</li>
+        <li><b>Think before you post:</b> what you upload can stay online for years and be seen by future employers.</li>
+        <li>Know that <b>private (incognito) browsing</b> only stops your own device from saving your history. Websites and your ISP can still see your activity.</li>
+      </ul>
+
+      <h3>Censorship: who decides what you can see?</h3>
+      <div class="def"><p class="note-label">Internet censorship</p><p>Blocking, filtering, or removing online content so people cannot see or share it. It can be done by governments, by ISPs on official orders, or by platforms that remove posts.</p></div>
+      <p>Countries censor in very different ways. Here are three real examples, from narrow to broad:</p>
+      <ul>
+        <li><b>Protecting children:</b> under <b>RA 11930</b> (2022), Philippine ISPs must block child sexual abuse material within 24 hours of a proper notice and report it to the DOJ.</li>
+        <li><b>Blocking illegal businesses:</b> in December 2025, at the request of the Bangko Sentral ng Pilipinas, the NTC ordered ISPs to block 50 unregistered online crypto trading platforms.</li>
+        <li><b>Blocking whole services:</b> China blocks many foreign sites and apps, including Google, Facebook, and YouTube.</li>
+      </ul>
+      <div class="look">
+        <p class="note-label">Two sides of the debate</p>
+        <p>Supporters say some blocking protects people from crime, scams, and harmful content. Critics warn that blocking can go too far: it can silence news, criticism, or ideas the public has a right to see. Many people agree on blocking material like child abuse, but argue over where the line should be and <b>who</b> should draw it.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 7</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p7" questions={part7} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="self-check">
+    <div class="chapter-head">
+      <p class="chapter-num">Self-check</p>
+      <h2>Self-check: the Internet and the Web</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Use this to see what you remember from the whole lesson, then go back to any part you missed.</p>
+
+      <h3>Do not confuse: summary</h3>
+      <p>These pairs are often mixed up. The right column says what makes the two different:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>These two...</th><th>...are different because</th></tr></thead>
+        <tbody>
+          <tr><td><b>Internet vs. the Web</b></td><td>the worldwide network vs. one service on it: linked web pages</td></tr>
+          <tr><td><b>ARPANET vs. the Web</b></td><td>the 1969 network that grew into the Internet vs. the 1989 invention of web pages</td></tr>
+          <tr><td><b>IP address vs. domain name</b></td><td>a number for computers vs. a name for people; DNS links the two</td></tr>
+          <tr><td><b>Domain name vs. URL</b></td><td>a whole website vs. one page on it</td></tr>
+          <tr><td><b>IPv4 vs. IPv6</b></td><td>32 bits, about 4.3 billion addresses vs. 128 bits, far more</td></tr>
+          <tr><td><b>ICANN vs. NTC</b></td><td>coordinates names and numbers worldwide vs. regulates Philippine telecom</td></tr>
+          <tr><td><b>GEO vs. LEO</b></td><td>about 35,786 km up, more delay vs. below 1,000 km, less delay</td></tr>
+          <tr><td><b>Bandwidth vs. latency</b></td><td>how much data per second vs. how long the delay is</td></tr>
+          <tr><td><b>Browser vs. search engine</b></td><td>the app that shows web pages vs. a website that finds them</td></tr>
+          <tr><td><b>Reference vs. in-text citation</b></td><td>the full entry at the end vs. (Author, date) in your sentence</td></tr>
+          <tr><td><b>Privacy vs. censorship</b></td><td>who sees YOUR data vs. what content you are ALLOWED to see</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Try it at home</h3>
+      <p>No need to submit anything:</p>
+      <ol>
+        <li>Run a speed test on your phone (search for "speed test"). Write down the download speed, upload speed, and ping. Try again at a different time of day.</li>
+        <li>Search <span class="mono">site:gov.ph</span> plus a topic you care about. Compare the results with a normal search.</li>
+        <li>Open your phone's settings and check which apps can use your location.</li>
+      </ol>
+
+      <h3>Final quiz</h3>
+      <p>Twelve questions: eleven from this lesson and one that mixes both lessons.</p>
+      <Quiz id="quiz-final" questions={final} />
+
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li><b>Evolution:</b> ARPANET (1969) → TCP/IP (1983) → the Web (1989; free in 1993) → the Philippines online (1994). Today about 6 billion people are online, and no one owns the whole Internet.</li>
+          <li><b>Community:</b> users, ISPs, infrastructure companies, content and cloud providers, hardware and software makers, and governments; ICANN, IETF, W3C, ISOC, and APNIC coordinate. In the Philippines, the DICT sets policy and the NTC regulates.</li>
+          <li><b>Identification:</b> IP addresses (IPv4, IPv6) for devices; domain names and URLs for sites and pages, linked to IP addresses by DNS; usernames and email addresses for people.</li>
+          <li><b>Connecting:</b> fiber, DSL, cable, mobile data, fixed wireless, and satellite (GEO or LEO); compare ISPs on availability, speed, latency, data limits, cost, contract, and support.</li>
+          <li><b>Searching and citing:</b> specific keywords and operators (" ", -, OR, site:, filetype:); APA references: Author. (Date). <i>Title</i>. Site. URL.</li>
+          <li><b>Activities:</b> messaging, VoIP and video calls, social media, forums, podcasts; e-learning, e-commerce, e-banking, e-government, and more.</li>
+          <li><b>Privacy and censorship:</b> cookies and your digital footprint; RA 10173 and the NPC; blocking ranges from narrow (child protection) to broad (whole services).</li>
+        </ol>
+      </div>
+      <p><b>Next:</b> <a href={base + course.href}>Back to the IT 110 lessons</a>. Network and Internet security comes after the midterm.</p>
+    </div>
+  </section>
+
+  <section class="wrap" id="refs">
+    <div class="flow">
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Davao Oriental State University, <i>IT 110: Introduction to Computing, Syllabus</i>, A.Y. 2026–2027 (Weeks 11–12).</li>
+          <li>D. Morley and C. S. Parker, <i>Understanding Computers: Today and Tomorrow</i>. Cengage Learning, 2015 (Chapter 8, The Internet and the World Wide Web).</li>
+          <li>A. C. J. J. Nanual, <i>IT 110 Weeks 3–4 Lecture: Introduction to the World of Computers</i>. Davao Oriental State University, 2026.</li>
+          <li>B. M. Leiner et al., "Brief history of the Internet," Internet Society.</li>
+          <li>DARPA, "ARPANET," DARPA feature.</li>
+          <li>CERN, "The birth of the Web."</li>
+          <li>PHNet, "History," ph.net (Philippine Internet history, PHNet project of the DOST).</li>
+          <li>International Telecommunication Union (ITU), "Facts and Figures 2025," press release, 17 November 2025.</li>
+          <li>ICANN, "Beginner's guides," and "Beginner's guide to Internet Protocol (IP) addresses."</li>
+          <li>IANA, "Delegation record for .PH."</li>
+          <li>Republic Act No. 10929 (2017), Free Internet Access in Public Places Act; Republic Act No. 12234 (2025), Konektadong Pinoy Act. Lawphil.</li>
+          <li>U.S. Federal Communications Commission, "Types of broadband connections," broadband.gov (archived).</li>
+          <li>European Space Agency, "Types of orbits."</li>
+          <li>Manila Bulletin, "First in Southeast Asia: DICT welcomes Musk's Starlink to PH," 24 February 2023.</li>
+          <li>Google Search Help, "Refine Google searches."</li>
+          <li>American Psychological Association, "Webpage on a website references," APA Style, 7th edition.</li>
+          <li>PIA, "DICT XI launches eGov PH super app to streamline gov't transactions, services," 6 June 2023.</li>
+          <li>Republic Act No. 10173 (2012), Data Privacy Act of 2012; National Privacy Commission.</li>
+          <li>Republic Act No. 11930 (2022), Anti-OSAEC and Anti-CSAEM Act, Section 9.</li>
+          <li>GMA News, "NTC takes down 50 unregistered online trading platforms upon BSP request," December 2025.</li>
+          <li>Internet Society Pulse, "Content blocking in China."</li>
+          <li>U.S. Federal Trade Commission, "How to protect your privacy online," Consumer Advice.</li>
+        </ol>
+        <p class="note-label">Photo credits</p>
+        <p>Real-life photos are from Wikimedia Commons, used under the free licenses shown. Brand names in the photos are there only because the photographers used those products; this lesson does not recommend any brand. The drawings were made for this lesson.</p>
+        <ul set:html={photoCredits(photoKeys)} />
+      </div>
+    </div>
+  </section>
+</Base>

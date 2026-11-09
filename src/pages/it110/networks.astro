@@ -1,0 +1,610 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
+import StepShow from '../../components/StepShow.astro';
+import SortTap from '../../components/SortTap.astro';
+import { course } from '../../data/it110.js';
+import { ico, wiredWireless, orgNets, wifiBands, netHome, topo, cliServP2p, netSizes, vpnTunnel, bandwidthPipe, analogDigital, serialParallel, duplex, packetPic, fiberLight, wirelessReach, microwaveSat, tcpIp, homeSetup, switchRouter } from '../../lib/it110-net-pics.js';
+import { photo, photoRow, photoCredits } from '../../data/it110-photos.js';
+// real-life photos used on this page, in page order (credits listed in References)
+const photoKeys = ['utp', 'rj45', 'coax', 'fiberGlow', 'fiberDrop', 'cellMast', 'mwDish', 'vsat', 'irRemote', 'nic', 'usbWifi', 'modem', 'pocketWifi', 'switchPh', 'routerPh', 'apCeil', 'extender', 'mesh'];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Peeks back to earlier lessons (her rule: a back-reference comes with its meaning right there)
+const bitPeek = '<p>A <b>bit</b> is one 0 or 1, the smallest piece of data. <b>8 bits = 1 byte</b>. (Week 5 module: Processing and memory.)</p>';
+const netPeek = '<p>From your Weeks 3–4 lecture: a <b>computer network</b> is a group of two or more connected devices that can communicate and share resources. Networks come in sizes: your home Wi-Fi, the DOrSU campus network, and the biggest one, the Internet.</p>';
+
+const topoCards = [
+  { k: 'star', t: 'Star', m: 'Every device connects to one <b>central device</b>, usually a switch. The most common layout in homes, offices, and computer labs today.' },
+  { k: 'bus', t: 'Bus', m: 'Every device connects to <b>one main cable</b> (the bus), with a stopper (terminator) at each end. Found mostly in older networks.' },
+  { k: 'ring', t: 'Ring', m: 'Devices connect in a <b>closed loop</b>. Data travels around the ring from one device to the next, in one direction.' },
+  { k: 'mesh', t: 'Mesh', m: 'Devices connect to <b>many other devices</b>, so there are several paths between them. Full mesh: every device connects to every other one.' },
+];
+const purposeCards = [
+  { i: 'internet', t: 'Share an Internet connection', m: 'One fiber line at home serves every phone and laptop in the house.' },
+  { i: 'printer', t: 'Share devices (hardware)', m: 'One printer in the faculty office serves all the computers there.' },
+  { i: 'files', t: 'Share files and data', m: 'The registrar\'s office and the cashier see the same student records.' },
+  { i: 'chat', t: 'Communicate', m: 'Chat, email, voice and video calls, class announcements on Discord.' },
+  { i: 'together', t: 'Work together', m: 'Your group edits one Google Docs report at the same time.' },
+  { i: 'software', t: 'Share software', m: 'A school buys one site license so every lab computer can use an app.' },
+];
+const sizeSort = [
+  { t: 'Your phone connected to your Bluetooth earbuds and smartwatch', a: 0, why: 'Devices around one person, a few meters apart: a PAN.' },
+  { t: 'The computers and printer in one computer lab', a: 1, why: 'One room or building: a LAN.' },
+  { t: 'A network that links the offices and CCTV cameras across a whole city', a: 2, why: 'A city-wide network: a MAN.' },
+  { t: 'A bank network that links its branches in Luzon, Visayas, and Mindanao', a: 3, why: 'A whole country: a WAN.' },
+  { t: 'The Wi-Fi network inside your house', a: 1, why: 'A home is a small area: a LAN (a wireless LAN, or WLAN).' },
+  { t: 'The Internet', a: 3, why: 'The biggest WAN of all: it covers the world.' },
+];
+const mediaSort = [
+  { t: 'Ethernet cable with an RJ-45 plug', a: 0, why: 'It is twisted-pair cable: copper wires inside, so it is wired.' },
+  { t: 'The signal between your phone and a cell tower', a: 1, why: 'Cellular radio signals travel through the air: wireless.' },
+  { t: 'The thin glass line that brings fiber Internet to a house', a: 0, why: 'Fiber optic cable is a physical cable: wired.' },
+  { t: 'A TV remote changing the channel', a: 1, why: 'Infrared light through the air: wireless.' },
+  { t: 'The cable TV line (coaxial cable)', a: 0, why: 'Coaxial cable is a physical copper cable: wired.' },
+  { t: 'A satellite dish on a remote island school', a: 1, why: 'Signals go up to a satellite and back down: wireless.' },
+];
+const pktSteps = [0, 1, 2, 3, 4].map((i) => ({ pic: packetPic(i), say: [
+  'Ana sends Ben a message: <b>Happy birthday!</b> Between them is a network of <b>routers</b> (the blue circles).',
+  'Her computer cuts the message into small pieces called <b>packets</b>. Each packet gets a <b>number</b> (1/3, 2/3, 3/3) and <b>Ben\'s address</b>.',
+  'Each packet travels on its own. The routers pass each one along a route that is free at that moment, so packets can take <b>different routes</b>.',
+  'The packets can arrive <b>out of order</b>. Here, 2 and 3 arrive before 1.',
+  'Ben\'s computer uses the numbers to put the packets <b>back in order</b>. If one is missing, it asks for it again.',
+][i] }));
+
+// Part quizzes (for self-study, not for grading)
+const part1 = [
+  { q: 'What is a computer network?', opts: ['One computer with many apps', 'Two or more connected devices that can communicate and share resources', 'Only the Internet'], a: 1, why: 'Even two phones sharing files over Bluetooth form a small network. The Internet is the biggest network.' },
+  { q: 'A family has one fiber line, and five phones use it at the same time. Which purpose of a network is this?', opts: ['Sharing an Internet connection', 'Sharing software', 'Sharing a printer'], a: 0, why: 'The home network shares one Internet connection with every device.' },
+  { q: 'Ten computers in an office all print to one printer. Which purpose is this?', opts: ['Sharing devices (hardware)', 'Communicating', 'Sharing files'], a: 0, why: 'The printer is hardware that the whole network shares.' },
+  { q: 'Your group edits the same Google Docs report at the same time from different barangays. Which purpose is this?', opts: ['Sharing a printer', 'Working together (collaboration)', 'Sharing software licenses'], a: 1, why: 'The network lets everyone work on one shared file at once.' },
+];
+const part2 = [
+  { q: 'In a star topology, the central switch breaks. What happens?', opts: ['Only one device is cut off', 'The whole network stops', 'Data takes another path'], a: 1, why: 'Every device depends on the center. If one CABLE breaks, only that device is cut off; if the CENTER breaks, everyone is.' },
+  { q: 'Which topology keeps working best when one cable breaks?', opts: ['Bus', 'Ring', 'Mesh'], a: 2, why: 'Mesh has several paths between devices, so data takes another path.' },
+  { q: 'Gmail stores your emails on Google\'s computers, and your phone asks for them. Which architecture is this?', opts: ['Client-server', 'Peer-to-peer'], a: 0, why: 'Google\'s computers are the servers. Your phone is a client that asks and receives.' },
+  { q: 'Two classmates send photos straight from phone to phone, with no server in between. Which architecture is this?', opts: ['Client-server', 'Peer-to-peer'], a: 1, why: 'Each phone both gives and receives, directly: peer-to-peer.' },
+  { q: 'A company\'s private website, only for its own employees, is called:', opts: ['An intranet', 'An extranet', 'The Internet'], a: 0, why: 'Intranet = private, for insiders. Extranet = part of it opened to approved outsiders, like suppliers.' },
+  { q: 'An employee working from home connects safely to the office network through an encrypted "tunnel". This is a:', opts: ['PAN', 'VPN', 'MAN'], a: 1, why: 'A VPN (virtual private network) makes a private, encrypted connection over the public Internet.' },
+];
+const part3 = [
+  { q: 'What does bandwidth tell you?', opts: ['How long a cable is', 'How much data can travel in a given time', 'How many devices are in a network'], a: 1, why: 'Bandwidth is measured in bits per second (bps), like Mbps or Gbps.' },
+  { q: 'Your plan is 100 Mbps. About how many megabytes (MB) per second can you download, at best?', opts: ['100 MB', '12.5 MB', '800 MB'], a: 1, why: 'Mbps counts BITS. 8 bits = 1 byte, so 100 ÷ 8 = 12.5 MB per second, at best.' },
+  { q: 'Which signal has only two states, off and on?', opts: ['Analog', 'Digital'], a: 1, why: 'Digital = 0 and 1. Analog = a smooth wave that changes continuously.' },
+  { q: 'Walkie-talkies: both people can talk, but only one at a time. This is:', opts: ['Simplex', 'Half-duplex', 'Full-duplex'], a: 1, why: 'Both ways, one at a time. A phone call is full-duplex: both ways at the same time.' },
+  { q: 'How does the Internet send your message?', opts: ['Circuit switching: one path reserved for the whole time', 'Packet switching: small numbered packets, each finding its own route'], a: 1, why: 'Packets share the lines with everyone else, so no path sits unused. Old phone calls used circuit switching.' },
+  { q: 'Packets of one message arrive 3, 1, 2. What happens?', opts: ['The message is lost', 'The receiver puts them back in order using their numbers', 'The sender must type the message again'], a: 1, why: 'Each packet is numbered, so the receiving computer can rebuild the message.' },
+];
+const part4 = [
+  { q: 'Why are the wires in a twisted-pair cable twisted?', opts: ['To look nice', 'To reduce interference (noise) from other wires', 'To make the cable longer'], a: 1, why: 'Twisting the pairs cancels much of the electrical noise between wires.' },
+  { q: 'Which medium sends data as pulses of light?', opts: ['Coaxial cable', 'Twisted-pair cable', 'Fiber optic cable'], a: 2, why: 'Fiber optic cable carries light through thin strands of glass.' },
+  { q: 'Which wired medium is the fastest and goes the farthest?', opts: ['Twisted pair', 'Coaxial', 'Fiber optic'], a: 2, why: 'Fiber loses very little signal and is not affected by electrical interference. It is used for undersea cables.' },
+  { q: 'Microwave towers must be placed so that they:', opts: ['Are underground', 'Can "see" each other (line of sight)', 'Are inside buildings'], a: 1, why: 'Microwaves travel in straight lines, so hills, buildings, and the curve of the Earth can block them.' },
+  { q: 'Which wireless medium reaches the farthest?', opts: ['Bluetooth', 'Infrared', 'Satellite'], a: 2, why: 'A satellite in space can cover a whole region, even remote islands and ships at sea.' },
+  { q: 'A TV remote does not work when something blocks it. Why?', opts: ['Infrared needs a clear line between the remote and the TV', 'The batteries are always weak', 'Infrared goes through walls'], a: 0, why: 'Infrared light cannot pass through solid objects.' },
+];
+const part5 = [
+  { q: 'What is a protocol?', opts: ['A kind of cable', 'A set of rules for how devices communicate', 'A brand of router'], a: 1, why: 'Devices that follow the same rules can understand each other.' },
+  { q: 'In TCP/IP, which part puts the address on each packet so routers can deliver it?', opts: ['TCP', 'IP'], a: 1, why: 'IP = addressing and delivery. TCP = cutting, numbering, checking, and resending.' },
+  { q: 'The "S" in HTTPS means:', opts: ['Speed', 'Secure: the data is encrypted', 'Server'], a: 1, why: 'HTTPS is HTTP with encryption, so others on the network cannot read what you send.' },
+  { q: 'Which standard is for wired LANs?', opts: ['Ethernet (IEEE 802.3)', 'Wi-Fi (IEEE 802.11)', 'Bluetooth'], a: 0, why: 'Ethernet is wired. Wi-Fi is the wireless LAN standard.' },
+  { q: 'Your router says "Wi-Fi 6". Which IEEE standard is that?', opts: ['802.11n', '802.11ac', '802.11ax'], a: 2, why: 'Wi-Fi 4 = 802.11n, Wi-Fi 5 = 802.11ac, Wi-Fi 6 and 6E = 802.11ax, Wi-Fi 7 = 802.11be.' },
+  { q: 'You tap your phone on a payment terminal to pay. Which short-range standard is that?', opts: ['NFC', '5G', 'Ethernet'], a: 0, why: 'NFC (near field communication) works only a few centimeters apart.' },
+];
+const part6 = [
+  { q: 'Which device lets one computer connect to a network?', opts: ['Network adapter (NIC)', 'Range extender', 'Switch'], a: 0, why: 'Every connected device needs a network adapter. In phones and laptops, it is built in.' },
+  { q: 'Which device connects the devices INSIDE one network and sends data only to the right one?', opts: ['Modem', 'Switch', 'Router'], a: 1, why: 'A switch delivers each piece of data only to the device it is addressed to.' },
+  { q: 'Which device connects your home network to your ISP\'s network and picks a path for each packet?', opts: ['Router', 'Switch', 'Network adapter'], a: 0, why: 'A router connects networks to each other, including your home network to the Internet.' },
+  { q: 'What does a modem do?', opts: ['Makes the Wi-Fi faster', 'Converts between your devices\' data and the signal your Internet line carries', 'Stores files'], a: 1, why: 'Modem = modulator-demodulator. For fiber, the box is called an ONT.' },
+  { q: 'A school wants Wi-Fi in every classroom of a wired building. What does it add to each room?', opts: ['A wireless access point', 'A modem', 'A hub'], a: 0, why: 'An access point lets Wi-Fi devices join the wired network. Schools often mount them on ceilings.' },
+  { q: 'The Wi-Fi is weak in the back bedroom. Which devices can help?', opts: ['A range extender or a mesh system', 'A second modem', 'A longer phone charger'], a: 0, why: 'An extender repeats the signal. A mesh system uses several units that work as one network.' },
+];
+const final = [
+  { q: 'Which network size is the DOrSU campus network?', opts: ['PAN', 'LAN', 'WAN'], a: 1, why: 'A campus, a school, or a home is a local area: a LAN.' },
+  { q: 'Which topology has every device connected to one central switch?', opts: ['Bus', 'Star', 'Ring'], a: 1, why: 'Star. It is the most common layout today.' },
+  { q: 'In client-server architecture, which computer gives files and services?', opts: ['The client', 'The server'], a: 1, why: 'Servers give; clients ask and receive.' },
+  { q: 'A video call, where both people talk and hear each other at the same time, is:', opts: ['Simplex', 'Half-duplex', 'Full-duplex'], a: 2, why: 'Both ways at once.' },
+  { q: 'Bandwidth is measured in:', opts: ['Bits per second (bps)', 'Inches', 'Hertz only'], a: 0, why: 'Kbps, Mbps, and Gbps are all bits per second.' },
+  { q: 'Which medium is NOT affected by electrical interference?', opts: ['Twisted pair', 'Coaxial cable', 'Fiber optic'], a: 2, why: 'Fiber carries light, not electricity.' },
+  { q: 'What is the main set of protocols that the Internet uses?', opts: ['TCP/IP', 'Bluetooth', 'Infrared'], a: 0, why: 'Every device on the Internet follows TCP/IP.' },
+  { q: 'Which pair is correct?', opts: ['Ethernet = wireless', 'Wi-Fi = IEEE 802.11', 'Bluetooth = long range, many kilometers'], a: 1, why: 'Ethernet is wired (IEEE 802.3). Bluetooth is short range.' },
+  { q: 'Which device connects networks to each other?', opts: ['Router', 'Switch', 'Network adapter'], a: 0, why: 'A switch works inside one network; a router connects networks.' },
+  { q: 'A home "wireless router" from your ISP usually combines:', opts: ['A router, a switch, and a Wi-Fi access point', 'A printer and a scanner', 'A monitor and speakers'], a: 0, why: 'One box does several jobs. Many ISP boxes also include the modem.' },
+  { q: 'Why does the Internet cut data into packets?', opts: ['So many users can share the same lines, and each packet can take a free route', 'To make files bigger', 'Because cables can only carry one letter at a time'], a: 0, why: 'Packet switching uses the lines efficiently, and a lost packet can simply be sent again.' },
+  { q: 'Satellite Internet is a good choice for:', opts: ['A remote island with no cables or cell towers nearby', 'A computer lab with a fiber line', 'Two devices on one desk'], a: 0, why: 'A satellite can reach places that cables and towers do not.' },
+];
+---
+<Base title="Computer Networks · IT 110" description="Computer networks: purposes and uses, wired vs. wireless, topologies, client-server vs. peer-to-peer, PAN/LAN/MAN/WAN, intranets and VPNs, bandwidth, packet switching, transmission media, protocols and standards, and networking hardware." course={{ code: course.code, href: base + course.href }} theme="it110" toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>IT 110</a> › Midterm › Networks and the Internet</p>
+    <p class="kicker">Networks and the Internet · Lesson 1 of 2</p>
+    <h1>Computer Networks</h1>
+    <p class="lede">How devices connect to each other: what networks are for, how they are arranged, how data travels, and the hardware that makes it work.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>define a computer network and explain its purposes and common uses;</li>
+        <li>describe networks by <b>topology, architecture, and size</b>;</li>
+        <li>explain how data travels over a network, and identify common <b>wired and wireless media</b>;</li>
+        <li>identify common <b>protocols and standards</b>, such as TCP/IP, Ethernet, and Wi-Fi;</li>
+        <li>identify networking hardware and explain what each one does.</li>
+      </ol>
+    </div>
+    <p class="muted small"><b>Built from:</b> the IT 110 syllabus (Weeks 11–12) and the course textbook, checked against the sources at the end. Photos show what things look like; drawings show how they work. <b>Before this:</b> the <Peek label="network basics" title="From Weeks 3–4" html={netPeek} /> from your Weeks 3–4 lecture.</p>
+  </header>
+
+  <section class="chapter wrap" id="what">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · What a network is</p>
+      <h2>What networks are and what they are for</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Computer network</p><p>Two or more devices (computers, phones, printers, and more) that are <b>connected</b> so they can <b>communicate</b> and <b>share resources</b>. The connection can be a cable or a wireless signal.</p></div>
+      <p>Your home network is a good first example. In the picture below, a router in the middle connects every device to each other and to the Internet:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={netHome()} /><figcaption>Some devices connect by cable (solid lines), others wirelessly (dashed lines). Both are part of the same network.</figcaption></figure>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>A network is like a <b>barangay road system</b>. The houses are the devices, the roads are the connections, and the people and goods moving on the roads are the data.</p>
+      </div>
+
+      <h3>Why connect devices?</h3>
+      <p>Networks exist so people and devices can share things and work together. These are the main <b>purposes</b> of a network, each with an everyday example:</p>
+      <div class="fn-grid">
+        {purposeCards.map((c) => (<div class="fn-card ico-card"><Fragment set:html={ico(c.i)} /><p class="fn-t">{c.t}</p><p set:html={c.m} /></div>))}
+      </div>
+
+      <h3>Where you see networks every day</h3>
+      <p>Networks are behind many things you already use. The table lists common <b>uses</b> of networks, with examples:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Use</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('phone')} /><b>Mobile phones</b></span></td><td>Calls, texts, and mobile data travel through the cellular network.</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('map')} /><b>Maps and location</b></span></td><td>A map app shows traffic and the fastest route; a ride app shows where your driver is.</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('pay')} /><b>Online payments</b></span></td><td>Paying with an e-wallet at a store; withdrawing from an ATM.</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('classes')} /><b>Online classes and meetings</b></span></td><td>Video calls, Google Classroom, your class Discord server.</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('cctv')} /><b>Monitoring</b></span></td><td>CCTV cameras that send video to a guard's screen; weather sensors that send readings.</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('smart')} /><b>Smart homes</b></span></td><td>Turning on a smart light or checking a Wi-Fi camera from your phone.</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('stream')} /><b>Entertainment</b></span></td><td>Streaming a show to a smart TV; online games.</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('doctor')} /><b>Telemedicine</b></span></td><td>A doctor checks a patient through a video call.</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="sub">
+        <h3>Quick check: Part 1</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p1" questions={part1} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="kinds">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Network characteristics</p>
+      <h2>Describing a network: wired or wireless, topology, architecture, size</h2>
+    </div>
+    <div class="flow">
+      <p>Networks differ in many ways. To describe one, people usually answer four questions:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Characteristic</th><th>Question it answers</th></tr></thead>
+        <tbody>
+          <tr><td><b>Wired or wireless</b></td><td>How are the devices connected?</td></tr>
+          <tr><td><b>Topology</b></td><td>How are the devices arranged?</td></tr>
+          <tr><td><b>Architecture</b></td><td>Who gives and who receives?</td></tr>
+          <tr><td><b>Size</b></td><td>How big an area does it cover?</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Wired or wireless</h3>
+      <p>A network can connect devices in two ways:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Wired network</p><p>Devices connect with <b>cables</b>, like an Ethernet cable from a desktop to a router.</p></div>
+        <div class="def"><p class="note-label">Wireless network</p><p>Devices connect with <b>signals through the air</b>, like Wi-Fi or Bluetooth.</p></div>
+      </div>
+      <figure class="fig illus-fig illus big"><Fragment set:html={wiredWireless()} /><figcaption>The same router can serve both: cables for some devices, Wi-Fi for others.</figcaption></figure>
+      <p>Each way has strengths. Many networks, like the DOrSU campus network, use both:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th></th><th>Wired</th><th>Wireless</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('speed')} /><b>Speed and stability</b></span></td><td>Usually faster and steadier</td><td>Can slow down with distance, walls, and crowding</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('move')} /><b>Moving around</b></span></td><td>Stuck where the cable reaches</td><td>Free to move</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('setup')} /><b>Setup</b></span></td><td>Cables to buy and run</td><td>No cables to run</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('security')} /><b>Security</b></span></td><td>Someone must plug in a cable to connect</td><td>Signals travel through the air, so the network needs a password and encryption</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Topology: how devices are arranged</h3>
+      <div class="def"><p class="note-label">Network topology</p><p>The <b>layout</b> of a network: how its devices are arranged and connected to each other.</p></div>
+      <p>There are four basic topologies. In the pictures, each box is a device:</p>
+      <div class="fn-grid">
+        {topoCards.map((c) => (<div class="fn-card"><p class="fn-t">{c.t}</p><Fragment set:html={topo(c.k)} /><p set:html={c.m} /></div>))}
+      </div>
+      <p>The layout matters most when something breaks. Here is what happens to each topology when <b>one cable</b> is cut:</p>
+      <div class="fn-grid">
+        <div class="fn-card"><p class="fn-t">Star</p><Fragment set:html={topo('star', true)} /><p>Only that <b>one device</b> is cut off. But if the central switch breaks, the whole network stops.</p></div>
+        <div class="fn-card"><p class="fn-t">Bus</p><Fragment set:html={topo('bus', true)} /><p>A cut in the main cable can stop the <b>whole network</b>.</p></div>
+        <div class="fn-card"><p class="fn-t">Ring</p><Fragment set:html={topo('ring', true)} /><p>Data can no longer go around, so the ring <b>stops</b> (unless it has a second, backup ring).</p></div>
+        <div class="fn-card"><p class="fn-t">Mesh</p><Fragment set:html={topo('mesh', true)} /><p>Data simply takes <b>another path</b> (orange). This is why the core of the Internet is a mesh.</p></div>
+      </div>
+      <div class="look">
+        <p class="note-label">In real life</p>
+        <p>Big networks often mix topologies: this is called a <b>hybrid</b> topology. A campus may have a star of devices in each building, with the buildings' switches linked together.</p>
+      </div>
+
+      <h3>Architecture: who gives and who receives</h3>
+      <p>A network's <b>architecture</b> is how its computers share the work. The two main kinds are:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Client-server</p><p><b>Servers</b> are computers that give files, websites, or services. <b>Clients</b> are the devices that ask for them and receive them. Examples: Gmail, Facebook, a school's enrollment system.</p></div>
+        <div class="def"><p class="note-label">Peer-to-peer (P2P)</p><p>There is no main server. Each device (a <b>peer</b>) both gives and receives, directly. Example: sending photos straight from one phone to another nearby.</p></div>
+      </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={cliServP2p()} /><figcaption>Client-server suits big networks with many users. Peer-to-peer suits a few devices sharing directly.</figcaption></figure>
+
+      <h3>Size: how big an area it covers</h3>
+      <p>Networks are also named by the size of the area they cover. From smallest to biggest, the four sizes fit inside each other:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={netSizes()} /><figcaption>Each size can connect to the bigger one around it.</figcaption></figure>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Size</th><th>Stands for</th><th>Covers</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><b>PAN</b></td><td>personal area network</td><td>a few meters around one person</td><td>phone + Bluetooth earbuds</td></tr>
+          <tr><td><b>LAN</b></td><td>local area network</td><td>a home, an office, a building, a campus</td><td>a computer lab; your home Wi-Fi (a wireless LAN, or <b>WLAN</b>)</td></tr>
+          <tr><td><b>MAN</b></td><td>metropolitan area network</td><td>a city or a town</td><td>a city-wide network of offices and cameras</td></tr>
+          <tr><td><b>WAN</b></td><td>wide area network</td><td>a country or the world</td><td>a bank's branches nationwide; the Internet</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Practice: name the size</h3>
+      <p>Tap the size of each network.</p>
+      <SortTap id="sort-size" cats={['PAN', 'LAN', 'MAN', 'WAN']} items={sizeSort} />
+
+      <h3>Intranets, extranets, and VPNs</h3>
+      <p>Organizations also build <b>private</b> networks that use the same technology as the Internet. Three common terms are:</p>
+      <div class="two-col three">
+        <div class="def"><p class="note-label">Intranet</p><p>A private network that works like the Internet but is <b>only for an organization's own people</b>. Example: a company's internal website for staff announcements and forms.</p></div>
+        <div class="def"><p class="note-label">Extranet</p><p>The part of an intranet that is opened to <b>approved outsiders</b>, like suppliers or partner schools, who log in.</p></div>
+        <div class="def"><p class="note-label">VPN</p><p><b>Virtual private network</b>: a private, <b>encrypted</b> connection to a network over the public Internet, like a secure tunnel.</p></div>
+      </div>
+      <figure class="fig illus-fig illus big"><Fragment set:html={orgNets()} /><figcaption>Intranet: insiders only. Extranet: approved outsiders log in. Everyone else is kept out.</figcaption></figure>
+      <p>A VPN solves a different problem: how an insider can reach the private network <b>from outside</b>, like from home:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={vpnTunnel()} /><figcaption>With a VPN, an employee at home can use the office network safely.</figcaption></figure>
+
+      <div class="sub">
+        <h3>Quick check: Part 2</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p2" questions={part2} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="data">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · How data travels</p>
+      <h2>Data transmission</h2>
+    </div>
+    <div class="flow">
+      <p><b>Data transmission</b> is how data moves from one device to another. This part explains five ideas about it: how much data fits (bandwidth), the kind of signal, how the bits line up, which way data flows, and how it finds its way.</p>
+
+      <h3>Bandwidth: how much, how fast</h3>
+      <div class="def"><p class="note-label">Bandwidth</p><p>The amount of data that can travel over a connection in a given time. It is measured in <b>bits per second (bps)</b>.</p></div>
+      <figure class="fig illus-fig illus big"><Fragment set:html={bandwidthPipe()} /><figcaption>Like a water pipe: a wider pipe lets more water through each second. 100 Mbps moves 10 times as many bits as 10 Mbps.</figcaption></figure>
+      <p>Bandwidth uses these units. Each one is 1,000 times the one before it:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Unit</th><th>Means</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('dialup')} /><b>Kbps</b></span></td><td>thousand bits per second</td><td>very old dial-up Internet</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('homenet')} /><b>Mbps</b></span></td><td>million bits per second</td><td>a typical home fiber plan or mobile data</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('bignet')} /><b>Gbps</b></span></td><td>billion bits per second</td><td>fast office networks; the fastest fiber plans</td></tr>
+        </tbody>
+      </table></div>
+      <div class="look">
+        <p class="note-label">Do not confuse: Mbps vs. MB</p>
+        <p>Internet speeds count <b>bits</b> (small b). File sizes count <b>bytes</b> (big B). Since 8 <Peek label="bits" title="From Week 5" html={bitPeek} /> make 1 byte, a <b>100 Mbps</b> plan downloads at most about <b>12.5 MB per second</b> (100 ÷ 8).</p>
+      </div>
+
+      <h3>Analog and digital signals</h3>
+      <p>Data travels as a <b>signal</b>. There are two kinds of signal:</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={analogDigital()} /><figcaption>Computers work with digital data: 0s and 1s.</figcaption></figure>
+      <p>Some lines, like the old telephone line, were built for analog signals. A <b>modem</b> (Part 6) converts the computer's digital data into the kind of signal the line carries, and back.</p>
+
+      <h3>Serial and parallel transmission</h3>
+      <p>Bits can travel in a line or side by side. The picture sends the 8 bits of the letter A (01000001) both ways:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={serialParallel()} /><figcaption>Networks send data serially, one bit after another, over long distances.</figcaption></figure>
+      <p><b>Serial</b> transmission is used by networks, USB, and most connections today. <b>Parallel</b> transmission needs many wires side by side, and over a long cable the bits on different wires can drift out of step, so it is used only over short distances.</p>
+
+      <h3>Which way data flows</h3>
+      <p>A connection can let data flow in one direction or both. There are three ways:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={duplex()} /><figcaption>Most network connections today are full-duplex.</figcaption></figure>
+
+      <h3>How data finds its way: packet switching</h3>
+      <p>There are two main ways to send data across a big network. The older way is <b>circuit switching</b>; the Internet uses <b>packet switching</b>:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Circuit switching</p><p>One path is <b>reserved</b> from sender to receiver for the whole time, even when nobody is talking. Old landline phone calls worked this way.</p></div>
+        <div class="def"><p class="note-label">Packet switching</p><p>Data is cut into small, numbered <b>packets</b>. Each packet travels on its own, by whatever route is free, and the receiver puts them back together.</p></div>
+      </div>
+      <p>Tap Next to follow one message through a packet-switched network:</p>
+      <StepShow id="packets" steps={pktSteps} cap="Packet switching" hint="Tap Next. Watch the three numbered packets." />
+      <p>Compare it with circuit switching, where one path stays reserved:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={packetPic(5)} /><figcaption>A reserved path sits unused during silence. Packets share the lines with everyone, so no path is wasted.</figcaption></figure>
+      <div class="look">
+        <p class="note-label">Good to know</p>
+        <p>Some networks also <b>broadcast</b>: they send data to <b>every</b> device on the network at once, like a radio station sending to every radio.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 3</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p3" questions={part3} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="media">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Transmission media</p>
+      <h2>Wired and wireless transmission media</h2>
+    </div>
+    <div class="flow">
+      <div class="def"><p class="note-label">Transmission medium</p><p>The <b>path</b> that data travels on between devices. (Plural: media.) It is either a <b>cable</b> (wired) or a <b>signal through the air</b> (wireless).</p></div>
+
+      <h3>Twisted-pair cable</h3>
+      <p><b>Twisted-pair cable</b> has pairs of thin copper wires twisted together inside a plastic jacket. The twists reduce <b>interference</b> (electrical noise) between the wires. It is the usual cable for wired LANs, often called an <b>Ethernet cable</b>, with an <b>RJ-45</b> plug at each end:</p>
+      <Fragment set:html={photoRow([['utp', 'Inside: 4 twisted pairs of copper wire.'], ['rj45', 'Outside: the RJ-45 plug that clicks into a computer or router.']])} />
+      <p>Ethernet cables come in categories. Two common ones are <b>Cat 5e</b> (up to 1 Gbps) and <b>Cat 6A</b> (up to 10 Gbps). A single cable run in a LAN is usually kept to <b>100 meters</b> or less.</p>
+
+      <h3>Coaxial cable</h3>
+      <p><b>Coaxial cable</b> (coax) has one copper wire in the center, with layers around it that shield it from interference. It is the cable used for <b>cable TV</b>, cable Internet, and many CCTV cameras:</p>
+      <Fragment set:html={photo('coax', 'A: outer jacket · B: braided metal shield · C: insulator · D: copper core.')} />
+
+      <h3>Fiber optic cable</h3>
+      <p><b>Fiber optic cable</b> carries data as <b>pulses of light</b> through strands of glass about as thin as a hair. The light bounces along the glass core and stays inside it:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={fiberLight()} /><figcaption>The cladding is a different glass that reflects the light back into the core.</figcaption></figure>
+      <Fragment set:html={photoRow([['fiberGlow', 'Light glowing at the ends of many glass fibers.'], ['fiberDrop', 'A fiber cable like the one that brings fiber Internet into a house.']])} />
+      <p>Fiber is the <b>fastest</b> medium, carries data the <b>farthest</b>, and is not affected by electrical interference, since it carries light, not electricity. That is why fiber is used for home fiber Internet and for the <b>undersea cables</b> that connect countries. It costs more to install and repair.</p>
+      <div class="look">
+        <p class="note-label">Good to know</p>
+        <p><b>Single-mode</b> fiber has a very thin core and carries light far, for long-distance lines. <b>Multimode</b> fiber has a thicker core and is used for shorter distances, like inside a building or a data center.</p>
+      </div>
+      <p>Here are the three wired media side by side:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th></th><th>Twisted pair</th><th>Coaxial</th><th>Fiber optic</th></tr></thead>
+        <tbody>
+          <tr><td><b>Carries data as</b></td><td>electricity</td><td>electricity</td><td>light</td></tr>
+          <tr><td><b>Inside</b></td><td>twisted pairs of copper wire</td><td>one copper core, shielded</td><td>strands of glass</td></tr>
+          <tr><td><b>Common use</b></td><td>Ethernet LANs</td><td>cable TV and cable Internet</td><td>fiber Internet, undersea cables</td></tr>
+          <tr><td><b>Speed and distance</b></td><td>good, short runs</td><td>good</td><td>best: fastest and farthest</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Wireless media</h3>
+      <p>Most wireless networks send data with <b>radio signals</b>: invisible waves that travel through the air (and through some walls). Each technology uses its own radio <b>frequencies</b>. For example, Wi-Fi uses the 2.4 GHz, 5 GHz, and newer 6 GHz bands.</p>
+      <p>Wireless media differ most in <b>how far they reach</b>. The picture compares five of them:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={wirelessReach()} /><figcaption>A rough idea, not exact distances: walls, weather, and devices change the real reach.</figcaption></figure>
+      <p>Here is how the longer-reach ones work:</p>
+      <ul>
+        <li><b>Cellular radio:</b> an area is divided into <b>cells</b>, each served by a <b>cell tower</b>. Your phone talks to the nearest tower, and calls and mobile data pass from tower to tower.</li>
+        <li><b>Microwave:</b> strong radio signals sent in a straight line between dishes on towers. The dishes must "see" each other, with no hill or building in between: this is called <b>line of sight</b>.</li>
+        <li><b>Satellite:</b> a dish on the ground sends signals up to a satellite in space, which sends them back down to another place far away. It reaches remote islands, mountains, and ships at sea.</li>
+        <li><b>Infrared:</b> invisible light that needs a clear line between the two devices and reaches only a few meters, like a TV remote.</li>
+      </ul>
+      <figure class="fig illus-fig illus big"><Fragment set:html={microwaveSat()} /><figcaption>Microwave towers need line of sight. A satellite can relay a signal over a very long distance.</figcaption></figure>
+      <Fragment set:html={photoRow([['cellMast', 'A cell tower.'], ['mwDish', 'Up close: round microwave dishes and long cellular antennas on one tower.']])} />
+      <Fragment set:html={photoRow([['vsat', 'Setting up a small satellite dish to bring Internet to a remote camp.'], ['irRemote', 'Through a phone camera, you can see the infrared light of remotes.']])} />
+
+      <h3>Practice: wired or wireless?</h3>
+      <p>Tap the right group for each medium.</p>
+      <SortTap id="sort-media" cats={['Wired', 'Wireless']} items={mediaSort} />
+
+      <div class="sub">
+        <h3>Quick check: Part 4</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p4" questions={part4} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="protocols">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Protocols and standards</p>
+      <h2>Communications protocols and networking standards</h2>
+    </div>
+    <div class="flow">
+      <p>A phone made in Korea can talk to a router made in China and a server in the United States. This works because all of them follow the same <b>rules</b>. Two terms describe these rules:</p>
+      <div class="two-col">
+        <div class="def"><p class="note-label">Protocol</p><p>A set of <b>rules</b> for how devices communicate: how to start, how to format and send data, and how to check that it arrived.</p></div>
+        <div class="def"><p class="note-label">Networking standard</p><p>A detailed technical rulebook, agreed on and published by an organization (like the IEEE), so that devices from <b>different makers</b> work together.</p></div>
+      </div>
+      <div class="sticky">
+        <p class="note-label">Think of it this way</p>
+        <p>A phone call has rules too: you say "Hello?", the other person answers, you take turns, and you say goodbye. If one person spoke a different language with different rules, the call would fail.</p>
+      </div>
+
+      <h3>TCP/IP: the Internet's protocols</h3>
+      <p><b>TCP/IP</b> is the group of protocols that every device on the Internet follows. Its two main parts share the work of sending packets:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={tcpIp()} /><figcaption>TCP = Transmission Control Protocol. IP = Internet Protocol.</figcaption></figure>
+      <p>Other protocols work on top of TCP/IP, each for one job. You will meet these often:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Protocol</th><th>Stands for</th><th>Its job</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('http')} /><span><b>HTTP</b> / <b>HTTPS</b></span></span></td><td>Hypertext Transfer Protocol (Secure)</td><td>sends web pages to your browser; HTTPS encrypts them</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('dns')} /><span><b>DNS</b></span></span></td><td>Domain Name System</td><td>turns names like dorsu.edu.ph into IP addresses (next lesson)</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('smtp')} /><span><b>SMTP</b></span></span></td><td>Simple Mail Transfer Protocol</td><td>sends email</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('imap')} /><span><b>IMAP</b> / <b>POP3</b></span></span></td><td>Internet Message Access Protocol / Post Office Protocol</td><td>gets your email from the mail server</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('ftp')} /><span><b>FTP</b></span></span></td><td>File Transfer Protocol</td><td>uploads and downloads files to and from a server</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Networking standards you use every day</h3>
+      <p>These standards decide how devices connect. Each one fits a different job:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Standard</th><th>Used for</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('ethernet')} /><span><b>Ethernet</b> (IEEE 802.3)</span></span></td><td>wired LANs</td><td>a desktop plugged into a router with a cable</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('wifi')} /><span><b>Wi-Fi</b> (IEEE 802.11)</span></span></td><td>wireless LANs</td><td>home and campus Wi-Fi</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('bluetooth')} /><span><b>Bluetooth</b></span></span></td><td>short-range PANs</td><td>earbuds, wireless speakers, smartwatches</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('cellular')} /><span><b>Cellular: 4G (LTE) and 5G</b></span></span></td><td>mobile phone networks</td><td>mobile data on your phone</td></tr>
+          <tr><td><span class="ico-l"><Fragment set:html={ico('nfc')} /><span><b>NFC</b> (near field communication)</span></span></td><td>very short range: a few centimeters</td><td>tap-to-pay, tapping a card on a reader</td></tr>
+        </tbody>
+      </table></div>
+      <p>Wi-Fi keeps improving, and each new version gets a simple number. The table shows the versions you will see on routers and phones:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Name</th><th>IEEE standard</th><th>Frequency bands</th></tr></thead>
+        <tbody>
+          <tr><td><b>Wi-Fi 4</b></td><td>802.11n</td><td>2.4 and 5 GHz</td></tr>
+          <tr><td><b>Wi-Fi 5</b></td><td>802.11ac</td><td>5 GHz</td></tr>
+          <tr><td><b>Wi-Fi 6</b></td><td>802.11ax</td><td>2.4 and 5 GHz</td></tr>
+          <tr><td><b>Wi-Fi 6E</b></td><td>802.11ax</td><td>adds 6 GHz</td></tr>
+          <tr><td><b>Wi-Fi 7</b></td><td>802.11be</td><td>2.4, 5, and 6 GHz</td></tr>
+        </tbody>
+      </table></div>
+      <p>The <b>bands</b> in the table are like different roads for the signal. Lower frequencies reach farther; higher frequencies are faster but reach less far. Many routers send on two or three bands at once, and your device picks one:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={wifiBands()} /><figcaption>That is why the 2.4 GHz network often still works in a far room when the 5 GHz one does not.</figcaption></figure>
+      <div class="look">
+        <p class="note-label">Just so you know</p>
+        <p>Newer Wi-Fi is faster and handles more devices at once, but <b>both</b> the router and your device must support it. In 2025, 5G networks reached about 55% of the world's people, but only about 4% in low-income countries (ITU).</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 5</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p5" questions={part5} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="hardware">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 6 · Networking hardware</p>
+      <h2>Networking hardware</h2>
+    </div>
+    <div class="flow">
+      <p>Networking hardware is the equipment that connects devices and moves data between them. This part goes through the most common pieces, then puts them together in a typical home.</p>
+
+      <h3>Network adapter (NIC)</h3>
+      <p>A <b>network adapter</b>, also called a <b>network interface card (NIC)</b>, is the part that lets a device connect to a network. Laptops and phones have one built in. A desktop can get one as a card or a small USB stick:</p>
+      <Fragment set:html={photoRow([['nic', 'A network adapter card with an Ethernet port.'], ['usbWifi', 'A USB Wi-Fi adapter.']])} />
+      <div class="look">
+        <p class="note-label">Good to know</p>
+        <p>Every network adapter has its own hardware address, called a <b>MAC address</b>, set by its maker. Networks use it to tell devices apart.</p>
+      </div>
+
+      <h3>Modem</h3>
+      <p>A <b>modem</b> connects your home to your Internet service provider's line. Its name comes from what it does: it <b>mo</b>dulates and <b>dem</b>odulates, meaning it converts your devices' data into the kind of signal the line carries, and back. There is a kind for each kind of line:</p>
+      <ul>
+        <li><b>DSL modem:</b> for a telephone line.</li>
+        <li><b>Cable modem:</b> for a cable TV (coaxial) line.</li>
+        <li><b>ONT</b> (optical network terminal): the box for a <b>fiber</b> line. People often call it a "fiber modem".</li>
+        <li><b>Mobile hotspot</b> (pocket Wi-Fi): has a cellular modem inside and shares mobile data over Wi-Fi.</li>
+      </ul>
+      <Fragment set:html={photoRow([['modem', 'A DSL modem.'], ['pocketWifi', 'Pocket Wi-Fi: mobile data shared over Wi-Fi.']])} />
+
+      <h3>Switch</h3>
+      <p>A <b>switch</b> connects the devices <b>inside one network</b>, like the computers in a lab. It sends each piece of data <b>only to the device it is meant for</b>:</p>
+      <Fragment set:html={photo('switchPh', 'A small 5-port switch with Ethernet cables.')} />
+      <div class="look">
+        <p class="note-label">Good to know</p>
+        <p>An older device called a <b>hub</b> sent every piece of data to <b>all</b> devices, which wasted bandwidth. Switches replaced hubs.</p>
+      </div>
+
+      <h3>Router</h3>
+      <p>A <b>router</b> connects <b>networks to each other</b>, like your home network to your ISP's network, and so to the Internet. It reads each packet's address and picks the path for it:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={switchRouter()} /><figcaption>Switch: inside one network. Router: between networks.</figcaption></figure>
+      <p>The "router" at home is usually a <b>wireless router</b>: one box that is a router, a small switch, and a Wi-Fi access point together. Many ISPs give one box that also includes the modem.</p>
+      <Fragment set:html={photo('routerPh', 'A home wireless router.')} />
+
+      <h3>Wireless access point, range extenders, and mesh</h3>
+      <p>These three devices bring Wi-Fi to more places:</p>
+      <ul>
+        <li><b>Wireless access point (AP):</b> lets Wi-Fi devices join a wired network. Schools and offices mount many of them on ceilings.</li>
+        <li><b>Range extender:</b> catches the Wi-Fi signal and repeats it to reach a far room. It can be slower, since it relays the same signal.</li>
+        <li><b>Mesh Wi-Fi:</b> several units placed around a house or building that work together as <b>one</b> network. Your device moves between them as you walk around.</li>
+      </ul>
+      <Fragment set:html={photo('apCeil', 'A wireless access point on a ceiling.')} />
+      <Fragment set:html={photoRow([['extender', 'A range extender, plugged into a wall outlet.'], ['mesh', 'One unit of a mesh Wi-Fi system.']])} />
+
+      <h3>Putting it together: a typical home</h3>
+      <p>Most homes with fiber Internet connect like this, from the ISP's line to your phone:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={homeSetup()} /><figcaption>In many homes, boxes 2 and 3 are one box from the ISP.</figcaption></figure>
+
+      <div class="sub">
+        <h3>Quick check: Part 6</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p6" questions={part6} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="self-check">
+    <div class="chapter-head">
+      <p class="chapter-num">Self-check</p>
+      <h2>Self-check: computer networks</h2>
+    </div>
+    <div class="flow">
+      <p>Not graded. Use this to see what you remember from the whole lesson, then go back to any part you missed.</p>
+
+      <h3>Do not confuse: summary</h3>
+      <p>These pairs are often mixed up. The right column says what makes the two different:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>These two...</th><th>...are different because</th></tr></thead>
+        <tbody>
+          <tr><td><b>Topology vs. architecture</b></td><td>how devices are arranged vs. who gives and who receives</td></tr>
+          <tr><td><b>Client vs. server</b></td><td>asks and receives vs. gives files and services</td></tr>
+          <tr><td><b>LAN vs. WAN</b></td><td>a home, building, or campus vs. a country or the world</td></tr>
+          <tr><td><b>Intranet vs. Internet</b></td><td>private, for one organization vs. public, for everyone</td></tr>
+          <tr><td><b>Mbps vs. MB</b></td><td>speed in bits per second vs. file size in bytes (8 bits = 1 byte)</td></tr>
+          <tr><td><b>Half-duplex vs. full-duplex</b></td><td>both ways, one at a time vs. both ways at the same time</td></tr>
+          <tr><td><b>Circuit vs. packet switching</b></td><td>one path reserved vs. numbered packets on any free route</td></tr>
+          <tr><td><b>Twisted pair vs. fiber</b></td><td>electricity over copper vs. light through glass</td></tr>
+          <tr><td><b>TCP vs. IP</b></td><td>cuts, numbers, and checks packets vs. addresses and delivers them</td></tr>
+          <tr><td><b>Protocol vs. standard</b></td><td>a set of rules vs. a published rulebook that makers follow</td></tr>
+          <tr><td><b>Switch vs. router</b></td><td>connects devices inside a network vs. connects networks to each other</td></tr>
+          <tr><td><b>Modem vs. router</b></td><td>connects to the ISP's line vs. shares the connection with your devices</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Try it at home</h3>
+      <p>No need to submit anything. These take a few minutes:</p>
+      <ol>
+        <li>Find the box from your ISP at home (or at a relative's house). Is it labeled as a modem, an ONT, or a router? Count the Ethernet ports.</li>
+        <li>Open your phone's Wi-Fi settings. Some routers show two network names, one ending in "5G" or "5GHz". That "5G" means the <b>5 GHz Wi-Fi band</b>, not 5G cellular.</li>
+        <li>Count the devices on your home network. Which ones use a cable, and which use Wi-Fi?</li>
+      </ol>
+
+      <h3>Final quiz</h3>
+      <p>Twelve questions from the whole lesson.</p>
+      <Quiz id="quiz-final" questions={final} />
+
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li><b>What a network is:</b> connected devices that communicate and share resources: an Internet connection, devices, files, and software.</li>
+          <li><b>Characteristics:</b> wired or wireless; topology (star, bus, ring, mesh); architecture (client-server or peer-to-peer); size (PAN, LAN, MAN, WAN). Intranets, extranets, and VPNs are private networks.</li>
+          <li><b>How data travels:</b> bandwidth is measured in bits per second; signals are analog or digital; networks send bits serially; flow is simplex, half-duplex, or full-duplex; the Internet uses packet switching.</li>
+          <li><b>Media:</b> wired (twisted pair, coaxial, fiber optic) and wireless (radio such as Wi-Fi, Bluetooth, and cellular; microwave; satellite; infrared).</li>
+          <li><b>Protocols and standards:</b> TCP/IP runs the Internet, with HTTP/HTTPS, DNS, and email protocols on top; Ethernet, Wi-Fi, Bluetooth, cellular, and NFC are standards.</li>
+          <li><b>Hardware:</b> network adapters, modems, switches, routers, access points, range extenders, and mesh systems.</li>
+        </ol>
+      </div>
+      <p><b>Next lesson:</b> <a href={base + '/it110/internet/'}>The Internet and the World Wide Web</a>.</p>
+    </div>
+  </section>
+
+  <section class="wrap" id="refs">
+    <div class="flow">
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Davao Oriental State University, <i>IT 110: Introduction to Computing, Syllabus</i>, A.Y. 2026–2027 (Weeks 11–12).</li>
+          <li>D. Morley and C. S. Parker, <i>Understanding Computers: Today and Tomorrow</i>. Cengage Learning, 2015 (Chapter 7, Computer Networks).</li>
+          <li>A. C. J. J. Nanual, <i>IT 110 Weeks 3–4 Lecture: Introduction to the World of Computers</i>. Davao Oriental State University, 2026.</li>
+          <li>DARPA, "ARPANET," DARPA feature (packet switching).</li>
+          <li>Cisco, "What is a switch vs. a router?," Cisco Small Business Resource Center.</li>
+          <li>Fluke Networks, "Twisted pair cabling and 10 Gigabit cabling."</li>
+          <li>Corning, "How it works: optical fiber," The Glass Age.</li>
+          <li>HPE Aruba Networking, "Wi-Fi generations," Wi-Fi Design and Deployment Guide.</li>
+          <li>International Telecommunication Union (ITU), "Facts and Figures 2025," press release, 17 November 2025.</li>
+        </ol>
+        <p class="note-label">Photo credits</p>
+        <p>Real-life photos are from Wikimedia Commons, used under the free licenses shown. Brand names in the photos are there only because the photographers used those products; this lesson does not recommend any brand. The drawings were made for this lesson.</p>
+        <ul set:html={photoCredits(photoKeys)} />
+      </div>
+    </div>
+  </section>
+</Base>

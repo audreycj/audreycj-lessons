@@ -1348,3 +1348,50 @@ table.tbl.cat thead th { background: var(--cat); }
 .rbwalk figure { margin: 0; background: #eef2f2; border-radius: 10px; padding: 0.5rem; text-align: center; }
 .rbwalk figcaption { font-size: 0.95rem; line-height: 1.35; }
 .rbwalk .tree-svg { max-height: 8rem; margin: 0 auto; display: block; }
+
+/* ---------- IT 110 Networks + Internet (chat 49): timeline, APA parts, reference builder ---------- */
+.tl { list-style: none; margin: 0.4rem 0 0; padding: 0 0 0 0.2rem; border-left: 3px solid var(--teal); }
+.tl li { position: relative; margin: 0; padding: 0 0 1rem 1.15rem; }
+.tl li:last-child { padding-bottom: 0.2rem; }
+.tl li::before { content: ''; position: absolute; left: -0.62rem; top: 0.3rem; width: 0.85rem; height: 0.85rem; border-radius: 50%; background: var(--orange); border: 2px solid var(--paper, #fbfaf6); }
+.tl .yr { display: block; font-family: Fredoka, Nunito, sans-serif; font-weight: 600; color: var(--teal); margin-bottom: 0.15rem; }
+.apa-key .apa-a { color: #275a9c; font-weight: 700; }
+.apa-key .apa-d { color: #a64a1c; font-weight: 700; }
+.apa-key .apa-t { color: #3f8a5a; font-weight: 700; }
+.apa-key .apa-s { color: #7a4ea3; font-weight: 700; }
+.apa-key .apa-u { color: #4a5a73; font-weight: 700; font-family: "IBM Plex Mono", monospace; font-size: 0.92em; }
+p.hang { padding-left: 2em; text-indent: -2em; overflow-wrap: anywhere; }
+.apa-form { display: grid; gap: 0.7rem; padding: 1rem; border: 2px solid var(--line, #c9d2df); border-radius: 0.9rem; background: #fff; }
+.apa-form label { display: grid; gap: 0.25rem; font-weight: 700; font-size: 0.92rem; }
+.apa-form input { font: inherit; font-weight: 400; padding: 0.55rem 0.7rem; border: 1.5px solid #b9c4d4; border-radius: 0.5rem; background: #fbfaf6; min-width: 0; }
+.apa-form input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+.apa-out { margin: 0; padding: 0.6rem 0.8rem; border-radius: 0.5rem; background: #eef3fa; overflow-wrap: anywhere; padding-left: 2.6em; text-indent: -2em; }
+@media (prefers-color-scheme: dark) {
+  .apa-form { background: transparent; }
+  .apa-form input { background: transparent; color: inherit; }
+  .apa-out { background: rgba(127, 160, 210, 0.15); }
+  .apa-key .apa-a, .apa-key .apa-d, .apa-key .apa-t, .apa-key .apa-s, .apa-key .apa-u { filter: brightness(1.6); }
+}
+
+/* ---------- IT 110 chat 50: washi-tape headings, icons, bigger pictures ---------- */
+/* Section headings (h3 directly in a chapter) look like a strip of washi tape, so each part is easy to spot.
+   Colors rotate tangerine / blue / butter so a page is not monotonous. Category headings (h3.cat-h) keep their own look. */
+body.theme-it110 .flow > h3:not(.cat-h) {
+  width: fit-content; max-width: 100%;
+  font-family: var(--font-display); font-weight: 600; font-size: clamp(1.3rem, 1.12rem + 0.8vw, 1.6rem); color: #18233a;
+  margin-top: 2.6rem; padding: 0.32em 1.15em 0.3em 1em;
+  background: repeating-linear-gradient(45deg, transparent 0 7px, rgba(255,255,255,0.3) 7px 14px), #f5c19f;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 25%, 100% 50%, calc(100% - 7px) 75%, 100% 100%, 0 100%, 7px 75%, 0 50%, 7px 25%);
+  transform: rotate(-0.8deg);
+}
+body.theme-it110 .flow > h3:not(.cat-h):nth-of-type(3n+2) { background: repeating-linear-gradient(45deg, transparent 0 7px, rgba(255,255,255,0.3) 7px 14px), #bcd0ee; transform: rotate(0.6deg); }
+body.theme-it110 .flow > h3:not(.cat-h):nth-of-type(3n) { background: repeating-linear-gradient(45deg, transparent 0 7px, rgba(255,255,255,0.35) 7px 14px), #f7dd9f; transform: rotate(-0.4deg); }
+body.theme-it110 .flow > h3:not(.cat-h) + * { margin-top: 0.9rem; }
+/* small icons in cards and table rows */
+svg.clean.ico, .fn-card svg.clean.ico { width: 2.6rem; height: 2.6rem; max-width: none; margin: 0; flex: none; }
+.fn-card.ico-card svg.clean.ico { width: 3.2rem; height: 3.2rem; }
+.ico-l { display: flex; align-items: center; gap: 0.6rem; }
+/* redrawn pictures with big text: wider on desktop */
+@media (min-width: 48rem) { .illus.big svg.clean { max-width: 32rem; } }
+#packets .cw-pic svg.clean { max-width: 34rem; max-height: none; }
+#packets .cw-say { font-size: var(--step-0); }
