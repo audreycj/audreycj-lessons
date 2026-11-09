@@ -5,10 +5,10 @@ import Peek from '../../components/Peek.astro';
 import StepShow from '../../components/StepShow.astro';
 import SortTap from '../../components/SortTap.astro';
 import { course } from '../../data/it110.js';
-import { netOfNets, ipAnatomy, dnsPic, domainParts, geoLeo, cookiePic, packetPic, ico51, todayPic, censorPic } from '../../lib/it110-net-pics.js';
+import { netOfNets, ipAnatomy, dnsPic, domainParts, geoLeo, cookiePic, packetPic, ico51, todayPic, censorPic, cableHand, phCables, oceanSide } from '../../lib/it110-net-pics.js';
 import { photo, photoRow, photoCredits, thumb, orgLogo } from '../../data/it110-photos.js';
 // real-life photos used on this page, in page order (credits listed in References)
-const photoKeys = ['nextServer', 'dataCenter', 'logoICANN', 'logoIETF', 'logoW3C', 'logoISOC', 'fiberDrop', 'dslSplit', 'coax', 'cellMast', 'mwDish', 'vsat', 'starlink', 'vidCall', 'phonesSocial', 'podcast', 'studyLaptop', 'qrPay', 'workHome'];
+const photoKeys = ['cableDiver', 'cableSamples', 'nextServer', 'dataCenter', 'logoICANN', 'logoIETF', 'logoW3C', 'logoISOC', 'fiberDrop', 'dslSplit', 'coax', 'cellMast', 'mwDish', 'vsat', 'starlink', 'vidCall', 'phonesSocial', 'podcast', 'studyLaptop', 'qrPay', 'workHome'];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back (her rule: every back-reference comes with its meaning right there)
@@ -54,6 +54,7 @@ const part1 = [
   { q: 'Who invented the World Wide Web, and where?', opts: ['Tim Berners-Lee, at CERN', 'Bill Gates, at Microsoft', 'The DICT, in Manila'], a: 0, why: 'Tim Berners-Lee invented the Web in 1989 while working at CERN.' },
   { q: 'When did the Philippines get full Internet access?', opts: ['1969', 'March 29, 1994', '2010'], a: 1, why: 'PHNet, a DOST project, opened a 64 Kbps line to the United States on March 29, 1994.' },
   { q: 'Which statement about the Internet today is correct?', opts: ['One company owns and runs it', 'It is a network of many separate networks that all use TCP/IP', 'It is the same thing as the Web'], a: 1, why: 'No single owner runs the whole Internet. The Web is one service on it.' },
+  { q: 'How does most Internet data travel between countries and continents?', opts: ['Through satellites in space', 'Through fiber optic cables on the ocean floor', 'Through Wi-Fi signals over the sea'], a: 1, why: 'More than 99% of the data between continents goes through undersea fiber optic cables. Wi-Fi and mobile data are wireless only for the last short trip to your device.' },
   { q: 'About how many people were online in 2025 (ITU)?', opts: ['About 1 billion', 'About 6 billion', 'Everyone on Earth'], a: 1, why: 'About 6 billion, around three-quarters of the world. About 2.2 billion people were still offline.' },
 ];
 const part2 = [
@@ -141,6 +142,25 @@ const final = [
     <div class="flow">
       <div class="def"><p class="note-label">Internet</p><p>The worldwide <b>network of networks</b>: millions of separate networks, owned by different groups, that connect because they all follow the same protocols, <Peek label="TCP/IP" title="From Computer networks" html={tcpPeek} />.</p></div>
       <figure class="fig illus-fig illus"><Fragment set:html={netOfNets()} /><figcaption>A video you watch may travel through your home network, your ISP, national networks, and an undersea cable.</figcaption></figure>
+      <aside class="dyk" id="undersea" aria-label="Did you know: undersea cables">
+        <p class="dyk-label">Did you know?</p>
+        <p class="dyk-lead">The Internet is not mostly wireless. It runs on cables at the bottom of the sea.</p>
+        <p>Wi-Fi and mobile data are wireless only for the last short trip, from the router or cell tower to your phone. Behind them, the data travels through cables. Between countries and continents, <b>more than 99% of the data goes through undersea cables</b> lying on the ocean floor, not through satellites.</p>
+        <p>Here are some facts about these undersea cables:</p>
+        <ul class="dyk-facts">
+          <li><b>They wrap around the world.</b> More than 1.5 million km of undersea cables were in use in early 2026. That is enough to go around the Earth more than 37 times.</li>
+          <li><b>They are thinner than you think.</b> In the deep sea, a cable is about as thick as a garden hose and lies right on the ocean floor. Near the shore, extra steel armor makes it thicker, and it is buried under the seabed to protect it.</li>
+          <li><b>The data travels as light.</b> Inside are glass fibers as thin as a human hair: the same fiber optics you met in Computer networks.</li>
+          <li><b>They are built to last.</b> Each cable is designed to work for at least 25 years.</li>
+        </ul>
+        <Fragment set:html={photoRow([['cableDiver', 'A diver wraps steel armor around a seafloor cable in Hawaii, about 30 m deep.'], ['cableSamples', 'Real cable samples, cut open. Left: thick, armored cables for near the shore. Right: thin cables for the deep sea (the coin shows the size).']])} />
+        <figure class="fig illus-fig illus big"><Fragment set:html={oceanSide()} /><figcaption>How a cable is laid from one shore to another: buried near the shores, where fishing gear and ship anchors could damage it, and lying on the deep ocean floor in between.</figcaption></figure>
+        <p><b>Where does each end go?</b> Each end of the cable comes ashore at a <b>cable landing station</b>: a guarded building near the beach, not a home. Inside, one machine sends electric power into the cable's copper tube to run the repeaters, and another sends and receives the light signals in the glass fibers. From there, <b>land cables</b> carry the data to <b>data centers</b>, then through Internet providers (ISPs) to schools, offices, homes, and the cell towers that reach your phone.</p>
+        <figure class="fig illus-fig illus big"><Fragment set:html={cableHand()} /><figcaption>An undersea cable, cut in steps like the real samples in the photo above. Only the thin glass fibers in the middle carry the data; the rest protects them and carries power.</figcaption></figure>
+        <p><b>Close to home.</b> The Philippines is made of islands, so undersea cables are how we reach the rest of the world. In 2023, the country had 10 international undersea cable systems. In 2025, the Bifrost cable landed in <b>Davao City</b>, linking us to Singapore, Indonesia, Guam, and the United States, and a landing station for the Apricot cable (to Japan, Taiwan, Guam, Indonesia, and Singapore) opened in <b>Digos, Davao del Sur</b>.</p>
+        <figure class="fig illus-fig illus big"><Fragment set:html={phCables()} /><figcaption>Two of the undersea cables that connect the Philippines, on a real map. Their routes are simplified.</figcaption></figure>
+        <p class="dyk-try"><b>Try it:</b> open TeleGeography's <a href="https://www.submarinecablemap.com/" target="_blank" rel="noopener">Submarine Cable Map</a> and find the cables that land in the Philippines.</p>
+      </aside>
 
       <h3>A short timeline</h3>
       <p>The Internet grew over more than 50 years. These are the key moments, from its start to the Philippines today:</p>
@@ -532,7 +552,7 @@ const final = [
       <div class="remember">
         <p class="note-label">Key takeaways</p>
         <ol>
-          <li><b>Evolution:</b> ARPANET (1969) → TCP/IP (1983) → the Web (1989; free in 1993) → the Philippines online (1994). Today about 6 billion people are online, and no one owns the whole Internet.</li>
+          <li><b>Evolution:</b> ARPANET (1969) → TCP/IP (1983) → the Web (1989; free in 1993) → the Philippines online (1994). Today about 6 billion people are online, and no one owns the whole Internet. Between countries, more than 99% of the data travels through undersea fiber cables, not satellites.</li>
           <li><b>Community:</b> users, ISPs, infrastructure companies, content and cloud providers, hardware and software makers, and governments; ICANN, IETF, W3C, ISOC, and APNIC coordinate. In the Philippines, the DICT sets policy and the NTC regulates.</li>
           <li><b>Identification:</b> IP addresses (IPv4, IPv6) for devices; domain names and URLs for sites and pages, linked to IP addresses by DNS; usernames and email addresses for people.</li>
           <li><b>Connecting:</b> fiber, DSL, cable, mobile data, fixed wireless, and satellite (GEO or LEO); compare ISPs on availability, speed, latency, data limits, cost, contract, and support.</li>
@@ -573,9 +593,13 @@ const final = [
           <li>GMA News, "NTC takes down 50 unregistered online trading platforms upon BSP request," December 2025.</li>
           <li>Internet Society Pulse, "Content blocking in China."</li>
           <li>U.S. Federal Trade Commission, "How to protect your privacy online," Consumer Advice.</li>
+          <li>TeleGeography, "Submarine cable frequently asked questions," 2026; "Do submarine cables account for over 99% of intercontinental data traffic?" 2023; and the Submarine Cable Map, submarinecablemap.com.</li>
+          <li>A. Atienza, "The Philippines Internet landscape," APNIC Blog, 25 April 2023.</li>
+          <li>Context.ph, "Bifrost cable lands in Davao," 7 August 2025; PLDT Enterprise, "PLDT Enterprise inaugurates the Digos Cable Landing Station in Davao del Sur," April 2025; Meta Engineering, "Apricot subsea cable will boost internet capacity, speeds in the Asia-Pacific region," 15 August 2021.</li>
+          <li>Equinix, "What is a cable landing station?" Interconnections blog, 15 October 2024; SubTel Forum, "How submarine fiber-optic cables work."</li>
         </ol>
         <p class="note-label">Photo credits</p>
-        <p>Real-life photos are from Wikimedia Commons, used under the free licenses shown. Brand names in the photos are there only because the photographers used those products; this lesson does not recommend any brand. The drawings were made for this lesson.</p>
+        <p>Real-life photos are from Wikimedia Commons, used under the free licenses shown. Brand names in the photos are there only because the photographers used those products; this lesson does not recommend any brand. The drawings were made for this lesson; the cable map uses land shapes from Natural Earth (public domain).</p>
         <ul set:html={photoCredits(photoKeys)} />
       </div>
     </div>

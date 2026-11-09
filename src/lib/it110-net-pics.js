@@ -2,6 +2,7 @@
 // Real-life scenes may be wrapped in roughen() by the page; mechanism pictures stay clean. No logos: generic devices only.
 // Example IP addresses use the ranges set aside for examples (192.0.2.x, 203.0.113.x) or private home ranges (192.168.x.x).
 import { B, T, R, ARROW, svgWrap } from './it110-illus.js';
+import { SEA_LAND, SEA_PTS, BIFROST, APRICOT } from './it110-map-data.js';
 
 const L = (x1, y1, x2, y2, c = B.ink, w = 2, extra = '') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"${extra}/>`;
 const C = (cx, cy, r, f = B.card, s = B.ink, w = 2) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}" stroke="${s}" stroke-width="${w}"/>`;
@@ -671,4 +672,89 @@ export function cookiePic() {
   b += ARROW(112, 356, 194, 392, HOT, 2) + ARROW(348, 356, 266, 392, HOT, 2) + cookie(132, 378, 0.72) + cookie(328, 378, 0.72);
   b += R(100, 394, 260, 54, { r: 8, f: B.orangeWash, s: HOT, sw: 2 }) + T(230, 416, 'The ad company\'s notes:', { size: 13.5, c: B.orangeInk }) + T(230, 437, 'Ana likes news and cooking', { size: 14, c: B.ink });
   return svgWrap(460, 456, 'Top: a shopping site saves a small cookie file in your browser, so next time it says Welcome back, Ana, and remembers your cart. Bottom: the same ad company shows ads on a news site and a recipe site, so its third-party cookie lets it note that Ana likes news and cooking.', b);
+}
+
+/* ================= chat 52: undersea cables 'Did you know?' ================= */
+
+const grad = (id, top, mid, bot) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset=".45" stop-color="${mid}"/><stop offset="1" stop-color="${bot}"/></linearGradient>`;
+
+/** An undersea cable cut in steps so every layer shows (like real cable samples). */
+export function cableHand() {
+  const y = 152;
+  let b = `<defs>${grad('ch-pe', '#5c6370', '#2b2f36', '#15181d')}${grad('ch-st', '#e3e7ec', '#a7b0bb', '#6b7480')}${grad('ch-wh', '#ffffff', '#eceff2', '#bfc6cf')}${grad('ch-cu', '#f3c08f', '#d08a4e', '#94551f')}<clipPath id="ch-clip"><rect x="188" y="${y - 20}" width="58" height="40"/></clipPath></defs>`;
+  const seg = (x1, x2, r, fill, face, ring) => `<rect x="${x1}" y="${y - r}" width="${x2 - x1}" height="${2 * r}" fill="url(#${fill})" stroke="${B.ink}" stroke-width="1.6"/>`
+    + `<ellipse cx="${x2}" cy="${y}" rx="${(r * 0.3).toFixed(1)}" ry="${r}" fill="${face}" stroke="${B.ink}" stroke-width="1.6"/>` + (ring || '');
+  b += seg(22, 190, 26, 'ch-pe', '#9aa3ae');
+  b += seg(190, 246, 20, 'ch-st', '#c7cdd5');
+  for (let x = 176; x < 252; x += 5.5) b += `<line x1="${x}" y1="${y - 20}" x2="${x + 9}" y2="${y + 20}" stroke="#6b7480" stroke-width="1.2" clip-path="url(#ch-clip)"/>`;
+  b += seg(246, 292, 13, 'ch-wh', '#ffffff');
+  b += seg(292, 326, 8, 'ch-cu', '#f6e7a8');
+  ['#e5484d', B.blue, '#3f8a5a', B.amber, '#8e5cc8', '#2bb3c0'].forEach((c, k) => { const dy = (k - 2.5) * 2; b += P(`M326 ${y + dy * 0.6} Q350 ${y + dy} 372 ${y + dy * 3.2}`, 'none', c, 1.6); });
+  // left end: the cable keeps going (rounded back edge)
+  b += `<ellipse cx="22" cy="${y}" rx="7.8" ry="26" fill="#3a4049" stroke="${B.ink}" stroke-width="1.6"/>`;
+  // labels: above and below, each with a leader line
+  const up = (px, x, t1, t2) => L(px, y - 24, x, 92, B.ink, 1.3) + C(px, y - 24, 2.2, B.ink, 'none', 0) + T(x, 68, t1, { size: 13.5 }) + lab(x, 85, t2, { size: 12.5 });
+  const dn = (px, py, x, t1, t2) => L(px, py, x, 212, B.ink, 1.3) + C(px, py, 2.2, B.ink, 'none', 0) + T(x, 228, t1, { size: 13.5 }) + lab(x, 245, t2, { size: 12.5 });
+  b += up(140, 128, 'plastic cover', 'protects the cable');
+  b += up(268, 258, 'insulation', 'keeps power in');
+  b += up(366, 390, 'glass fibers', 'carry data as light');
+  b += dn(218, y + 20, 214, 'steel wires', 'make it strong');
+  b += dn(310, y + 8, 318, 'copper tube', 'carries power');
+  b += T(230, 26, 'Inside an undersea cable', { size: 15, c: B.blueInk }) + lab(230, 44, '(cut in steps so you can see each layer)', { size: 12.5 });
+  return svgWrap(460, 262, 'An undersea cable cut in steps, like real cable samples. From the outside in: a plastic cover that protects the cable, steel wires that make it strong, white insulation that keeps the power in, a copper tube that carries power, and in the middle, thin glass fibers that carry the data as light.', b);
+}
+
+/** Side view of the ocean: a cable from a landing station on one shore to another, buried near the shores and lying on the deep ocean floor. */
+export function oceanSide() {
+  let b = `<defs><linearGradient id="os-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ec3ec"/><stop offset=".5" stop-color="#3f78b5"/><stop offset="1" stop-color="#173a66"/></linearGradient><linearGradient id="os-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3eef9"/><stop offset="1" stop-color="#f8fbfe"/></linearGradient></defs>`;
+  b += `<rect x="0" y="0" width="460" height="334" rx="10" fill="url(#os-sky)"/><g transform="translate(0 34)">`;
+  const floor = 'M0 46 L58 46 Q80 48 92 62 L150 92 Q180 104 196 128 Q214 190 238 228 Q262 238 290 232 Q312 226 334 236 Q350 234 362 196 Q374 132 396 100 L430 74 Q442 60 404 46 L460 46';
+  // seabed + land (one shape), then the water above it
+  b += P(floor.replace('Q442 60 404 46 L460 46', 'L442 62 Q450 48 460 46') + ' L460 300 L0 300 Z', '#d8c49a', '#9c8257', 2);
+  b += P('M92 62 L150 92 Q180 104 196 128 Q214 190 238 228 Q262 238 290 232 Q312 226 334 236 Q350 234 362 196 Q374 132 396 100 L430 74 L442 62 Z', 'url(#os-sea)', 'none', 0);
+  b += P('M92 62 Q120 58 150 62 T210 62 T270 62 T330 62 T390 62 T442 62', 'none', '#cfe6f8', 2);
+  b += R(0, 40, 92, 8, { r: 0, f: '#8cc49a', s: 'none', sw: 0 }) + R(404, 40, 56, 8, { r: 0, f: '#8cc49a', s: 'none', sw: 0 });
+  // cable landing stations: plain, fenced buildings near the beach (not houses), with land cables going on inland
+  const station = (x, w) => R(x, 14, w, 32, { r: 2, f: '#e9edf2', sw: 1.8 }) + R(x - 2, 10, w + 4, 6, { r: 1, f: '#59657a', sw: 1.6 })
+    + [0, 1, 2].map((k) => R(x + 6 + k * 12, 22, 8, 6, { r: 1, f: '#9fb6d3', s: 'none', sw: 0 })).join('') + R(x + w - 14, 30, 9, 16, { r: 1, f: '#8a96a8', sw: 1.2 })
+    + P(`M${x - 6} 46 L${x - 6} 34 M${x + w + 6} 46 L${x + w + 6} 34 M${x - 6} 37 L${x + w + 6} 37`, 'none', '#8a96a8', 1.4).replace('/>', ' stroke-dasharray="2 3"/>');
+  b += station(14, 50) + station(402, 46);
+  b += T(74, -12, 'cable landing station', { size: 13, a: 'start', c: B.ink }) + lab(74, 4, 'in Davao', { size: 12.5, a: 'start' }) + T(394, -12, 'cable landing station', { size: 13, a: 'end', c: B.ink }) + lab(394, 4, 'in Guam', { size: 12.5, a: 'end' });
+  // land cables onward (blue, dashed, underground)
+  b += P('M24 46 Q14 60 0 62', 'none', B.blue, 2.4).replace('/>', ' stroke-dasharray="5 4"/>') + P('M440 46 Q450 58 460 60', 'none', B.blue, 2.4).replace('/>', ' stroke-dasharray="5 4"/>');
+  b += ARROW(10, 62, 2, 63, B.blue, 2) + ARROW(450, 59, 458, 60, B.blue, 2) + T(4, 84, 'to data centers', { size: 12.5, a: 'start', c: B.blueInk, w: 800 });
+  // the cable: buried (dashed) near both shores, lying on the floor in the deep sea
+  const DASHC = ' stroke-dasharray="6 4"';
+  b += P('M58 46 L62 56 Q74 62 92 70 L150 100 Q180 112 194 132', 'none', HOT, 3).replace('/>', DASHC + '/>');
+  b += P('M194 132 Q212 192 238 226 Q262 236 290 230 Q312 224 334 234 Q348 232 360 196', 'none', HOT, 3.4);
+  b += P('M360 196 Q372 136 392 106 L430 80 Q436 64 424 46', 'none', HOT, 3).replace('/>', DASHC + '/>');
+  // repeaters on the deep part
+  [[262, 233.5, 8], [318, 228, -12]].forEach(([x, yy, a]) => { b += `<g transform="translate(${x} ${yy}) rotate(${a})"><rect x="-11" y="-5" width="22" height="10" rx="5" fill="#c7cdd5" stroke="${B.ink}" stroke-width="1.6"/></g>`; });
+  // fish, for life and scale of nothing in particular
+  const fish = (x, yy, s = 1) => `<g transform="translate(${x} ${yy}) scale(${s})"><ellipse cx="0" cy="0" rx="8" ry="4" fill="#ffd27a"/><path d="M7 0 L13 -4 L13 4 Z" fill="#ffd27a"/><circle cx="-4" cy="-1" r="1" fill="${B.ink}"/></g>`;
+  b += fish(250, 96) + fish(272, 110, 0.8) + fish(330, 88, 0.9);
+  // labels
+  b += T(196, 84, 'buried under the seabed', { size: 12.5, c: B.blueInk, w: 800 }); b += L(160, 89, 150, 100, B.blueInk, 1.3) + C(150, 100, 2.2, B.blueInk, 'none', 0);
+  b += T(282, 160, 'lies on the deep ocean floor', { size: 13, c: '#ffffff', w: 800 }) + T(282, 177, '(often 3 to 6 km down)', { size: 12.5, c: '#dbe8f6', w: 700 });
+  b += L(262, 239, 248, 262, B.ink, 1.3) + T(248, 276, 'repeaters boost the light along the way', { size: 12.5, c: B.ink, w: 700 });
+  b += T(230, 296, 'not to scale: the ocean in between is thousands of km wide', { size: 12, c: '#5b4a2e', w: 700 }) + '</g>';
+  return svgWrap(460, 334, 'A side view of the ocean, not to scale. An undersea cable comes ashore at a cable landing station in Davao, where land cables carry the data on to data centers and Internet providers. Out at sea it is buried under the seabed near the shore, lies on the deep ocean floor 3 to 6 kilometers down with repeaters that boost the light along the way, then is buried again near the far shore and reaches a landing station in Guam.', b);
+}
+
+/** A real map (Natural Earth land shapes) with two of the Philippines' undersea cables, routes simplified. */
+export function phCables() {
+  const p = SEA_PTS;
+  let b = `<rect x="0" y="0" width="460" height="441" rx="10" fill="#d4e7f7"/>`;
+  b += `<path d="${SEA_LAND}" fill="#efe8cf" stroke="#9c916a" stroke-width=".8" stroke-linejoin="round"/>`;
+  b += `<path d="${APRICOT}" fill="none" stroke="${B.blue}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  b += `<path d="${BIFROST}" fill="none" stroke="${HOT}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const pin = (x, y) => P(`M${x} ${y} Q${x - 7} ${y - 9} ${x - 7} ${y - 14} Q${x - 7} ${y - 21} ${x} ${y - 21} Q${x + 7} ${y - 21} ${x + 7} ${y - 14} Q${x + 7} ${y - 9} ${x} ${y} Z`, B.red, B.ink, 1.5) + C(x, y - 14, 2.6, '#fff', 'none', 0);
+  const tag = (x, y, t, a = 'middle', c = B.ink) => { const w = t.length * 7.6 + 14, x0 = a === 'start' ? x : a === 'end' ? x - w : x - w / 2; return R(x0, y - 15, w, 22, { r: 6, f: 'rgba(255,255,255,0.92)', s: 'none', sw: 0 }) + T(x0 + w / 2, y + 0.5, t, { size: 13, c }); };
+  b += pin(p.dav[0] + 2, p.dav[1]) + pin(p.baler[0], p.baler[1]);
+  b += tag(p.dav[0] + 14, p.dav[1] + 22, 'Davao City & Digos', 'start', B.red) + tag(p.baler[0] - 10, p.baler[1] - 14, 'Baler', 'end', B.red);
+  b += tag(375, 42, 'Japan') + tag(160, 122, 'Taiwan') + tag(140, 270, 'Philippines', 'middle', '#2c5e3c') + tag(412, 270, 'Guam') + tag(120, 400, 'Indonesia') + tag(40, 330, 'Singapore');
+  b += tag(452, 206, 'to the U.S.A. →', 'end', HOT);
+  b += R(10, 10, 170, 64, { r: 8, f: 'rgba(255,255,255,0.94)', s: B.line, sw: 1.2 }) + L(20, 32, 46, 32, HOT, 3) + T(54, 36.5, 'Bifrost cable', { size: 13, a: 'start' }) + L(20, 56, 46, 56, B.blue, 3) + T(54, 60.5, 'Apricot cable', { size: 13, a: 'start' });
+  b += lab(450, 432, 'routes simplified · map: Natural Earth', { size: 12, a: 'end', c: '#5b6577' });
+  return svgWrap(460, 441, 'A map of East and Southeast Asia and the western Pacific. The Bifrost cable runs from Singapore past Indonesia to Davao City, then to Guam and on to the United States. The Apricot cable runs from Japan past Taiwan to Baler in Luzon, to Guam, then to Digos near Davao, Indonesia, and Singapore.', b);
 }
