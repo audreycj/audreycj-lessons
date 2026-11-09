@@ -1437,3 +1437,31 @@ body.theme-it110 .apa-out { background: #eef3fa; }
 /* DNS StepShow: bigger picture on desktop */
 #dns .cw-pic svg.clean { max-width: 32rem; max-height: none; }
 #dns .cw-say { font-size: var(--step-0); }
+
+/* ===== IT 110 chat 52 ===== */
+/* Organization logos (Internet page): same white box for every logo, logos sized by eye (max-height set per logo), rows centered */
+table.org-tbl td { vertical-align: middle; }
+table.org-tbl td.org-cell { width: 9.6rem; text-align: center; }
+.org-box { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 8.6rem; height: 4.1rem; margin: 0 auto; padding: 0.45rem 0.7rem; background: #fff; border: 1px solid #e1e6ee; border-radius: 12px; box-shadow: 0 1px 3px rgba(24,35,58,0.07); }
+.org-box img { display: block; width: auto; height: auto; max-width: 100%; }
+.org-badge { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; letter-spacing: 0.08em; color: #183c6b; }
+.org-name { display: block; margin-top: 0.35rem; font-weight: 800; font-size: 0.92em; letter-spacing: 0.03em; }
+/* Search operators: soft code chips + a search box that looks like a real one; the operator part is highlighted */
+.op-chip { display: inline-block; font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 1em; color: var(--orange-ink); background: #fdeee3; border: 1px solid #f3cdb3; border-radius: 0.4rem; padding: 0.08em 0.5em; white-space: nowrap; box-shadow: none; margin: 0.1rem 0.15rem 0.1rem 0; }
+.sbar { display: flex; width: fit-content; margin: 0.45rem 0 0.15rem; box-sizing: border-box; align-items: center; gap: 0.6rem; max-width: 100%; background: #fff; border: 1px solid #dfe1e5; border-radius: 1.4rem; padding: 0.45rem 1.1rem 0.45rem 0.85rem; box-shadow: 0 1px 6px rgba(32,33,36,0.14); }
+.sbar::before { content: ''; flex: none; width: 1rem; height: 1rem; border: 0; box-shadow: none; top: 0; background: no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10' cy='10' r='6.5' fill='none' stroke='%239aa0a6' stroke-width='2.6'/%3E%3Cpath d='M15 15l5.5 5.5' stroke='%239aa0a6' stroke-width='2.8' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.sbar-q { font-family: "IBM Plex Mono", monospace; font-weight: 500; color: #202124; overflow-wrap: normal; }
+.sbar-q .op-hl { font-weight: 700; color: var(--orange-ink); background: #fdeee3; border-radius: 0.25rem; padding: 0 0.12em; }
+/* Photo credits: no line under the photo. A small (i) on the photo; tap or click the photo to blur it and show the source. */
+.ph-frame { position: relative; border-radius: 10px; overflow: hidden; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+.ph-frame img { transition: filter 0.2s, transform 0.2s; }
+.ph-i { position: absolute; right: 0.45rem; bottom: 0.45rem; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: rgba(24,35,58,0.5); color: #fff; font: italic 700 0.78rem/1.3rem Georgia, serif; text-align: center; transition: opacity 0.2s; pointer-events: none; }
+.ph-src { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 0.8rem 1rem; text-align: center; font-size: 0.82rem; line-height: 1.45; color: #fff; background: rgba(16,24,40,0.42); text-shadow: 0 1px 2px rgba(0,0,0,0.45); opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
+.ph-src a { color: #fff; text-decoration: underline; }
+.ph-frame:hover .ph-i { background: rgba(24,35,58,0.75); }
+.ph-frame:focus-within img { filter: blur(5px) brightness(0.9); transform: scale(1.05); }
+.ph-frame:focus-within .ph-src { opacity: 1; visibility: visible; }
+.ph-frame:focus-within .ph-i { opacity: 0; }
+.ph-frame:focus-visible { box-shadow: 0 0 0 3px var(--teal); }
+/* photos side by side and photos in cards fill their frame (no white bars at the sides) */
+.photo-row .photo img, .photo.photo-card img { object-fit: cover; }

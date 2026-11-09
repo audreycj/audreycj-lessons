@@ -13,10 +13,11 @@ const WIRE = B.ink, AIR = B.blue, HOT = B.orange;
 /* ---------- small device icons (x, y = top-left) ---------- */
 const laptopI = (x, y, w = 56, fill = B.blueWash) => {
   const h = Math.round(w * 0.62);
-  return R(x, y, w, h, { r: 4, f: B.ink, sw: 2 }) + R(x + 4, y + 4, w - 8, h - 8, { r: 1, f: fill, s: 'none', sw: 0 })
-    + P(`M${x - 6} ${y + h + 1} L${x + w + 6} ${y + h + 1} L${x + w} ${y + h + 8} L${x} ${y + h + 8} Z`, B.grey);
+  return R(x, y, w, h, { r: 4, f: B.ink, sw: 2 }) + R(x + 4, y + 5, w - 8, h - 9, { r: 1, f: fill, s: 'none', sw: 0 }) + C(x + w / 2, y + 2.6, 0.9, '#6b7688', 'none', 0)
+    + P(`M${x - 7} ${y + h + 1} L${x + w + 7} ${y + h + 1} L${x + w + 2} ${y + h + 8} L${x - 2} ${y + h + 8} Z`, '#dfe3ea') + R(x + w / 2 - w * 0.1, y + h + 1, w * 0.2, 2.4, { r: 1, f: '#b7bfcc', s: 'none', sw: 0 });
 };
-const phoneI = (x, y, w = 24, h = 42, fill = B.blueWash) => R(x, y, w, h, { r: 5, f: B.ink, sw: 2 }) + R(x + 3, y + 6, w - 6, h - 12, { r: 1, f: fill, s: 'none', sw: 0 });
+const phoneI = (x, y, w = 24, h = 42, fill = B.blueWash) => R(x, y, w, h, { r: Math.max(5, w * 0.2), f: B.ink, sw: 2 }) + R(x + 3, y + 6, w - 6, h - 12, { r: 2, f: fill, s: 'none', sw: 0 })
+  + `<rect x="${x + w / 2 - w * 0.14}" y="${y + 2.2}" width="${w * 0.28}" height="1.8" rx=".9" fill="#5b6577"/><rect x="${x + w / 2 - w * 0.18}" y="${y + h - 4}" width="${w * 0.36}" height="1.6" rx=".8" fill="#8a94a6"/>`;
 const pcI = (x, y, w = 50, fill = B.blueWash) => R(x, y, w, w * 0.66, { r: 3, f: B.ink, sw: 2 }) + R(x + 4, y + 4, w - 8, w * 0.66 - 8, { r: 1, f: fill, s: 'none', sw: 0 })
   + L(x + w / 2, y + w * 0.66, x + w / 2, y + w * 0.66 + 8) + L(x + w / 2 - 12, y + w * 0.66 + 9, x + w / 2 + 12, y + w * 0.66 + 9, B.ink, 2.4);
 const printerI = (x, y) => R(x + 10, y, 32, 12, { r: 1, f: B.card, sw: 1.6 }) + R(x, y + 10, 52, 24, { r: 5, f: B.grey, sw: 2 }) + R(x + 10, y + 30, 32, 10, { r: 1, f: B.card, sw: 1.6 }) + C(x + 44, y + 18, 2.4, B.green, 'none', 0);
@@ -30,8 +31,30 @@ const wifiArcs = (x, y, c = AIR, s = 1) => [8, 15, 22].map((r) => P(`M${x - r * 
 const towerI = (x, y, h = 90) => P(`M${x - 16} ${y + h} L${x} ${y} L${x + 16} ${y + h}`, 'none', B.ink, 2.4) + [0.3, 0.55, 0.8].map((t) => L(x - 16 * t, y + h * t, x + 16 * t, y + h * t, B.ink, 1.6)).join('')
   + R(x - 4, y + 4, 8, 16, { r: 2, f: B.grey, sw: 1.6 });
 const dishI = (x, y, flip = false) => { const d = flip ? -1 : 1; return P(`M${x} ${y - 16} Q${x + 14 * d} ${y} ${x} ${y + 16}`, B.grey, B.ink, 2) + L(x + 2 * d, y, x + 14 * d, y, B.ink, 1.6) + C(x + 15 * d, y, 2.4, B.ink, 'none', 0); };
-const houseI = (x, y, w = 70, f = B.butter) => P(`M${x} ${y + 26} L${x + w / 2} ${y} L${x + w} ${y + 26}`, f, B.ink, 2) + R(x + 6, y + 24, w - 12, 36, { r: 2, f: B.card, sw: 2 });
-const satI = (x, y, s = 1) => R(x - 7 * s, y - 7 * s, 14 * s, 14 * s, { r: 2, f: B.grey, sw: 1.6 }) + R(x - 30 * s, y - 5 * s, 20 * s, 10 * s, { r: 1, f: B.blueMid, sw: 1.4 }) + R(x + 10 * s, y - 5 * s, 20 * s, 10 * s, { r: 1, f: B.blueMid, sw: 1.4 });
+const houseI = (x, y, w = 70, f = B.butter) => {
+  // Real-looking house: tiled roof + chimney, cream siding, door with knob, paned window (chat 52). Box: w wide, 60*w/70 tall.
+  const s = w / 70, wall = f === B.butter ? '#fdf0cf' : f;
+  const g = `<rect x="47" y="3" width="9" height="18" fill="#b5654a" stroke="${B.ink}" stroke-width="2"/><rect x="45" y="1" width="13" height="4" rx="1" fill="#8f4a34" stroke="${B.ink}" stroke-width="1.6"/>`
+    + `<rect x="7" y="24" width="56" height="36" fill="${wall}" stroke="${B.ink}" stroke-width="2.2"/>`
+    + [31, 38, 45, 52].map((yy) => `<line x1="8" y1="${yy}" x2="62" y2="${yy}" stroke="#e6d4a8" stroke-width="1.2"/>`).join('')
+    + `<path d="M-3 28 L35 1 L73 28 Z" fill="#d06b45" stroke="${B.ink}" stroke-width="2.2" stroke-linejoin="round"/>`
+    + `<path d="M9 19 L61 19 M20 11 L50 11" stroke="#a9502f" stroke-width="1.5"/>`
+    + `<rect x="13" y="37" width="14" height="23" rx="1.5" fill="${B.blue}" stroke="${B.ink}" stroke-width="2"/><circle cx="24" cy="49" r="1.4" fill="${B.amber}"/><rect x="15.5" y="40" width="9" height="7" rx="1" fill="#4f7fbf"/>`
+    + `<rect x="35" y="33" width="21" height="16" rx="1.5" fill="#cfe3f7" stroke="${B.ink}" stroke-width="2"/><path d="M45.5 33 L45.5 49 M35 41 L56 41" stroke="${B.ink}" stroke-width="1.6"/><path d="M37 46 L42 36" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".8"/><rect x="33" y="49" width="25" height="3" rx="1" fill="${B.card}" stroke="${B.ink}" stroke-width="1.4"/>`
+    + `<rect x="11" y="59" width="18" height="3" rx="1" fill="${B.grey}" stroke="${B.ink}" stroke-width="1.2"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${s.toFixed(3)})">${g}</g>`;
+};
+const satI = (x, y, s = 1) => {
+  // Real-looking satellite (chat 52): gold-foil body, gridded solar panels on struts, dish facing Earth, antenna. ~64s wide.
+  const panel = (px) => `<rect x="${px}" y="-6.5" width="21" height="13" rx="1" fill="#2c4f8c" stroke="${B.ink}" stroke-width="1.6"/>`
+    + [1, 2, 3].map((k) => `<line x1="${px + k * 5.25}" y1="-6" x2="${px + k * 5.25}" y2="6" stroke="#8fb0dc" stroke-width=".8"/>`).join('')
+    + `<line x1="${px + 0.5}" y1="0" x2="${px + 20.5}" y2="0" stroke="#8fb0dc" stroke-width=".8"/>`;
+  const g = `<line x1="-12" y1="0" x2="12" y2="0" stroke="${B.ink}" stroke-width="2"/>` + panel(-33) + panel(12)
+    + `<rect x="-8" y="-9" width="16" height="18" rx="2" fill="#e8b94a" stroke="${B.ink}" stroke-width="1.8"/><path d="M-6 -4 L-2 -6 L1 -2 L5 -5 M-5 3 L-1 1 L2 5 L6 2" stroke="#f8e3a3" stroke-width="1.2" fill="none"/>`
+    + `<line x1="3" y1="-9" x2="6" y2="-16" stroke="${B.ink}" stroke-width="1.4"/><circle cx="6" cy="-16.5" r="1.6" fill="${B.ink}"/>`
+    + `<path d="M-7 10 Q0 18 7 10 Z" fill="#f1f3f6" stroke="${B.ink}" stroke-width="1.5"/><line x1="0" y1="11" x2="0" y2="15.5" stroke="${B.ink}" stroke-width="1.2"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${s})">${g}</g>`;
+};
 
 /* ================= COMPUTER NETWORKS ================= */
 
@@ -437,16 +460,25 @@ export function switchRouter() {
 
 /** The Internet as a network of networks, home to a server abroad. */
 export function netOfNets() {
-  let b = houseI(8, 60, 64) + lab(40, 140, 'your home LAN', { size: 10.5 });
-  b += R(92, 72, 64, 40, { r: 8, f: B.blueWash, s: B.blue, sw: 2 }) + T(124, 97, 'ISP', { size: 13, c: B.blueInk }) + lab(124, 140, 'local ISP', { size: 10.5 });
-  b += R(176, 72, 64, 40, { r: 8, f: B.blueWash, s: B.blue, sw: 2 }) + T(208, 92, 'big', { size: 11, c: B.blueInk }) + T(208, 105, 'networks', { size: 11, c: B.blueInk }) + lab(208, 140, 'national backbone', { size: 10.5 });
-  b += P('M246 120 Q262 112 278 120 T310 120', 'none', B.blue, 2) + P('M246 128 Q262 120 278 128 T310 128', 'none', B.blue, 2);
-  b += lab(278, 162, 'undersea cable', { size: 10.5 });
-  b += serverI(330, 58, 36, 54) + serverI(352, 66, 36, 54) + lab(360, 140, 'servers abroad', { size: 10.5 });
-  b += L(72, 92, 92, 92, HOT, 3) + L(156, 92, 176, 92, HOT, 3) + P('M240 92 Q250 92 256 110', 'none', HOT, 3) + P('M304 110 Q312 92 330 88', 'none', HOT, 3);
-  b += T(200, 26, 'Thousands of separate networks, all speaking TCP/IP', { size: 12.5 });
-  b += lab(200, 44, 'No single owner runs the whole Internet.', { size: 11 });
-  return svgWrap(400, 172, 'The Internet is a network of networks. Data goes from your home LAN to your local ISP, to big national networks, through an undersea cable, to servers abroad. Thousands of separate networks all use TCP/IP, and no single owner runs the whole thing.', b);
+  const lb = (x, a, c) => lab(x, 186, a, { size: 13, c: B.ink }) + (c ? lab(x, 202, c, { size: 13, c: B.ink }) : '');
+  let b = T(230, 24, 'Thousands of separate networks, all speaking TCP/IP', { size: 15 }) + lab(230, 46, 'No single owner runs the whole Internet.', { size: 13 });
+  // the trip, drawn first so the pictures sit on top of it
+  b += P('M80 140 L384 140', 'none', HOT, 3.4).replace('M80 140 L384 140', 'M80 140 L290 140 Q298 140 302 164 L342 164 Q346 140 356 140 L384 140');
+  b += houseI(12, 96, 70) + lb(47, 'your home', 'LAN');
+  // local ISP office with a sign and a mast
+  b += L(160, 84, 160, 62, B.ink, 2.2) + wifiArcs(160, 64, AIR, 0.7);
+  b += R(108, 84, 64, 72, { r: 3, f: B.blueWash, sw: 2.2 }) + R(114, 90, 52, 18, { r: 3, f: B.blue, s: B.ink, sw: 1.6 }) + T(140, 104, 'ISP', { size: 13, c: '#fff' });
+  [0, 1, 2].forEach((c) => [116, 132].forEach((y) => { b += R(116 + c * 17, y, 11, 10, { r: 1, f: '#fff', s: B.ink, sw: 1.2 }); }));
+  b += lb(140, 'local ISP');
+  // national backbone: a big rack of network gear
+  b += R(196, 88, 68, 68, { r: 4, f: '#3b4659', sw: 2.2 });
+  [0, 1, 2, 3].forEach((k) => { b += R(202, 94 + k * 15, 56, 11, { r: 1.5, f: '#4f5b70', s: 'none', sw: 0 }); for (let p = 0; p < 6; p++) b += R(205 + p * 7, 97 + k * 15, 4.5, 5, { r: 0.5, f: '#1e2636', s: 'none', sw: 0 }); b += C(252, 99.5 + k * 15, 1.8, k === 2 ? B.amber : '#5fd38a', 'none', 0); });
+  b += lb(230, 'national', 'backbone');
+  // the sea with the cable running under it
+  b += `<path d="M286 146 Q295 141 304 146 T322 146 T340 146 T358 146 L358 176 Q322 180 286 176 Z" fill="#9cc3ea" fill-opacity=".72" stroke="none"/>` + P('M286 146 Q295 141 304 146 T322 146 T340 146 T358 146', 'none', B.blue, 2);
+  b += lb(322, 'undersea', 'cable');
+  b += serverI(384, 92, 38, 62) + serverI(412, 100, 38, 62) + lb(416, 'servers', 'abroad');
+  return svgWrap(460, 212, 'The Internet is a network of networks. Data goes from your home LAN to your local ISP, to big national networks, through an undersea cable, to servers abroad. Thousands of separate networks all use TCP/IP, and no single owner runs the whole thing.', b);
 }
 
 
@@ -461,11 +493,11 @@ const ICONS51 = {
   web: () => R(3, 7, 42, 34, { r: 4, f: B.card, sw: 2 }) + R(3, 7, 42, 9, { r: 4, f: B.blueWash, sw: 2 }) + C(8.5, 11.5, 1.6, HOT, 'none', 0) + C(24, 29, 8, B.blueWash, B.blue, 1.8) + P('M16 29 L32 29 M24 21 Q19 29 24 37 M24 21 Q29 29 24 37', 'none', B.blue, 1.4),
   free: () => P('M16 22 L16 14 Q16 4 26 6 Q32 8 32 14', 'none', B.green, 3) + R(10, 22, 28, 20, { r: 3, f: B.green, s: 'none', sw: 0 }) + C(24, 30, 3, '#fff', 'none', 0) + L(24, 31, 24, 37, '#fff', 2.4),
   ph: () => P('M3 34 Q12 26 20 34 T36 30', 'none', B.blue, 2.6) + P('M36 31 Q26 18 29 11 Q36 2 43 11 Q46 18 36 31 Z', B.red, B.ink, 1.6) + C(36, 13, 3.2, '#fff', 'none', 0) + L(3, 40, 30, 40, B.blueMid, 2, DASH),
-  business: () => R(6, 6, 22, 38, { r: 2, f: B.grey, sw: 2 }) + [0, 1, 2, 3].map((k) => R(10, 11 + k * 8, 5, 4, { r: 0.5, f: B.blueMid, s: 'none', sw: 0 }) + R(19, 11 + k * 8, 5, 4, { r: 0.5, f: B.blueMid, s: 'none', sw: 0 })).join('') + C(36, 32, 8, B.amber, B.ink, 1.8) + L(36, 27, 36, 37, B.ink, 1.8),
-  sat: () => satI(24, 11, 0.6) + L(24, 17, 18, 34, B.blue, 1.8, ' stroke-dasharray="3 3"') + P('M8 38 Q18 30 28 38 Z', B.grey, B.ink, 1.8) + L(18, 38, 18, 44, B.ink, 2) + L(12, 44, 24, 44, B.ink, 2),
+  business: () => R(6, 6, 22, 38, { r: 2, f: B.grey, sw: 2 }) + [0, 1, 2, 3].map((k) => R(10, 11 + k * 8, 5, 4, { r: 0.5, f: B.blueMid, s: 'none', sw: 0 }) + R(19, 11 + k * 8, 5, 4, { r: 0.5, f: B.blueMid, s: 'none', sw: 0 })).join('') + C(36, 33, 9, B.amber, B.ink, 1.8) + T(36, 37.5, '₱', { size: 12, c: B.ink }),
+  sat: () => satI(24, 13, 0.62) + L(24, 22, 19, 33, B.blue, 1.8, ' stroke-dasharray="3 3"') + P('M9 38 Q19 31 29 38 Z', B.grey, B.ink, 1.8) + L(19, 38, 19, 44, B.ink, 2) + L(13, 44, 25, 44, B.ink, 2),
   // community
   users: () => personI(12, 14, 0.9, B.blueMid) + personI(36, 14, 0.9, B.amber) + personI(24, 20, 1.1, B.blue),
-  isp: () => routerI(6, 30, 36) + wifiArcs(24, 22, AIR, 0.75),
+  isp: () => L(12, 30, 8, 16, B.ink, 2.6) + L(36, 30, 40, 16, B.ink, 2.6) + R(5, 29, 38, 15, { r: 5, f: B.blueWash, sw: 2 }) + [0, 1, 2, 3].map((k) => C(13 + k * 7, 36.5, 2, k === 3 ? B.amber : B.green, 'none', 0)).join('') + wifiArcs(24, 22, AIR, 0.62),
   infra: () => towerI(16, 4, 30) + P('M2 42 Q10 36 18 42 T34 42 T48 42', 'none', B.blue, 2.6) + R(30, 18, 14, 8, { r: 2, f: B.ink, s: 'none', sw: 0 }) + L(37, 26, 37, 38, B.ink, 2),
   content: () => R(4, 8, 40, 30, { r: 4, f: B.card, sw: 2 }) + P('M19 16 L19 30 L31 23 Z', HOT, 'none', 0) + L(10, 43, 38, 43, B.line, 2.4),
   cloudapp: () => cloudP(24, 28, 0.36, B.blueWash, B.blue) + R(16, 22, 16, 12, { r: 2, f: '#3b4659', s: 'none', sw: 0 }) + L(19, 26, 27, 26, '#9fb0c8', 1.6) + L(19, 30, 27, 30, '#9fb0c8', 1.6),
@@ -473,10 +505,10 @@ const ICONS51 = {
   gov: () => P('M4 16 L24 5 L44 16 Z', B.blueWash, B.ink, 2) + [9, 18, 27, 36].map((x) => R(x, 18, 4, 18, { r: 0.5, f: B.card, sw: 1.4 })).join('') + R(4, 37, 40, 6, { r: 1, f: B.grey, sw: 1.8 }),
   // censorship
   child: () => P('M24 4 L41 10 L41 24 Q41 38 24 45 Q7 38 7 24 L7 10 Z', B.greenWash, B.green, 2.2) + personI(24, 18, 0.85, B.green),
-  illegal: () => C(24, 24, 15, B.amber, B.ink, 2) + C(24, 24, 10, 'none', '#b37f22', 1.6) + L(13, 35, 35, 13, B.red, 3.6),
+  illegal: () => R(9, 9, 30, 30, { r: 6, f: B.card, sw: 2.2 }) + [[16, 16], [32, 16], [24, 24], [16, 32], [32, 32]].map(([x, y]) => C(x, y, 2.6, B.ink, 'none', 0)).join('') + L(6, 42, 42, 6, B.red, 3.6),
   whole: () => [0, 1, 2, 3].map((r) => [0, 1, 2].map((c) => R(4 + c * 14 + (r % 2 ? 7 : 0) - (r % 2 && c === 2 ? 7 : 0), 8 + r * 9, r % 2 && c === 2 ? 7 : 13, 8, { r: 1, f: B.redWash, s: B.red, sw: 1.2 })).join('')).join(''),
 };
-const ICO51_ALT = { arpanet: 'four linked computers', tcpip: 'two networks joined', web: 'a web page', free: 'an open padlock', ph: 'a cable reaching a map pin', business: 'an office building and a coin', sat: 'a satellite and a dish', users: 'people', isp: 'a home router', infra: 'a cell tower and a cable', content: 'a video', cloudapp: 'a cloud with a server', makers: 'a phone and a gear', gov: 'a government building', child: 'a shield around a child', illegal: 'a crossed-out coin', whole: 'a wall' };
+const ICO51_ALT = { arpanet: 'four linked computers', tcpip: 'two networks joined', web: 'a web page', free: 'an open padlock', ph: 'a cable reaching a map pin', business: 'an office building and a coin', sat: 'a satellite and a dish', users: 'people', isp: 'a home router', infra: 'a cell tower and a cable', content: 'a video', cloudapp: 'a cloud with a server', makers: 'a phone and a gear', gov: 'a government building', child: 'a shield around a child', illegal: 'a crossed-out gambling die', whole: 'a wall' };
 /** Small icons for the Internet page (timeline, community cards, censorship). */
 export function ico51(kind) { return icoWrap(ICO51_ALT[kind] || kind, ICONS51[kind]()); }
 
@@ -489,7 +521,8 @@ export function todayPic(kind) {
     b += lab(110, 98, 'about 3 of every 4 people', { size: 14, c: B.ink });
     alt = 'Eight people, six of them colored in: about 3 of every 4 people, about 6 billion, were online in 2025.';
   } else if (kind === 'unequal') {
-    b = R(14, 34, 22, 48, { r: 2, f: B.grey, sw: 1.8 }) + R(38, 20, 26, 62, { r: 2, f: B.blueWash, sw: 1.8 }) + R(66, 44, 20, 38, { r: 2, f: B.grey, sw: 1.8 }) + bars(68, 32, 4) ;
+    const bld = (x, y, w, h, f) => { let o = R(x, y, w, h, { r: 2, f, sw: 1.8 }); for (let yy = y + 6; yy < y + h - 8; yy += 9) for (let xx = x + 4; xx + 4 <= x + w - 3; xx += 7) o += R(xx, yy, 4, 5, { r: 0.6, f: '#fff3c4', s: 'none', sw: 0 }); return o; };
+    b = bld(14, 34, 22, 48, '#aab5c6') + bld(38, 20, 26, 62, '#7f9cc4') + bld(66, 44, 20, 38, '#aab5c6') + bars(68, 32, 4);
     b += houseI(128, 22, 50, B.butter) + bars(184, 32, 1, B.red);
     b += T(110, 66, '≠', { size: 22, c: B.soft });
     b += lab(50, 98, 'city', { size: 13.5, c: B.ink }) + lab(50, 114, 'fast', { size: 14, c: B.green }) + lab(160, 98, 'far barangay', { size: 13.5, c: B.ink }) + lab(160, 114, 'slow', { size: 14, c: B.red });
@@ -582,30 +615,60 @@ export function domainParts() {
 
 /** GEO vs LEO satellites (not to scale), with typical delays. */
 export function geoLeo() {
-  let b = P('M0 262 Q230 214 460 262 L460 300 L0 300 Z', '#dcefe2', B.green, 2) + lab(420, 288, 'Earth', { size: 13, c: B.green });
+  let b = `<defs><linearGradient id="gl-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3edf9"/><stop offset="1" stop-color="#fbfdff"/></linearGradient><linearGradient id="gl-earth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0ad"/><stop offset="1" stop-color="#5f9e72"/></linearGradient></defs>`;
+  b += `<rect x="0" y="0" width="460" height="300" rx="10" fill="url(#gl-sky)"/>`;
+  b += P('M0 258 Q230 206 460 258', 'none', '#cfe3f7', 12);
+  b += P('M0 262 Q230 214 460 262 L460 300 L0 300 Z', 'url(#gl-earth)', '#3f7a52', 2) + lab(420, 290, 'Earth', { size: 13, c: '#fff' });
   b += P('M8 214 Q230 160 452 214', 'none', B.blueMid, 1.6).replace('/>', DASH + '/>');
-  [[52, 200], [150, 186], [318, 187], [412, 200]].forEach(([x, y]) => { b += satI(x, y, 0.7); });
-  b += satI(130, 42, 1.05);
-  b += houseI(196, 216, 40, B.butter) + lab(216, 292, 'you', { size: 13, c: B.ink });
-  b += L(208, 220, 134, 52, HOT, 2.6, DASH) + L(226, 220, 312, 194, B.blue, 3);
+  // you: a house with a dish on the roof
+  b += L(236, 207, 136, 58, HOT, 2.6, DASH) + L(240, 208, 312, 196, B.blue, 3);
+  b += houseI(184, 200, 60) + lab(214, 290, 'you', { size: 13, c: '#fff' });
+  b += `<g transform="translate(238 214) rotate(-18) scale(1.4)"><line x1="0" y1="0" x2="0" y2="7" stroke="${B.ink}" stroke-width="2"/><path d="M-9 -6 Q0 6 9 -6 Z" fill="#f1f3f6" stroke="${B.ink}" stroke-width="1.6"/><path d="M5 -3 L0 -12" stroke="${B.ink}" stroke-width="1.3"/><rect x="-2" y="-14.5" width="4" height="4" rx="1" fill="${B.ink}"/></g>`;
+  [[52, 202], [150, 187], [318, 188], [412, 202]].forEach(([x, y]) => { b += satI(x, y, 0.72); });
+  b += satI(130, 44, 1.15);
   b += T(184, 30, 'GEO: about 35,786 km up', { size: 15, a: 'start', c: B.orangeInk }) + lab(184, 50, 'one satellite covers a huge area', { size: 13, a: 'start' }) + R(184, 60, 196, 26, { r: 13, f: B.orangeWash, s: HOT, sw: 1.6 }) + T(282, 78, 'reply in about 0.6 s', { size: 13.5, c: B.orangeInk });
   b += T(452, 118, 'LEO: below 1,000 km', { size: 15, a: 'end', c: B.blueInk }) + lab(452, 138, 'many satellites, moving', { size: 13, a: 'end' }) + R(300, 148, 152, 26, { r: 13, f: B.blueWash, s: B.blue, sw: 1.6 }) + T(376, 166, 'reply in under 0.1 s', { size: 13.5, c: B.blueInk });
   b += lab(8, 128, 'not to scale:', { size: 12.5, a: 'start', c: B.greyInk }) + lab(8, 144, 'GEO is dozens of', { size: 12.5, a: 'start', c: B.greyInk }) + lab(8, 160, 'times higher', { size: 12.5, a: 'start', c: B.greyInk });
-  return svgWrap(460, 300, 'Satellites for Internet, not to scale. A GEO satellite sits about 35,786 kilometers up; one covers a huge area, but a reply takes about 0.6 seconds. LEO satellites fly below 1,000 kilometers, many of them moving across the sky; a reply takes under 0.1 seconds. GEO is dozens of times higher than LEO.', b);
+  return svgWrap(460, 300, 'Satellites for Internet, not to scale. A house with a dish on its roof talks to a GEO satellite about 35,786 kilometers up; one covers a huge area, but a reply takes about 0.6 seconds. LEO satellites fly below 1,000 kilometers, many of them moving across the sky; a reply takes under 0.1 seconds. GEO is dozens of times higher than LEO.', b);
 }
 
+/* A browser window drawn like a real one (chat 52): title bar with window buttons and a tab, address bar with a padlock. */
+const browserWin = (x, y, w, h, url, tab) => {
+  let b = R(x, y, w, h, { r: 8, f: '#fff', sw: 2 });
+  b += `<path d="M${x + 1} ${y + 24} L${x + 1} ${y + 8} Q${x + 1} ${y + 1} ${x + 8} ${y + 1} L${x + w - 8} ${y + 1} Q${x + w - 1} ${y + 1} ${x + w - 1} ${y + 8} L${x + w - 1} ${y + 24} Z" fill="#dfe5ee"/>`;
+  b += R(x + 1, y + 24, w - 2, 22, { r: 0, f: '#f6f8fb', s: 'none', sw: 0 }) + L(x + 1, y + 46, x + w - 1, y + 46, '#c9d2df', 1.4);
+  b += [['#ec6a5e', 11], ['#f4bf4f', 21], ['#61c554', 31]].map(([c, dx]) => C(x + dx, y + 12, 3.6, c, 'none', 0)).join('');
+  const tw = Math.min(96, w - 54);
+  b += `<path d="M${x + 42} ${y + 25} L${x + 42} ${y + 10} Q${x + 42} ${y + 5} ${x + 47} ${y + 5} L${x + 37 + tw} ${y + 5} Q${x + 42 + tw} ${y + 5} ${x + 42 + tw} ${y + 10} L${x + 42 + tw} ${y + 25} Z" fill="#f6f8fb"/>`;
+  b += T(x + 50, y + 19.5, tab, { size: 12, w: 700, a: 'start', c: B.soft });
+  b += P(`M${x + 14} ${y + 31} L${x + 10} ${y + 35} L${x + 14} ${y + 39} M${x + 22} ${y + 31} L${x + 26} ${y + 35} L${x + 22} ${y + 39}`, 'none', '#8a94a6', 1.6);
+  b += R(x + 34, y + 28, w - 42, 15, { r: 7.5, f: '#fff', s: '#c9d2df', sw: 1.2 });
+  b += R(x + 41, y + 34.5, 7, 5.5, { r: 1, f: '#6b7688', s: 'none', sw: 0 }) + P(`M${x + 42.5} ${y + 34.5} L${x + 42.5} ${y + 32.5} Q${x + 44.5} ${y + 29.5} ${x + 46.5} ${y + 32.5} L${x + 46.5} ${y + 34.5}`, 'none', '#6b7688', 1.3);
+  b += T(x + 53, y + 39.5, url, { size: 12, mono: true, w: 500, a: 'start', c: B.ink });
+  return b;
+};
 /** Cookies: first-party (remembers you) and third-party (follows you), stacked. */
 export function cookiePic() {
   const cookie = (x, y, s = 1) => C(x, y, 11 * s, '#d9a35b', '#8a5a22', 1.8) + C(x - 4 * s, y - 3 * s, 2 * s, '#5a3412', 'none', 0) + C(x + 4 * s, y + 4 * s, 2 * s, '#5a3412', 'none', 0) + C(x + 4 * s, y - 5 * s, 1.5 * s, '#5a3412', 'none', 0);
-  const win = (x, y, w, h, title) => R(x, y, w, h, { r: 7, f: B.card, sw: 2 }) + R(x, y, w, 20, { r: 7, f: B.blueWash, s: B.ink, sw: 2 }) + T(x + w / 2, y + 15, title, { size: 12.5, mono: true, w: 600 });
   let b = T(10, 22, '1 · A site remembers you', { size: 16, a: 'start' }) + lab(214, 22, '(first-party cookie)', { size: 13.5, a: 'start', c: B.blueInk });
-  b += win(10, 36, 176, 96, 'shop.example') + T(98, 86, 'Welcome back, Ana!', { size: 14, c: B.blueInk }) + lab(98, 110, 'Cart: 2 items', { size: 13.5 });
-  b += ARROW(194, 84, 326, 84, B.ink, 2.2) + cookie(260, 66) + lab(260, 106, 'saved in your browser', { size: 13 });
-  b += laptopI(346, 50, 96) + cookie(394, 80, 0.9);
-  b += L(10, 158, 450, 158, B.line, 1.6, DASH);
-  b += T(10, 188, '2 · An ad company follows you', { size: 16, a: 'start' }) + lab(266, 188, '(third-party cookie)', { size: 13.5, a: 'start', c: B.orangeInk });
-  [[20, 'news.example'], [250, 'recipes.example']].forEach(([x, t]) => { b += win(x, 202, 190, 96, t) + R(x + 30, 232, 130, 50, { r: 5, f: B.orangeWash, s: HOT, sw: 1.8 }) + T(x + 95, 254, 'ad', { size: 14, c: B.orangeInk }) + lab(x + 95, 272, 'same ad company', { size: 12.5, c: B.orangeInk }); });
-  b += ARROW(115, 300, 190, 336, HOT, 2) + ARROW(345, 300, 270, 336, HOT, 2) + cookie(132, 320, 0.7) + cookie(328, 320, 0.7);
-  b += R(100, 338, 260, 52, { r: 8, f: B.orangeWash, s: HOT, sw: 2 }) + T(230, 360, 'The ad company\'s notes:', { size: 13.5, c: B.orangeInk }) + T(230, 380, 'Ana likes news and cooking', { size: 14, c: B.ink });
-  return svgWrap(460, 398, 'Top: a shopping site saves a small cookie file in your browser, so next time it says Welcome back, Ana, and remembers your cart. Bottom: the same ad company shows ads on a news site and a recipe site, so its third-party cookie lets it note that Ana likes news and cooking.', b);
+  b += browserWin(10, 36, 200, 126, 'shop.example', 'Shop');
+  b += T(110, 104, 'Welcome back, Ana!', { size: 14.5, c: B.blueInk });
+  b += P('M66 124 L71 124 L76 140 L92 140 L96 129 L73 129', 'none', B.ink, 2) + C(79, 145, 2.2, B.ink, 'none', 0) + C(90, 145, 2.2, B.ink, 'none', 0) + C(96, 122, 7, HOT, 'none', 0) + T(96, 126, '2', { size: 10, c: '#fff' }) + lab(108, 138, 'Cart: 2 items', { size: 13.5, a: 'start' });
+  b += ARROW(218, 100, 322, 100, B.ink, 2.2) + cookie(270, 80) + lab(270, 122, 'saved in', { size: 13 }) + lab(270, 138, 'your browser', { size: 13 });
+  // laptop with the cookie kept in its browser
+  b += R(336, 54, 108, 72, { r: 6, f: B.ink, sw: 2 }) + R(342, 60, 96, 60, { r: 2, f: '#f6f8fb', s: 'none', sw: 0 }) + R(342, 60, 96, 11, { r: 2, f: '#dfe5ee', s: 'none', sw: 0 }) + [0, 1, 2].map((k) => C(347 + k * 6, 65.5, 1.8, ['#ec6a5e', '#f4bf4f', '#61c554'][k], 'none', 0)).join('') + C(390, 57, 1, '#6b7688', 'none', 0);
+  b += cookie(390, 96, 1.05);
+  b += P('M324 127 L456 127 L448 138 L332 138 Z', '#dfe3ea') + R(375, 127, 30, 3, { r: 1.2, f: '#b7bfcc', s: 'none', sw: 0 });
+  b += L(10, 176, 450, 176, B.line, 1.6, DASH);
+  b += T(10, 206, '2 · An ad company follows you', { size: 16, a: 'start' }) + lab(266, 206, '(third-party cookie)', { size: 13.5, a: 'start', c: B.orangeInk });
+  [[14, 'news.example', 'News'], [250, 'recipes.example', 'Recipes']].forEach(([x, u, t]) => {
+    const y = 220, w = 196;
+    b += browserWin(x, y, w, 134, u, t);
+    b += R(x + 12, y + 56, 110, 8, { r: 2, f: '#aab5c6', s: 'none', sw: 0 }) + R(x + 12, y + 70, 150, 6, { r: 2, f: '#dfe3ea', s: 'none', sw: 0 });
+    b += R(x + 12, y + 84, w - 24, 40, { r: 5, f: B.orangeWash, s: HOT, sw: 1.8 }) + R(x + 18, y + 96, 26, 16, { r: 3, f: HOT, s: 'none', sw: 0 }) + T(x + 31, y + 108.5, 'Ad', { size: 12, c: '#fff' });
+    b += T(x + 112, y + 109, 'same ad company', { size: 13, c: B.orangeInk });
+  });
+  b += ARROW(112, 356, 194, 392, HOT, 2) + ARROW(348, 356, 266, 392, HOT, 2) + cookie(132, 378, 0.72) + cookie(328, 378, 0.72);
+  b += R(100, 394, 260, 54, { r: 8, f: B.orangeWash, s: HOT, sw: 2 }) + T(230, 416, 'The ad company\'s notes:', { size: 13.5, c: B.orangeInk }) + T(230, 437, 'Ana likes news and cooking', { size: 14, c: B.ink });
+  return svgWrap(460, 456, 'Top: a shopping site saves a small cookie file in your browser, so next time it says Welcome back, Ana, and remembers your cart. Bottom: the same ad company shows ads on a news site and a recipe site, so its third-party cookie lets it note that Ana likes news and cooking.', b);
 }

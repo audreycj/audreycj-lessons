@@ -85,6 +85,11 @@ export const photos = {
   qrPay: { src: T + '2/21/FutaBus_POS_QR_code_payment_screen_for_bus_tickets.jpg/500px-FutaBus_POS_QR_code_payment_screen_for_bus_tickets.jpg', w: 500, h: 889, page: C + 'FutaBus_POS_QR_code_payment_screen_for_bus_tickets.jpg', lic: 'CC0', by: 'Pk.over', alt: 'A QR code on a payment screen, ready to be scanned with an e-wallet app.' },
   studyLaptop: { src: T + 'b/ba/JtPhoto.jpg/500px-JtPhoto.jpg', w: 500, h: 667, page: C + 'JtPhoto.jpg', lic: 'CC BY-SA 4.0', by: 'Epeck1234', alt: 'A student working on a laptop.' },
   workHome: { src: T + '1/14/Woman_working_at_home_with_laptop_and_documents_on_a_table.jpg/500px-Woman_working_at_home_with_laptop_and_documents_on_a_table.jpg', w: 500, h: 333, page: C + 'Woman_working_at_home_with_laptop_and_documents_on_a_table.jpg', lic: 'CC BY 2.0', by: 'Shixart1985', alt: 'A woman working from home with a laptop and papers.' },
+  // Logos (chat 52): Commons 'PD-textlogo' files (public domain as simple text/shapes; still trademarks). Shown as SVG straight from Commons.
+  logoICANN: { src: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Icann_logo.svg', w: 260, h: 207, page: C + 'Icann_logo.svg', lic: 'Public domain', by: 'ICANN', lh: '3rem', alt: 'ICANN logo' },
+  logoIETF: { src: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Internet_Engineering_Task_Force_logo.svg', w: 512, h: 293, page: C + 'Internet_Engineering_Task_Force_logo.svg', lic: 'Public domain', by: 'Internet Engineering Task Force', lh: '3rem', alt: 'IETF logo' },
+  logoW3C: { src: 'https://upload.wikimedia.org/wikipedia/commons/e/ed/W3C%C2%AE_Icon.svg', w: 512, h: 244, page: C + 'W3C%C2%AE_Icon.svg', lic: 'Public domain', by: 'World Wide Web Consortium', lh: '2.1rem', alt: 'W3C logo' },
+  logoISOC: { src: 'https://upload.wikimedia.org/wikipedia/commons/f/f5/Internet_Society_logo.svg', w: 548, h: 183, page: C + 'Internet_Society_logo.svg', lic: 'Public domain', by: 'Internet Society', lh: '2.2rem', alt: 'Internet Society (ISOC) logo' },
 };
 const LIC = {
   'CC BY 2.0': 'https://creativecommons.org/licenses/by/2.0/', 'CC BY 4.0': 'https://creativecommons.org/licenses/by/4.0/',
@@ -95,9 +100,12 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 const credit = (p) => `Photo: ${esc(p.by)}, ` + (LIC[p.lic] ? `<a href="${LIC[p.lic]}" target="_blank" rel="noopener">${p.lic}</a>` : 'public domain') + `, via <a href="${p.page}" target="_blank" rel="noopener">Wikimedia Commons</a>`;
 /** A real-life photo with an optional caption and its credit line. kind: '' (full figure) or 'card' (inside an fn-card). */
 export function photo(key, cap = '', kind = '') {
+  // Chat 52: the credit no longer sits under the photo. A small (i) sits on the photo; tapping the photo blurs it and shows the
+  // source on top (CSS :focus-within, no script). Every credit is still listed in the page's References (photoCredits).
   const p = photos[key];
-  return `<figure class="photo${kind ? ' photo-' + kind : ''}"><img src="${p.src}" width="${p.w}" height="${p.h}" alt="${esc(p.alt)}" loading="lazy" decoding="async">`
-    + `<figcaption>${cap ? `<span class="ph-cap">${cap}</span> ` : ''}<span class="ph-credit">${credit(p)}</span></figcaption></figure>`;
+  return `<figure class="photo${kind ? ' photo-' + kind : ''}"><div class="ph-frame" tabindex="0" title="Tap to see the photo source"><img src="${p.src}" width="${p.w}" height="${p.h}" alt="${esc(p.alt)}" loading="lazy" decoding="async">`
+    + `<span class="ph-i" aria-hidden="true">i</span><span class="ph-src"><span>${credit(p)}</span></span></div>`
+    + (cap ? `<figcaption><span class="ph-cap">${cap}</span></figcaption>` : '') + `</figure>`;
 }
 /** Two or more photos side by side (one column on phones). items: [key, caption] */
 export const photoRow = (items) => `<div class="photo-row">${items.map(([k, c]) => photo(k, c)).join('')}</div>`;
@@ -106,3 +114,7 @@ export const photoCredits = (keys) => keys.map((k) => { const p = photos[k]; ret
 
 /** A small photo for a table cell (chat 51). The credit goes in the page's References (photoCredits). */
 export const thumb = (key) => { const p = photos[key]; return `<img class="tthumb" src="${p.src}" width="${p.w}" height="${p.h}" alt="${esc(p.alt)}" loading="lazy" decoding="async">`; };
+
+// Organization logo for a table cell (chat 52): every logo sits in the same white box, sized by eye so they look equally big;
+// no key -> the name set as a plain badge in the same box.
+export const orgLogo = (key, name) => `<span class="org-box">` + (key ? `<img src="${photos[key].src}" width="${photos[key].w}" height="${photos[key].h}" alt="${esc(photos[key].alt)}" style="max-height:${photos[key].lh}" loading="lazy" decoding="async">` : `<span class="org-badge" role="img" aria-label="${esc(name)}">${esc(name)}</span>`) + `</span><span class="org-name">${esc(name)}</span>`;

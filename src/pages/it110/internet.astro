@@ -6,9 +6,9 @@ import StepShow from '../../components/StepShow.astro';
 import SortTap from '../../components/SortTap.astro';
 import { course } from '../../data/it110.js';
 import { netOfNets, ipAnatomy, dnsPic, domainParts, geoLeo, cookiePic, packetPic, ico51, todayPic, censorPic } from '../../lib/it110-net-pics.js';
-import { photo, photoRow, photoCredits, thumb } from '../../data/it110-photos.js';
+import { photo, photoRow, photoCredits, thumb, orgLogo } from '../../data/it110-photos.js';
 // real-life photos used on this page, in page order (credits listed in References)
-const photoKeys = ['nextServer', 'dataCenter', 'fiberDrop', 'dslSplit', 'coax', 'cellMast', 'mwDish', 'vsat', 'starlink', 'vidCall', 'phonesSocial', 'podcast', 'studyLaptop', 'qrPay', 'workHome'];
+const photoKeys = ['nextServer', 'dataCenter', 'logoICANN', 'logoIETF', 'logoW3C', 'logoISOC', 'fiberDrop', 'dslSplit', 'coax', 'cellMast', 'mwDish', 'vsat', 'starlink', 'vidCall', 'phonesSocial', 'podcast', 'studyLaptop', 'qrPay', 'workHome'];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Peeks back (her rule: every back-reference comes with its meaning right there)
@@ -28,11 +28,11 @@ const community = [
   { t: 'Governments and regulators', i: 'gov', m: 'Make laws and rules. In the Philippines, the <b>DICT</b> sets policy and the <b>NTC</b> regulates telecom and Internet companies.' },
 ];
 const orgs = [
-  ['ICANN', 'coordinates the Internet\'s unique names and numbers: domain names and IP addresses.'],
-  ['IETF', 'Internet Engineering Task Force: develops Internet standards, like TCP/IP.'],
-  ['W3C', 'World Wide Web Consortium: develops Web standards, like HTML.'],
-  ['ISOC', 'Internet Society: supports an open Internet that everyone can use.'],
-  ['APNIC', 'gives out blocks of IP addresses in the Asia-Pacific region, including the Philippines.'],
+  ['ICANN', 'logoICANN', 'coordinates the Internet\'s unique names and numbers: domain names and IP addresses.'],
+  ['IETF', 'logoIETF', 'Internet Engineering Task Force: develops Internet standards, like TCP/IP.'],
+  ['W3C', 'logoW3C', 'World Wide Web Consortium: develops Web standards, like HTML.'],
+  ['ISOC', 'logoISOC', 'Internet Society: supports an open Internet that everyone can use.'],
+  ['APNIC', '', 'gives out blocks of IP addresses in the Asia-Pacific region, including the Philippines.'],
 ];
 const connSort = [
   { t: 'Light through a thin glass line into the house', a: 0, why: 'That is fiber (FTTH): the fastest wired option.' },
@@ -189,10 +189,10 @@ const final = [
         {community.map((c) => (<div class="fn-card ico-card"><Fragment set:html={ico51(c.i)} /><p class="fn-t">{c.t}</p><p set:html={c.m} /></div>))}
       </div>
       <p>A few organizations <b>coordinate</b> the Internet so the pieces keep working together. They do not own it or control what people post. Five you should know are:</p>
-      <div class="scroll-x"><table class="tbl">
+      <div class="scroll-x"><table class="tbl org-tbl">
         <thead><tr><th>Organization</th><th>Role</th></tr></thead>
         <tbody>
-          {orgs.map(([n, r]) => (<tr><td><b>{n}</b></td><td>{r}</td></tr>))}
+          {orgs.map(([n, lg, r]) => (<tr><td class="org-cell"><Fragment set:html={orgLogo(lg, n)} /></td><td>{r}</td></tr>))}
         </tbody>
       </table></div>
       <div class="look">
@@ -329,14 +329,14 @@ const final = [
       <h3>Search techniques</h3>
       <p>Start with <b>specific keywords</b>: <i>six basic types of computers</i> works better than <i>computer</i>. Then use <b>search operators</b>, special symbols and words that tell the search engine exactly what you want. These work in Google. The examples show what you type in the search box:</p>
       <div class="scroll-x"><table class="tbl ops-tbl">
-        <thead><tr><th>Operator</th><th>What it does</th><th>Example</th></tr></thead>
+        <thead><tr><th>Operator</th><th>What it does, with an example</th></tr></thead>
         <tbody>
-          <tr><td><span class="op-chip">" "</span></td><td>exact phrase</td><td><span class="sbar"><span class="sbar-q">"network topology"</span></span></td></tr>
-          <tr><td><span class="op-chip">-</span></td><td>removes a word (no space after the minus)</td><td><span class="sbar"><span class="sbar-q">jaguar -car</span></span></td></tr>
-          <tr><td><span class="op-chip">OR</span></td><td>either word (in capital letters)</td><td><span class="sbar"><span class="sbar-q">fiber OR DSL</span></span></td></tr>
-          <tr><td><span class="op-chip">site:</span></td><td>only one site or domain</td><td><span class="sbar"><span class="sbar-q">site:gov.ph flood advisory</span></span></td></tr>
-          <tr><td><span class="op-chip">filetype:</span></td><td>only one kind of file</td><td><span class="sbar"><span class="sbar-q">network topology filetype:pdf</span></span></td></tr>
-          <tr><td><span class="op-chip">after:</span> <span class="op-chip">before:</span></td><td>only pages updated after or before a date</td><td><span class="sbar"><span class="sbar-q">5G Philippines after:2025</span></span></td></tr>
+          <tr><td><span class="op-chip">" "</span></td><td>exact phrase<span class="sbar"><span class="sbar-q"><b class="op-hl">"</b>network topology<b class="op-hl">"</b></span></span></td></tr>
+          <tr><td><span class="op-chip">-</span></td><td>removes a word (no space after the minus)<span class="sbar"><span class="sbar-q">jaguar <b class="op-hl">-</b>car</span></span></td></tr>
+          <tr><td><span class="op-chip">OR</span></td><td>either word (in capital letters)<span class="sbar"><span class="sbar-q">fiber <b class="op-hl">OR</b> DSL</span></span></td></tr>
+          <tr><td><span class="op-chip">site:</span></td><td>only one site or domain<span class="sbar"><span class="sbar-q"><b class="op-hl">site:</b>gov.ph flood advisory</span></span></td></tr>
+          <tr><td><span class="op-chip">filetype:</span></td><td>only one kind of file<span class="sbar"><span class="sbar-q">network topology <b class="op-hl">filetype:</b>pdf</span></span></td></tr>
+          <tr><td><span class="op-chip">after:</span> <span class="op-chip">before:</span></td><td>only pages updated after or before a date<span class="sbar"><span class="sbar-q">5G Philippines <b class="op-hl">after:</b>2025</span></span></td></tr>
         </tbody>
       </table></div>
       <p>Found something? Check it before you use it, with the <Peek label="four questions" title="From Weeks 3–4" html={credPeek} /> from your Weeks 3–4 lecture.</p>
