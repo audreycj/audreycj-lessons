@@ -44,6 +44,12 @@ const r1 = dfsSteps(p1, 'D'), r1b = bfsSteps(p1, 'D');
 const r2 = dfsSteps(p2, 'C');
 // stack snapshots for problem 1 (only the steps that change it), to show on paper
 // exam-style trace rows for problem 1 (one row per push or pop, like the prelim stack items)
+const traceRows = (run) => run.steps.map((s, i) => {
+  const prev = i ? run.steps[i - 1].ds : [];
+  const push = s.ds.length > prev.length;
+  return { act: (push ? 'push ' : 'pop ') + (push ? s.ds[s.ds.length - 1] : prev[prev.length - 1]), stack: s.ds.join(', ') || '(empty)', order: s.order.join(', ') };
+});
+const cityRows = traceRows(dfsCity);
 const r1Rows = r1.steps.map((s, i) => {
   const prev = i ? r1.steps[i - 1].ds : [];
   const push = s.ds.length > prev.length;
@@ -219,6 +225,24 @@ const quiz = [
           <li>When the stack is empty, DFS is done.</li>
         </ol>
       </div>
+      <div class="sub">
+        <h3>Writing DFS as a trace table</h3>
+        <p>On paper and on exams, you write DFS as a <b>trace table</b>. It has <b>one row for each push or pop</b>, and four columns:</p>
+        <ul>
+          <li><b>Step</b> is the row number.</li>
+          <li><b>Action</b> is what happened in this step. "push B" means DFS went deeper to B. "pop D" means D was a dead end, so DFS went back.</li>
+          <li><b>Stack (bottom → top)</b> is the whole stack after the action. The last vertex written is the top.</li>
+          <li><b>DFS order so far</b> lists every vertex pushed so far, in the order it was pushed. A pop does not change it.</li>
+        </ul>
+        <p>To fill in each row, look at the <b>top</b> of the stack. If it has a neighbor with no ✓, push the first one in alphabetical order. If it has none, pop it. Here is DFS from A on the main example (the same graph as in the BFS lesson):</p>
+        <div class="tbl-wrap">
+          <table class="tbl small">
+            <thead><tr><th>Step</th><th>Action</th><th>Stack (bottom → top)</th><th>DFS order so far</th></tr></thead>
+            <tbody>{cityRows.map((r, i) => <tr><td>{i + 1}</td><td class="nowrap">{r.act}</td><td class="mono nowrap">{r.stack}</td><td class="mono nowrap">{r.order}</td></tr>)}</tbody>
+          </table>
+        </div>
+        <p>Look at steps 6 to 8. D is pushed, but both of D's neighbors (A and E) already have a ✓, so D is popped. Now E is on top again, and E still has G with no ✓, so G is pushed. DFS ends at step 14, when the stack is empty. The DFS order is the last row's "DFS order so far": <b>{dfsCity.order.join(', ')}</b>.</p>
+      </div>
       <div class="trap">
         <p class="note-label">Exam traps</p>
         <ol class="flow">
@@ -358,7 +382,7 @@ const quiz = [
           <li>Draw the stack as a column. Write new vertices on top; cross out the top when you pop.</li>
           <li>Write the DFS order as you <b>push</b> each vertex.</li>
           <li>On the drawing, trace each step with a pencil so you can see the dead ends.</li>
-          <li>Or write the trace as a <b>table</b>, with one row for each push or pop. Use four columns, called Step, Action, Stack (bottom → top), and DFS order so far. The answer to Problem 1 shows one.</li>
+          <li>Or write the trace as a <b>table</b>, with one row for each push or pop. Use the four columns from <a href="#stack">Part 2</a>.</li>
         </ul>
       </div>
 

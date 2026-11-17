@@ -269,14 +269,30 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
       </div>
       <p>Here are the same steps on the main example, starting at A. Before each tap of Next, say out loud which vertex leaves the front and which ones join the rear.</p>
       <StepShow id="bfs-queue" cap="One queue, step by step" hint="Tap Next. A vertex leaves from the front, and new ones join at the rear." steps={queueSteps()} />
-      <p>On paper (and on exams), you write the same steps as a <b>trace table</b>, with one row for each dequeue. Here is the BFS above, written as a table. "Newly seen" are the neighbors that get a ✓ and join the rear of the queue in that step.</p>
-      <div class="tbl-wrap">
-        <table class="tbl small">
-          <thead><tr><th>Step</th><th>Dequeue (visit)</th><th>Newly seen (enqueue)</th><th>Queue after (front → rear)</th></tr></thead>
-          <tbody>{cityRows.map((r, i) => <tr><td>{i + 1}</td><td class="mono">{r.u}</td><td class="mono nowrap">{r.add}</td><td class="mono nowrap">{r.queue}</td></tr>)}</tbody>
-        </table>
+      <div class="sub">
+        <h3>Writing BFS as a trace table</h3>
+        <p>On paper and on exams, you write BFS as a <b>trace table</b>. It has <b>one row for each dequeue</b> (each time a vertex leaves the queue), and four columns:</p>
+        <ul>
+          <li><b>Step</b> is the row number: 1, 2, 3, and so on.</li>
+          <li><b>Dequeue (visit)</b> is the vertex that leaves the front of the queue in this step.</li>
+          <li><b>Newly seen (enqueue)</b> lists that vertex's neighbors that have no ✓ yet, in alphabetical order. Each one gets a ✓ and joins the rear. If every neighbor already has a ✓, write (none).</li>
+          <li><b>Queue after</b> is the queue at the end of the step. Copy the queue without its front vertex, then add the newly seen vertices at the end.</li>
+        </ul>
+        <p>Before row 1, the start vertex A already has a ✓ and is the only vertex in the queue. Here is the BFS from the animation above, written as a trace table:</p>
+        <div class="tbl-wrap">
+          <table class="tbl small">
+            <thead><tr><th>Step</th><th>Dequeue (visit)</th><th>Newly seen (enqueue)</th><th>Queue after (front → rear)</th></tr></thead>
+            <tbody>{cityRows.map((r, i) => <tr><td>{i + 1}</td><td class="mono">{r.u}</td><td class="mono nowrap">{r.add}</td><td class="mono nowrap">{r.queue}</td></tr>)}</tbody>
+          </table>
+        </div>
+        <p>Here is how the first three rows were filled in:</p>
+        <ul>
+          <li><b>Step 1.</b> A leaves the queue. Its neighbors B and D have no ✓, so they get one and join the rear. The queue is now B, D.</li>
+          <li><b>Step 2.</b> B leaves the front. A already has a ✓, so skip it. C and E are new, so they join <b>behind D</b>. The queue is now D, C, E.</li>
+          <li><b>Step 3.</b> D leaves the front. Its neighbors A and E both have a ✓, so write (none). The queue is now C, E.</li>
+        </ul>
+        <p>Keep going until the queue is empty. The BFS order is the Dequeue column, read from top to bottom: <b>{cityRun.order.join(', ')}</b>.</p>
       </div>
-      <p>The BFS order is the "Dequeue" column read from top to bottom: <b>{cityRun.order.join(', ')}</b>.</p>
       <div class="trap">
         <p class="note-label">Exam traps</p>
         <ul>
@@ -340,6 +356,7 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
           <tbody><tr><td><b>Found by</b></td>{Object.keys(cityRun.parent).sort().map((k) => <td>{cityRun.parent[k]}</td>)}</tr></tbody>
         </table>
         <p>G was found by E, E by B, B by A. Reversed: A → B → E → G.</p>
+        <p>If you made a trace table (<a href="#queue">Part 2</a>), the found-by table and the levels are already in it. Each vertex in the <b>Newly seen</b> column was found by the vertex in the <b>Dequeue</b> column of the same row, and its level is 1 more than that vertex's level. For example, row 2 has B in the Dequeue column and C, E in the Newly seen column. So C and E are found by B, and their level is 1 + 1 = 2.</p>
         <p>A → D → E → G also uses 3 edges, so there are two shortest paths. BFS gives the one through B because B left the queue before D and reached E first. On an exam, any path with the fewest edges is correct unless the question asks for the BFS path.</p>
         <p>The vertex with the highest level is the one <b>farthest</b> from the start (here, F and G, at level 3).</p>
       </div>
@@ -387,7 +404,7 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
           <li>Draw the queue as a row of boxes. When you dequeue, cross out the front box. Add new vertices at the right end.</li>
           <li>Keep a "seen" list beside it, and write the BFS order underneath.</li>
           <li>Write each vertex's level next to it on the drawing.</li>
-          <li>Or write the trace as a <b>table</b>, with one row for each dequeue. Use four columns, called Step, Dequeue (visit), Newly seen (enqueue), and Queue after. The answer to Problem 1 shows one.</li>
+          <li>Or write the trace as a <b>table</b>, with one row for each dequeue. Use the four columns from <a href="#queue">Part 2</a>.</li>
         </ul>
       </div>
 
