@@ -402,8 +402,8 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
             <li><b>Weights:</b> usually the expected travel time, updated with live traffic. That is why the app may reroute you mid-trip.</li>
           </ul>
           <p>The picture below shows a small made-up map in a map app (top) and the weighted graph the app stores for it (bottom). The places and minutes are the same as in the graph above, with A as your home and C as DOrSU.</p>
-          <figure class="fig illus-fig illus map-app-fig"><Fragment set:html={mapAppGraph()} /><figcaption>The blue line in the app and the orange path in the graph are the same route. The app adds up the minutes along each possible path and shows the smallest total: A → B → C, 19 minutes. (Made-up map and travel times.)</figcaption></figure>
-          <p>To suggest a route, the app looks for the path with the <b>smallest total weight</b>, just like A → B → C (19 minutes) above. So the "shortest" route usually means the <b>fastest</b>, not the fewest kilometers. To see how a program finds it, try the <a href="#java-route">mini map app in Part 8</a>.</p>
+          <figure class="fig illus-fig illus map-app-fig"><Fragment set:html={mapAppGraph()} /><figcaption>The blue line in the app and the orange path in the graph are the same route, A → B → C, 19 minutes. (Made-up map and travel times.)</figcaption></figure>
+          <p>The app picks the path with the <b>smallest total weight</b>. So the "shortest" route usually means the <b>fastest</b>, not the fewest kilometers.</p>
         </div>
       </div>
 
@@ -422,8 +422,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <h2>Adjacency matrix</h2>
     </div>
     <div class="flow">
-      <p>The circles-and-lines pictures in these lessons are drawn for <b>people</b>: our eyes can follow the lines and see who connects to whom. A computer cannot look at a picture. It needs the same facts written down as <b>data</b> in memory: which vertex has an edge to which.</p>
-      <p>Where each circle sits on the page does not matter. Move the circles around and it is still the same graph, because only the connections count. So the computer stores only the connections. There are two common ways to do it: the <b>adjacency matrix</b> (this part) and the <b>adjacency list</b> (Part 4). Both hold exactly the same graph as the drawing. The matrix is stored in a <b>2D array</b>, so first, a quick look at one.</p>
+      <p>A computer cannot look at a drawing. It stores only the <b>connections</b>: which vertex has an edge to which. There are two common ways to do it, the <b>adjacency matrix</b> (this part) and the <b>adjacency list</b> (Part 4). The matrix is stored in a <b>2D array</b>, so first, a quick look at one.</p>
       <div class="sub" id="two-d">
         <h3>First: a 2D array</h3>
         <p>In the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson, an array was <b>one row</b> of slots. Some data needs a <b>grid</b>: rows <i>and</i> columns. Think of the seat plan in your classroom. To point to one seat, you say two numbers: its row and its column.</p>
@@ -641,8 +640,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
           <p>A common mistake is <code>list.get(j).add(i)</code>, the wrong way around. Test 2 still passes: an undirected matrix is a <a href="#matrix">mirror image</a>, so every edge is stored both ways. Test 1 catches it. It prints <code>A: B</code>, <code>B: C D</code>, <code>C: A</code>, <code>D: A</code>, <code>E: D</code>: the arrows coming <b>into</b> each vertex, not going out. That is why the tests include a directed graph.</p>
         </div></details>
       </div>
-      <div class="sub" id="java-route">
-        <h3>Real-life application: a mini map app</h3>
+      <details class="reveal" id="java-route"><summary>Extra: how a map app finds the fastest route</summary><div class="flow">
         <p class="xtra-note"><b>Extra topic.</b> This goes a step beyond the lesson and is not in the self-check. Read it if you are curious how map apps find a route.</p>
         <p>This program finds the fastest route from A to C in the <Peek label="travel-time graph" title="From Part 2 · Weighted or unweighted?" html={travelPeek} />. The method is called <b>Dijkstra's algorithm</b> (say "DIKE-struh"), named after the Dutch computer scientist Edsger Dijkstra, who came up with it in 1956. It follows four steps, the same ones you would do by hand:</p>
         <ol>
@@ -677,7 +675,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
         <p>Walking back: C came from B, and B came from A. So the route is <b>A → B → C, 19 minutes</b>, the same answer as in Part 2.</p>
         <p>Why is the picked time final? Every other unfinished place already takes longer to reach, and travel times are never negative, so no detour through them can be faster. (This is also why Dijkstra's algorithm does not work if a weight can be negative.)</p>
         <p class="small muted">Real map apps have millions of places, so they use faster versions of this idea, with shortcuts worked out ahead of time. The core question is the same: which path has the smallest total weight?</p>
-      </div>
+      </div></details>
     </div>
   </section>
 

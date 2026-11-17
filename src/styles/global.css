@@ -286,7 +286,7 @@ pre.code .hl-line { background: rgba(240, 169, 59, 0.22); display: inline-block;
 .graph-svg .ah-path { fill: var(--orange); }
 .graph-svg .g-node circle { fill: var(--card); stroke: var(--ink); stroke-width: 2; }
 .graph-svg .g-node text { font-family: var(--font-body); font-weight: 800; font-size: 15px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
-.graph-svg .g-lab { font-family: var(--font-mono) !important; font-size: 11px !important; font-weight: 600 !important; fill: var(--orange-ink) !important; text-anchor: start !important; }
+.graph-svg .g-lab { font-family: var(--font-mono) !important; font-size: 13px !important; font-weight: 600 !important; fill: var(--orange-ink) !important; text-anchor: start !important; }
 .graph-svg .g-wbox rect { fill: var(--card); stroke: var(--line); }
 .graph-svg .g-w { font-family: var(--font-mono); font-size: 12px; font-weight: 600; fill: var(--teal-ink); text-anchor: middle; dominant-baseline: central; }
 .graph-svg .n-seen circle, .graph-svg .n-queued circle, .graph-svg .n-onstack circle { fill: var(--teal-wash); stroke: var(--teal); stroke-width: 2.5; }

@@ -178,12 +178,12 @@ const quiz = [
         <p class="note-label">Depth-first search (DFS)</p>
         <p><b>Depth-first search (DFS)</b> is a <b>graph traversal algorithm</b> that visits every vertex reachable from a starting vertex. It starts at one vertex and keeps moving to an unvisited neighbor, going as <b>deep</b> as possible. When it reaches a vertex with no unvisited neighbors (a dead end), it <b>backtracks</b>: it goes back to the previous vertex and tries another neighbor. It uses a <b>stack</b>.</p>
       </div>
-      <figure class="fig illus-fig"><Fragment set:html={dfsDive()} /><figcaption>DFS from A on the main example (<Peek label="the same graph as the lab in Part 3" title="Part 3 lab: main example" html={labPeek} />). It goes A → B → C → F → E → D. D has no unvisited neighbors (a dead end), so DFS backs up to E and goes deeper to G. G is a dead end too, so it backs up to E again. Now E, F, C, B, and A have no unvisited neighbors left, so DFS backs up through each of them to A, and the stack is empty.</figcaption></figure>
+      <figure class="fig illus-fig"><Fragment set:html={dfsDive()} /><figcaption>DFS from A on the main example (<Peek label="the same graph as the lab in Part 3" title="Part 3 lab: main example" html={labPeek} />). It dives A → B → C → F → E → D. D is a dead end, so DFS backs up to E and dives to G. G is a dead end too, so DFS backs up step by step until the stack is empty.</figcaption></figure>
       <div class="sticky">
         <p class="note-label">Think of opening folders</p>
-        <p>You are looking for a file on a computer. You open the first folder, then the first folder inside it, then the first folder inside <i>that</i>... until a folder has no more folders inside. Then you click <b>Back</b> once and open the next folder there. The Back button is the stack: it remembers the way you came.</p>
+        <p>To find a file, you open a folder, then a folder inside it, and so on, until a folder has nothing more inside. Then you click <b>Back</b> once and open the next folder there. The Back button works like the stack: it remembers the way you came.</p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={folderSvg} /><figcaption>Open folders deep first: Documents, ITC120, Week 9. Week 9 is empty, so click <b>Back</b>: you return to ITC120, the folder you came from, and open Week 10. Two more Backs bring you to Documents, which still has Photos. Photos is empty too, so one last Back, and you have seen every folder.</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={folderSvg} /><figcaption>Documents, then ITC120, then Week 9. Week 9 is empty, so click <b>Back</b> to ITC120 and open Week 10. Keep going until every folder is seen.</figcaption></figure>
       <p>Compare with BFS: BFS spreads out in waves (wide first). DFS dives down one path (deep first). Same graph, same start, different order:</p>
       <table class="tbl">
         <tbody>
@@ -229,12 +229,7 @@ const quiz = [
               <p class="mk-right"><b>✓ DFS order (push order)</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
             </div>
           </li>
-          <li><b>The neighbor order changes the answer.</b> At A, both B and D are unvisited. Taking B first (alphabetical) gives one order; taking the last neighbor first (Z to A) gives another. <b>Both are correct DFS orders</b>, because DFS itself does not say which neighbor comes first:
-            <div class="mk-ans mk-solo">
-              <p class="mk-right"><b>✓ Alphabetical</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
-              <p class="mk-right"><b>✓ Z to A (also a correct DFS)</b><span class="mono">A, D, E, G, F, C, B</span></p>
-            </div>
-            Many books, courses, and exams still add a rule, usually alphabetical order, <b>so everyone gets the same answer</b> and answers are easy to check. If the question gives a rule, follow it. If it gives none, any correct order is fine, but alphabetical is the safe habit: it matches most answer keys. For numbered vertices, the usual rule is smallest number first, comparing them as numbers (2 before 10).</li>
+          <li><b>Use alphabetical order</b> for neighbors (smallest number first for numbered vertices), like in BFS. Another order can also be a correct DFS, but alphabetical is what answer keys expect.</li>
         </ol>
       </div>
       <details class="reveal"><summary>Extra: the "push-all" way in some books</summary><div class="flow">
@@ -264,7 +259,7 @@ const quiz = [
         { label: 'Directed', g: oneWay, start: 'F' },
         { label: 'Separate pieces', g: islands, start: 'A' },
       ]} />
-      <p>The three buttons are three different <b>graphs</b>, not three kinds of DFS. <b>Directed</b> starts at F: follow the arrows and see how few vertices DFS can reach. <b>Separate pieces</b> starts at A: DFS stops after A, B, C, because nothing connects them to the rest.</p>
+      <p>The other buttons are different <b>graphs</b>, not different kinds of DFS. In <b>Directed</b>, DFS from F reaches only a few vertices. In <b>Separate pieces</b>, DFS from A stops after A, B, and C.</p>
       <div class="plain">
         <p class="note-label">DFS and recursion</p>
         <p>"Go deeper, and when stuck, go back to where you came from" is exactly how <b>recursion</b> works. Each recursive call is a push; each return is a pop. That is why DFS is usually written as a short recursive method (Part 7), and Java's call stack does the stack work for you.</p>
@@ -317,9 +312,9 @@ const quiz = [
 
       <div class="remember">
         <p class="note-label">Where you see DFS in IT</p>
-        <p>Searching all folders on a drive, solving mazes and puzzles, and checking for <b>cycles</b>. For example, a project tool can check if tasks wait on each other in a circle (task A waits for B, B waits for C, C waits for A), which would mean nothing can ever start.</p>
+        <p>Searching all folders on a drive, solving mazes, and checking for <b>cycles</b>. For example, a project tool can check if tasks wait on each other in a circle (A waits for B, B for C, C for A), which means none of them can start.</p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={dfsInIT()} /><figcaption>A maze is a graph: each fork or corner is a vertex, and each hallway is an edge. Like DFS, the cat follows one way to its end (1). At a dead end (2), it backs up to the last fork (3) and tries the next way (4). In a project plan, if DFS reaches a task that is still on its stack, it has gone around a circle: those tasks wait for each other forever. (Searching folders works like <Peek label="the folder picture in Part 1" title="From Part 1" html={folderSvg} />.)</figcaption></figure>
+      <figure class="fig illus-fig illus"><Fragment set:html={dfsInIT()} /><figcaption>A maze is a graph: each fork or corner is a vertex, and each hallway is an edge. Like DFS, the cat follows one way to its end (1). At a dead end (2), it backs up to the last fork (3) and tries the next way (4). In a project plan, if DFS reaches a task that is still on its stack, it found a circle of tasks waiting for each other.</figcaption></figure>
     </div>
   </section>
 

@@ -944,8 +944,8 @@ export function treeVsGraph() {
   const P = { A: [86, 70], B: [50, 122], C: [122, 122], D: [30, 174], E: [70, 174], F: [142, 174] };
   for (const [a, b] of [['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F']]) s += edge(P[a], P[b]);
   for (const [k, [x, y]] of Object.entries(P)) s += node(x, y, k, k === 'A' ? C.butter : '#fff');
-  s += lab(106, 58, 'root', O, 'start', 12, 800);
-  s += lab(86, 220, 'one root: start here', soft, 'middle', 12) + lab(86, 238, 'no cycles: paths end', soft, 'middle', 12);
+  s += lab(106, 56, 'root', O, 'start', 14, 800);
+  s += lab(86, 218, 'one root', soft, 'middle', 15, 800) + lab(86, 238, 'no cycles', soft, 'middle', 15, 800);
 
   // Graph card
   s += card(172, 4, 164, 250) + lab(186, 30, 'Graph', O, 'start', 15, 800);
@@ -954,8 +954,8 @@ export function treeVsGraph() {
   for (const [k, [x, y]] of Object.entries(G)) s += node(x, y, k);
   // circling arrow in the middle of the cycle
   s += `<path d="M254 88 A 24 24 0 1 1 231 118" fill="none" stroke="${O}" stroke-width="2.2" marker-end="url(#tgO)"/>`;
-  s += lab(254, 194, 'A, B, C, D, A, B, C, D, …', R, 'middle', 12, 800);
-  s += lab(254, 220, 'no root: start anywhere', soft, 'middle', 12) + lab(254, 238, 'cycles: can loop forever', soft, 'middle', 12);
+  s += lab(254, 192, 'A, B, C, D, A, …', R, 'middle', 14, 800);
+  s += lab(254, 218, 'no root', soft, 'middle', 15, 800) + lab(254, 238, 'can loop forever', soft, 'middle', 15, 800);
 
   // Fix card
   s += card(4, 266, 332, 178) + lab(18, 292, 'The fix: remember what you have seen', T, 'start', 15, 800);
@@ -964,9 +964,9 @@ export function treeVsGraph() {
   s += edge([44, 386], [44, 344], soft, ' stroke-dasharray="4 4"');
   for (const [k, [x, y]] of Object.entries(F)) s += node(x, y, k, k === 'D' ? C.orangeWash : C.tealWash, k === 'D' ? O : T);
   s += `<circle cx="44" cy="365" r="9" fill="#fff" stroke="${R}" stroke-width="1.6"/>` + lab(44, 370, '✗', R, 'middle', 13, 800);
-  s += `<rect x="156" y="314" width="168" height="30" rx="7" fill="${C.tealWash}" stroke="${T}" stroke-width="1.4"/>`;
-  s += lab(166, 334, 'seen:', T, 'start', 13, 800) + lab(208, 334, 'A ✓  B ✓  C ✓  D ✓', ink, 'start', 13, 700);
-  s += lab(158, 370, 'At D, the next vertex is A.', ink, 'start', 12.5) + lab(158, 390, 'A is already seen: skip it.', R, 'start', 12.5, 800) + lab(158, 410, 'Each vertex is visited once.', ink, 'start', 12.5);
+  s += `<rect x="150" y="312" width="180" height="32" rx="7" fill="${C.tealWash}" stroke="${T}" stroke-width="1.4"/>`;
+  s += lab(158, 333, 'seen:', T, 'start', 14, 800) + lab(200, 333, 'A✓ B✓ C✓ D✓', ink, 'start', 15, 800);
+  s += lab(152, 372, 'After D comes A.', ink, 'start', 15) + lab(152, 396, 'A is seen: skip it.', R, 'start', 15, 800) + lab(152, 420, 'Each one visited once.', ink, 'start', 15);
   return s + '</svg>';
 }
 
@@ -988,7 +988,7 @@ export function bfsWaves() {
     const right = i === 3 ? `L${Rr} ${top} L${Rr} ${bot}` : `L${Rr} ${top} Q${Rr + 16} ${(top + bot) / 2} ${Rr} ${bot}`;
     s += `<path d="${left} ${right} Z" fill="${band[i]}"/>`;
     const cx = (L + Rr) / 2 + (i ? 4 : 0);
-    s += lab(cx, 66, 'Level ' + i, col[i], 'middle', 14, 800) + lab(cx, 82, sub[i], soft, 'middle', 11.5, 700);
+    s += lab(cx, 66, 'Level ' + i, col[i], 'middle', 14, 800) + lab(cx, 84, sub[i], soft, 'middle', 13.5, 700);
   }
   for (const x of xs.slice(1, 4)) s += `<path d="M${x} ${top} Q${x + 16} ${(top + bot) / 2} ${x} ${bot}" fill="none" stroke="${soft}" stroke-width="1.2" stroke-dasharray="4 4"/>`;
   s += `<rect x="4" y="${top}" width="332" height="${bot - top}" rx="10" fill="none" stroke="#d9dedb" stroke-width="1.5"/>`;
@@ -997,13 +997,13 @@ export function bfsWaves() {
   for (const [a, b] of [['A', 'B'], ['A', 'D'], ['B', 'C'], ['B', 'E'], ['D', 'E'], ['C', 'F'], ['E', 'F'], ['E', 'G'], ['F', 'G']]) s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${soft}" stroke-width="1.8"/>`;
   for (const [k, [x, y]] of Object.entries(P)) s += `<circle cx="${x}" cy="${y}" r="16" fill="${box[lvl[k]]}" stroke="${col[lvl[k]]}" stroke-width="2"/>` + lab(x, y + 5, k, ink, 'middle', 15, 800);
   // queue strip
-  s += lab(4, 290, 'The queue gets them in the same order:', soft, 'start', 12.5, 800);
+  s += lab(4, 290, 'The queue gets them in the same order:', soft, 'start', 14, 800);
   const groups = [['A'], ['B', 'D'], ['C', 'E'], ['F', 'G']];
   let x = 15;
   groups.forEach((g, i) => {
     const gx = x;
     for (const v of g) { s += `<rect x="${x}" y="300" width="40" height="32" fill="${box[i]}" stroke="${ink}" stroke-width="1.6"/>` + lab(x + 20, 322, v, ink, 'middle', 15, 800); x += 40; }
-    s += lab((gx + x) / 2, 350, 'L' + i, col[i], 'middle', 12, 800);
+    s += lab((gx + x) / 2, 351, 'L' + i, col[i], 'middle', 14, 800);
     x += 10;
   });
   return s + '</svg>';
@@ -1020,8 +1020,8 @@ export function newsWaves() {
     const x = cx(c), y = by(r), d = Math.abs(c - 2) + Math.abs(r - 1), you = d === 0;
     s.path(`M${x - 25} ${y - 30} L${x} ${y - 52} L${x + 25} ${y - 30} Z`, { fill: you ? C.orange : roof, sw: 1.6 });
     s.rect(x - 20, y - 30, 40, 30, { fill: you ? C.orangeWash : wall[d], sw: 1.6, rough: 0.8 });
-    if (you) s.text(x, y - 10, 'You', { font: 'body', size: 13, weight: 800, color: C.ink });
-    else { s.circle(x, y - 15, 20, { fill: C.card, sw: 1.2 }); s.text(x, y - 10, String(d), { font: 'body', size: 13, weight: 800 }); }
+    if (you) s.text(x, y - 10, 'You', { font: 'body', size: 14, weight: 800, color: C.ink });
+    else { s.circle(x, y - 15, 20, { fill: C.card, sw: 1.2 }); s.text(x, y - 9, String(d), { font: 'body', size: 15, weight: 800 }); }
   }
   // first wave: you tell your next-door neighbors (orange)
   const O = { stroke: C.orange, sw: 2.4, head: 8 };
@@ -1033,10 +1033,10 @@ export function newsWaves() {
   s.arrow(236, by(1) - 54, 236, by(0) + 4, A).arrow(236, by(1) + 4, 236, by(2) - 54, A);
   // legend
   [['0', 'level 0', C.orangeWash], ['1', 'level 1', wall[1]], ['2', 'level 2', wall[2]], ['3', 'level 3', wall[3]]].forEach(([n, t, f], i) => {
-    const x = 14 + i * 82;
+    const x = 8 + i * 80;
     s.rect(x, 268, 20, 18, { fill: f, sw: 1.3, rough: 0.6 });
-    s.text(x + 10, 282, n, { font: 'body', size: 12, weight: 800 });
-    s.text(x + 28, 282, t, { font: 'body', size: 13, weight: 700, anchor: 'start', color: C.soft });
+    s.text(x + 10, 282, n, { font: 'body', size: 13, weight: 800 });
+    s.text(x + 25, 283, t, { font: 'body', size: 14, weight: 700, anchor: 'start', color: C.soft });
   });
   return s.svg('A block of 15 houses in three rows, with your house in the middle (level 0: you already know the news). Your four next-door houses are marked 1 (level 1): they hear the news first (orange arrows from your house). Houses two steps away are marked 2, and the four corner houses, three steps away, are marked 3. Amber arrows show one of your neighbors passing the news on to its own neighbors.').replace(/(\d+\.\d)\d+/g, '$1');
 }
@@ -1138,15 +1138,15 @@ export function canteenLine() {
   };
   [96, 146, 196, 246].forEach((x, i) => person(x, shirts[i], String(i + 1)));
   person(310, C.card, '');
-  s.text(310, 140, 'new', { font: 'body', size: 11, weight: 800, color: C.teal });
-  s.text(96, 64, 'front', { font: 'body', size: 13, weight: 800, color: C.orange });
-  s.text(246, 64, 'rear', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.text(310, 140, 'new', { font: 'body', size: 13, weight: 800, color: C.teal });
+  s.text(96, 64, 'front', { font: 'body', size: 15, weight: 800, color: C.orange });
+  s.text(246, 64, 'rear', { font: 'body', size: 15, weight: 800, color: C.teal });
   s.arrow(80, 124, 62, 124, { stroke: C.orange, sw: 2.4, head: 8 });
   s.arrow(292, 124, 266, 124, { stroke: C.teal, sw: 2.4, head: 8 });
-  s.text(76, 178, 'served first, leaves', { font: 'body', size: 12.5, weight: 700, color: C.soft });
-  s.text(76, 196, 'the front = dequeue', { font: 'body', size: 12.5, weight: 800, color: C.orange });
-  s.text(264, 178, 'joins at the rear', { font: 'body', size: 12.5, weight: 700, color: C.soft });
-  s.text(264, 196, '= enqueue', { font: 'body', size: 12.5, weight: 800, color: C.teal });
+  s.text(78, 178, 'served first', { font: 'body', size: 15, weight: 700, color: C.soft });
+  s.text(78, 198, '= dequeue', { font: 'body', size: 15, weight: 800, color: C.orange });
+  s.text(262, 178, 'joins the rear', { font: 'body', size: 15, weight: 700, color: C.soft });
+  s.text(262, 198, '= enqueue', { font: 'body', size: 15, weight: 800, color: C.teal });
   return s.svg('A canteen line of four students numbered 1 to 4. Student 1 at the front is served first and leaves: that is dequeue. A new student joins at the rear, behind student 4: that is enqueue.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
@@ -1179,30 +1179,29 @@ export function queueSteps() {
     }
     // the one queue
     const X = 92, W = 46, Y = 140;
-    s += lab(X - 2, Y + 58, 'front', O, 'start', 12, 800) + lab(X + 3 * W + 70, Y + 58, 'rear', T, 'end', 12, 800);
+    s += lab(X - 2, Y + 60, 'front', O, 'start', 14, 800) + lab(X + 3 * W + 70, Y + 60, 'rear', T, 'end', 14, 800);
     s += `<rect x="${X - 6}" y="${Y - 4}" width="${3 * W + 12 + 74}" height="44" rx="8" fill="#fff" stroke="${soft}" stroke-width="1.6"/>`;
-    s += lab(X + (3 * W + 86) / 2 - 6, Y + 58, 'the queue', soft, 'middle', 11.5, 700);
-    if (!q) s += lab(X + 8, Y + 25, 'empty', soft, 'start', 13, 800);
+    s += lab(X + (3 * W + 86) / 2 - 6, Y + 60, 'the queue', soft, 'middle', 13.5, 700);
+    if (!q) s += lab(X + 8, Y + 25, 'empty', soft, 'start', 15, 800);
     [...q].forEach((v, j) => {
       const isNew = add.includes(v);
       s += `<rect x="${X + j * W}" y="${Y}" width="${W - 4}" height="36" rx="5" fill="${C.tealWash}" stroke="${T}" stroke-width="${isNew ? 2.4 : 1.6}"/>` + lab(X + j * W + (W - 4) / 2, Y + 24, v, ink, 'middle', 15, 800);
-      if (isNew) s += lab(X + j * W + (W - 4) / 2, Y - 10, 'new', T, 'middle', 11, 800);
+      if (isNew) s += lab(X + j * W + (W - 4) / 2, Y - 9, 'new', T, 'middle', 13, 800);
     });
     if (add) s += `<path d="M334 ${Y + 18} H${X + 3 * W + 78}" stroke="${T}" stroke-width="2.2"/><path d="M${X + 3 * W + 78} ${Y + 18} l8 -5 v10 z" fill="${T}"/>`;
     if (cur) {
       s += `<rect x="10" y="${Y}" width="42" height="36" rx="5" fill="${O}" stroke="${O}" stroke-width="1.6"/>` + lab(31, Y + 24, cur, '#fff', 'middle', 15, 800);
       s += `<path d="M${X - 10} ${Y + 18} H58" stroke="${O}" stroke-width="2.2"/><path d="M56 ${Y + 18} l9 -5 v10 z" fill="${O}"/>`;
-      s += lab(31, Y - 10, 'visit', O, 'middle', 12, 800);
+      s += lab(31, Y - 9, 'visit', O, 'middle', 14, 800);
     }
-    s += lab(18, 224, 'Visited: ' + (done ? [...done].join(', ') : '(none yet)'), ink, 'start', 13, 800);
+    s += lab(12, 226, 'Visited: ' + (done ? [...done].join(', ') : '(none yet)'), ink, 'start', 15, 800);
     // the seen list: ticked the moment a vertex joins the queue
     const seen = done + q + (cur && !done.includes(cur) ? cur : '');
-    s += lab(18, 262, 'Seen:', T, 'start', 13, 800);
+    s += lab(12, 263, 'Seen:', T, 'start', 14, 800);
     [...'ABCDEFG'].forEach((v, i) => {
       const x = 66 + i * 38, on = seen.includes(v), nw = add.includes(v);
       s += `<rect x="${x}" y="242" width="34" height="30" rx="5" fill="${on ? C.tealWash : '#fff'}" stroke="${on ? T : '#c3cbca'}" stroke-width="${nw ? 2.6 : 1.4}"/>`;
-      s += lab(x + 11, 262, v, on ? ink : '#9aa7a8', 'middle', 13, 800) + (on ? lab(x + 25, 262, '✓', T, 'middle', 12, 800) : '');
-      if (nw) s += lab(x + 17, 286, 'new ✓', T, 'middle', 9.5, 800);
+      s += lab(x + 11, 263, v, on ? ink : '#9aa7a8', 'middle', 15, 800) + (on ? lab(x + 25, 263, '✓', T, 'middle', 14, 800) : '');
     });
     return { pic: s + '</svg>', say };
   });
@@ -1470,10 +1469,10 @@ export function bfsOrders() {
   const fill = [C.orangeWash, C.butter, C.tealWash], stroke = [C.orange, '#a8650f', C.teal];
   const lv = { A: 0, B: 1, C: 1, D: 2, E: 2 };
   const P = { A: [62, 132], B: [170, 92], C: [170, 172], D: [278, 92], E: [278, 172] };
-  let s = `<svg class="objbox" viewBox="0 0 340 556" role="img" aria-label="BFS from A on a small graph: A connects to B and C, B connects to D, C connects to E. Level 0 is A, level 1 is B and C, level 2 is D and E. Correct: A, B, C, D, E, the alphabetical order. Also correct: A, C, B, E, D, taking C first, so C's neighbor E also comes first. Wrong: A, B, D, C, E, because D is 2 edges away but comes before C, which is 1 edge away.">`;
+  let s = `<svg class="objbox" viewBox="0 0 340 516" role="img" aria-label="BFS from A on a small graph: A connects to B and C, B connects to D, C connects to E. Level 0 is A, level 1 is B and C, level 2 is D and E. Correct: A, B, C, D, E, the alphabetical order. Also correct: A, C, B, E, D, taking C first, so C's neighbor E also comes first. Wrong: A, B, D, C, E, because D is 2 edges away but comes before C, which is 1 edge away.">`;
   s += dfsLab(170, 24, 'BFS from A: which orders are correct?', C.ink, 'middle', 15, 800);
   const xs = [8, 116, 224, 332], names = ['Level 0', 'Level 1', 'Level 2'];
-  for (let i = 0; i < 3; i++) { s += `<rect x="${xs[i]}" y="40" width="${xs[i + 1] - xs[i]}" height="170" fill="${fill[i]}" opacity="0.55"/>` + dfsLab((xs[i] + xs[i + 1]) / 2, 60, names[i], stroke[i], 'middle', 13, 800); }
+  for (let i = 0; i < 3; i++) { s += `<rect x="${xs[i]}" y="40" width="${xs[i + 1] - xs[i]}" height="170" fill="${fill[i]}" opacity="0.55"/>` + dfsLab((xs[i] + xs[i + 1]) / 2, 62, names[i], stroke[i], 'middle', 15, 800); }
   s += `<rect x="8" y="40" width="324" height="170" rx="10" fill="none" stroke="#d9dedb" stroke-width="1.5"/>`;
   for (const [a, b] of [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'E']]) s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${C.soft}" stroke-width="1.8"/>`;
   for (const [k, [x, y]] of Object.entries(P)) s += dfsNode(x, y, k, fill[lv[k]], stroke[lv[k]]);
@@ -1483,14 +1482,13 @@ export function bfsOrders() {
     order.split('').forEach((v, i) => { const x = 56 + i * 40;
       o += `<rect x="${x}" y="${y + 14}" width="34" height="32" rx="5" fill="${fill[lv[v]]}" stroke="${stroke[lv[v]]}" stroke-width="1.8"/>` + dfsLab(x + 17, y + 36, v, C.ink, 'middle', 15, 800); });
     if (!ok) o += `<path d="M${56 + 2 * 40 - 4} ${y + 10} L${56 + 2 * 40 + 38} ${y + 10} L${56 + 2 * 40 + 38} ${y + 50} L${56 + 2 * 40 - 4} ${y + 50} Z" fill="none" stroke="${C.red}" stroke-width="2.2" stroke-dasharray="5 3"/>`;
-    o += dfsLab(56, y + 66, l1, ok ? C.ink : C.red, 'start', 12.5, 800) + dfsLab(56, y + 81, l2, C.soft, 'start', 12, 700);
+    o += dfsLab(56, y + 64, l1, ok ? C.ink : C.red, 'start', 14.5, 800) + dfsLab(56, y + 81, l2, C.soft, 'start', 14, 700);
     return o;
   };
-  s += row(224, true, 'ABCDE', 'Correct: alphabetical (B before C)', 'the order most answer keys expect');
-  s += row(320, true, 'ACBED', 'Also correct: C first, so C’s E comes first too', 'still nearest first, level by level');
-  s += row(416, false, 'ABDCE', 'Wrong: D (level 2) came before C (level 1)', 'that is going deep, not wide');
-  s += dfsLab(170, 530, 'A rule like “alphabetical” just picks one correct order.', C.soft, 'middle', 12, 700);
-  return s + '</svg>';
+  s += row(224, true, 'ABCDE', 'Correct: alphabetical order', 'what most answer keys expect');
+  s += row(320, true, 'ACBED', 'Also correct: C before B', 'still level by level');
+  s += row(416, false, 'ABDCE', 'Wrong: D jumps ahead of C', 'D is level 2, C is level 1');
+    return s + '</svg>';
 }
 
 /* ---------------- Sets lesson (chat 12) ---------------- */
