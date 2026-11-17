@@ -46,7 +46,13 @@ const lv = (run) => {
 };
 const r1Levels = lv(r1), r2Levels = lv(r2);
 const r1Max = r1Levels[r1Levels.length - 1];
-// exam-style trace rows for problem 1 (one row per dequeue)
+// exam-style trace rows (one row per dequeue): main example from A (Part 2) and problem 1
+const traceRows = (run) => run.order.map((u) => {
+  const st = run.steps.filter((s) => s.current === u).at(-1);
+  const add = Object.keys(run.parent).filter((v) => run.parent[v] === u).sort();
+  return { u, add: add.join(', ') || '(none)', queue: st.ds.join(', ') || '(empty)' };
+});
+const cityRows = traceRows(cityRun);
 const r1Rows = r1.order.map((u) => {
   const st = r1.steps.filter((s) => s.current === u).at(-1);
   const add = Object.keys(r1.parent).filter((v) => r1.parent[v] === u).sort();
@@ -263,6 +269,14 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
       </div>
       <p>Here are the same steps on the main example, starting at A. Before each tap of Next, say out loud which vertex leaves the front and which ones join the rear.</p>
       <StepShow id="bfs-queue" cap="One queue, step by step" hint="Tap Next. A vertex leaves from the front, and new ones join at the rear." steps={queueSteps()} />
+      <p>On paper (and on exams), you write the same steps as a <b>trace table</b>, with one row for each dequeue. Here is the BFS above, written as a table. "Newly seen" are the neighbors that get a ✓ and join the rear of the queue in that step.</p>
+      <div class="tbl-wrap">
+        <table class="tbl small">
+          <thead><tr><th>Step</th><th>Dequeue (visit)</th><th>Newly seen (enqueue)</th><th>Queue after (front → rear)</th></tr></thead>
+          <tbody>{cityRows.map((r, i) => <tr><td>{i + 1}</td><td class="mono">{r.u}</td><td class="mono nowrap">{r.add}</td><td class="mono nowrap">{r.queue}</td></tr>)}</tbody>
+        </table>
+      </div>
+      <p>The BFS order is the "Dequeue" column read from top to bottom: <b>{cityRun.order.join(', ')}</b>.</p>
       <div class="trap">
         <p class="note-label">Exam traps</p>
         <ul>
