@@ -46,6 +46,12 @@ const lv = (run) => {
 };
 const r1Levels = lv(r1), r2Levels = lv(r2);
 const r1Max = r1Levels[r1Levels.length - 1];
+// exam-style trace rows for problem 1 (one row per dequeue)
+const r1Rows = r1.order.map((u) => {
+  const st = r1.steps.filter((s) => s.current === u).at(-1);
+  const add = Object.keys(r1.parent).filter((v) => r1.parent[v] === u).sort();
+  return { u, add: add.join(', ') || '(none)', queue: st.ds.join(', ') || '(empty)' };
+});
 
 const code = String.raw`import java.util.LinkedList;
 import java.util.Queue;
@@ -247,7 +253,6 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
         <p>A <b>seen list</b> is a checklist of every vertex BFS has already found. A vertex gets its ✓ the moment it joins the queue, and a vertex with a ✓ is never added again. That is what stops BFS from going around a cycle forever (<Peek label="Part 1" title="From Part 1" html={cyclePeek} />).</p>
         <p><b>Seen is not the same as visited.</b> A vertex is <b>seen</b> when it joins the queue, and <b>visited</b> later, when it leaves the front.</p>
       </div>
-      <StepShow id="bfs-queue" cap="One queue, step by step" hint="BFS uses only one queue. Tap Next and watch it: a vertex leaves from the front, new ones join at the rear." steps={queueSteps()} />
       <div class="sub">
         <h3>The BFS procedure</h3>
         <p>Every BFS follows these steps:</p>
@@ -262,6 +267,8 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
           <li>When the queue is empty, BFS is done.</li>
         </ol>
       </div>
+      <p>Here are the same steps on the main example, starting at A. Before each tap of Next, say out loud which vertex leaves the front and which ones join the rear.</p>
+      <StepShow id="bfs-queue" cap="One queue, step by step" hint="BFS uses only one queue. Tap Next and watch it: a vertex leaves from the front, new ones join at the rear." steps={queueSteps()} />
       <div class="trap">
         <p class="note-label">Exam traps</p>
         <ul>
@@ -313,6 +320,7 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
       <p>BFS gives you more than a visit order. While it runs, it also answers a very common question: <b>what is the fewest number of steps from the start to each vertex?</b></p>
       <p>You saw this question in <Peek label="Part 1" title="From Part 1" html={itPeek} />: the route with the <b>fewest hops</b> between two computers, and "people you may know" (people <b>2 friendships</b> away). Another example: the fewest links you must click to get from one web page to another. When every edge counts the same (an unweighted graph), "fewest steps" means "fewest edges".</p>
       <p>BFS gets this answer for free because of the waves. It reaches every level-1 vertex before any level-2 vertex, and so on, so the first time BFS finds a vertex, it found it the shortest way. That is why a vertex's <b>level</b> is exactly the <b>fewest edges</b> needed to reach it from the start.</p>
+      <p>So on paper, one rule gives you every level: a new vertex's level is <b>1 more than the level of the vertex that found it</b> (the vertex that was leaving the queue when it joined). A is level 0, so B and D (found by A) are level 1, and C and E (found by B) are level 2.</p>
       <figure class="fig">
         <p class="fig-cap">Fewest edges from A to G</p>
         <GraphFig g={city} labels={levelLabels} edgeMarks={pathMarks} nodeMarks={pathNodes} label="Main example with levels; the path A, B, E, G is highlighted" />
@@ -320,7 +328,7 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
       </figure>
       <div class="sub">
         <h3>How to recover the path</h3>
-        <p>The level tells you <b>how far</b> G is (3 edges). To also know <b>which way</b> to go, write down <b>who found each vertex</b> while doing BFS (its parent in the BFS). Then start at G and follow the parents back to A:</p>
+        <p>The level tells you <b>how far</b> G is (3 edges). To also know <b>which way</b> to go, write down <b>who found each vertex</b> while doing BFS. A vertex is <b>found by</b> the vertex that was leaving the queue when it joined. For example, B and D join the queue while A is leaving, so both are found by A. (Books also call this the vertex's <b>parent</b> in the BFS.) Then start at G and follow the parents back to A:</p>
         <table class="tbl">
           <thead><tr><th>Vertex</th>{Object.keys(cityRun.parent).sort().map((k) => <th>{k}</th>)}</tr></thead>
           <tbody><tr><td><b>Found by</b></td>{Object.keys(cityRun.parent).sort().map((k) => <td>{cityRun.parent[k]}</td>)}</tr></tbody>
@@ -373,6 +381,7 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
           <li>Draw the queue as a row of boxes. When you dequeue, cross out the front box. Add new vertices at the right end.</li>
           <li>Keep a "seen" list beside it, and write the BFS order underneath.</li>
           <li>Write each vertex's level next to it on the drawing.</li>
+          <li>Or write the trace as a <b>table</b>, with one row for each dequeue. Use four columns, called Step, Dequeue (visit), Newly seen (enqueue), and Queue after. The answer to Problem 1 shows one.</li>
         </ul>
       </div>
 
@@ -388,6 +397,13 @@ const travelPeek = `${svgGraph(weighted, { label: 'Weighted graph: travel minute
           <summary>Show the answer</summary>
           <div class="flow">
             <p><b>BFS order:</b> <span class="mono">{r1.order.join(', ')}</span></p>
+            <p>The trace, one row for each dequeue. "Newly seen" are the neighbors that get a ✓ and join the rear of the queue in that step:</p>
+            <div class="tbl-wrap">
+              <table class="tbl small">
+                <thead><tr><th>Step</th><th>Dequeue (visit)</th><th>Newly seen (enqueue)</th><th>Queue after (front → rear)</th></tr></thead>
+                <tbody>{r1Rows.map((r, i) => <tr><td>{i + 1}</td><td class="mono">{r.u}</td><td class="mono nowrap">{r.add}</td><td class="mono nowrap">{r.queue}</td></tr>)}</tbody>
+              </table>
+            </div>
             <table class="tbl"><thead><tr><th>Level</th><th>Vertices</th></tr></thead>
               <tbody>{r1Levels.map((l) => <tr><td>{l.level}</td><td>{l.nodes.join(', ')}</td></tr>)}</tbody></table>
             <p><b>Farthest:</b> {r1Max.nodes.join(' and ')} (level {r1Max.level}). D's neighbors B, C, F, G all go in the queue first; A and E are found only on the second wave.</p>

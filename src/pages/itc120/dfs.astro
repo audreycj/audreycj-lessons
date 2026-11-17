@@ -206,6 +206,7 @@ const quiz = [
       <figure class="fig illus-fig"><Fragment set:html={stackSvg} /><figcaption>One moment of DFS from A: it has just reached D. <b>Before:</b> the stack, bottom to top, is A, B, C, F, E, D, exactly the path it walked. D is a dead end, so pop it. <b>After the pop:</b> the new top is E, the vertex DFS came from, so that is where it goes back to.</figcaption></figure>
       <div class="sub">
         <h3>The DFS procedure</h3>
+        <p>Like the seen list in BFS, DFS keeps a <b>visited</b> list (✓). A vertex gets its ✓ when it is pushed, and a vertex with a ✓ is never pushed again. That is how DFS knows a neighbor is "unvisited".</p>
         <p>Every DFS follows these steps:</p>
         <ol class="procedure">
           <li><b>Visit</b> the start vertex and <b>push</b> it onto the stack.</li>
@@ -362,6 +363,7 @@ const quiz = [
           <li>Draw the stack as a column. Write new vertices on top; cross out the top when you pop.</li>
           <li>Write the DFS order as you <b>push</b> each vertex.</li>
           <li>On the drawing, trace each step with a pencil so you can see the dead ends.</li>
+          <li>Or write the trace as a <b>table</b>, with one row for each push or pop. Use four columns, called Step, Action, Stack (bottom → top), and DFS order so far. The answer to Problem 1 shows one.</li>
         </ul>
       </div>
 

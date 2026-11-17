@@ -453,6 +453,20 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <GraphFig g={smallDir} show={['graph', 'matrix']} label="The directed graph and its adjacency matrix" />
       <p><b>How to read it:</b> pick a row and read across. Row A is <span class="mono">0 1 0 1</span>, so A has edges to B and D. To find edges coming <i>into</i> a vertex, read <b>down its column</b>: column A has a 1 in row C, so C → A.</p>
 
+      <div class="plain">
+        <p class="note-label">How to write the matrix from a drawing</p>
+        <p>Exams often give you a drawing and ask for its matrix. Follow these steps:</p>
+        <ol>
+          <li>Write the vertices in alphabetical order across the top (these are the columns) and down the left side (these are the rows). Use the same order both ways.</li>
+          <li>Fill every cell with 0.</li>
+          <li>Go through the edges one at a time. For an arrow from X to Y, change cell [X][Y] (row X, column Y) to 1.</li>
+          <li>In an <b>undirected</b> graph, an edge X–Y goes both ways, so change <b>two</b> cells to 1: [X][Y] and [Y][X].</li>
+          <li>Check your work by counting the 1s. A directed graph has one 1 for each arrow. An undirected graph has two 1s for each edge.</li>
+        </ol>
+        <p>For example, the small undirected graph in Part 1 has 4 edges (A–B, A–D, B–C, and B–D), so its matrix has 8 ones. You can see it below, under "Undirected: symmetric".</p>
+        <p class="small">The letters A, B, C, D are labels to help you read the matrix. Inside the computer, row A and column A are index 0, B is index 1, and so on (you will see this in Part 8).</p>
+      </div>
+
       <div class="sub">
         <h3>Three things to notice</h3>
         <p>The matrix shows you the type of graph. Look for these three things:</p>
@@ -488,6 +502,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       </div>
       <GraphFig g={smallDir} show={['graph', 'list']} label="The directed graph and its adjacency list" />
       <p>This should look familiar: each row is a <Peek label="linked list" title="From the Linked lists lesson" html={llPeek} /> from the linked lists lesson. A's list is <span class="mono">B → D → null</span>, so A has edges to B and D.</p>
+      <p><b>How to write the list from a drawing:</b> go through the vertices in alphabetical order. For each one, write every vertex its edges lead to, in alphabetical order, and end the list with <code>null</code>.</p>
       <p>For an <b>undirected</b> graph, each edge appears in <b>two</b> lists: A–B puts B in A's list and A in B's list. For a <b>weighted</b> graph, each cell also stores the weight, for example (B, 7).</p>
 
       <div class="trap">
