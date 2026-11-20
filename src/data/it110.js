@@ -29,7 +29,6 @@ export const terms = [
   },
   {
     id: 'midterm',
-    open: true,
     name: 'Midterm topics',
     note: 'Weeks 8 to 12. Everything you need for the midterm exam.',
     units: [
@@ -49,6 +48,7 @@ export const terms = [
   },
   {
     id: 'final',
+    open: true,
     name: 'Final topics',
     note: 'After the midterm: security, information systems, databases, and ethics.',
     units: [

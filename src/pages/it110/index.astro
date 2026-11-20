@@ -134,7 +134,8 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
   // Remember which terms the student opened or closed (this device only).
   (function () {
     document.querySelectorAll('details[data-term]').forEach(function (d) {
-      var k = 'lx:it110:term:' + d.dataset.term;
+      // 'term2' (chat 54): new key so everyone starts with the new default (Final open, Prelim and Midterm closed).
+      var k = 'lx:it110:term2:' + d.dataset.term;
       try { var v = localStorage.getItem(k); if (v !== null) d.open = v === '1'; } catch (e) {}
       d.addEventListener('toggle', function () { try { localStorage.setItem(k, d.open ? '1' : '0'); } catch (e) {} });
     });
@@ -143,7 +144,8 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
   (function () {
     // Also works with the short form #<lesson>, e.g. /it110/#system-software (for links shared with students).
     var h = location.hash;
-    if (h.length < 2) return;
+    // No link target: bring the current term (Final) into view on arrival (chat 54).
+    if (h.length < 2) { var cur = document.querySelector('details[data-term="final"]'); if (cur && cur.open && scrollY < 40) cur.scrollIntoView({ block: 'start' }); return; }
     var li = document.getElementById(h.indexOf('#l-') === 0 ? h.slice(1) : 'l-' + h.slice(1));
     if (!li) return;
     var d = li.closest('details');
