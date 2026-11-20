@@ -1,0 +1,78 @@
+---
+// "Spot the red flags" (IT 110, chat 55): a fake message on a phone; tap the suspicious parts.
+// Each message has a fixed list of slots, so the panel never changes height. All messages share one grid cell.
+// Usage: <RedFlags id="rf" msgs={[{ tab: 'Text', app: 'Messages', from: '+63 917 ...', time: '9:41 PM',
+//          parts: ['plain text ', { f: 'suspicious text', why: 'Why it is a red flag' }, ' more text'] }]} />
+// Fades are opacity-only, so they still run with Reduce Motion on. Styles: global.css "IT 110 chat 55: RedFlags".
+interface Flag { f: string; why: string; name: string }
+interface Msg { tab: string; app: string; from: string; sub?: string; time?: string; parts: (string | Flag)[] }
+interface Props { id: string; msgs: Msg[] }
+const { id, msgs } = Astro.props;
+---
+<div class="redflags" id={id}>
+  <div class="rf-tabs" role="tablist">
+    {msgs.map((m, i) => <button type="button" role="tab" class={i === 0 ? 'rf-tab is-on' : 'rf-tab'} aria-selected={i === 0 ? 'true' : 'false'} data-i={i}>{m.tab}</button>)}
+  </div>
+  <div class="rf-stage">
+    {msgs.map((m, i) => {
+      const flags = m.parts.filter((p) => typeof p !== 'string') as Flag[];
+      let k = -1;
+      return (
+        <div class={i === 0 ? 'rf-msg' : 'rf-msg is-hidden'} data-i={i} data-n={flags.length} aria-hidden={i === 0 ? 'false' : 'true'}>
+          <div class="rf-phone">
+            <div class="rf-bar"><span class="rf-app">{m.app}</span><span class="rf-time">{m.time}</span></div>
+            <p class="rf-from"><span class="rf-av" aria-hidden="true">{/[A-Za-z]/.test(m.from.trim().charAt(0)) ? m.from.trim().charAt(0) : '#'}</span><span><b>{m.from}</b>{m.sub && <small>{m.sub}</small>}</span></p>
+            <p class="rf-bubble">
+              {m.parts.map((p) => {
+                if (typeof p === 'string') return <span class="rf-plain">{p}</span>;
+                k++;
+                return <span class="rf-f" role="button" tabindex="0" data-k={k}>{p.f}</span>;
+              })}
+            </p>
+          </div>
+          <div class="rf-side">
+            <p class="rf-count" aria-live="polite">Red flags found: <b class="rf-got">0</b> of {flags.length}</p>
+            <ol class="rf-slots">
+              {flags.map((fl) => (
+                <li class="rf-slot"><span class="rf-q">?</span><span class="rf-a"><b>{fl.name}.</b> {fl.why}</span></li>
+              ))}
+            </ol>
+            <p class="rf-tip" aria-live="polite">Tap any part of the message that looks suspicious.</p>
+            <div class="rf-btns"><button type="button" class="btn rf-all">Show all</button><button type="button" class="btn rf-reset">Start over</button></div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var root = document.getElementById(id); if (!root) return;
+    var tabs = root.querySelectorAll('.rf-tab'), msgs = root.querySelectorAll('.rf-msg');
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        var i = t.dataset.i;
+        tabs.forEach(function (x) { var on = x.dataset.i === i; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+        msgs.forEach(function (m) { var on = m.dataset.i === i; m.classList.toggle('is-hidden', !on); m.setAttribute('aria-hidden', on ? 'false' : 'true'); });
+      });
+    });
+    msgs.forEach(function (m) {
+      var got = m.querySelector('.rf-got'), tip = m.querySelector('.rf-tip'), slots = m.querySelectorAll('.rf-slot'), n = Number(m.dataset.n);
+      var defTip = tip.textContent;
+      function count() { var c = m.querySelectorAll('.rf-f.is-found').length; got.textContent = c; if (c === n) tip.textContent = 'You found them all. Read each reason on the list.'; }
+      function reveal(k) { var b = m.querySelector('.rf-f[data-k="' + k + '"]'); b.classList.add('is-found'); slots[k].classList.add('is-found'); }
+      m.querySelectorAll('.rf-f').forEach(function (b) {
+        function hit() { reveal(Number(b.dataset.k)); tip.textContent = 'Red flag ' + (Number(b.dataset.k) + 1) + ' found.'; count(); }
+        b.addEventListener('click', hit);
+        b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hit(); } });
+      });
+      m.querySelectorAll('.rf-plain').forEach(function (s) {
+        s.addEventListener('click', function () { tip.textContent = 'That part looks normal. Try another part.'; });
+      });
+      m.querySelector('.rf-all').addEventListener('click', function () { for (var k = 0; k < n; k++) reveal(k); count(); });
+      m.querySelector('.rf-reset').addEventListener('click', function () {
+        m.querySelectorAll('.is-found').forEach(function (x) { x.classList.remove('is-found'); }); got.textContent = '0'; tip.textContent = defTip;
+      });
+    });
+  })();
+</script>

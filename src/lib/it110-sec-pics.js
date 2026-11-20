@@ -563,3 +563,6 @@ export function orgPic() {
   b += label(240, 28, 'only the access each job needs', B.blueInk, '#e3ecf8', 12.5);
   return svgWrap(480, 222, 'An office with a staff-only door and badge reader, an employee wearing an ID badge, and a locked payroll folder on a desk: each person gets only the access their job needs.', b);
 }
+
+// Shared with it110-threat-pics.js (chat 55): the detailed doodle kit and small helpers.
+export { L, C, P, lab, DASH, HOT, AIR, face, hood, check, cross, key, padlock, bubble, bubbleUp, packet, addrBar, SHADE, GLOSS, blob, ground, spark, dot, person2, hacker2, laptop2, phone2, padlock2, key2, shield2, envelope2, server2, fingerprint2, wifi2, coin, screenLines, globe, wall, router2, car2, label };

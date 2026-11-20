@@ -60,14 +60,14 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
                     {l.status === 'live' ? (
                       <a href={href(l.href)} data-lesson={href(l.href)}>
                         <span class="num">{i + 1}</span>
-                        <span class="txt"><span class="l-title">{l.title}</span>{l.blurb && <span class="l-blurb">{l.blurb}</span>}</span>
+                        <span class="txt">{l.series && <span class="l-series">{l.series}</span>}<span class="l-title">{l.title}</span>{l.blurb && <span class="l-blurb">{l.blurb}</span>}</span>
                         <span class="prog" aria-live="polite"></span>
                         <span class="go" aria-hidden="true">→</span>
                       </a>
                     ) : (
                       <div>
                         <span class="num">{i + 1}</span>
-                        <span class="txt"><span class="l-title">{l.title}</span><span class="l-blurb">{l.status === 'soon' ? 'Coming soon' : 'On Discord for now'}</span></span>
+                        <span class="txt">{l.series && <span class="l-series">{l.series}</span>}<span class="l-title">{l.title}</span><span class="l-blurb">{l.status === 'soon' ? 'Coming soon' : 'On Discord for now'}</span></span>
                       </div>
                     )}
                   </li>
@@ -119,6 +119,7 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
   .step.is-done .num { background: var(--teal); border-color: var(--teal); color: #fff; }
   .txt { display: grid; gap: 0.1rem; min-width: 0; }
   .l-title { font-weight: 800; }
+  .l-series { font-family: var(--font-mono, monospace); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); }
   .l-blurb { font-size: var(--step--1); color: var(--ink-soft); }
   .s-soon .l-title, .s-pdf .l-title { color: var(--ink-soft); }
   .s-soon .l-blurb { color: var(--orange-ink); font-weight: 700; }

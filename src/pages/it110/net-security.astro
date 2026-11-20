@@ -9,6 +9,7 @@ import ZoomPics from '../../components/ZoomPics.astro';
 import { course } from '../../data/it110.js';
 import { vpnTunnel, ico } from '../../lib/it110-net-pics.js';
 import { ciaPic, wifiSteal, sniffPic, evilTwin, factorPic, mfaPic, firewallPic, symKeyPic, padlockPic, httpsPic, layersPic, defPic, routerSettingsPic, orgPic } from '../../lib/it110-sec-pics.js';
+import { scenePic, threatDef } from '../../lib/it110-threat-pics.js';
 import { photo, photoRow, photoCredits, thumb } from '../../data/it110-photos.js';
 // real-life photos used on this page, in page order (credits listed in References)
 const photoKeys = ['rfidTags', 'secKey', 'otpToken', 'fpReader', 'faceLogin', 'routerPh', 'fwBox', 'wifiCafe'];
@@ -43,6 +44,7 @@ const factorSort = [
   { t: 'Your answer to "What is the name of your first pet?"', a: 0, why: 'A security question is still something you know.' },
   { t: 'Clocking in at work with your fingerprint', a: 2, why: 'Your fingerprint is part of your body: biometric.' },
 ];
+const kindsPeek = '<p>From earlier in Part 3: a system can ask for three kinds of proof. <b>Something you know</b> (possessed knowledge): a password, PIN, or pattern. <b>Something you have</b> (possessed object): an ID card, a security key, or your phone. <b>Something you are</b> (biometric): your fingerprint, face, iris, or voice.</p>' + factorPic('know') + factorPic('have') + factorPic('are');
 const mfaSteps = [0, 1, 2, 3].map((i) => ({ pic: mfaPic(i), say: [
   'A stranger bought Mia\'s email and password from a list of <b>leaked passwords</b>. He types them into her PeraBank login page. The password is correct.',
   'But Mia turned on <b>two-factor authentication</b>. The site asks for a second proof: a 6-digit code it sends to <b>Mia\'s phone</b>. The stranger does not have her phone.',
@@ -130,10 +132,10 @@ const final = [
       <h2>Why you should care about network and Internet security</h2>
     </div>
     <div class="flow">
-      <div class="sticky">
+      <div class="sticky has-pic">
         <p class="note-label">Picture this</p>
         <p>Late at night, Jessa gets a message from her classmate Paolo: "Can I borrow ₱500? Send it to my e-wallet, I'll pay you back tomorrow." It sounds like Paolo. But Paolo's account was taken over an hour ago. The stranger who now controls it is sending the same message to everyone on Paolo's friends list.</p>
-      </div>
+      <Fragment set:html={scenePic('paolo')} /></div>
       <p>This is network and Internet security in real life. One account was broken into, and the trouble spread to many people through the network. Here are the two terms behind the story:</p>
       <div class="def has-pic"><p class="note-label">Network and Internet security</p><p>Protecting computers, networks, the data on them, and the people who use them from being <b>broken into, damaged, or misused</b> through a network or the Internet.</p><Fragment set:html={defPic('security')} /></div>
       <div class="def has-pic"><p class="note-label">Cybercrime (computer crime)</p><p>Any crime done <b>using a computer or a network</b>. It includes stealing money or data, breaking into systems, damaging them, and online scams.</p><Fragment set:html={defPic('cybercrime')} /></div>
@@ -195,10 +197,10 @@ const final = [
       <h2>Unauthorized access and unauthorized use</h2>
     </div>
     <div class="flow">
-      <div class="sticky">
+      <div class="sticky has-pic">
         <p class="note-label">Picture this</p>
         <p>Two things happen on the same day. First, Lea borrows her seatmate's phone to call home and, while she has it, opens his Facebook and reads his chats. Second, at an office in town, a clerk who is allowed to use the office computer spends the whole day running her own online shop on it, against company rules.</p>
-      </div>
+      <Fragment set:html={scenePic('lea')} /></div>
       <p>Both are wrong, but in different ways. Lea got <b>in</b> where she had no permission. The clerk was allowed in, but <b>used</b> the computer for something not approved. Security has a name for each:</p>
       <div class="two-col">
         <div class="def has-pic"><p class="note-label">Unauthorized access</p><p>Gaining access to a computer, network, file, or other resource <b>without permission</b>. <i>Example:</i> Lea opening her seatmate's account.</p><Fragment set:html={defPic('access')} /></div>
@@ -331,9 +333,9 @@ const final = [
       <p>Biometrics are used to unlock phones and laptops, open doors, record attendance, and check travelers at airports.</p>
       <Fragment set:html={photoRow([['fpReader', 'A fingerprint reader at work.'], ['faceLogin', 'Logging in to a laptop with a face scan.']])} />
 
-      <h3>Practice: know, have, or are?</h3>
-      <p>Tap the kind of proof for each example.</p>
-      <SortTap id="sort-factor" cats={['Know', 'Have', 'Are']} items={factorSort} />
+      <h3>Practice: something you know, have, or are?</h3>
+      <p>Remember the <Peek label="three kinds of proof" title="From Part 3" html={kindsPeek} />: <b>something you know</b> (like a password), <b>something you have</b> (like your phone), and <b>something you are</b> (a part of your body, like your fingerprint). Tap the kind of proof for each example.</p>
+      <SortTap id="sort-factor" cats={['Something you know', 'Something you have', 'Something you are']} items={factorSort} />
 
       <div class="sub">
         <h3>Quick check: Part 3</h3>
@@ -354,13 +356,25 @@ const final = [
       <p class="bridge">This is the safeguard against <Peek label="war driving and Wi-Fi piggybacking" title="From Part 2" html={wifiPeek} />: if your Wi-Fi is locked with strong encryption and a long password, strangers nearby cannot get on.</p>
       <p>Your home router is the front door of your home network. Its settings page has a few switches that decide how safe the network is:</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={routerSettingsPic()} /><figcaption>A safely set-up router. The table below explains each setting.</figcaption></figure>
+      <p class="bridge">The most important switch is the router's <b>security mode</b>. To choose it well, you first need to know what the choices mean.</p>
+      <div class="def has-pic" id="wifi-standards" data-toc="WEP, WPA, WPA2, WPA3"><p class="note-label">Wi-Fi security standards</p><p>Wi-Fi signals travel through the air, so anyone nearby can catch them. A <b class="term">Wi-Fi security standard</b> is a set of rules that routers and devices follow to <b>scramble</b> (encrypt) everything sent over Wi-Fi, so only devices that know the Wi-Fi password can read it. It also decides how that password is checked.</p><p>There have been four standards so far. Each new one fixed the weaknesses of the one before it.</p><Fragment set:html={threatDef('wifisec')} /></div>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>Standard</th><th>Stands for</th><th>Year</th><th>Is it safe today?</th></tr></thead>
+        <tbody>
+          <tr><td><b class="term">WEP</b></td><td>Wired Equivalent Privacy</td><td>1999</td><td><b>No.</b> Badly broken: free tools can crack it in minutes.</td></tr>
+          <tr><td><b class="term">WPA</b></td><td>Wi-Fi Protected Access</td><td>2003</td><td><b>No.</b> A quick fix for WEP, now outdated.</td></tr>
+          <tr><td><b class="term">WPA2</b></td><td>Wi-Fi Protected Access 2</td><td>2004</td><td><b>Yes, the minimum.</b> Safe with a long password.</td></tr>
+          <tr><td><b class="term">WPA3</b></td><td>Wi-Fi Protected Access 3</td><td>2018</td><td><b>Yes, the best.</b> Harder to crack, even with a weaker password.</td></tr>
+        </tbody>
+      </table></div>
+      <p>You will learn more about how encryption works later in this part. For now, remember the rule: <b>the higher the number, the safer</b>, and WEP or an "open" network (no password at all) is never OK.</p>
       <p>These are the settings that matter most. Ask the owner of the router before changing anything:</p>
       <div class="scroll-x"><table class="tbl">
         <thead><tr><th>Setting</th><th>What to do</th><th>Why</th></tr></thead>
         <tbody>
-          <tr><td class="th-cell"><Fragment set:html={thumb('routerPh')} /><b>Security mode</b></td><td>Choose <b>WPA3</b>, or WPA2 if some devices are old. Never WEP, and never "open".</td><td>WPA (Wi-Fi Protected Access) encrypts the Wi-Fi signal. WEP is old and easy to break.</td></tr>
+          <tr><td class="th-cell"><Fragment set:html={thumb('routerPh')} /><b>Security mode</b></td><td>Choose <b>WPA3</b>, or WPA2 if some devices are old. Never WEP, and never "open".</td><td>They are the newest standards (see the table above). WEP is old and easy to break, and "open" means anyone can join.</td></tr>
           <tr><td><b>Wi-Fi password</b></td><td>Make it long, and share it only with people you know</td><td>Anyone with the password is inside your network.</td></tr>
-          <tr><td><b>Router admin password</b></td><td>Change the default one (often "admin")</td><td>This is a different password: it lets someone change all the settings. Default ones are printed online.</td></tr>
+          <tr><td><b>Router admin password</b></td><td>Change it to your own long password when you first set up the router. Many routers come from the factory with a <b>default password</b> that is the same for every router of that model, such as "admin" or "password". Many owners never change it.</td><td>This is <b>not</b> the Wi-Fi password. It opens the router's <b>settings page</b>, where someone can change everything: the Wi-Fi password, who can connect, and even which websites you are sent to. The default passwords of every router brand are listed on the Internet, so a stranger can simply look yours up and try it.</td></tr>
           <tr><td><b>Updates</b></td><td>Turn on automatic updates, or check for new <b>firmware</b> (the router's built-in software)</td><td>Updates fix security holes that attackers already know about.</td></tr>
           <tr><td><b>Guest network</b></td><td>Turn it on for visitors</td><td>Guests get Internet but cannot see your own devices and shared files.</td></tr>
         </tbody>
@@ -516,7 +530,7 @@ const final = [
           <li><b>Other safeguards:</b> WPA2/WPA3 Wi-Fi, firewalls and intrusion prevention, encryption (private key and public key; HTTPS is encrypted but not proof of honesty), VPNs, careful use of public Wi-Fi, least privilege for employees, and layers of protection.</li>
         </ol>
       </div>
-      <p><b>Next:</b> Lesson 2 of Network and Internet security, on malware, online scams, personal safety, and the laws, is coming soon. <a href={base + course.href}>Back to the IT 110 lessons</a>.</p>
+      <p><b>Next:</b> <a href={base + '/it110/online-threats/'}>Lesson 2: malware, scams, and staying safe</a>, on malware, online scams, personal safety, and the laws. <a href={base + course.href}>Back to the IT 110 lessons</a>.</p>
     </div>
   </section>
 

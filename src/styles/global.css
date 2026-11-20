@@ -1708,3 +1708,54 @@ body.nb .ph-frame:focus-within .ph-i { opacity: 1; }
 body.nb .ph-frame { cursor: zoom-in; }
 /* Round 16: room above the second heading in the References box (Photo credits) */
 body.nb .refs > ol + .note-label, body.nb .refs > ul + .note-label { margin-top: 2.2rem; }
+
+/* =====================================================================
+   IT 110 chat 55: Lesson 2 (online-threats). RedFlags "spot the red flags" phone + small helpers.
+   ===================================================================== */
+.redflags { background: #fff; border: 2px solid var(--ink); border-radius: 16px; box-shadow: 4px 4px 0 rgba(24, 35, 58, 0.22); padding: 1.4rem 1.4rem 1.5rem; }
+.redflags .rf-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.2rem; }
+.redflags .rf-tab { font: 600 1rem/1.2 var(--font-display); color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 99px; padding: 0.5rem 1rem; cursor: pointer; transition: background-color 0.2s; }
+.redflags .rf-tab.is-on { background: var(--cb, #d6e4f7); box-shadow: 2px 2px 0 var(--ink); }
+.redflags .rf-stage { display: grid; }
+.redflags .rf-msg { grid-area: 1 / 1; display: grid; grid-template-columns: minmax(0, 20rem) minmax(0, 1fr); gap: 1.6rem; align-items: start; opacity: 1; transition: opacity 0.3s ease; }
+.redflags .rf-msg.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.redflags .rf-phone { box-sizing: border-box; background: #2b3446; border: 2px solid var(--ink); border-radius: 30px; padding: 0.9rem 0.8rem 1.4rem; box-shadow: 3px 3px 0 rgba(24, 35, 58, 0.3); }
+.redflags .rf-bar { display: flex; justify-content: space-between; color: #c9d3e3; font-size: 0.85rem; font-weight: 700; padding: 0 0.6rem 0.6rem; }
+.redflags .rf-from { display: flex; align-items: center; gap: 0.6rem; margin: 0; background: #f1f4f9; border-radius: 16px 16px 0 0; padding: 0.7rem 0.8rem; line-height: 1.25; }
+.redflags .rf-from b { display: block; font-size: 0.98rem; overflow-wrap: anywhere; }
+.redflags .rf-from small { display: block; color: var(--ink-soft); font-size: 0.82rem; }
+.redflags .rf-av { flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; display: grid; place-items: center; background: #8fb0dc; color: #fff; font-weight: 800; }
+body.nb main .redflags .rf-from + .rf-bubble { margin-top: 0; }
+.redflags .rf-bubble { margin: 0; background: #fff; border-radius: 0 0 16px 16px; padding: 1rem 0.9rem 1.2rem; font-size: 1rem; line-height: 1.6; min-height: 12rem; }
+.redflags .rf-plain { cursor: default; }
+.redflags .rf-f { cursor: pointer; padding: 0.05em 0.1em; border-radius: 4px; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background-color 0.25s, box-shadow 0.25s; }
+.redflags .rf-f:hover { background: #f4f6f9; }
+.redflags .rf-f:focus-visible { outline: 2px solid #275a9c; outline-offset: 1px; }
+.redflags .rf-f.is-found { background: #ffe1da; box-shadow: 0 2px 0 #b23a33; }
+.redflags .rf-count { margin: 0 0 0.8rem; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+.redflags .rf-count b { color: #b23a33; }
+.redflags .rf-slots { margin: 0; padding-left: 1.6rem; display: grid; gap: 0.7rem; }
+body.nb .redflags .rf-slots li + li { margin-top: 0; }
+.redflags .rf-slot { position: relative; padding: 0.55rem 0.8rem; border: 1.5px dashed #c9d2df; border-radius: 10px; transition: border-color 0.3s, background-color 0.3s; }
+.redflags .rf-slot .rf-q { position: absolute; left: 0.8rem; top: 0.55rem; color: #9aa5b6; font-weight: 800; transition: opacity 0.3s; }
+.redflags .rf-slot .rf-a { display: block; opacity: 0; visibility: hidden; transition: opacity 0.35s ease; }
+.redflags .rf-slot.is-found { border-style: solid; border-color: #b23a33; background: #fff6f3; }
+.redflags .rf-slot.is-found .rf-q { opacity: 0; }
+.redflags .rf-slot.is-found .rf-a { opacity: 1; visibility: visible; }
+.redflags .rf-tip { margin: 0.9rem 0 0; min-height: 3.2em; color: var(--ink-soft); font-weight: 700; }
+.redflags .rf-btns { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
+@media (max-width: 46rem) { .redflags .rf-msg { grid-template-columns: minmax(0, 1fr); } .redflags .rf-phone { max-width: 21rem; width: 100%; justify-self: center; } }
+@media (max-width: 40rem) { .redflags { padding: 1.1rem 0.8rem 1.2rem; } }
+@media (prefers-reduced-motion: reduce) { .redflags .rf-msg { transition: opacity 0.2s linear; } }
+/* "If you were scammed" steps list: big numbers */
+body.nb ol.steps-big { padding-left: 0; list-style: none; counter-reset: sb; display: grid; gap: 0.9rem; }
+body.nb ol.steps-big > li { counter-increment: sb; position: relative; padding-left: 3rem; margin: 0; }
+body.nb ol.steps-big > li::before { content: counter(sb); position: absolute; left: 0; top: -0.1rem; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: #e27b3e; color: #fff; border: 2px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 600; }
+/* IT 110 chat 55 round 4: "Picture this" sticky notes with a scene drawing (scenePic in it110-threat-pics.js) */
+body.nb .sticky.has-pic { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; column-gap: 1.8rem; align-items: start; }
+body.nb .sticky.has-pic > :not(.scene-pic) { grid-column: 1; }
+body.nb .sticky.has-pic > .scene-pic { grid-column: 2; grid-row: 1 / span 6; align-self: center; width: 100%; height: auto; background: #fff; border: 1.5px solid #d9ad35; border-radius: 12px; }
+@media (max-width: 46rem) {
+  body.nb .sticky.has-pic { grid-template-columns: minmax(0, 1fr); }
+  body.nb .sticky.has-pic > .scene-pic { grid-column: 1; grid-row: auto; justify-self: center; width: min(100%, 20rem); margin-top: 1.1rem; }
+}

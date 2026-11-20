@@ -1,0 +1,541 @@
+---
+import Base from '../../layouts/Base.astro';
+import Quiz from '../../components/Quiz.astro';
+import Peek from '../../components/Peek.astro';
+import SortTap from '../../components/SortTap.astro';
+import RedFlags from '../../components/RedFlags.astro';
+import ZoomPics from '../../components/ZoomPics.astro';
+import { course } from '../../data/it110.js';
+import { ciaPic, mfaPic, firewallPic, httpsPic } from '../../lib/it110-sec-pics.js';
+import { scenePic, threatDef, malwarePic, scamPic, botnetPic, ddosPic, backupPic, phishFamilyPic, oversharePic, reportPic } from '../../lib/it110-threat-pics.js';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const L1 = base + '/it110/net-security/';
+
+// Peeks back to Lesson 1 (her rule: every back-reference comes with its meaning right there)
+const ciaPeek = '<p>From <b>Lesson 1</b>, Part 1: the <b>CIA triad</b> names the three things security protects. <b>Confidentiality</b>: only the right people can see the data. <b>Integrity</b>: no one changes it without permission. <b>Availability</b>: it works when you need it.</p>' + ciaPic('a');
+const integrityPeek = '<p>From <b>Lesson 1</b>, Part 1: <b>integrity</b> means the data is correct and is not changed without permission.</p>' + ciaPic('i');
+const firewallPeek = '<p>From <b>Lesson 1</b>, Part 4: a <b>firewall</b> checks the traffic going in and out of a network against rules and blocks what is not allowed, like a guard at a checkpoint.</p>' + firewallPic();
+const mfaPeek = '<p>From <b>Lesson 1</b>, Part 3: <b>multifactor authentication (MFA)</b> asks for two or more different kinds of proof, such as your password plus a one-time code sent to your phone. A stolen password alone is then not enough.</p>' + mfaPic(2);
+const otpPeek = '<p>From <b>Lesson 1</b>, Part 3: a <b>one-time PIN (OTP)</b> is a short code sent to your phone for one login or one payment. It proves you have your phone. <b>Never give it to anyone.</b> Real banks never ask for it.</p>' + mfaPic(3);
+const httpsPeek = '<p>From <b>Lesson 1</b>, Part 4: <b>HTTPS</b> (Hypertext Transfer Protocol Secure) and the lock icon mean the connection is <b>encrypted</b>. They do not prove the website is honest: scam sites can use HTTPS too.</p>' + httpsPic();
+const paoloPeek = '<p>From <b>Lesson 1</b>, Part 1: late at night, Jessa got a message from her classmate Paolo asking to borrow ₱500. But Paolo\'s account had been taken over. The stranger was sending the same message to everyone on Paolo\'s friends list.</p>';
+const philPeek = '<p>From Part 1: in September 2023, the Medusa <b>ransomware</b> group attacked PhilHealth, demanded US$300,000, and posted the stolen files online when PhilHealth refused to pay.</p>' + malwarePic('ransom');
+const lovePeek = '<p>From Part 2: in a <b>love scam</b>, someone builds an online relationship using stolen photos (<b>catfishing</b>), then asks for money.</p>' + scamPic('love');
+const socialPeek = '<p>From Part 2 of this lesson: <b>social engineering</b> means tricking people, instead of computers, into giving away information, money, or access.</p>';
+
+// Practice: which kind of malware?
+const malwareSort = [
+  { t: 'Ana downloads a "free" photo editor from a random site. It works, but it also secretly lets a stranger control her laptop. It does not copy itself.', a: 2, why: 'It pretends to be useful and hides something harmful inside: a Trojan horse.' },
+  { t: 'A program spreads by itself from computer to computer over the school network, without anyone opening a file.', a: 1, why: 'Spreading over a network by itself is what a worm does.' },
+  { t: 'A shop\'s files suddenly show a strange ending, and a note says: "Pay ₱50,000 in crypto to get your files back."', a: 3, why: 'Locking files and asking for payment is ransomware.' },
+  { t: 'Harmful code is hidden inside a Word file. It spreads to other files only when someone opens the infected file.', a: 0, why: 'It attaches itself to a file and needs a person to open it: a virus.' },
+  { t: 'A hidden program records every key Ben types, including his passwords, and sends them to a stranger.', a: 4, why: 'Secretly collecting information is spyware. This kind is called a keylogger.' },
+  { t: 'An infected USB flash drive copies harmful code into the files of every computer it is plugged into, once someone opens them.', a: 0, why: 'It attaches to files and spreads when they are opened: a virus. The USB drive is only how it travels.' },
+];
+
+// Red flags practice (fake messages; made-up names and numbers)
+const redMsgs = [
+  { tab: 'Text message', app: 'Messages', from: '+63 951 284 7730', sub: 'Text message', time: '9:41 PM', parts: [
+    { f: 'Dear user,', name: 'A greeting that does not use your name', why: 'Your real e-wallet knows your name. Mass scam texts are sent to thousands of numbers, so they cannot use it.' },
+    ' PERAPAY ALERT: Your account will be ',
+    { f: 'LOCKED within 2 hours', name: 'A rush and a threat', why: 'Scammers make you panic so you act before you think. Real companies do not lock accounts with a 2-hour countdown by text.' },
+    ' due to an unusual login. To keep your ₱8,450 balance, verify now at ',
+    { f: 'perapay-verify.co/login', name: 'A look-alike link', why: 'The real company\'s address would be its own domain, not "perapay-verify.co". Never log in through a link in a surprise message. Open the app yourself.' },
+    '. ',
+    { f: 'Enter your MPIN and the OTP we send.', name: 'It asks for your secret codes', why: 'No real company asks for your PIN or one-time PIN (OTP). Anyone who asks for them is trying to take over your account.' },
+  ] },
+  { tab: 'Messenger', app: 'Messenger', from: 'Paolo Dizon', sub: 'Active now', time: '11:58 PM', parts: [
+    'Bro, ',
+    { f: 'emergency! I need ₱2,000 right now', name: 'A sudden, urgent request for money', why: 'A friend who suddenly needs money late at night is the most common sign of a hijacked account.' },
+    ' for the hospital. Please send it to ',
+    { f: 'my tita\'s PeraPay: 0917 555 0142 (R. Lim)', name: 'The money goes to someone else\'s account', why: 'The name on the account is not your friend\'s. Scammers use other people\'s accounts (money mules) to receive the money.' },
+    '. ',
+    { f: 'My mic is broken so I can\'t call.', name: 'An excuse to avoid a call', why: 'The stranger cannot sound like Paolo, so he avoids a voice or video call. Call your friend on his number before you send anything.' },
+    ' ',
+    { f: 'Please don\'t tell anyone, I\'m embarrassed.', name: 'A request for secrecy', why: 'Secrecy stops you from checking with others who might warn you, such as Paolo\'s family.' },
+    ' I\'ll pay you back tomorrow.',
+  ] },
+  { tab: 'Job offer', app: 'Messenger', from: 'HR Mia | ShopMati Hiring', sub: 'Message request', time: '3:15 PM', parts: [
+    { f: 'Hi dear!', name: 'A stranger who is overly friendly', why: 'A real employer does not message strangers out of nowhere with "Hi dear".' },
+    ' We saw your profile. ',
+    { f: 'Earn ₱800 to ₱1,500 a day just by liking products online, 15 minutes only!', name: 'Too good to be true', why: 'Big pay for tiny, easy tasks is the bait of a task scam. The first small payouts are real, to win your trust.' },
+    ' No experience needed. To activate your account, ',
+    { f: 'pay a ₱300 registration fee', name: 'You must pay to get the job', why: 'Real employers pay you. They never ask you to pay to start working.' },
+    ', then ',
+    { f: 'message our manager on another app', name: 'It moves you to another app', why: 'Scammers move you to a private chat app where the platform cannot see or block them.' },
+    '. ',
+    { f: 'Slots are limited, reply today!', name: 'Pressure to decide fast', why: 'A countdown or "limited slots" is there to stop you from checking first.' },
+  ] },
+];
+
+const part1 = [
+  { q: 'Which kind of malware spreads over a network <b>by itself</b>, without anyone opening a file?', opts: ['A virus', 'A worm', 'A Trojan horse'], a: 1, why: 'A worm spreads by itself. A virus needs someone to open the infected file. A Trojan horse does not copy itself.' },
+  { q: 'Thousands of infected computers that a criminal controls from far away are called a...', opts: ['firewall', 'botnet', 'patch'], a: 1, why: 'Each infected computer is a bot (or zombie). Together they are a botnet.' },
+  { q: 'An attack floods the enrollment portal with fake requests, so real students cannot open it. This is a...', opts: ['denial of service (DoS) attack', 'data breach', 'Trojan horse'], a: 0, why: 'DoS attacks the availability of a system. When many computers attack at once, it is a distributed denial of service (DDoS) attack.' },
+  { q: 'Which habit protects you best if ransomware locks your files?', opts: ['A recent backup kept apart from your computer', 'A longer password', 'Paying the ransom quickly'], a: 0, why: 'With a backup you can get your files back without paying. Paying does not guarantee you get your files, and it funds more attacks.' },
+  { q: 'Why should you install updates for your phone and computer as soon as they come out?', opts: ['They make the screen brighter', 'They use up less storage', 'They fix security holes that malware can use'], a: 2, why: 'Many updates (patches) close holes that attackers already know about.' },
+];
+const part2 = [
+  { q: 'Someone uses Mia\'s name, photo, and ID number to borrow money from an online lending app. This is...', opts: ['identity theft', 'a worm', 'cyberbullying'], a: 0, why: 'Using another person\'s identity to get money or commit crimes is identity theft.' },
+  { q: 'A fake text with a link that asks you to "verify your account" is called...', opts: ['vishing', 'quishing', 'smishing'], a: 2, why: 'Smishing = phishing by SMS (text message). Vishing is by voice call. Quishing is by QR code.' },
+  { q: 'You type your bank\'s correct address, but malware on your computer sends you to a fake look-alike site. This is...', opts: ['pharming', 'spear phishing', 'a DoS attack'], a: 0, why: 'In pharming, the trip to the website is redirected, even when you type the right address.' },
+  { q: 'A stranger offers you ₱1,000 a week to "rent" your e-wallet account. If you agree, you may be...', opts: ['a money mule, which is a crime under the Anti-Financial Account Scamming Act', 'an ethical hacker', 'a smart investor'], a: 0, why: 'Letting your account receive or pass on scam money is money muling. It is a crime even if you did not do the scam yourself.' },
+  { q: 'A caller says he is from your bank. The number on your screen even says "PeraBank". He asks for the OTP just sent to you. You should...', opts: ['read him the OTP since the number is correct', 'hang up and call the bank yourself using the number on its official app or card', 'give only half of the OTP'], a: 1, why: 'Caller names and numbers can be faked (spoofing). Real banks never ask for your OTP.' },
+  { q: 'Which proves who signed a file and that it was not changed after signing?', opts: ['A digital signature', 'A deepfake', 'A screenshot'], a: 0, why: 'A digital signature is like a tamper-proof seal on a file.' },
+];
+const part3 = [
+  { q: 'Classmates keep posting edited photos of Bea to make fun of her in the class group chat. This is...', opts: ['cyberstalking', 'cyberbullying', 'pharming'], a: 1, why: 'Using technology to repeatedly hurt, shame, or harass someone, especially among students, is cyberbullying.' },
+  { q: 'Posting someone\'s home address and phone number online so others can harass them is called...', opts: ['doxxing', 'phishing', 'spoofing'], a: 0, why: 'Doxxing exposes private information about a person, usually to harass or scare them.' },
+  { q: 'Someone threatens to share your private photo unless you pay. What should you do?', opts: ['Pay so they will stop', 'Send another photo so they stay calm', 'Stop replying, keep the evidence, and report it to the platform and the police'], a: 2, why: 'Paying or sending more usually leads to more demands. Save evidence, block, report, and tell someone you trust.' },
+  { q: 'Which post is the safest to share publicly?', opts: ['A photo of your new school ID', 'A sunset photo posted after you got home', 'A live video that tags your exact location'], a: 1, why: 'Posting later, without IDs or live locations, gives strangers less to use.' },
+];
+const part4 = [
+  { q: 'Which Philippine law names illegal access, illegal interception, and computer-related identity theft as crimes?', opts: ['The Data Privacy Act of 2012', 'The Cybercrime Prevention Act of 2012', 'The SIM Registration Act'], a: 1, why: 'Republic Act (RA) 10175, the Cybercrime Prevention Act of 2012.' },
+  { q: 'Which law protects your personal information when schools, companies, and government offices collect it?', opts: ['The Data Privacy Act of 2012 (RA 10173)', 'The Anti-Bullying Act of 2013', 'The E-Commerce Act of 2000'], a: 0, why: 'The Data Privacy Act. The National Privacy Commission (NPC) enforces it.' },
+  { q: 'Which law made money muling and social engineering schemes crimes, with heavier penalties when they are done on a large scale?', opts: ['RA 9995', 'RA 8792', 'RA 12010, the Anti-Financial Account Scamming Act (AFASA)'], a: 2, why: 'AFASA (2024) treats them as economic sabotage when, for example, three or more people work together or there are three or more victims.' },
+  { q: 'Money was just sent from your e-wallet to a scammer. What should you do <b>first</b>?', opts: ['Post about it on Facebook', 'Call your e-wallet or bank right away, then report to hotline 1326', 'Wait a week to see if it comes back'], a: 1, why: 'The bank or e-wallet may be able to freeze the money if you are fast. Hotline 1326 coordinates with them and with the police.' },
+];
+const scenarios = [
+  { q: '<b>What would you do?</b> A pop-up says "Your phone has 5 viruses! Install CleanFast APK now." You...', opts: ['close it and only install apps from the official app store', 'install it right away to remove the viruses', 'tap the pop-up to see what it does'], a: 0, why: 'Fake virus warnings are a common way to trick people into installing malware.' },
+  { q: '<b>What would you do?</b> A seller on a buy-and-sell group asks for a ₱500 "reservation fee" before you can see a phone that costs half the usual price. You...', opts: ['pay the fee fast before someone else does', 'insist on meeting in a public place or using cash on delivery, and walk away if he refuses', 'send a photo of your ID so he trusts you'], a: 1, why: 'Deposits for deals that are too cheap are a common shopping scam. Never send your ID to strangers.' },
+  { q: '<b>What would you do?</b> Your tita gets a video call from "you" asking for money for an emergency. It looks and sounds like you, but you never called. What could help your family next time?', opts: ['A family code word that only you know, and calling back on your real number', 'Answering only video calls, since they cannot be faked', 'Sending money only to people with your face'], a: 0, why: 'Deepfakes can copy faces and voices. A code word and a call back on a known number beat both.' },
+  { q: '<b>What would you do?</b> A classmate is being mocked with edited photos in your section\'s group chat. You...', opts: ['add a laughing reaction so you are not left out', 'stay out of it completely', 'do not share it, support your classmate, and report it to the group admin or your teacher'], a: 2, why: 'Bystanders can stop cyberbullying. Schools must act on it under the Anti-Bullying Act.' },
+];
+const final = [
+  { q: 'Computer sabotage includes all of these EXCEPT...', opts: ['spreading malware', 'a denial of service attack', 'turning on automatic updates'], a: 2, why: 'Automatic updates protect you. The other two damage or disable computers.' },
+  { q: 'A program that looks like a free game but secretly lets a stranger into your computer is a...', opts: ['worm', 'Trojan horse', 'digital certificate'], a: 1, why: 'A Trojan horse pretends to be something useful.' },
+  { q: 'Ransomware is malware that...', opts: ['locks or steals your files and asks for payment', 'shows ads only', 'makes your Wi-Fi faster'], a: 0, why: 'Like the 2023 attack on PhilHealth.' },
+  { q: 'The 3-2-1 backup rule means...', opts: ['3 passwords, 2 phones, 1 laptop', '3 copies, on 2 kinds of storage, with 1 copy kept in another place', 'back up 3 times a day for 2 weeks'], a: 1, why: 'At least one copy away from your computer survives ransomware, fire, or theft.' },
+  { q: 'A data breach is...', opts: ['when private data is seen or stolen by people who should not have it', 'when a website loads slowly', 'a kind of backup'], a: 0, why: 'Breaches are one of the main sources of stolen identities.' },
+  { q: 'Phishing in general means...', opts: ['fake messages that trick people into giving away passwords, codes, or money', 'hacking a Wi-Fi router', 'a broken hard drive'], a: 0, why: 'Phishing is a kind of social engineering.' },
+  { q: 'Which is a red flag in a message?', opts: ['It uses your full name and says nothing urgent', 'It was sent by a friend you are talking to face to face', 'It says your account will be locked in 2 hours unless you tap a link'], a: 2, why: 'Rushing you with a threat is one of the strongest signs of a scam.' },
+  { q: 'An AI-made video that copies a real person\'s face and voice is called a...', opts: ['deepfake', 'worm', 'botnet'], a: 0, why: 'Deepfakes are now used in fake investment ads and fake emergency calls.' },
+  { q: 'Repeatedly following, watching, or threatening someone online is...', opts: ['cyberstalking', 'quishing', 'a firewall'], a: 0, why: 'Cyberstalking can lead to real danger offline. Save evidence and report it.' },
+  { q: 'What is the 24/7 national hotline for reporting online scams in the Philippines?', opts: ['911', '1326', '8888'], a: 1, why: '1326 is run by the Cybercrime Investigation and Coordinating Center (CICC). (911 is for emergencies; 8888 is for complaints about government services.)' },
+  { q: 'Under the Cybercrime Prevention Act, a crime in the Revised Penal Code, such as libel or fraud, that is done using a computer gets...', opts: ['no penalty', 'a higher penalty', 'a lower penalty'], a: 1, why: 'Section 6 makes the penalty one degree higher when information and communications technology is used.' },
+  { q: 'Both lessons: which safeguard from Lesson 1 makes a stolen password useless on its own?', opts: ['Multifactor authentication (MFA)', 'A screen saver', 'A bigger monitor'], a: 0, why: 'With MFA, the thief also needs your second proof, such as your phone.' },
+];
+---
+<Base title="Network and Internet security: malware, scams, and staying safe · IT 110" description="Computer sabotage (botnets, viruses, worms, Trojan horses, ransomware, spyware, denial of service attacks) and how to protect against it; online theft, identity theft, phishing and other scams, and how to protect yourself; personal safety online (cyberbullying, cyberstalking, sextortion, doxxing); and the Philippine laws and how to report, including hotline 1326." course={{ code: course.code, href: base + course.href }} theme="it110 nb" toc>
+  <header class="wrap lesson-hero flow">
+    <p class="crumbs"><a href={base + course.href}>IT 110</a> › Final › Security and information systems</p>
+    <p class="kicker">Network and Internet security · Lesson 2 of 2</p>
+    <h1>Network and Internet security: malware, scams, and staying safe</h1>
+    <p class="lede">What attackers do once they reach you: harmful programs, tricks that steal your money and identity, and threats to your safety. And how to protect yourself and where to report.</p>
+    <div class="goals">
+      <p class="note-label">By the end, you can:</p>
+      <ol>
+        <li>describe the kinds of <b class="term">computer sabotage</b> (botnets, malware, denial of service attacks, data and website alteration) and how to protect against them;</li>
+        <li>explain <b class="term">online theft</b>, <b class="term">identity theft</b>, <b class="term">phishing</b>, and other online scams, and spot their red flags;</li>
+        <li>describe <b>personal safety</b> risks online, such as <b class="term">cyberbullying</b> and <b class="term">cyberstalking</b>, and how to protect yourself;</li>
+        <li>name the main Philippine laws on cybercrime and know how to report it.</li>
+      </ol>
+    </div>
+    <p class="muted">This lesson continues <a href={L1}>Lesson 1: keeping intruders out</a>. When it uses an idea from Lesson 1, tap the dotted link to see it again right there.</p>
+  </header>
+
+  <section class="chapter wrap" id="sabotage">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 1 · Computer sabotage</p>
+      <h2>Computer sabotage: malware and attacks that break things</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky has-pic">
+        <p class="note-label">Picture this</p>
+        <p>At a computer shop in Mati, a student plugs in a USB flash drive to print a project. A file named <code>Project_FINAL.exe</code> opens. Nothing seems to happen. By evening, every computer in the shop is slow, files have strange names, and a note on the screen asks for money to unlock them.</p>
+      <Fragment set:html={scenePic('shop')} /></div>
+      <p class="bridge">Lesson 1 was about intruders getting <b>in</b>. This part is about what some of them do next: damage computers, data, and services.</p>
+      <div class="def has-pic"><p class="note-label">Computer sabotage</p><p>Acts that <b>destroy, damage, or disable</b> computers, their data, or the services they run. It includes harmful programs (malware), attacks that make systems stop working, and secretly changing data or websites.</p><Fragment set:html={threatDef('sabotage')} /></div>
+      <p>Computer sabotage is a kind of cybercrime. Its four main forms, in the order this part covers them, are <b>botnets</b>, <b>malware</b>, <b>denial of service attacks</b>, and <b>data or website alteration</b>.</p>
+
+      <h3 id="botnets">Botnets</h3>
+      <p class="bridge">Many attacks are not done from one computer. They are done from thousands of ordinary computers that their owners do not know are infected.</p>
+      <div class="def has-pic"><p class="note-label">Bot and botnet</p><p>A <b class="term">bot</b> (also called a <b class="term">zombie computer</b>) is a device infected with malware that lets a criminal control it from far away. A group of bots controlled by one person is a <b class="term">botnet</b>. The criminal who controls it is called a <b class="term">botherder</b>.</p><Fragment set:html={threatDef('bot')} /></div>
+      <p>Bots are not only computers. Phones, Wi-Fi routers, CCTV cameras, and smart TVs with weak passwords or old software can all become bots:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={botnetPic()} /><figcaption>One botherder, many bots. The owners of the bots usually notice nothing, except maybe a slow device.</figcaption></figure>
+      <p>Criminals use botnets to send spam and scam messages, to steal data from the infected devices, and to attack websites all at once (denial of service, later in this part). Some even rent their botnets out to other criminals.</p>
+
+      <h3 id="malware">Malware</h3>
+      <p class="bridge">Malware is how a device becomes a bot, and much more. It is the most common kind of computer sabotage.</p>
+      <div class="def has-pic"><p class="note-label">Malware</p><p>Short for <b>malicious software</b>. Any program written to <b>harm</b> a computer or its user: to damage files, steal information, spy, or take control. People often call all malware "viruses", but a virus is only one kind.</p><Fragment set:html={threatDef('malware')} /></div>
+      <p>Each kind of malware is named after <b>how it spreads</b> or <b>what it does</b>. Here are the six you should know:</p>
+      <div class="fn-grid">
+        <div class="fn-card" id="virus" data-toc="Virus"><Fragment set:html={malwarePic('virus')} /><p class="fn-t">Computer virus</p><p class="fn-sub">spreads when a file is opened</p><p>A <b class="term">computer virus</b> attaches itself to a file or program. It runs and copies itself into other files <b>only when a person opens</b> the infected file, much like a flu virus needs a host.</p></div>
+        <div class="fn-card" id="worm" data-toc="Worm"><Fragment set:html={malwarePic('worm')} /><p class="fn-t">Computer worm</p><p class="fn-sub">spreads by itself</p><p>A <b class="term">computer worm</b> does not need a file or a person. It spreads <b>by itself</b> over a network, from one computer to the next, often through a security hole. Worms can infect thousands of computers in hours.</p></div>
+        <div class="fn-card" id="trojan" data-toc="Trojan horse"><Fragment set:html={malwarePic('trojan')} /><p class="fn-t">Trojan horse</p><p class="fn-sub">pretends to be useful</p><p>A <b class="term">Trojan horse</b> looks like a useful program, such as a free game, a "cracked" app, or a fake update, but hides something harmful inside. It does <b>not copy itself</b>. You install it yourself, thinking it is safe.</p></div>
+        <div class="fn-card" id="ransomware" data-toc="Ransomware"><Fragment set:html={malwarePic('ransom')} /><p class="fn-t">Ransomware</p><p class="fn-sub">locks your files for money</p><p><b class="term">Ransomware</b> scrambles (encrypts) your files so you cannot open them, then asks for payment, often in cryptocurrency. Many gangs also steal the files first and threaten to post them online.</p></div>
+        <div class="fn-card" id="spyware" data-toc="Spyware"><Fragment set:html={malwarePic('spyware')} /><p class="fn-t">Spyware</p><p class="fn-sub">watches you in secret</p><p><b class="term">Spyware</b> secretly collects information about you, such as the sites you visit, your messages, or your passwords. A <b class="term">keylogger</b> is spyware that records every key you press.</p></div>
+        <div class="fn-card" id="mobile-malware" data-toc="Mobile malware"><Fragment set:html={malwarePic('mobile')} /><p class="fn-t">Mobile malware</p><p class="fn-sub">targets phones</p><p><b class="term">Mobile malware</b> is malware made for phones and tablets. It often hides in fake apps, especially <b>APK</b> files (Android app files) downloaded from outside the official app store, and can read your texts, including your OTPs.</p></div>
+      </div>
+      <div class="look">
+        <p class="note-label">Take note</p>
+        <p><b>Virus vs. worm:</b> a virus needs a person to open an infected file; a worm spreads by itself over a network. <b>Trojan horse:</b> it tricks you into installing it, and it does not copy itself. Ransomware and spyware are named for <b>what they do</b>, so they can arrive as a virus, a worm, or a Trojan horse.</p>
+      </div>
+      <p>Here are the most common ways malware gets into a device:</p>
+      <ul>
+        <li><b>Email attachments and links</b> from strangers, or from friends whose accounts were hacked.</li>
+        <li><b>Free downloads</b> from unofficial sites: "cracked" software, pirated movies and games, and APK files.</li>
+        <li><b>USB flash drives</b> passed around, as in the computer shop story.</li>
+        <li><b>Fake pop-ups</b> such as "Your phone has 5 viruses! Install this now."</li>
+        <li><b>Old software</b> with security holes that were never fixed by an update.</li>
+      </ul>
+      <aside class="dyk" aria-label="Did you know: the PhilHealth ransomware attack">
+        <p class="dyk-label">Did you know?</p>
+        <p class="dyk-lead">Ransomware hit PhilHealth in 2023.</p>
+        <p>On September 22, 2023, the Medusa ransomware group attacked the Philippine Health Insurance Corporation (PhilHealth). Its online services went down, and the group demanded <b>US$300,000</b> (about ₱17 million). PhilHealth refused to pay, so the group posted the stolen files online. The data of at least <b>13 million</b> members was affected. Reports later said the affected computers had <b>no antivirus protection</b> at the time.</p>
+      </aside>
+
+      <h3>Practice: which kind of malware?</h3>
+      <p>Tap the right kind for each case.</p>
+      <SortTap id="sort-malware" cats={['Virus', 'Worm', 'Trojan horse', 'Ransomware', 'Spyware']} items={malwareSort} />
+
+      <h3 id="dos">Denial of service (DoS) attacks</h3>
+      <p class="bridge">Malware attacks one device at a time. A denial of service attack goes after a whole <b>website or service</b>, and it is often done with a botnet.</p>
+      <div class="def has-pic"><p class="note-label">Denial of service (DoS) attack</p><p>An attack that <b>floods</b> a website, server, or network with so much fake traffic that it slows down or stops, and real users cannot use it. When the traffic comes from many computers at once, such as a botnet, it is called a <b class="term">distributed denial of service (DDoS) attack</b>.</p><Fragment set:html={threatDef('dos')} /></div>
+      <p>Think of the school canteen at noon. If hundreds of pranksters line up and order nothing, real students cannot buy lunch. A DDoS attack does the same to a server:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={ddosPic()} /><figcaption>The server is not broken into. It is simply too busy answering fake requests to serve real people.</figcaption></figure>
+      <p>A denial of service attack goes after the <Peek label="availability" title="From Lesson 1" html={ciaPeek} /> of a system. Attackers use it to protest, to show off, to cover up another attack, or to ask a company for money to stop.</p>
+
+      <h3 id="alteration">Data, program, and website alteration</h3>
+      <p class="bridge">The last form of sabotage does not stop a system. It <b>changes</b> what is inside it.</p>
+      <div class="def has-pic"><p class="note-label">Data and program alteration</p><p>Secretly <b>changing or deleting</b> data or programs without permission, such as changing grades or bank records, or adding harmful code to a program. Changing the look or content of a website without permission is called <b class="term">website defacement</b>.</p><Fragment set:html={threatDef('deface')} /></div>
+      <p>This attacks the <Peek label="integrity" title="From Lesson 1" html={integrityPeek} /> of data. Philippine government websites have been defaced many times, usually with protest messages. Changes to data can be even worse when no one notices them, because people keep trusting wrong records.</p>
+
+      <h3 id="protect-sabotage">Protecting against computer sabotage</h3>
+      <p class="bridge">You have now seen the four forms of sabotage. These safeguards protect against them. Most are habits you can start today.</p>
+      <ul>
+        <li><b>Install updates right away.</b> Updates, also called <b class="term">patches</b>, fix the security holes that worms and other malware use. Turn on automatic updates for your phone, computer, and apps.</li>
+        <li><b>Use security software.</b> <b class="term">Antivirus software</b> (also called antimalware) checks files and apps for known malware and removes it. Windows and most phones already include one; keep it on and updated.</li>
+        <li><b>Install apps only from official stores</b>, such as Google Play or the App Store, and skip "cracked" software and unknown APK files.</li>
+        <li><b>Think before you open</b> attachments, links, and USB drives, even from friends. Scan USB drives before opening their files.</li>
+        <li><b>Use a <Peek label="firewall" title="From Lesson 1" html={firewallPeek} /></b> and strong, unique router and device passwords, so your devices do not become bots.</li>
+        <li><b>Back up your files</b>, following the 3-2-1 rule below.</li>
+      </ul>
+      <p>Backups are the best protection against ransomware, because you can get your files back without paying. Security experts recommend this simple rule:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={backupPic()} /><figcaption>The 3-2-1 backup rule. Keep at least one copy disconnected or in the cloud, so ransomware on your computer cannot reach it.</figcaption></figure>
+      <div class="look">
+        <p class="note-label">Take note</p>
+        <p>Antivirus cannot catch everything, especially brand-new malware. That is why security uses <b>layers</b>: updates, antivirus, careful habits, firewalls, and backups together. If ransomware strikes, government agencies advise <b>not paying</b>: payment does not guarantee you get your files back, and it pays for more attacks.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 1</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p1" questions={part1} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="theft">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 2 · Online theft and scams</p>
+      <h2>Online theft, identity theft, and scams</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky has-pic">
+        <p class="note-label">Picture this</p>
+        <p>Mia's phone buzzes: "PeraPay ALERT: your account will be LOCKED in 2 hours. Verify now." She taps the link, and a page that looks exactly like PeraPay asks for her number, her PIN, and the code just sent to her phone. Ten minutes later, her ₱8,450 balance is gone.</p>
+      <Fragment set:html={scenePic('mia')} /></div>
+      <p class="bridge">Part 1 was about damage. This part is about <b>theft</b>: of data, of money, and of who you are. Most of it does not need advanced hacking. It needs only one person to be fooled.</p>
+      <div class="def has-pic"><p class="note-label">Online theft</p><p>Stealing data, money, or property using the Internet. A big source of stolen data is a <b class="term">data breach</b>, when private information held by a company, school, or government office is <b>seen or stolen</b> by people who should not have it.</p><Fragment set:html={threatDef('breach')} /></div>
+      <p>Data breaches happen through hacking, malware such as the <Peek label="PhilHealth ransomware" title="From Part 1" html={philPeek} />, lost laptops, or insiders. The stolen names, birthdays, ID numbers, and passwords are then sold or used for the crime below.</p>
+
+      <h3 id="identity-theft">Identity theft</h3>
+      <p class="bridge">Identity theft is one of the most harmful kinds of online theft, because it uses the stolen data to <b>become you</b>.</p>
+      <div class="def has-pic"><p class="note-label">Identity theft</p><p>Using another person's <b>identity</b> (name, photos, birthday, ID numbers, or accounts) <b>without permission</b>, usually to get money or to commit crimes in that person's name.</p><Fragment set:html={threatDef('idtheft')} /></div>
+      <p>Here are common examples in the Philippines:</p>
+      <ul>
+        <li>A fake account with your name and photos that asks your friends for money.</li>
+        <li>A loan from an online lending app taken out in your name, using a photo of your ID.</li>
+        <li>An e-wallet or SIM card registered with your stolen ID, then used for scams.</li>
+      </ul>
+      <p>Thieves get this information from data breaches, phishing (below), and from what people post. A photo of your new ID, a "selfie with ID" sent to a stranger, or a birthday post with your full name all help them. Victims often find out only when a bill, a collector, or the police reach them.</p>
+
+      <h3 id="social-engineering">Social engineering</h3>
+      <p class="bridge">How do thieves get your passwords and codes in the first place? Usually not by breaking a computer, but by fooling a person.</p>
+      <div class="def has-pic"><p class="note-label">Social engineering</p><p>Tricking <b>people</b>, instead of computers, into giving away information, money, or access. The trickster usually pretends to be someone you trust, such as your bank, a friend, a teacher, or a government office.</p><Fragment set:html={threatDef('social')} /></div>
+      <p>Social engineering works on feelings. It makes you <b>afraid</b> ("your account will be locked"), <b>excited</b> ("you won!"), <b>rushed</b> ("reply in 10 minutes"), or <b>kind</b> ("I need help"). Phishing is its most common form.</p>
+
+      <h3 id="phishing">Phishing and its relatives</h3>
+      <p class="bridge">Phishing is a kind of social engineering that uses <b>fake messages</b>.</p>
+      <div class="def has-pic"><p class="note-label">Phishing</p><p>Sending <b>fake messages</b> that pretend to come from a trusted company or person, to trick people into giving away passwords, PINs, codes, or money, often on a <b>fake website</b>. The name comes from "fishing": the message is the bait.</p><Fragment set:html={threatDef('phishing')} /></div>
+      <p>Phishing has relatives named after how the bait arrives. Here are the four ways it reaches you:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={phishFamilyPic()} /><figcaption>Same trick, four channels: email, text, voice call, and QR code.</figcaption></figure>
+      <p>The table below lists every member of the family, with an example of each:</p>
+      <div class="scroll-x"><table class="tbl">
+        <colgroup><col style="width: 24%" /><col style="width: 38%" /><col style="width: 38%" /></colgroup>
+        <thead><tr><th>Name</th><th>How it works</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><b class="term">Phishing</b></td><td>fake emails sent to many people at once</td><td>"Your school email will be deleted. Log in here to keep it."</td></tr>
+          <tr><td><b class="term">Spear phishing</b></td><td>a phishing message made for <b>one person or group</b>, using their real name, school, or boss</td><td>An email to the cashier that seems to come from the school director: "Pay this supplier today."</td></tr>
+          <tr><td><b class="term">Smishing</b></td><td>phishing by <b>SMS</b> (text message)</td><td>"Your parcel is on hold. Pay ₱45 at this link."</td></tr>
+          <tr><td><b class="term">Vishing</b></td><td>phishing by <b>voice</b> call</td><td>A "bank agent" calls and asks you to read the OTP sent to your phone.</td></tr>
+          <tr><td><b class="term">Quishing</b></td><td>phishing by <b>QR code</b>. A fake QR code leads to a fake site or payment.</td><td>A sticker with a new QR code is pasted over the real one on a parking or payment sign.</td></tr>
+          <tr><td><b class="term">Pharming</b></td><td>you are <b>sent to a fake site</b> even when you type the right address, because of malware or a hacked address system</td><td>You type your bank's address, but a look-alike page opens.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="two-col">
+        <div class="def has-pic" id="pharming"><p class="note-label">Pharming</p><p>Secretly <b>redirecting</b> people to a fake website, even when they type the correct address, so they enter their passwords there.</p><Fragment set:html={threatDef('pharming')} /></div>
+        <div class="def has-pic" id="spoofing" data-toc="Spoofing"><p class="note-label">Spoofing</p><p><b>Faking</b> the sender of a message or call, such as a phone number, an email address, or a sender name, so it looks like it comes from someone you trust.</p><Fragment set:html={threatDef('spoofing')} /></div>
+      </div>
+      <p>Spoofing is why a scam text can appear in the <b>same thread</b> as real messages from your bank, and why a caller's screen can say "PeraBank". So a familiar name on your screen is <b>not proof</b>. The SIM Registration Act (Part 4) makes spoofing a crime.</p>
+
+      <h3 id="red-flags">Practice: spot the red flags</h3>
+      <p>Scam messages share the same warning signs, called <b>red flags</b>. Tap every suspicious part of each message. Switch messages with the tabs.</p>
+      <RedFlags id="rf-msgs" msgs={redMsgs} />
+      <div class="remember">
+        <p class="note-label">The red flags to remember</p>
+        <ul>
+          <li><b>Rush or threat:</b> "locked in 2 hours", "last chance", "reply today".</li>
+          <li><b>Asks for secrets:</b> your password, PIN, or <Peek label="OTP" title="From Lesson 1" html={otpPeek} />. No real company asks.</li>
+          <li><b>Strange link or sender:</b> a look-alike address, or a regular number pretending to be a company.</li>
+          <li><b>Too good to be true:</b> big prizes, easy money, very cheap items.</li>
+          <li><b>Money to a different name</b>, or a request to keep it secret or move to another app.</li>
+        </ul>
+      </div>
+
+      <h3 id="dot-cons">Other online scams</h3>
+      <p class="bridge">Phishing steals your login. These other scams, often called <b class="term">dot cons</b> (cons done online), trick you into <b>sending money or help</b> yourself. They are other kinds of <Peek label="social engineering" title="From Part 2" html={socialPeek} />.</p>
+      <p>Each card shows a scam common in the Philippines and the trick behind it:</p>
+      <div class="fn-grid">
+        <div class="fn-card" id="shopping-scam" data-toc="Online shopping scams"><Fragment set:html={scamPic('shop')} /><p class="fn-t">Online shopping scams</p><p>A seller offers something very cheap, asks for a deposit or full payment first, and then disappears. Some scammers act as <b>buyers</b> and send fake "proof of payment" screenshots.</p></div>
+        <div class="fn-card" id="task-scam" data-toc="Task and job scams"><Fragment set:html={scamPic('task')} /><p class="fn-t">Task and job scams</p><p>"Earn ₱1,500 a day by liking videos." The first small payouts are real, to win your trust. Then you must "top up" bigger amounts to unlock your earnings, which you never get.</p></div>
+        <div class="fn-card" id="investment-scam" data-toc="Investment scams"><Fragment set:html={scamPic('invest')} /><p class="fn-t">Investment scams</p><p>Promises to double your money fast, "guaranteed". Early investors are paid with newer investors' money until it collapses. Real investments always carry risk.</p></div>
+        <div class="fn-card" id="love-scam" data-toc="Love scams"><Fragment set:html={scamPic('love')} /><p class="fn-t">Love (romance) scams</p><p>Someone builds an online relationship for weeks, using stolen photos (<b class="term">catfishing</b>), then asks for money for an emergency, a ticket, or a "visa".</p></div>
+        <div class="fn-card" id="money-mule" data-toc="Money mules"><Fragment set:html={scamPic('mule')} /><p class="fn-t">Money mule offers</p><p>"Rent your e-wallet for ₱1,000 a week." Scammers need other people's accounts to receive stolen money. A <b class="term">money mule</b> who lends an account commits a crime too, even without doing the scam.</p></div>
+        <div class="fn-card" id="deepfakes" data-toc="Deepfakes"><Fragment set:html={scamPic('deep')} /><p class="fn-t">Deepfakes</p><p>A <b class="term">deepfake</b> is a video, photo, or voice made with AI (artificial intelligence) to copy a real person. Scammers use deepfakes of celebrities in fake investment ads, and of family members in fake emergency calls.</p></div>
+      </div>
+      <p>Account takeovers like the <Peek label="Paolo story in Lesson 1" title="From Lesson 1" html={paoloPeek} /> combine these: the scammer first steals an account by phishing, then uses it to ask the owner's friends for money.</p>
+
+      <h3 id="protect-theft">Protecting against online theft and scams</h3>
+      <p class="bridge">Two tools help you check that a website or file is real. Then come the habits that stop most scams.</p>
+      <div class="two-col">
+        <div class="def has-pic" id="certificates" data-toc="Digital certificates"><p class="note-label">Digital certificate</p><p>An electronic ID card for a website, issued by a trusted company called a <b class="term">certificate authority</b>. It proves the site really owns its address and lets your browser make an encrypted <Peek label="HTTPS" title="From Lesson 1" html={httpsPeek} /> connection.</p><Fragment set:html={threatDef('cert')} /></div>
+        <div class="def has-pic" id="signatures" data-toc="Digital signatures"><p class="note-label">Digital signature</p><p>An electronic seal added to a file or message that proves <b>who sent it</b> and that it was <b>not changed</b> after signing. It is used for e-signed documents and for software updates.</p><Fragment set:html={threatDef('signature')} /></div>
+      </div>
+      <div class="look">
+        <p class="note-label">Take note</p>
+        <p>A certificate proves a site owns <b>its own address</b>, such as <code>perapay-verify.co</code>. It does <b>not</b> prove that the address belongs to the real PeraPay. Scam sites can get certificates too. So always check the <b>address itself</b>, not just the lock.</p>
+      </div>
+      <p>These habits stop most online theft and scams:</p>
+      <ul>
+        <li><b>Go to the source yourself.</b> Open the official app, or type the address you know, instead of tapping links in messages. Call the person or company back using a number you already have.</li>
+        <li><b>Never share your PIN, password, or OTP</b>, and turn on <Peek label="MFA" title="From Lesson 1" html={mfaPeek} /> for your email, e-wallets, and social media.</li>
+        <li><b>Pause when you feel rushed.</b> Scammers want you to act before you think. Ask someone you trust.</li>
+        <li><b>Protect your ID.</b> Do not post photos of IDs, and never send a "selfie with ID" to strangers. When you must send a copy, write on it what it is for, such as "For PeraPay verification only, Nov 2026".</li>
+        <li><b>Buy safely.</b> Use the shopping platform's own checkout, meet in public places, or choose cash on delivery. Be wary of deals that are far below the usual price.</li>
+        <li><b>Check before you invest.</b> The Securities and Exchange Commission (SEC) posts warnings about investment scams on its website.</li>
+        <li><b>Agree on a family code word</b> to check emergency calls, since deepfakes can copy voices and faces.</li>
+        <li><b>Check your accounts often</b>, so you notice strange transactions early.</li>
+      </ul>
+      <p>If you were scammed, act fast. Every minute counts, because scammers move money quickly. Here are the four steps:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={reportPic()} /><figcaption>What to do right after a scam, in order.</figcaption></figure>
+      <ol class="steps-big">
+        <li><b>Call your bank or e-wallet right away</b>, using the hotline in its official app or on your card. Ask them to freeze or block the transaction.</li>
+        <li><b>Report to hotline 1326</b>, the 24/7 national anti-scam hotline of the Cybercrime Investigation and Coordinating Center (CICC). It is free, and it can coordinate with banks, e-wallets, and the police.</li>
+        <li><b>Change your passwords</b> and log out of other devices, starting with your email, and turn on MFA (multifactor authentication).</li>
+        <li><b>Keep proof:</b> screenshots of messages, links, account names and numbers, and receipts. Do not delete the chat. Warn your friends if your account was used.</li>
+      </ol>
+
+      <div class="sub">
+        <h3>Quick check: Part 2</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p2" questions={part2} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="safety">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 3 · Personal safety</p>
+      <h2>Personal safety online</h2>
+    </div>
+    <div class="flow">
+      <div class="sticky has-pic">
+        <p class="note-label">Picture this</p>
+        <p>Bea posts a happy first-day-of-class photo. A week later, an account she does not know comments on all her posts, sends her messages every night, and one day writes, "Nice house. Purok 3, right?" She never told him where she lives.</p>
+      <Fragment set:html={scenePic('bea')} /></div>
+      <p class="bridge">Parts 1 and 2 were about devices, data, and money. This part is about <b>people</b>: online threats that can hurt someone's feelings, reputation, or physical safety.</p>
+
+      <h3 id="cyberbullying">Cyberbullying</h3>
+      <div class="def has-pic"><p class="note-label">Cyberbullying</p><p>Using phones, social media, games, or other technology to <b>repeatedly hurt, shame, threaten, or exclude</b> someone, especially among students. Examples are mean posts, edited photos, fake accounts that mock someone, and leaving someone out of group chats on purpose.</p><Fragment set:html={threatDef('bully')} /></div>
+      <p>Cyberbullying follows a person home, can be seen by many people, and can stay online for years. Under the <b>Anti-Bullying Act of 2013</b>, schools must have policies against bullying, including cyberbullying, and must act on reports.</p>
+
+      <h3 id="cyberstalking">Cyberstalking and online harassment</h3>
+      <div class="def has-pic"><p class="note-label">Cyberstalking</p><p>Using the Internet to <b>repeatedly follow, watch, contact, or threaten</b> a person, so that they feel afraid. It can include tracking someone's location and showing up where they are.</p><Fragment set:html={threatDef('stalk')} /></div>
+      <p><b class="term">Online harassment</b> is the broader name for unwanted, threatening, or insulting messages and posts. Sexual remarks, threats, and unwanted sexual messages online are a crime called gender-based online sexual harassment under the <b>Safe Spaces Act</b> (Part 4). Cyberstalking can lead to real danger offline, so take it seriously and report it early.</p>
+
+      <h3 id="sextortion">Sextortion</h3>
+      <div class="def has-pic"><p class="note-label">Sextortion</p><p>Threatening to share someone's <b>private or intimate photos or videos</b> unless they pay money or send more. The photos may be real, stolen, or even faked with AI.</p><Fragment set:html={threatDef('sextortion')} /></div>
+      <div class="look">
+        <p class="note-label">If it happens to you or a friend</p>
+        <p>It is <b>not your fault</b>, and you are not alone. <b>Do not pay and do not send more</b>: it almost always leads to more demands. Stop replying, save the evidence (screenshots, usernames, links), block the account, report it to the platform, and <b>tell an adult you trust</b>. Report it to the Philippine National Police (PNP) Anti-Cybercrime Group, the National Bureau of Investigation (NBI), or hotline 1326. Free tools such as <b>Take It Down</b> (for photos taken when you were under 18) and <b>StopNCII.org</b> (for adults) help get images removed from many platforms.</p>
+      </div>
+
+      <h3 id="doxxing">Doxxing</h3>
+      <div class="def has-pic"><p class="note-label">Doxxing</p><p>Publishing someone's <b>private information</b>, such as their home address, phone number, school, or family members, online without permission, usually so that others will harass or scare them.</p><Fragment set:html={threatDef('doxx')} /></div>
+      <p>Doxxers often collect the pieces from the victim's own posts. Misusing someone's personal information this way can break the <b>Data Privacy Act</b> (Part 4).</p>
+
+      <h3 id="predators">Online predators and fake identities</h3>
+      <p class="bridge">The last risk is about who is really on the other side of the screen.</p>
+      <p>Some adults pretend to be young people online to build trust with children and teens, so they can exploit them. This is called <b class="term">grooming</b>. Warning signs include someone you know only online who gives you lots of attention or gifts, asks you to keep your chats secret, asks for private photos, or wants to meet alone. Fake identities are also used in <Peek label="love scams" title="From Part 2" html={lovePeek} />. A rule that protects you from both: <b>someone you know only online is still a stranger</b>.</p>
+
+      <h3 id="protect-safety">Protecting your personal safety</h3>
+      <p class="bridge">Many of these risks start with information we share ourselves. So protection starts with what you post.</p>
+      <p>What could a stranger learn from this post? Look for the four numbered clues:</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={oversharePic()} /><figcaption>1, a location tag that names her home and purok; 2, her house number; 3, her school ID; 4, her school and section. Together, a stranger can find her.</figcaption></figure>
+      <ul>
+        <li><b>Set your accounts to private</b>, and check who can see your posts, tags, and friends list.</li>
+        <li><b>Do not share live locations, IDs, uniforms with names, or house numbers.</b> Post vacation and event photos after you leave.</li>
+        <li><b>Turn off location</b> for your camera and for apps that do not need it.</li>
+        <li><b>Accept requests only from people you know</b> in real life, and never meet an online-only friend alone. Meet in a public place and tell someone.</li>
+        <li><b>Think before you send.</b> Anything you send can be screenshotted, forwarded, or kept forever.</li>
+        <li><b>Block, report, and save evidence</b> when someone harasses you. Tell a parent, teacher, or guidance counselor.</li>
+        <li><b>Be an upstander:</b> do not share hurtful posts, support the person targeted, and report it.</li>
+      </ul>
+
+      <div class="sub">
+        <h3>Quick check: Part 3</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p3" questions={part3} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="laws">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 4 · Laws and reporting</p>
+      <h2>Philippine laws and where to report</h2>
+    </div>
+    <div class="flow">
+      <p class="bridge">Every threat in both lessons is covered by at least one Philippine law. Laws punish the criminals, and they also give victims a way to get help.</p>
+      <p>Philippine laws are numbered as <b class="term">Republic Acts (RA)</b>. The table lists the main ones for this lesson, oldest first:</p>
+      <div class="scroll-x"><table class="tbl">
+        <colgroup><col style="width: 30%" /><col style="width: 70%" /></colgroup>
+        <thead><tr><th>Law</th><th>What it covers</th></tr></thead>
+        <tbody>
+          <tr><td><b>E-Commerce Act of 2000</b><br />RA 8792</td><td>Made electronic documents and signatures legal, and was the first Philippine law to punish <b>hacking</b> and spreading viruses.</td></tr>
+          <tr><td><b>Anti-Photo and Video Voyeurism Act of 2009</b><br />RA 9995</td><td>Punishes taking, copying, or sharing private or sexual photos or videos <b>without consent</b>, including posting them online.</td></tr>
+          <tr><td><b>Cybercrime Prevention Act of 2012</b><br />RA 10175</td><td>The main cybercrime law. It names crimes against computers and data, such as <b>illegal access</b>, <b>illegal interception</b>, <b>data interference</b> and <b>system interference</b> (for example, malware and DoS attacks), and misuse of devices. It also names computer-related <b>forgery</b>, <b>fraud</b>, and <b>identity theft</b>, and cyber libel. Crimes in the Revised Penal Code done with computers get a penalty <b>one degree higher</b>. Created the CICC.</td></tr>
+          <tr><td><b>Data Privacy Act of 2012</b><br />RA 10173</td><td>Protects <b>personal information</b> collected by schools, companies, and government. Organizations must keep it secure and report serious breaches to the <b>National Privacy Commission (NPC)</b>, which also takes complaints.</td></tr>
+          <tr><td><b>Anti-Bullying Act of 2013</b><br />RA 10627</td><td>Requires schools to prevent and act on bullying, <b>including cyberbullying</b>.</td></tr>
+          <tr><td><b>Safe Spaces Act</b> (2019)<br />RA 11313</td><td>Punishes <b>gender-based online sexual harassment</b>: threats, unwanted sexual remarks and messages, and sharing someone's photos to shame them.</td></tr>
+          <tr><td><b>Anti-OSAEC and Anti-CSAEM Act</b> (2022)<br />RA 11930</td><td>Strengthens protection of <b>children</b> against online sexual abuse and exploitation, and requires platforms and Internet providers to help block and report it.</td></tr>
+          <tr><td><b>SIM Registration Act</b> (2022)<br />RA 11934</td><td>Requires every SIM card to be registered to a real person, and punishes registering with false or stolen IDs, selling registered SIMs, and <b>spoofing</b>.</td></tr>
+          <tr><td><b>Anti-Financial Account Scamming Act (AFASA)</b> (2024)<br />RA 12010</td><td>Punishes <b>money muling</b> (6 to 8 years in prison) and <b>social engineering schemes</b> such as phishing to take over bank or e-wallet accounts (10 to 12 years). Done on a large scale, for example by three or more people or against three or more victims, they count as <b>economic sabotage</b>, with even heavier penalties.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="look">
+        <p class="note-label">Take note</p>
+        <p>"I only lent my account" is not a defense. Under AFASA, letting scam money pass through your account is a crime. And a newer law is on the way: as of November 2026, the House of Representatives has passed a National Cybersecurity Act (House Bill 9605), which would create a national cybersecurity agency. The Senate has not passed its version yet, so it is <b>not a law yet</b>.</p>
+      </div>
+
+      <h3 id="report">Where to report</h3>
+      <p class="bridge">Knowing the law helps only if crimes are reported. Here is who to contact for each kind of problem:</p>
+      <div class="scroll-x"><table class="tbl">
+        <colgroup><col style="width: 34%" /><col style="width: 66%" /></colgroup>
+        <thead><tr><th>Where</th><th>Report here when...</th></tr></thead>
+        <tbody>
+          <tr><td><b>Your bank or e-wallet</b><br />hotline in its official app</td><td>money was sent or taken. Call them <b>first</b>, right away, to freeze it.</td></tr>
+          <tr><td><b>Hotline 1326</b><br />CICC, free, 24/7</td><td>you were scammed or see a scam: texts, calls, fake pages, investment and job scams. You can also send scam links through the eGovPH app.</td></tr>
+          <tr><td><b>PNP Anti-Cybercrime Group</b> or <b>NBI Cybercrime Division</b></td><td>you want to file a case: hacking, identity theft, sextortion, cyberstalking, threats.</td></tr>
+          <tr><td><b>National Privacy Commission (NPC)</b></td><td>your personal data was leaked or misused, such as by a company or by doxxing.</td></tr>
+          <tr><td><b>The platform's report tools</b></td><td>a fake account, a harassing post, or private images need to be taken down.</td></tr>
+          <tr><td><b>Your school's guidance office</b> or a teacher</td><td>you or a classmate is being cyberbullied or harassed.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="look">
+        <p class="note-label">Take note</p>
+        <p>Posting about a scam on social media may warn friends, but it does not stop the scammer or get your money back. The CICC asks victims to <b>report to 1326</b> instead, so investigators can act quickly. Save <b>1326</b> in your phone now.</p>
+      </div>
+
+      <div class="sub">
+        <h3>Quick check: Part 4</h3>
+        <p>Tap an answer to see why.</p>
+        <Quiz id="quiz-p4" questions={part4} />
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter wrap" id="self-check">
+    <div class="chapter-head">
+      <p class="chapter-num">Self-check</p>
+      <h2>Self-check: malware, scams, and staying safe</h2>
+    </div>
+    <div class="flow">
+      <p>Use this to see what you remember from the whole lesson, then go back to any part you missed.</p>
+
+      <h3>Do not confuse: summary</h3>
+      <p>These pairs are often mixed up. The right column says what makes the two different:</p>
+      <div class="scroll-x"><table class="tbl">
+        <thead><tr><th>These two...</th><th>...are different because</th></tr></thead>
+        <tbody>
+          <tr><td><b>Virus vs. worm</b></td><td>needs a person to open an infected file vs. spreads by itself over a network</td></tr>
+          <tr><td><b>Trojan horse vs. virus</b></td><td>pretends to be useful and does not copy itself vs. copies itself into other files</td></tr>
+          <tr><td><b>Bot vs. botnet</b></td><td>one infected device vs. many bots controlled by one botherder</td></tr>
+          <tr><td><b>DoS vs. DDoS</b></td><td>a flood from one source vs. a flood from many devices at once</td></tr>
+          <tr><td><b>Data breach vs. identity theft</b></td><td>data is seen or stolen vs. stolen data is used to pretend to be someone</td></tr>
+          <tr><td><b>Phishing vs. spear phishing</b></td><td>the same bait for many people vs. a message made for one person or group</td></tr>
+          <tr><td><b>Smishing vs. vishing vs. quishing</b></td><td>by text message vs. by voice call vs. by QR code</td></tr>
+          <tr><td><b>Phishing vs. pharming</b></td><td>you are tricked into tapping a fake link vs. you are redirected even when you type the right address</td></tr>
+          <tr><td><b>Digital certificate vs. digital signature</b></td><td>proves a website owns its address vs. proves who signed a file and that it was not changed</td></tr>
+          <tr><td><b>Cyberbullying vs. cyberstalking</b></td><td>repeatedly hurting or shaming someone vs. repeatedly following or threatening someone so they feel afraid</td></tr>
+          <tr><td><b>Doxxing vs. identity theft</b></td><td>exposing someone's private information vs. using it to pretend to be them</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>What would you do?</h3>
+      <p>Choose the safest action.</p>
+      <Quiz id="quiz-scen" questions={scenarios} />
+
+      <h3>Try it at home</h3>
+      <p>No need to submit anything:</p>
+      <ol>
+        <li>Check that automatic updates are on for your phone and laptop, and install any waiting updates.</li>
+        <li>Back up your important school files using the 3-2-1 rule. At least one copy should be in the cloud or on a drive you keep unplugged.</li>
+        <li>Open your social media privacy settings. Who can see your posts, your friends list, and your tagged photos? Remove any posts that show your ID or home.</li>
+        <li>Agree on a family code word for emergency calls, and save hotline <b>1326</b> in your phone and your family's phones.</li>
+      </ol>
+
+      <h3>Final quiz</h3>
+      <p>Twelve questions: eleven from this lesson and one that mixes both lessons.</p>
+      <Quiz id="quiz-final" questions={final} />
+
+      <div class="remember">
+        <p class="note-label">Key takeaways</p>
+        <ol>
+          <li><b class="term">Computer sabotage</b> damages or disables systems: <b>botnets</b>, <b>malware</b> (virus, worm, Trojan horse, ransomware, spyware, mobile malware), <b>denial of service</b> attacks, and <b>data or website alteration</b>. Protect yourself with updates, antivirus, official app stores, care with files and USB drives, firewalls, and 3-2-1 backups.</li>
+          <li><b>Online theft</b> includes data breaches and <b class="term">identity theft</b>. Most of it starts with <b class="term">social engineering</b>: phishing, spear phishing, smishing, vishing, quishing, pharming, and spoofing, plus scams such as shopping, task, investment, love, money mule, and deepfake scams.</li>
+          <li><b>Red flags:</b> a rush or threat, requests for passwords, PINs, or OTPs, strange links or senders, offers too good to be true, and money to a different name. Go to the source yourself, use MFA, and check certificates and addresses.</li>
+          <li><b>Personal safety:</b> cyberbullying, cyberstalking, sextortion, doxxing, and grooming. Keep accounts private, share less, block, report, save evidence, and tell someone you trust.</li>
+          <li><b>Laws and reporting:</b> RA 8792, RA 9995, RA 10175, RA 10173, RA 10627, RA 11313, RA 11930, RA 11934, and RA 12010 (AFASA). After a scam: call your bank or e-wallet, then hotline <b>1326</b>.</li>
+        </ol>
+      </div>
+      <p><b>Next:</b> Information systems and system development is coming soon. Missed something from Lesson 1? <a href={L1}>Go back to Lesson 1: keeping intruders out</a>. <a href={base + course.href}>Back to the IT 110 lessons</a>.</p>
+    </div>
+  </section>
+
+  <section class="wrap" id="refs">
+    <div class="flow">
+      <p class="muted small built-from"><b>How this lesson was built:</b> from the IT 110 syllabus (Week 14) and the course textbook, updated with current Philippine laws, government advisories, and news reports, listed below. <b>Lesson before this one:</b> <a href={L1}>Network and Internet security: keeping intruders out</a>.</p>
+      <div class="refs small muted">
+        <p class="note-label">References</p>
+        <ol>
+          <li>Davao Oriental State University, <i>IT 110: Introduction to Computing, Syllabus</i>, A.Y. 2026–2027 (Week 14).</li>
+          <li>D. Morley and C. S. Parker, <i>Understanding Computers: Today and Tomorrow</i>. Cengage Learning, 2015 (Chapter 9, Network and Internet Security).</li>
+          <li>Commission on Higher Education, CMO No. 25, s. 2015, <i>Revised Policies, Standards, and Guidelines for BSCS, BSIS, and BSIT Programs</i> (Introduction to Computing course description).</li>
+          <li>Cybersecurity and Infrastructure Security Agency (CISA), "#StopRansomware Guide" and "Data Backup Options" (3-2-1 rule).</li>
+          <li>GMA News, "PhilHealth hit by Medusa ransomware, aims for site restoration by Monday," September 2023; Manila Bulletin, "Ransomware group releases data of thousands of PhilHealth members," October 2023.</li>
+          <li>Philstar, "PhilHealth: 13 million members affected by data breach," October 19, 2023; ThreatDown by Malwarebytes, "Giant health insurer struck by ransomware didn't have antivirus protection," 2023.</li>
+          <li>Republic Acts No. 8792 (2000), 9995 (2009), 10175 (2012), 10173 (2012), 10627 (2013), 11313 (2019), 11930 (2022), 11934 (2022), and 12010 (2024). Lawphil.</li>
+          <li>Manila Bulletin, "Economic sabotage, swindling of seniors punished harshly under AFASA," July 20, 2024; BusinessWorld, BSP statement on AFASA economic sabotage.</li>
+          <li>Inquirer Technology, "Report cybercrimes to IARC hotline 1326, not on social media – CICC," November 2024; Philstar, "PCO, CICC launch Hotline 1326 vs scams, deepfakes," March 2025.</li>
+          <li>Digital Policy Alert, "House of Representatives approved National Cybersecurity and Critical Information Infrastructure Protection Act of 2026 (HB9605)," August 12, 2026; Philstar, "Swift passage of national cyber law urged," November 14, 2026.</li>
+          <li>National Center for Missing &amp; Exploited Children, "Take It Down"; StopNCII.org.</li>
+        </ol>
+        <p>The drawings were made for this lesson. PeraBank, PeraPay, ShopMati, and the people and phone numbers in the examples are made up.</p>
+      </div>
+    </div>
+  </section>
+  <ZoomPics />
+</Base>

@@ -53,8 +53,8 @@ export const terms = [
     note: 'After the midterm: security, information systems, databases, and ethics.',
     units: [
       { name: 'Security and information systems', icon: 'shield', lessons: [
-        { title: 'Network and Internet security: keeping intruders out', href: '/it110/net-security/', status: 'live', blurb: 'Why security matters, hacking, war driving and Wi-Fi piggybacking, and the safeguards: passwords, MFA and passkeys, biometrics, firewalls, encryption, and VPNs.' },
-        { title: 'Network and Internet security: malware, scams, and staying safe', href: '/it110/online-threats/', status: 'soon' },
+        { series: 'Network and Internet security · Lesson 1 of 2', title: 'Keeping intruders out', href: '/it110/net-security/', status: 'live', blurb: 'Why security matters, hacking, war driving and Wi-Fi piggybacking, and the safeguards: passwords, MFA and passkeys, biometrics, firewalls, encryption, and VPNs.' },
+        { series: 'Network and Internet security · Lesson 2 of 2', title: 'Malware, scams, and staying safe', href: '/it110/online-threats/', status: 'live', blurb: 'Viruses, worms, Trojan horses, ransomware, and botnets; phishing and other scams and their red flags; cyberbullying and staying safe; Philippine laws and hotline 1326.' },
         { title: 'Information systems and system development', href: '/it110/info-systems/', status: 'soon' },
         { title: 'Databases and database management systems', href: '/it110/databases/', status: 'soon' },
         { title: 'Security, privacy, intellectual property, and ethics', href: '/it110/ethics/', status: 'soon' },
