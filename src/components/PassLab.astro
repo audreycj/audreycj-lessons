@@ -1,0 +1,70 @@
+---
+// Password-length explorer (IT 110 chat 54). Type a SAMPLE password (or tap an example); it shows the length, the kinds of
+// characters used, how many passwords of that size and kind exist, and how long trying them all would take at an assumed
+// 10 billion guesses per second. Nothing is sent or saved: the script only reads the box. Styles: global.css "chat 54" block.
+interface Props { id: string; }
+const { id } = Astro.props;
+const examples = ['mia2007', 'P@ssw0rd!', 'Mt9$kQ2x', 'kapepandesalulanhapon'];
+---
+<div class="passlab" id={id} data-lvl="none">
+  <p class="pl-cap">Try it: how long would it take to guess?</p>
+  <p class="pl-hint">Type a made-up password, or tap an example. Never type your real password into a practice box.</p>
+  <label class="sr-only" for={id + '-in'}>Sample password</label>
+  <input class="pl-in" id={id + '-in'} type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64" placeholder="Type here, e.g. mia2007" />
+  <div class="pl-ex"><span class="pl-ex-lab">Examples</span>{examples.map((e) => <button type="button" class="pl-try" data-v={e}>{e}</button>)}</div>
+  <div class="pl-result">
+    <div class="pl-meter"><span class="pl-lvl">No password yet</span><div class="pl-bar" aria-hidden="true"><span class="pl-fill"></span></div></div>
+    <p class="pl-msg" aria-live="polite">Start typing to see how strong it is.</p>
+  </div>
+  <dl class="pl-stats">
+    <div><dt>Length</dt><dd class="pl-len">0 characters</dd></div>
+    <div><dt>Kinds of characters</dt><dd class="pl-kinds">none yet</dd></div>
+    <div><dt>Possible passwords like it</dt><dd class="pl-count">0</dd></div>
+    <div><dt>Time to try them all*</dt><dd class="pl-time">0 seconds</dd></div>
+  </dl>
+  <p class="pl-note">*If a computer tried 10 billion random guesses per second. Real attackers try common passwords, words, names, and dates first, so passwords made of those fall much faster than this.</p>
+</div>
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var f = document.getElementById(id); if (!f) return;
+    var inp = f.querySelector('.pl-in'), q = function (s) { return f.querySelector(s); };
+    var common = ['password', '123456', '12345678', 'qwerty', 'iloveyou', 'abc123', 'admin', 'letmein', '111111', 'password1', 'p@ssw0rd', 'p@ssw0rd!', 'welcome', 'mahalkita', 'iloveu'];
+    function big(n) { // n = log10 of a number -> words
+      if (n < 3) return String(Math.round(Math.pow(10, n)));
+      var names = [[18, 'quintillion'], [15, 'quadrillion'], [12, 'trillion'], [9, 'billion'], [6, 'million'], [3, 'thousand']];
+      if (n >= 21) return 'about 10 to the power of ' + Math.floor(n) + ' (a 1 followed by ' + Math.floor(n) + ' zeros)';
+      for (var i = 0; i < names.length; i++) if (n >= names[i][0]) { var v = Math.pow(10, n - names[i][0]); return 'about ' + (v < 10 ? v.toFixed(1) : Math.round(v)) + ' ' + names[i][1]; }
+    }
+    function time(n) { // n = log10 of seconds
+      if (n < 0) return 'less than a second';
+      var s = Math.pow(10, n), u = [[31557600e9, 'billion years'], [31557600e6, 'million years'], [31557600e3, 'thousand years'], [31557600, 'years'], [86400, 'days'], [3600, 'hours'], [60, 'minutes'], [1, 'seconds']];
+      if (n > 17.64) return 'far longer than the age of the universe';
+      for (var i = 0; i < u.length; i++) if (s >= u[i][0]) { var v = s / u[i][0]; return 'about ' + (v < 10 ? v.toFixed(1) : Math.round(v)) + ' ' + u[i][1]; }
+    }
+    function upd() {
+      var p = inp.value, len = p.length, pool = 0, kinds = [];
+      if (/[a-z]/.test(p)) { pool += 26; kinds.push('small letters'); }
+      if (/[A-Z]/.test(p)) { pool += 26; kinds.push('capital letters'); }
+      if (/[0-9]/.test(p)) { pool += 10; kinds.push('numbers'); }
+      if (/[^a-zA-Z0-9]/.test(p)) { pool += 33; kinds.push('symbols or spaces'); }
+      q('.pl-len').textContent = len + (len === 1 ? ' character' : ' characters');
+      q('.pl-kinds').textContent = kinds.length ? kinds.join(', ') : 'none yet';
+      var lg = len ? len * Math.log10(pool) : 0;
+      q('.pl-count').textContent = len ? big(lg) : '0';
+      q('.pl-time').textContent = len ? time(lg - 10) : '0 seconds';
+      var isCommon = common.indexOf(p.toLowerCase()) >= 0, msg, lvl;
+      if (!len) { msg = 'Start typing to see how strong it is.'; lvl = 0; }
+      else if (isCommon) { msg = 'This is on lists of the most common passwords. It would be guessed in the first second, whatever the number above says.'; lvl = 0.05; }
+      else if (len < 8) { msg = 'Too short. Short passwords can be tried in seconds.'; lvl = 0.15; }
+      else if (len < 15) { msg = 'Better, but still short. For a password that is your only lock, aim for 15 or more characters.'; lvl = 0.45; }
+      else { msg = 'Long: good. Length adds strength faster than symbols do. Make it unique to this one account, and turn on MFA too.'; lvl = Math.min(1, 0.7 + (len - 15) / 40); }
+      if (len && /(19|20)\d\d/.test(p)) msg += ' It contains a year, which attackers try early (birth years especially).';
+      q('.pl-msg').textContent = msg;
+      q('.pl-fill').style.width = (lvl * 100) + '%';
+      f.dataset.lvl = !len ? 'none' : lvl < 0.3 ? 'weak' : lvl < 0.7 ? 'ok' : 'good';
+      q('.pl-lvl').textContent = !len ? 'No password yet' : lvl < 0.3 ? 'Weak' : lvl < 0.7 ? 'Okay' : 'Strong';
+    }
+    inp.addEventListener('input', upd);
+    f.querySelectorAll('.pl-try').forEach(function (b) { b.addEventListener('click', function () { inp.value = b.dataset.v; upd(); }); });
+  })();
+</script>

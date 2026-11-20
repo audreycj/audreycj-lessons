@@ -758,3 +758,6 @@ export function phCables() {
   b += lab(450, 432, 'routes simplified · map: Natural Earth', { size: 12, a: 'end', c: '#5b6577' });
   return svgWrap(460, 441, 'A map of East and Southeast Asia and the western Pacific. The Bifrost cable runs from Singapore past Indonesia to Davao City, then to Guam and on to the United States. The Apricot cable runs from Japan past Taiwan to Baler in Luzon, to Guam, then to Digos near Davao, Indonesia, and Singapore.', b);
 }
+
+// Shared with it110-sec-pics.js (chat 54): device icons and small helpers.
+export { laptopI, phoneI, pcI, routerI, serverI, cloudP, wifiArcs, houseI, personI, lockI, envelope, icoWrap, bars };

@@ -123,13 +123,15 @@ const { course, lesson } = Astro.props;
       li.appendChild(a);
       var subs = [];
       var ul = document.createElement('ol'); ul.className = 'toc-subs';
-      sec.querySelectorAll('.sub > h3').forEach(function (h3, k) {
-        var box = h3.parentElement;
+      // Pages with the notebook look (body.nb, IT 110) also list every section heading and any element with data-toc (key concepts).
+      var nb = document.body.classList.contains('nb');
+      sec.querySelectorAll(nb ? '.sub > h3, .flow > h3, [data-toc]' : '.sub > h3').forEach(function (h3, k) {
+        var box = h3.parentElement && h3.parentElement.classList.contains('sub') ? h3.parentElement : h3;
         if (!box.id) box.id = sec.id + '-' + (k + 1);
         box.style.scrollMarginTop = '1rem';
         var sl = document.createElement('li'), sa = document.createElement('a');
         sa.href = '#' + box.id;
-        var tt = h3.textContent.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+        var tt = (h3.dataset && h3.dataset.toc) || h3.textContent.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
         var nEl = h3.querySelector('.blk-n'), nn = null, mm;
         if (nEl) { nn = nEl.textContent.trim(); tt = tt.slice(nn.length).trim(); }
         else if ((mm = tt.match(/^(\d+)[.)]\s+(.+)$/))) { nn = mm[1]; tt = mm[2]; }

@@ -1,0 +1,44 @@
+---
+// Tap or click a picture to see it enlarged (IT 110 notebook-look pages, chat 54). Works for drawings (svg.clean in figures,
+// definition doodles, card pictures, step pictures) and real photos. Close with the button, Esc, or a tap outside.
+// Runs before Base.astro's phone-only zoom (capture phase) so the two never open together.
+---
+<div class="zp" id="zp" hidden role="dialog" aria-modal="true" aria-label="Enlarged picture">
+  <div class="zp-card">
+    <button type="button" class="zp-x" aria-label="Close">✕</button>
+    <div class="zp-pic"></div>
+    <p class="zp-cap"></p>
+  </div>
+</div>
+<script is:inline>
+  (function () {
+    var zp = document.getElementById('zp'); if (!zp) return;
+    var pic = zp.querySelector('.zp-pic'), cap = zp.querySelector('.zp-cap'), last = null;
+    var SEL = 'figure.illus-fig svg.clean, .def-pic, .fn-card svg.clean:not(.ico), .ss .cw-pic svg, .ph-frame';
+    document.querySelectorAll(SEL).forEach(function (el) { el.classList.add('zp-can'); if (!el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '0'); } });
+    function open(el) {
+      last = el; pic.innerHTML = '';
+      var frame = el.classList.contains('ph-frame') ? el : null; if (frame) el = frame.querySelector('img');
+      var copy = el.cloneNode(true); copy.removeAttribute('tabindex'); copy.classList.remove('zp-can'); copy.removeAttribute('width'); copy.removeAttribute('height');
+      pic.appendChild(copy);
+      var fig = el.closest('figure'), txt = '';
+      if (el.tagName === 'IMG') { var c = fig && fig.querySelector('.ph-cap'); txt = (c ? c.textContent + ' ' : '') ; var src = frame.querySelector('.ph-src'); if (src) txt += src.textContent; }
+      else { var fc = fig && fig.querySelector('figcaption'); txt = fc ? fc.textContent : (el.getAttribute('aria-label') || ''); }
+      cap.textContent = txt.trim(); cap.hidden = !cap.textContent;
+      zp.hidden = false; document.documentElement.classList.add('zp-open'); zp.querySelector('.zp-x').focus();
+      last = frame || last;
+    }
+    function shut() { zp.hidden = true; pic.innerHTML = ''; document.documentElement.classList.remove('zp-open'); if (last && last.focus) last.focus(); }
+    document.addEventListener('click', function (e) {
+      if (!zp.hidden) return;
+      if (e.target.closest('button, .peek-btn, .peek-card') || (e.target.closest('a') && !e.target.closest('.ph-src'))) return;
+      var el = e.target.closest('.zp-can'); if (!el) return;
+      e.stopPropagation(); e.preventDefault(); open(el);
+    }, true);
+    document.addEventListener('keydown', function (e) {
+      if (!zp.hidden && e.key === 'Escape') shut();
+      else if (zp.hidden && (e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('zp-can')) { e.preventDefault(); open(document.activeElement); }
+    });
+    zp.addEventListener('click', function (e) { if (e.target === zp || e.target.closest('.zp-x')) shut(); });
+  })();
+</script>

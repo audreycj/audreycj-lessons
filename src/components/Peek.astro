@@ -8,9 +8,7 @@ interface Props { label: string; title?: string; html?: string; }
 const { label, title, html } = Astro.props;
 const body = (title ? `<p class="peek-title">${title}</p>` : '') + (html ?? (await Astro.slots.render('default')));
 ---
-<span class="peek"><span role="button" tabindex="0" class="peek-btn" aria-expanded="false" data-peek={body}>{label}</span></span>
-
-<script>
+<span class="peek"><span role="button" tabindex="0" class="peek-btn" aria-expanded="false" data-peek={body}>{label}</span></span><script>
   const card = document.createElement('div');
   card.className = 'peek-card'; card.setAttribute('role', 'dialog'); card.hidden = true;
   document.body.appendChild(card);

@@ -1487,3 +1487,224 @@ table.org-tbl td.org-cell { width: 9.6rem; text-align: center; }
 .mxtap table.adj th.mt-hl { background: var(--orange); color: #fff; }
 .mxtap .mt-note { min-height: 6.5em; margin-top: 0.8rem; }
 @media (min-width: 44rem) { .mxtap .mt-note { min-height: 4.8em; } }
+
+/* IT 110 chat 54: PassLab (password strength explorer), round 7: calmer, fewer boxes, one accent */
+.passlab { background: var(--card); border: 2px solid var(--ink); border-radius: 16px; padding: 1.6rem 1.7rem 1.5rem; display: grid; gap: 1rem; }
+.passlab .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.passlab .pl-cap { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.3; }
+.passlab .pl-hint { margin: -0.6rem 0 0.2rem; color: var(--ink-soft); }
+.passlab .pl-in { font: 600 1.15rem/1.3 "IBM Plex Mono", monospace; padding: 0.8rem 1rem; border: 2px solid var(--ink); border-radius: 12px; width: 100%; box-sizing: border-box; background: #fff; color: var(--ink); }
+.passlab .pl-in::placeholder { color: #9aa5b6; font-weight: 500; }
+.passlab .pl-in:focus { outline: 3px solid var(--cb, #cfe0f6); outline-offset: 2px; }
+.passlab .pl-ex { display: flex; flex-wrap: wrap; gap: 0.5rem 0.6rem; align-items: center; }
+.passlab .pl-ex-lab { color: var(--ink-soft); margin-right: 0.2rem; }
+.passlab .pl-try { font: 500 0.95rem/1 "IBM Plex Mono", monospace; color: var(--ink); background: #fff; border: 1.5px solid var(--ink); border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer; transition: background-color 0.15s; }
+.passlab .pl-try:hover { background: var(--cb, #eef4fb); }
+.passlab .pl-result { margin-top: 0.4rem; padding: 1rem 1.2rem 1.1rem; border-radius: 12px; background: #f4f6f9; display: grid; gap: 0.55rem; transition: background-color 0.3s; }
+.passlab .pl-meter { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 1rem; }
+.passlab .pl-lvl { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; color: var(--ink-soft); min-width: 5rem; }
+.passlab .pl-bar { height: 0.7rem; border-radius: 99px; background: rgba(24, 35, 58, 0.12); overflow: hidden; }
+.passlab .pl-fill { display: block; height: 100%; width: 0; border-radius: 99px; background: #b23a33; transition: width 0.35s ease, background-color 0.35s ease; }
+.passlab .pl-msg { margin: 0; }
+.passlab[data-lvl="weak"] .pl-result { background: #fdeee9; } .passlab[data-lvl="weak"] .pl-lvl { color: #b23a33; } .passlab[data-lvl="weak"] .pl-fill { background: #c2453b; }
+.passlab[data-lvl="ok"] .pl-result { background: #fdf5dc; } .passlab[data-lvl="ok"] .pl-lvl { color: #8f6a0e; } .passlab[data-lvl="ok"] .pl-fill { background: #e3a43a; }
+.passlab[data-lvl="good"] .pl-result { background: #e8f5ed; } .passlab[data-lvl="good"] .pl-lvl { color: #2f6b45; } .passlab[data-lvl="good"] .pl-fill { background: #3f8a5a; }
+.passlab .pl-stats { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; }
+.passlab .pl-stats > div { padding: 0.75rem 0; border-top: 1px solid var(--line); }
+.passlab .pl-stats dt { color: var(--ink-soft); font-size: 0.95rem; }
+.passlab .pl-stats dd { margin: 0.15rem 0 0; font-family: var(--font-display); font-weight: 600; font-size: 1.12rem; line-height: 1.3; overflow-wrap: anywhere; }
+.passlab .pl-note { margin: 0; font-size: 0.92rem; color: var(--ink-soft); }
+@media (max-width: 34rem) { .passlab .pl-stats { grid-template-columns: minmax(0, 1fr); } .passlab { padding: 1.2rem 1rem; } }
+@media (prefers-reduced-motion: reduce) { .passlab .pl-fill, .passlab .pl-result { transition: none; } }
+
+/* =====================================================================
+   IT 110 "notebook look" (chat 54, her feedback on the security pilot): calmer, cohesive, roomier.
+   Borrowed from her MIT notebook: bold chapter banners, ink outlines with flat offset shadows,
+   sticker labels, one color family per chapter, generous space between blocks.
+   Opt-in per page: <Base theme="it110 nb">. Only pages with body.nb change.
+   ===================================================================== */
+body.theme-it110.nb { --toon: 2px solid var(--ink); --pop: 4px 4px 0 var(--ink); --pop-s: 2px 2px 0 var(--ink); }
+/* One color family per chapter: --cb = soft fill, --ca = strong accent */
+body.nb .chapter { --cb: #d6e4f7; --ca: #2f5f9e; }
+body.nb main > section.chapter:nth-of-type(4n+2) { --cb: #fbdcc6; --ca: #b9581f; }
+body.nb main > section.chapter:nth-of-type(4n+3) { --cb: #d2ebdc; --ca: #33774f; }
+body.nb main > section.chapter:nth-of-type(4n+4) { --cb: #f6e3a8; --ca: #8f6a0e; }
+
+/* Room to breathe */
+body.nb .flow > * + * { margin-top: 1.8rem; }
+body.nb main p + p { margin-top: 1.05rem; }
+body.nb .chapter { position: relative; padding-block: 5.5rem 2rem; }
+body.nb ul li + li, body.nb ol li + li { margin-top: 0.6em; }
+
+/* Chapter banner: colored, dotted, ink outline, a little tilt */
+body.nb .chapter-head {
+  position: relative; display: grid; gap: 0.75rem; margin-bottom: 2.4rem;
+  background: radial-gradient(rgba(255,255,255,0.5) 1.5px, transparent 1.8px) 0 0 / 14px 14px, var(--cb);
+  border: 2px solid var(--ink); border-radius: 18px; padding: 1.5rem 1.8rem 1.6rem;
+  box-shadow: 5px 5px 0 var(--ca); transform: rotate(-0.5deg);
+}
+body.nb main > section.chapter:nth-of-type(even) .chapter-head { transform: rotate(0.5deg); }
+body.nb .chapter-head::after { content: none; }
+body.nb .chapter-head h2 { font-family: var(--font-display); font-weight: 600; color: var(--ink); font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.4rem); line-height: 1.15; }
+body.nb .chapter-num {
+  justify-self: start; background: #fff; color: var(--ca); border: 1.5px solid var(--ink); border-radius: 99px;
+  padding: 0.25rem 0.95rem; font-family: var(--font-mono); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.06em; transform: rotate(-1.5deg);
+}
+/* A soft rail down the chapter's left edge, so you always know which part you are in */
+body.nb .chapter::before { content: ""; position: absolute; left: 3px; top: 5.5rem; bottom: 0; width: 5px; border-radius: 99px; background: var(--ca); opacity: 0.28; }
+@media (min-width: 52rem) { body.nb .chapter::before { left: -18px; } }
+@media (prefers-reduced-motion: reduce) { body.nb .chapter-head { transform: none !important; } }
+
+/* Section headings: a marker bar in the chapter color (replaces the washi tapes on this look) */
+body.theme-it110.nb .flow > h3:not(.cat-h), body.nb .sub > h3 {
+  width: auto; clip-path: none; transform: none; color: var(--ink);
+  font-family: var(--font-display); font-weight: 600; font-size: clamp(1.35rem, 1.2rem + 0.6vw, 1.6rem); line-height: 1.25;
+  margin-top: 3.8rem; padding: 0.45rem 0.9rem 0.45rem 1rem;
+  border-left: 7px solid var(--ca); border-radius: 4px;
+  background: linear-gradient(90deg, var(--cb), rgba(255,255,255,0) 88%);
+}
+body.theme-it110.nb .flow > h3:not(.cat-h) + * { margin-top: 1.3rem; }
+body.nb .sub { padding-top: 1.5rem; }
+body.nb .sub > h3 { margin-bottom: 1.2rem; }
+
+/* All labels: clean rounded font as stickers (no handwriting) */
+body.nb .note-label { font-family: var(--font-display); font-weight: 600; font-size: 1.12rem; line-height: 1.25; }
+body.nb :is(.def, .sticky, .trap, .look, .remember, .goals) > .note-label {
+  width: fit-content; max-width: 100%; margin: 0 0 1rem; padding: 0.28rem 0.95rem;
+  border: 1.5px solid var(--ink); border-radius: 12px; box-shadow: 2px 2px 0 var(--ink); color: var(--ink); background: #fff;
+}
+
+/* Boxes: one shape for every kind, each kind keeps its own color */
+body.nb :is(.def, .sticky, .trap, .look, .remember) {
+  border: var(--toon); border-radius: 16px; padding: 1.5rem 1.8rem 1.6rem; overflow: visible;
+  background-image: none; transform: none;
+}
+body.nb .def { background: #fff; box-shadow: 4px 4px 0 var(--ca); }
+body.nb .def > .note-label { background: var(--cb); }
+body.nb .def p + p { margin-top: 0.7rem; }
+body.nb .sticky { background: #fff4c7; box-shadow: 4px 4px 0 #d9ad35; transform: rotate(-0.4deg); }
+body.nb .trap { background: #ffece6; box-shadow: 4px 4px 0 #b23a33; }
+body.nb .trap > .note-label { background: #ffc2b4; }
+body.nb .look { background: #eef4fb; box-shadow: 4px 4px 0 #7f9fcb; }
+body.nb .look > .note-label { background: #cfe0f6; }
+body.nb .remember { background: #e7f4ec; box-shadow: 4px 4px 0 #4f8f68; }
+body.nb .remember > .note-label { background: #c3e5cf; }
+body.nb :is(.def, .sticky, .trap, .look, .remember) ul { margin-top: 0.2rem; }
+body.nb .two-col { gap: 1.6rem; }
+
+/* Did-you-know box joins the same family */
+body.nb .dyk { border: var(--toon); border-radius: 16px; box-shadow: 4px 4px 0 #1f4f8f; padding: 1.6rem 1.8rem; }
+body.nb .flow > .dyk { margin: 2.4rem 0; }
+
+/* Lesson header */
+body.nb .lesson-hero .goals { border: var(--toon); border-radius: 16px; box-shadow: 4px 4px 0 #2f5f9e; padding: 1.4rem 1.7rem 1.5rem; }
+body.nb .lesson-hero .goals > .note-label { background: #d6e4f7; }
+
+/* Cards in a grid */
+body.nb .fn-grid { gap: 1.6rem; }
+body.nb .fn-card { border: var(--toon); border-top: 8px solid var(--ca); border-radius: 14px; box-shadow: 4px 4px 0 var(--ca); padding: 1.3rem 1.5rem 1.5rem; gap: 0.6rem; }
+body.nb .fn-card svg.clean { justify-self: center; margin-bottom: 0.4rem; }
+body.nb .fn-card .fn-t { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; color: var(--ink); line-height: 1.2; }
+body.nb main .fn-card p + p { margin-top: 0; }
+body.nb .fn-card .fn-sub { margin-top: -0.35rem; color: var(--ca); font-weight: 800; }
+
+/* Figures: a white "pasted-in" card */
+body.nb figure.illus-fig, body.nb .fig.ss, body.nb .passlab {
+  background: #fff; border: var(--toon); border-radius: 16px; box-shadow: 4px 4px 0 rgba(24, 35, 58, 0.22); padding: 1.6rem 1.5rem 1.4rem;
+}
+body.nb .illus > figcaption { margin-top: 0.4rem; font-weight: 700; color: var(--ink-soft); }
+body.nb .fig.ss .fig-cap { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; }
+
+/* Tables */
+body.nb table.tbl { border: var(--toon); border-radius: 12px; border-collapse: separate; border-spacing: 0; overflow: hidden; box-shadow: 4px 4px 0 rgba(24, 35, 58, 0.22); }
+body.nb table.tbl thead th { background: var(--cb); color: var(--ink); border-bottom: 2px solid var(--ink); font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+body.nb table.tbl th, body.nb table.tbl td { padding: 0.95rem 1.1rem; }
+body.nb table.tbl tbody tr:nth-child(even) td { background: #f7f9fc; }
+
+/* Buttons, quiz choices, sort cards */
+body.nb .quiz .qz-list { gap: 2rem; }
+body.nb .quiz .qz-opt { border: 2px solid var(--ink); border-radius: 10px; box-shadow: var(--pop-s); padding: 0.7rem 1rem; transition: transform 0.15s, box-shadow 0.15s, background-color 0.2s; }
+body.nb .quiz .qz-opt:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+body.nb .quiz .qz-opt.right { background: #d6efdf; border-color: #2f6b45; }
+body.nb .quiz .qz-opt.wrong { background: #ffe1da; border-color: #b23a33; }
+body.nb .btn { border: 2px solid var(--ink); box-shadow: var(--pop-s); border-radius: 10px; }
+body.nb .sorttap .st-list { gap: 1.2rem; }
+body.nb .sorttap .st-item { border: var(--toon); border-radius: 14px; box-shadow: 3px 3px 0 rgba(24, 35, 58, 0.22); padding: 1rem 1.1rem; }
+body.nb .sorttap .st-item.got-right { box-shadow: 3px 3px 0 #33774f; border-color: #33774f; }
+body.nb .sorttap .st-item.got-wrong { box-shadow: 3px 3px 0 #b23a33; }
+body.nb .sorttap .st-btn { border-width: 2px; }
+@media (prefers-reduced-motion: reduce) { body.nb .quiz .qz-opt { transition: none; } }
+
+/* Phones: a little less padding so text keeps its width */
+@media (max-width: 40rem) {
+  body.nb :is(.def, .sticky, .trap, .look, .remember, .dyk) { padding: 1.25rem 1.2rem 1.3rem; }
+  body.nb figure.illus-fig, body.nb .fig.ss, body.nb .passlab { padding: 1.1rem 0.8rem 1rem; }
+  body.nb .chapter-head { padding: 1.2rem 1.2rem 1.3rem; }
+  body.nb .chapter { padding-block: 4rem 1.5rem; }
+}
+/* "Built from" note now sits above the references */
+body.nb .built-from { margin-bottom: 1.4rem; }
+/* Definition boxes with a small doodle (round 3): doodle on the right; in side-by-side pairs and on phones it sits under the text */
+body.nb .def.has-pic { display: grid; grid-template-columns: minmax(0, 1fr) 14rem; column-gap: 1.8rem; align-items: start; }
+body.nb .def.has-pic > :not(.def-pic) { grid-column: 1; }
+body.nb .def.has-pic > .def-pic { grid-column: 2; grid-row: 1 / span 6; align-self: center; width: 100%; height: auto; }
+body.nb .def.has-pic > p + p { margin-top: 0.7rem; }
+body.nb .two-col > .def.has-pic, body.nb .def.has-pic:has(> p:only-of-type) { row-gap: 0; }
+body.nb .two-col > .def.has-pic { grid-template-columns: minmax(0, 1fr); }
+body.nb .two-col > .def.has-pic > .def-pic { grid-column: 1; grid-row: auto; justify-self: center; width: min(100%, 15.5rem); margin-top: 1.2rem; }
+@media (max-width: 34rem) {
+  body.nb .def.has-pic { grid-template-columns: minmax(0, 1fr); }
+  body.nb .def.has-pic > .def-pic { grid-column: 1; grid-row: auto; justify-self: center; width: min(100%, 15.5rem); margin-top: 1.2rem; }
+}
+/* Round 5: bigger definition doodles; CIA/know-have-are card pictures fill the card width */
+body.nb .fn-card svg.clean:not(.ico) { width: 100%; max-width: 19rem; }
+/* Round 6: sidebar lists every section and key concept on notebook-look pages (Toc.astro picks up .flow > h3 and [data-toc]) */
+body.nb .toc-ch .toc-subs { display: grid; }
+/* Concept map at the start of a Part: the big idea on top, its parts below, each one a link to its section */
+body.nb .cmap { background: #fff; border: 2px solid var(--ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--ca); padding: 1.4rem 1.5rem 1.5rem; display: grid; justify-items: center; }
+body.nb .cmap-cap { justify-self: start; font-family: var(--font-display); font-weight: 600; font-size: 1.12rem; margin: 0 0 1.1rem; padding: 0.28rem 0.95rem; border: 1.5px solid var(--ink); border-radius: 12px; background: var(--cb); box-shadow: 2px 2px 0 var(--ink); }
+body.nb .cmap-root { margin: 0; padding: 0.6rem 1.3rem; border: 2px solid var(--ink); border-radius: 12px; background: var(--cb); font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; text-align: center; position: relative; }
+body.nb .cmap-root::after { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 1.1rem; background: var(--ink); }
+body.nb .cmap-kids { list-style: none; padding: 1.1rem 0 0; margin: 1.1rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; width: 100%; border-top: 2px solid var(--ink); position: relative; }
+body.nb .cmap-kids > li { margin: 0; position: relative; }
+body.nb .cmap-kids > li::before { content: ""; position: absolute; left: 50%; top: -1.1rem; width: 2px; height: 1.1rem; background: var(--ink); }
+body.nb .cmap-kids a { display: grid; gap: 0.3rem; height: 100%; padding: 0.8rem 0.9rem; border: 1.5px solid var(--ink); border-radius: 12px; background: #fbfcfe; color: var(--ink); text-decoration: none; text-align: center; transition: transform 0.15s, box-shadow 0.15s; }
+body.nb .cmap-kids a:hover { transform: translateY(-2px); box-shadow: 3px 3px 0 var(--ca); }
+body.nb .cmap-kids b { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+body.nb .cmap-kids span { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.4; }
+body.nb .cmap-note { margin: 1rem 0 0; font-size: 0.95rem; color: var(--ink-soft); justify-self: start; }
+@media (max-width: 34rem) { body.nb .cmap-kids { border-top: 0; padding-top: 0; } body.nb .cmap-kids > li::before { display: none; } }
+@media (prefers-reduced-motion: reduce) { body.nb .cmap-kids a { transition: none; } }
+/* A "how this connects" line that bridges to the parent idea */
+body.nb .bridge { padding-left: 1rem; border-left: 4px solid var(--cb); color: var(--ink); }
+/* Round 8: step-by-step pictures as big as the other figures, explanation in body size */
+body.nb .ss .cw-pic { padding: 0.6rem 0; }
+body.nb .ss .cw-pic svg { max-height: none; width: 100%; max-width: 40rem; }
+body.nb .ss .cw-say { font-size: var(--step-0); line-height: 1.6; }
+/* Round 9: picture labels in the rounded display font, so drawings read apart from the paragraph text */
+body.nb svg.clean text:not([font-family*="Mono"]) { font-family: var(--font-display); }
+/* Step-by-step pictures sit on their own soft "stage", clearly separate from the explanation below */
+body.nb .ss .cw-pic { background: #f4f7fb; border: 1.5px solid #d6dfeb; border-radius: 14px; padding: 1rem 0.8rem; }
+body.nb .ss .cw-say { margin-top: 1rem; padding: 0 0.3rem; }
+/* Enlarge pictures on tap (ZoomPics.astro) */
+body.nb .zp-can { cursor: zoom-in; }
+body.nb .zp-can:focus-visible { outline: 3px solid var(--teal-2); outline-offset: 4px; border-radius: 8px; }
+.zp { position: fixed; inset: 0; z-index: 300; background: rgba(24, 35, 58, 0.6); display: grid; place-items: center; padding: 1rem; animation: zpFade 0.2s ease both; }
+.zp[hidden] { display: none; }
+.zp-card { position: relative; background: #fff; border: 2px solid var(--ink); border-radius: 18px; box-shadow: 6px 6px 0 rgba(24, 35, 58, 0.35); width: min(62rem, 96vw); max-height: 92vh; overflow: auto; padding: 2.6rem 1.6rem 1.4rem; animation: zpIn 0.22s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.zp-pic svg, .zp-pic img { display: block; width: 100%; height: auto; max-height: 76vh; object-fit: contain; margin: 0 auto; }
+.zp-cap { margin: 1rem 0 0; text-align: center; color: var(--ink-soft); font-weight: 600; }
+.zp-x { position: absolute; top: 0.6rem; right: 0.7rem; width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 2px solid var(--ink); background: #fff; font-size: 1.05rem; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+html.zp-open { overflow: hidden; }
+@keyframes zpFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zpIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .zp-card { animation: zpFade 0.2s ease both; } }
+/* Round 11-12: official terms are bold AND one clear color everywhere (tangerine ink), distinct from black text and from blue links */
+body.nb b.term { color: #c24e14; font-weight: 800; }
+/* Round 13: on notebook-look pages a photo tap opens the enlarged view (with its credit), so the old tap-to-blur credit overlay is off */
+body.nb .ph-frame:focus-within img { filter: none; transform: none; }
+body.nb .ph-frame:focus-within .ph-src { opacity: 0; visibility: hidden; }
+body.nb .ph-frame:focus-within .ph-i { opacity: 1; }
+body.nb .ph-frame { cursor: zoom-in; }
+/* Round 16: room above the second heading in the References box (Photo credits) */
+body.nb .refs > ol + .note-label, body.nb .refs > ul + .note-label { margin-top: 2.2rem; }
