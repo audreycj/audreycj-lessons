@@ -1759,3 +1759,60 @@ body.nb .sticky.has-pic > .scene-pic { grid-column: 2; grid-row: 1 / span 6; ali
   body.nb .sticky.has-pic { grid-template-columns: minmax(0, 1fr); }
   body.nb .sticky.has-pic > .scene-pic { grid-column: 1; grid-row: auto; justify-self: center; width: min(100%, 20rem); margin-top: 1.1rem; }
 }
+/* IT 110 chat 56: "What it really is" cards (net-security). Round 2 (her feedback: boxes in boxes looked unharmonious):
+   ONE frame only (the card). The picture sits on a plain white sheet with no outline; label and tag chip share one row in the same sticker shape. */
+body.nb .real { border: var(--toon); border-radius: 16px; padding: 1.5rem 1.8rem 1.6rem; background: #f7f8fa; box-shadow: 4px 4px 0 #6b7a94; }
+body.nb .real .real-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 0.8rem; }
+body.nb .real .real-head > .note-label, body.nb .real .rtag {
+  margin: 0; padding: 0.28rem 0.95rem; border: 1.5px solid var(--ink); border-radius: 12px; box-shadow: 2px 2px 0 var(--ink);
+  font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; line-height: 1.25; color: var(--ink);
+}
+body.nb .real .real-head > .note-label { background: #e3e8f0; }
+body.nb .real .rtag-hw { background: #d6e4f7; color: #1c4479; }
+body.nb .real .rtag-sw { background: #d2ebdc; color: #2a6643; }
+body.nb .real .rtag-both { background: #f6e3a8; color: #6e5108; }
+body.nb .real .rtag-method { background: #fbdcc6; color: #9a4419; }
+body.nb .real .real-title { margin: 1rem 0 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.4rem, 1.25rem + 0.6vw, 1.7rem); line-height: 1.2; color: var(--ink); }
+body.nb .real > figure.fig { margin: 1rem 0 0; padding: 1rem 1rem 0.9rem; background: #fff; border: 0; border-radius: 14px; box-shadow: none; }
+body.nb .real > figure.fig svg.clean { width: 100%; max-width: 40rem; display: block; margin-inline: auto; }
+body.nb .real > figure.fig figcaption { margin-top: 0.6rem; font-size: 0.95rem; color: var(--ink-soft); }
+body.nb .real .real-facts { margin: 1.3rem 0 0; display: grid; }
+body.nb .real .real-facts > div { display: grid; grid-template-columns: 11rem minmax(0, 1fr); column-gap: 1.4rem; padding: 0.85rem 0; border-top: 1.5px solid #d3dae5; }
+body.nb .real .real-facts > div:first-child { border-top: 0; padding-top: 0.2rem; }
+body.nb .real .real-facts dt { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; color: var(--ink); }
+body.nb .real .real-facts dd { margin: 0; }
+body.nb .real .real-facts dd p + p { margin-top: 0.55rem; }
+body.nb .real .rk { display: inline-block; margin-right: 0.5rem; padding: 0 0.55rem; border-radius: 8px; font-size: 0.85rem; font-weight: 800; vertical-align: 0.08em; }
+body.nb .real .rk-hw { background: #d6e4f7; color: #1c4479; }
+body.nb .real .rk-ex { background: #e3e8f0; color: var(--ink); }
+body.nb .real .rtag-either { background: #f6e3a8; color: #6e5108; }
+body.nb .real .real-note { margin: 0.5rem 0 0; color: var(--ink-soft); }
+body.nb .real .rk-sw { background: #d2ebdc; color: #2a6643; }
+@media (max-width: 46rem) { body.nb .real .real-facts > div { grid-template-columns: minmax(0, 1fr); row-gap: 0.3rem; } }
+@media (max-width: 40rem) { body.nb .real { padding: 1.2rem 1rem 1.3rem; } body.nb .real > figure.fig { padding: 0.5rem; } }
+/* chat 56: everyday nickname under a card's official name: quiet, italic, in quotes, so it never looks like the proper term */
+body.nb .fn-card .fn-sub.fn-nick { margin-top: -0.4rem; color: var(--ink-soft); font-weight: 600; font-style: italic; }
+/* chat 56: password "Old habit / Today's advice / Why" table: today's advice is the star (green wash, check mark, darker text);
+   old habits are quieter (grey, small x); the reason stays plain. */
+body.nb .advice-tbl td:nth-child(1) { color: var(--ink-soft); }
+body.nb .advice-tbl td:nth-child(1)::before { content: "\2717\00a0"; color: #b23a33; font-weight: 800; }
+body.nb .advice-tbl th:nth-child(2) { background: #3f8a5a; color: #fff; }
+body.nb table.tbl.advice-tbl tbody tr td:nth-child(2) { background: #e7f4ec; color: var(--ink); font-weight: 600; border-left: 4px solid #3f8a5a; }
+body.nb .advice-tbl td:nth-child(2)::before { content: "\2713\00a0"; color: #2f6b45; font-weight: 800; }
+body.nb .advice-tbl td:nth-child(3) { font-size: 0.95em; }
+/* chat 56: PassLab values calmer: body font, semi-bold, ink (was the heavy display font); exponents as real superscripts */
+.passlab .pl-stats dd { font-family: inherit; font-weight: 700; font-size: 1.08rem; color: var(--ink); }
+.passlab .pl-stats dd sup { font-size: 0.7em; line-height: 0; vertical-align: 0.55em; }
+/* chat 56: the enlarged picture must be big: drop the small max-width that pictures carry on the page (svg.clean 24rem etc.) */
+.zp .zp-pic svg, .zp .zp-pic svg.clean, body.nb .zp .zp-pic svg.clean { max-width: none; width: 100%; height: auto; max-height: 76vh; margin: 0 auto; grid-column: auto; grid-row: auto; }
+/* chat 56: highlight the recommended row of a table (WPA3 in the Wi-Fi standards table) */
+body.nb table.tbl tbody tr.row-best td { background: #e7f4ec; font-weight: 600; border-top: 2px solid #3f8a5a; border-bottom: 2px solid #3f8a5a; }
+body.nb table.tbl tbody tr.row-best td:first-child { box-shadow: inset 5px 0 0 #3f8a5a; }
+body.nb .best-chip { display: block; width: fit-content; margin: 0.3rem 0 0; padding: 0.05rem 0.55rem; border-radius: 99px; background: #3f8a5a; color: #fff; font-size: 0.78rem; font-weight: 800; white-space: nowrap; vertical-align: 0.1em; }
+/* chat 56: table thumbnails can be enlarged too (ZoomPics); the copy in the zoom view must not keep the thumbnail size */
+.zp .zp-pic img.tthumb { width: auto; max-width: 100%; height: auto; max-height: 76vh; border: 0; }
+/* chat 56: organization precautions as 4 cards (2 x 2); lists inside cards stay roomy */
+body.nb .org-grid { grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+body.nb .org-grid .fn-card ul { margin: 0; padding-left: 1.2rem; }
+body.nb .org-grid .fn-card li + li { margin-top: 0.55em; }
+

@@ -378,3 +378,354 @@ export function scenePic(kind) {
   }
   return svgWrap(240, 160, alt, b).replace('class="clean"', 'class="clean def-pic scene-pic"');
 }
+
+/* =====================================================================
+   Lesson 1 "What it really is" pictures (chat 56): what each safeguard looks like in real life.
+   One detailed drawing per safeguard, 480 wide. Panels: soft tinted cards with a small caption.
+   ===================================================================== */
+import { key2 as key2R, fingerprint2 as fpR, server2 as serverR } from './it110-sec-pics.js';
+// soft blocks, no outline (the card around the picture is the only frame). tone: n = neutral, hw = hardware blue, sw = software green (same as the tag chips)
+const TONE = { n: '#f1f4f8', hw: '#e6eef9', sw: '#e3f1e8' };
+const panel = (x, y, w, h, tone = 'n') => R(x, y, w, h, { r: 14, f: TONE[tone] ?? TONE.n, s: 'none', sw: 0 });
+// small chip in the same colors as the page's tag chips
+const tagChip = (cx, y, kind) => { const t = kind === 'hw' ? ['Hardware', '#d6e4f7', '#1c4479'] : ['Software', '#d2ebdc', '#2a6643']; return R(cx - 44, y, 88, 24, { r: 12, f: t[1], s: t[2], sw: 1.4 }) + T(cx, y + 16.5, t[0], { size: 12.5, w: 800, c: t[2] }); };
+const cap = (x, y, txt, c = B.soft) => T(x, y, txt, { size: 13, w: 700, c });
+const winBar = (x, y, w, title, f = '#dfe9f6') => R(x, y, w, 22, { r: 8, f, sw: 2 }) + `<rect x="${x + 2}" y="${y + 12}" width="${w - 4}" height="9" fill="${f}"/>` + [0, 1, 2].map((k) => C(x + 12 + k * 10, y + 11, 3, ['#e06c5a', '#eeb04a', '#5fae6b'][k], 'none', 0)).join('') + (title ? T(x + w / 2 + 12, y + 15.5, title, { size: 11, w: 700, c: B.blueInk }) : '');
+const pill = (x, y, w, txt, f, c) => R(x, y, w, 22, { r: 11, f, s: c, sw: 1.4 }) + T(x + w / 2, y + 15.5, txt, { size: 11.5, w: 700, c });
+// a pointing hand (chat 56, redrawn): index finger straight up, the other fingers curled into the palm, thumb tucked on the
+// left. One smooth outline, like a real hand. Fingertip at (x, y); about 80*s tall.
+const fingerTap = (x, y, s = 1) => {
+  const S = (v) => (v * s).toFixed(1);
+  let g = `<g transform="translate(${x} ${y})">`;
+  g += `<path d="M${S(-8)} ${S(8)} Q${S(-8)} 0 0 0 Q${S(8)} 0 ${S(8)} ${S(8)} L${S(8)} ${S(38)} Q${S(10)} ${S(34)} ${S(15)} ${S(34)} Q${S(20)} ${S(34)} ${S(20.5)} ${S(39)} Q${S(23)} ${S(36)} ${S(27)} ${S(37.5)} Q${S(30.5)} ${S(39)} ${S(30)} ${S(44)} Q${S(33)} ${S(44)} ${S(33.5)} ${S(49)} L${S(33.5)} ${S(60)} Q${S(33)} ${S(78)} ${S(16)} ${S(80)} L${S(2)} ${S(80)} Q${S(-10)} ${S(79)} ${S(-12)} ${S(67)} L${S(-12)} ${S(58)} Q${S(-20)} ${S(55)} ${S(-20.5)} ${S(48)} Q${S(-20)} ${S(42)} ${S(-14.5)} ${S(42.5)} Q${S(-10)} ${S(43.5)} ${S(-8)} ${S(48)} Z" fill="${B.skin}" stroke="${B.ink}" stroke-width="2" stroke-linejoin="round"/>`;
+  g += `<path d="M${S(-4.5)} ${S(3)} Q0 ${S(1.2)} ${S(4.5)} ${S(3)} L${S(4.5)} ${S(10)} Q0 ${S(12)} ${S(-4.5)} ${S(10)} Z" fill="#f6dcc8" stroke="rgba(24,35,58,0.35)" stroke-width="1.1"/>`;
+  g += `<path d="M${S(-4)} ${S(24)} Q0 ${S(25.5)} ${S(4)} ${S(24)} M${S(10)} ${S(45)} Q${S(14)} ${S(47)} ${S(19)} ${S(45)} M${S(21)} ${S(49)} Q${S(25)} ${S(51)} ${S(29)} ${S(49)} M${S(-12)} ${S(58)} Q${S(-9)} ${S(56)} ${S(-6)} ${S(52)}" fill="none" stroke="rgba(24,35,58,0.4)" stroke-width="1.3" stroke-linecap="round"/>`;
+  return g + '</g>';
+};
+// a tap ripple (two rings) around a point
+const tapRing = (x, y, r = 12, c = B.green) => C(x, y, r, 'none', c, 2) + `<circle cx="${x}" cy="${y}" r="${r + 7}" fill="none" stroke="${c}" stroke-width="1.6" opacity="0.45"/>`;
+const rack = (x, y, w, h) => {
+  let g = R(x, y, w, h, { r: 6, f: '#2b3446', sw: 2 }) + R(x + 6, y + 6, w - 12, h - 12, { r: 3, f: '#1d2433', s: 'none', sw: 0 });
+  g += L(x + 10, y + 8, x + 10, y + h - 8, '#56607a', 1.2) + L(x + w - 10, y + 8, x + w - 10, y + h - 8, '#56607a', 1.2);
+  return g;
+};
+// a rack-mounted box: rows of ports and LEDs. hot = highlighted (the box we talk about)
+const rackUnit = (x, y, w, h, hot = false, txt = '') => {
+  let g = R(x, y, w, h, { r: 3, f: hot ? '#e27b3e' : '#56607a', s: B.ink, sw: hot ? 2 : 1.4 }) + R(x + 2, y + 2, w - 4, 3, { r: 1.5, f: 'rgba(255,255,255,0.3)', s: 'none', sw: 0 });
+  const n = Math.floor((w - (txt ? 70 : 20)) / 9);
+  for (let k = 0; k < n; k++) g += R(x + w - 12 - k * 9, y + h / 2 - 3, 6, 6, { r: 1, f: '#1d2433', s: 'none', sw: 0 });
+  g += `<circle cx="${x + 8}" cy="${y + h / 2}" r="2" fill="${hot ? '#b9f5c8' : B.green}"/>`;
+  if (txt) g += T(x + 14, y + h / 2 + 4, txt, { size: 10.5, w: 800, a: 'start', c: hot ? '#fff' : '#d9dee6' });
+  return g;
+};
+
+/** "What it really is" drawings. kind: acl, bio, passkey, firewall, ips, encrypt, vpn, https. 480 wide. */
+export function realPic(kind) {
+  let b = '', alt = '', H = 250;
+  if (kind === 'acl') {
+    // left: office door with a card reader
+    b = panel(8, 8, 226, 234) + panel(246, 8, 226, 234);
+    b += R(30, 36, 88, 174, { r: 4, f: '#c9a27a', sw: 2 }) + R(38, 44, 72, 66, { r: 3, f: '#d8b590', s: '#8a6a48', sw: 1.4 }) + R(38, 118, 72, 84, { r: 3, f: '#d8b590', s: '#8a6a48', sw: 1.4 });
+    b += R(42, 54, 64, 20, { r: 3, f: '#fff', s: B.ink, sw: 1.4 }) + T(74, 67.5, 'STAFF ONLY', { size: 8.5, c: B.red }) + C(104, 130, 4, '#8a94a6', B.ink, 1.6) + L(20, 210, 222, 210, B.ink, 2);
+    // reader on the wall, card held flat against it, signal arcs
+    b += R(148, 96, 36, 56, { r: 6, f: '#2b3446', sw: 2 }) + R(154, 104, 24, 24, { r: 4, f: '#3b4659', s: '#56607a', sw: 1 }) + C(166, 140, 4, B.green, B.ink, 1.2);
+    b += R(156, 84, 50, 32, { r: 5, f: '#fff', sw: 2 }) + R(156, 84, 50, 9, { r: 5, f: B.blue, sw: 2 }) + `<rect x="158" y="89" width="46" height="5" fill="${B.blue}"/>` + C(169, 104, 6, B.skin, B.ink, 1.2) + L(180, 101, 198, 101, '#b7c7e0', 2.2) + L(180, 108, 194, 108, '#b7c7e0', 2.2);
+    b += [8, 15].map((r) => P(`M${212} ${100 - r} A${r} ${r} 0 0 1 ${212} ${100 + r}`, 'none', B.green, 2.2)).join('');
+    b += label(178, 52, 'tap your card', '#2f6b45', '#fff', 11);
+    b += cap(121, 234, 'ID card reader at a door');
+    // right: login screen
+    b += laptop2(282, 62, 156, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#eef3fb', s: 'none', sw: 0 }) + T(x + w / 2, y + 16, 'School portal', { size: 11, w: 800, c: B.blueInk })
+      + R(x + 16, y + 24, w - 32, 16, { r: 4, f: '#fff', s: B.line, sw: 1.2 }) + T(x + 22, y + 35.5, '2025-01234', { size: 9.5, w: 700, a: 'start', c: B.ink, mono: true })
+      + R(x + 16, y + 46, w - 32, 16, { r: 4, f: '#fff', s: B.line, sw: 1.2 }) + [0, 1, 2, 3, 4, 5, 6, 7].map((k) => C(x + 25 + k * 9, y + 54, 2.4, B.ink, 'none', 0)).join('')
+      + R(x + w / 2 - 26, y + 68, 52, 15, { r: 7.5, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 78.5, 'Log in', { size: 9.5, w: 800, c: '#fff' }));
+    b += cap(359, 212, 'Login screen:', B.ink) + cap(359, 230, 'username + password');
+    b += C(240, 150, 15, '#fff', B.ink, 1.8) + T(240, 154.5, 'OR', { size: 11.5, w: 800, c: B.ink });
+    alt = 'Two real access control systems: an ID card reader on a staff-only office door, where you tap your card, and a school portal login screen asking for a username and password.';
+  } else if (kind === 'bio') {
+    b = panel(8, 8, 226, 234) + panel(246, 8, 226, 234);
+    // left: phone with an in-screen fingerprint spot and a finger
+    b += phone2(78, 20, 86, 150, (x, y, w, h) => R(x, y, w, h, { r: 8, f: '#1f2a44', s: 'none', sw: 0 }) + T(x + w / 2, y + 30, '9:41', { size: 22, w: 700, c: '#fff' }) + T(x + w / 2, y + 46, 'Tuesday', { size: 10, w: 600, c: '#c9d5e6' }) + C(x + w / 2, y + h - 34, 17, 'rgba(143,176,220,0.25)', '#8fb0dc', 1.4), '#1f2a44');
+    b += `<g opacity="0.95">${fpR(121, 140, 0.6, '#8fb0dc')}</g>` + fingerTap(121, 142, 0.95);
+    b += cap(121, 234, 'Fingerprint sensor on a phone');
+    // right: laptop with a face scan frame
+    b += laptop2(282, 44, 156, (x, y, w, h) => {
+      let g = R(x, y, w, h, { r: 0, f: '#eef3fb', s: 'none', sw: 0 });
+      const cx = x + w / 2, cy = y + h / 2 + 2;
+      g += `<ellipse cx="${cx}" cy="${cy + 4}" rx="17" ry="21" fill="${B.skin}" stroke="${B.ink}" stroke-width="1.6"/>` + P(`M${cx - 17} ${cy} Q${cx - 18} ${cy - 20} ${cx} ${cy - 18} Q${cx + 18} ${cy - 20} ${cx + 17} ${cy} Q${cx + 8} ${cy - 10} ${cx - 17} ${cy} Z`, B.hair, B.ink, 1.4) + C(cx - 6, cy + 4, 1.8, B.ink, 'none', 0) + C(cx + 6, cy + 4, 1.8, B.ink, 'none', 0) + P(`M${cx - 4} ${cy + 13} Q${cx} ${cy + 16} ${cx + 4} ${cy + 13}`, 'none', B.ink, 1.4);
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dy]) => { const px = cx + dx * 30, py = cy + 4 + dy * 32; g += P(`M${px} ${py - dy * 10} L${px} ${py} L${px - dx * 10} ${py}`, 'none', B.green, 3); });
+      return g;
+    });
+    b += C(360, 47, 3, '#5fae6b', 'none', 0) + pill(306, 152, 108, 'Face recognized', B.greenWash, B.green);
+    b += cap(359, 234, 'Face scan on a laptop camera');
+    alt = 'Two real biometric readers: a finger touching the fingerprint spot on a phone screen, and a laptop camera recognizing a face, with green corner marks and the words Face recognized.';
+  } else if (kind === 'passkey') {
+    b = panel(8, 8, 464, 234);
+    // laptop with website waiting
+    b += laptop2(34, 40, 176, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#fff', s: 'none', sw: 0 }) + R(x + 6, y + 5, w - 12, 13, { r: 6.5, f: '#f1f3f6', s: '#b7bfcc', sw: 1 }) + T(x + 14, y + 14.5, 'perabank.com.ph', { size: 8.5, w: 700, a: 'start', c: B.ink })
+      + T(x + w / 2, y + 36, 'PeraBank', { size: 12, w: 800, c: B.blueInk }) + R(x + 24, y + 46, w - 48, 20, { r: 10, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 59.5, 'Sign in with a passkey', { size: 9.5, w: 800, c: '#fff' })
+      + T(x + w / 2, y + 82, 'Check your phone...', { size: 9, w: 700, c: B.soft }));
+    b += P('M218 96 Q246 70 274 92', 'none', B.blue, 2.4, ' stroke-dasharray="5 4"') + ARROW(266, 86, 276, 94, B.blue, 2.4);
+    // phone with the prompt
+    b += phone2(284, 16, 124, 184, (x, y, w, h) => {
+      let g = R(x, y, w, h, { r: 10, f: '#dfe6f0', s: 'none', sw: 0 });
+      g += R(x + 6, y + 20, w - 12, 144, { r: 12, f: '#fff', s: '#c9d2df', sw: 1.2 });
+      g += key2R(x + w / 2 - 16, y + 38, 0.62, B.amber);
+      g += T(x + w / 2, y + 66, 'Sign in to', { size: 10.5, w: 700, c: B.ink }) + T(x + w / 2, y + 81, 'perabank.com.ph', { size: 10.5, w: 800, c: B.blueInk }) + T(x + w / 2, y + 96, 'with your passkey?', { size: 10.5, w: 700, c: B.ink });
+      g += `<g>${fpR(x + w / 2, y + 130, 0.62, B.blue)}</g>`;
+      return g;
+    });
+    b += fingerTap(346, 154, 0.66);
+    b += label(122, 206, '1. the website asks', B.blueInk, '#fff', 12) + label(346, 230, '2. your phone answers', B.blueInk, '#fff', 12);
+    b += spark(430, 40, 1) + spark(256, 140, 0.8, B.blueMid);
+    alt = 'A passkey login: on a laptop, the PeraBank website at perabank.com.ph shows Sign in with a passkey. The phone pops up a box asking Sign in to perabank.com.ph with your passkey, and the user touches the fingerprint sensor. Nothing is typed.';
+    H = 250;
+  } else if (kind === 'firewall') {
+    const pw = 148;
+    b = panel(8, 8, pw, 234, 'hw') + panel(166, 8, pw, 234, 'hw') + panel(324, 8, pw, 234, 'sw');
+    // 1 company: firewall box in a rack
+    b += rack(34, 26, 96, 140) + rackUnit(44, 38, 76, 18) + rackUnit(44, 62, 76, 22, true, 'FIREWALL') + rackUnit(44, 90, 76, 18) + rackUnit(44, 114, 76, 18) + rackUnit(44, 138, 76, 18);
+    b += T(82, 214, 'a box in a', { size: 12.5, w: 700, c: B.soft }) + T(82, 230, 'company server room', { size: 12.5, w: 700, c: B.soft });
+    // 2 home: router
+    b += router2(196, 104, 88) + R(214, 136, 52, 8, { r: 3, f: '#c8ced8', sw: 1.4 }) + wifi2(240, 86, AIR, 0.95) + shield2(270, 44, 0.42, '#fbe2d2');
+    b += T(240, 214, 'built into every', { size: 12.5, w: 700, c: B.soft }) + T(240, 230, 'home router', { size: 12.5, w: 700, c: B.soft });
+    // 3 software: a settings window
+    b += R(338, 30, 120, 132, { r: 8, f: '#fff', sw: 2 }) + winBar(338, 30, 120, '') + T(398, 70, 'Firewall', { size: 13, w: 800, c: B.ink });
+    b += shield2(398, 78, 0.38, B.greenWash) + R(368, 118, 60, 22, { r: 11, f: B.green, s: B.ink, sw: 1.6 }) + C(416, 129, 8, '#fff', B.ink, 1.4) + T(386, 133, 'ON', { size: 11, w: 800, c: '#fff' });
+    b += T(398, 154, 'Private network', { size: 9.5, w: 700, c: B.soft });
+    b += tagChip(398, 174, 'sw') + T(398, 214, 'in Windows', { size: 12.5, w: 700, c: B.soft }) + T(398, 230, 'and macOS', { size: 12.5, w: 700, c: B.soft });
+    b += tagChip(82, 174, 'hw') + tagChip(240, 174, 'hw');
+    alt = 'Three real firewalls: a firewall box in a company server rack, with cables in and out (hardware); a home router, which has a simple firewall built in (hardware); and a Firewall settings window switched ON in Windows or macOS (software).';
+  } else if (kind === 'ips') {
+    // chat 56 redraw: the two common setups on top, a realistic security dashboard below.
+    H = 384;
+    const unit = (x, y, w, txt, hot) => R(x, y, w, 22, { r: 3, f: hot ? '#e27b3e' : '#56607a', s: B.ink, sw: 1.6 }) + R(x + 2, y + 2, w - 4, 3, { r: 1.5, f: 'rgba(255,255,255,0.3)', s: 'none', sw: 0 }) + `<circle cx="${x + 8}" cy="${y + 11}" r="2" fill="${hot ? '#b9f5c8' : B.green}"/>` + T(x + 15, y + 15, txt, { size: 10, w: 800, a: 'start', c: '#fff' }) + [0, 1, 2, 3].slice(0, w > 120 ? 4 : 2).map((k) => R(x + w - 12 - k * 8, y + 8, 5, 6, { r: 1, f: '#1d2433', s: 'none', sw: 0 })).join('');
+    b = panel(8, 8, 228, 112) + panel(244, 8, 228, 112);
+    b += T(122, 28, 'All in one box', { size: 12.5, w: 800, c: B.ink }) + unit(40, 46, 164, 'FIREWALL + IPS', true) + T(122, 92, 'a "next-generation firewall"', { size: 11, w: 700, c: B.soft }) + T(122, 107, 'does both jobs', { size: 11, w: 700, c: B.soft });
+    b += T(358, 28, 'Two separate boxes', { size: 12.5, w: 800, c: B.ink }) + unit(262, 46, 92, 'FIREWALL', false) + ARROW(356, 57, 370, 57, B.ink, 2) + unit(372, 46, 88, 'IPS', true) + T(358, 92, 'the IPS sits right behind', { size: 11, w: 700, c: B.soft }) + T(358, 107, 'the firewall', { size: 11, w: 700, c: B.soft });
+    // dashboard on a wide monitor
+    const mx = 14, my = 132, mw = 392, mh = 200;
+    b += R(mx, my, mw, mh, { r: 8, f: '#2b3446', sw: 2 }) + R(mx + 6, my + 6, mw - 12, mh - 12, { r: 4, f: '#f7f9fc', s: 'none', sw: 0 });
+    const sx = mx + 6, sy = my + 6, sw = mw - 12;
+    b += R(sx, sy, sw, 18, { r: 0, f: '#1f2a44', s: 'none', sw: 0 }) + T(sx + 8, sy + 12.5, 'Threat dashboard', { size: 9.5, w: 800, a: 'start', c: '#fff' }) + T(sx + sw - 8, sy + 12.5, 'Last 24 hours', { size: 8.5, w: 700, a: 'end', c: '#b7c7e0' });
+    // three number tiles
+    [['Blocked today', '1,284', B.green], ['Alerts', '37', '#c98a1c'], ['Critical', '3', B.red]].forEach(([l, v, c], i) => { const tx = sx + 8 + i * 62; b += R(tx, sy + 24, 56, 34, { r: 4, f: '#fff', s: '#d3dae5', sw: 1 }) + T(tx + 6, sy + 35, l, { size: 7, w: 700, a: 'start', c: B.soft }) + T(tx + 6, sy + 52, v, { size: 13, w: 800, a: 'start', c }); });
+    // attacks-per-hour chart
+    const cx0 = sx + 200, cy0 = sy + 24, cw = 170, ch = 34, pts = [6, 8, 5, 9, 7, 12, 10, 28, 14, 9, 11, 8];
+    b += R(cx0, cy0, cw, ch, { r: 4, f: '#fff', s: '#d3dae5', sw: 1 }) + T(cx0 + 6, cy0 + 10, 'Attacks per hour', { size: 7, w: 700, a: 'start', c: B.soft });
+    b += P('M' + pts.map((v, i) => `${(cx0 + 8 + i * (cw - 16) / (pts.length - 1)).toFixed(1)} ${(cy0 + ch - 4 - v * 0.75).toFixed(1)}`).join(' L'), 'none', B.red, 1.6);
+    // event table
+    const ty = sy + 66, cols = [8, 46, 118, 258];
+    b += R(sx + 6, ty, sw - 12, 14, { r: 2, f: '#e3e8f0', s: 'none', sw: 0 }) + ['Time', 'From', 'What happened', 'Action'].map((h, i) => T(sx + cols[i] + 4, ty + 10, h, { size: 7.5, w: 800, a: 'start', c: B.ink })).join('');
+    const rows = [['14:02', '203.0.113.45', '200 login tries on one account', 'BLOCKED', B.red], ['14:00', '198.51.100.7', 'Scan for open doors (ports)', 'BLOCKED', B.red], ['13:57', '192.0.2.88', 'Known attack on old router bug', 'BLOCKED', B.red], ['13:55', '10.0.4.21', 'Staff PC: big upload at night', 'ALERT', '#c98a1c'], ['13:51', '198.51.100.23', 'Normal web traffic', 'ALLOWED', B.green]];
+    rows.forEach((r, k) => { const yy = ty + 16 + k * 19; if (k % 2) b += R(sx + 6, yy, sw - 12, 19, { r: 0, f: '#eef2f7', s: 'none', sw: 0 });
+      b += T(sx + cols[0] + 4, yy + 12.5, r[0], { size: 7.5, w: 700, a: 'start', c: B.soft, mono: true }) + T(sx + cols[1] + 4, yy + 12.5, r[1], { size: 7.5, w: 700, a: 'start', c: B.soft, mono: true }) + T(sx + cols[2] + 4, yy + 12.5, r[2], { size: 8, w: 700, a: 'start', c: B.ink });
+      b += R(sx + cols[3], yy + 4, 52, 12, { r: 6, f: r[4], s: 'none', sw: 0 }) + T(sx + cols[3] + 26, yy + 13, r[3], { size: 7, w: 800, c: '#fff' }); });
+    b += R(mx + mw / 2 - 12, my + mh, 24, 12, { r: 1, f: '#3b4659', sw: 1.6 }) + R(mx + mw / 2 - 50, my + mh + 11, 100, 7, { r: 3, f: '#9aa5b6', sw: 1.6 });
+    // IT staff member at the desk
+    b += person2(442, 236, 0.8, { shirt: B.green }) + R(412, 304, 60, 8, { r: 2, f: '#d9b98c', sw: 1.6 }) + T(442, 334, 'IT team', { size: 11.5, w: 700, c: B.soft });
+    b += T(210, 376, 'Each line is one event the IPS saw, and what it did about it.', { size: 11.5, w: 700, c: B.soft });
+    alt = 'Top: the two common IPS setups. All in one box: a next-generation firewall that does both jobs. Two separate boxes: a firewall, then a separate IPS right behind it. Bottom: a security dashboard watched by the IT team. Number tiles show 1,284 blocked today, 37 alerts, and 3 critical. A chart shows attacks per hour with one spike. An event list shows: 200 login tries on one account, blocked; a scan for open ports, blocked; a known attack on an old router bug, blocked; a staff PC making a big upload at night, alert; normal web traffic, allowed.';
+  } else if (kind === 'encrypt') {
+    b = panel(8, 8, 220, 234) + panel(238, 8, 234, 234);
+    // chat app with E2EE note
+    b += phone2(56, 18, 124, 196, (x, y, w, h) => {
+      let g = R(x, y, w, h, { r: 10, f: '#f4f6f9', s: 'none', sw: 0 }) + R(x, y, w, 22, { r: 0, f: '#fff', s: 'none', sw: 0 }) + C(x + 14, y + 11, 6, '#9fd3ae', 'none', 0) + T(x + 26, y + 15, 'Ana', { size: 10.5, w: 800, a: 'start', c: B.ink });
+      g += R(x + 8, y + 30, w - 16, 34, { r: 7, f: '#fff3c4', s: '#d9ad35', sw: 1 }) + padlock2(x + 13, y + 42, false, B.amber, 0.4) + T(x + 34, y + 44, 'End-to-end', { size: 10, w: 800, a: 'start', c: '#7a5a0c' }) + T(x + 34, y + 57, 'encrypted', { size: 10, w: 800, a: 'start', c: '#7a5a0c' });
+      g += R(x + 8, y + 74, 62, 20, { r: 9, f: '#fff', s: B.line, sw: 1 }) + T(x + 14, y + 88, 'Kita tayo?', { size: 9, w: 700, a: 'start', c: B.ink });
+      g += R(x + w - 74, y + 102, 66, 20, { r: 9, f: '#cfe0f6', s: 'none', sw: 0 }) + T(x + w - 68, y + 116, 'Sige, 5pm!', { size: 9, w: 700, a: 'start', c: B.ink });
+      g += R(x + 6, y + h - 22, w - 12, 16, { r: 8, f: '#fff', s: B.line, sw: 1 });
+      return g;
+    });
+    b += cap(118, 234, 'Turned on in chat apps');
+    // nothing to install: three places already encrypted
+    b += T(355, 36, 'Already built in:', { size: 13, w: 800, c: B.ink });
+    const rows = [[60, 'wifi'], [118, 'https'], [176, 'phone']];
+    rows.forEach(([y, k]) => {
+      b += R(254, y, 202, 46, { r: 10, f: '#fff', s: '#d3dae5', sw: 1.4 });
+      if (k === 'wifi') b += wifi2(280, y + 34, AIR, 0.72) + T(302, y + 20, 'Wi-Fi (WPA2/WPA3)', { size: 11.5, w: 800, a: 'start', c: B.ink }) + T(302, y + 36, 'phone to router', { size: 10.5, w: 600, a: 'start', c: B.soft });
+      if (k === 'https') b += R(266, y + 14, 28, 18, { r: 9, f: '#f1f3f6', s: '#b7bfcc', sw: 1.2 }) + padlock2(273, y + 21, false, B.green, 0.42) + T(302, y + 20, 'HTTPS websites', { size: 11.5, w: 800, a: 'start', c: B.ink }) + T(302, y + 36, 'browser to website', { size: 10.5, w: 600, a: 'start', c: B.soft });
+      if (k === 'phone') b += phone2(270, y + 6, 18, 34, null, '#1f2a44') + T(302, y + 20, 'Locked phones', { size: 11.5, w: 800, a: 'start', c: B.ink }) + T(302, y + 36, 'files on the device', { size: 10.5, w: 600, a: 'start', c: B.soft });
+    });
+    b += T(355, 236, 'nothing to install', { size: 12.5, w: 700, c: B.soft });
+    alt = 'Encryption in real life: a chat app with the note Messages are end-to-end encrypted, and three places where encryption is already built in with nothing to install: Wi-Fi with WPA2 or WPA3, HTTPS websites, and locked phones.';
+  } else if (kind === 'vpn') {
+    // chat 56 redraw: a realistic VPN app (left) and a labeled path (right): you -> café Wi-Fi -> VPN server -> the Internet.
+    H = 290;
+    b = panel(8, 8, 182, 274) + panel(198, 8, 274, 274);
+    b += phone2(30, 16, 138, 236, (x, y, w, h) => {
+      let g = R(x, y, w, h, { r: 12, f: '#f7f9fc', s: 'none', sw: 0 });
+      g += T(x + 10, y + 16, 'SafeLink VPN', { size: 11, w: 800, a: 'start', c: B.blueInk }) + C(x + w - 14, y + 12, 6, '#dfe9f6', 'none', 0) + T(x + w - 14, y + 15.5, '⚙', { size: 8, w: 700, c: B.soft });
+      // big connect button
+      const cx = x + w / 2, cy = y + 66;
+      g += C(cx, cy, 36, '#e3f1e8', 'none', 0) + C(cx, cy, 27, B.green, B.ink, 1.6) + P(`M${cx} ${cy - 13} L${cx} ${cy - 2} M${cx - 9} ${cy - 8} A12 12 0 1 0 ${cx + 9} ${cy - 8}`, 'none', '#fff', 3);
+      g += T(cx, y + 120, 'Connected', { size: 13, w: 800, c: B.green }) + T(cx, y + 134, '00:12:45', { size: 9.5, w: 700, c: B.soft, mono: true });
+      // location row
+      g += R(x + 8, y + 142, w - 16, 26, { r: 7, f: '#fff', s: B.line, sw: 1 }) + C(x + 21, y + 155, 6, '#e06c5a', 'none', 0) + `<rect x="${x + 15}" y="${y + 155}" width="12" height="6" fill="#fff"/>` + C(x + 21, y + 155, 6, 'none', B.ink, 0.8) + T(x + 32, y + 159, 'Singapore', { size: 9.5, w: 700, a: 'start', c: B.ink }) + T(x + w - 14, y + 159.5, '›', { size: 12, w: 700, c: B.soft });
+      // what websites see + data
+      g += T(x + 10, y + 184, 'Your IP address', { size: 8.5, w: 700, a: 'start', c: B.soft }) + T(x + w - 10, y + 184, 'hidden', { size: 8.5, w: 800, a: 'end', c: B.green });
+      g += R(x + 18, y + h - 22, w - 36, 16, { r: 8, f: '#fff', s: B.line, sw: 1 }) + T(x + w / 2, y + h - 10.5, 'Disconnect', { size: 9, w: 700, c: B.soft });
+      return g;
+    });
+    b += T(99, 272, 'a VPN app on a phone', { size: 11.5, w: 700, c: B.soft });
+    // right: the path, left to right, every part labeled
+    const ty = 104;
+    b += T(335, 30, 'Where your data goes', { size: 12.5, w: 800, c: B.ink });
+    b += phone2(208, ty - 24, 24, 44, screenLines()) + T(220, ty + 40, 'you', { size: 11, w: 700, c: B.ink });
+    b += `<path d="M236 ${ty} L354 ${ty}" stroke="#8fb0dc" stroke-width="24" stroke-linecap="round" opacity="0.6"/>` + L(236, ty, 354, ty, B.blue, 2, ' stroke-dasharray="6 5"') + padlock2(284, ty - 6, false, HOT, 0.48);
+    b += T(296, ty - 22, 'encrypted tunnel', { size: 11, w: 800, c: B.blueInk });
+    b += serverR(360, ty - 28, 30, 52) + T(375, ty + 40, 'VPN server', { size: 11, w: 700, c: B.ink }) + T(375, ty + 53, '(VPN company)', { size: 9.5, w: 600, c: B.soft });
+    b += ARROW(394, ty, 420, ty, B.ink, 2) + globe(440, ty, 15) + T(440, ty + 40, 'Internet', { size: 11, w: 700, c: B.ink }) + T(440, ty + 53, '(websites)', { size: 9.5, w: 600, c: B.soft });
+    // the café Wi-Fi the tunnel passes through, with a stranger on it
+    b += L(266, ty + 12, 266, ty + 62, '#9aa5b6', 1.6, ' stroke-dasharray="3 3"') + router2(236, ty + 70, 60) + T(266, ty + 112, 'café Wi-Fi', { size: 11, w: 700, c: B.ink });
+    b += hacker2(336, ty + 80, 0.5) + bubble(356, ty + 74, 70, 24, 352, ty + 100) + T(391, ty + 90, '#%$&!?', { size: 10, w: 800, c: '#9c2f28', mono: true });
+    b += T(336, ty + 140, 'a stranger on the café Wi-Fi', { size: 10, w: 700, c: '#9c2f28' }) + T(336, ty + 153, 'sees only scramble', { size: 10, w: 700, c: '#9c2f28' });
+    alt = 'Left: a VPN app on a phone, called SafeLink VPN, with a big green button showing Connected for 00:12:45, the server location Singapore, your IP address hidden and a Disconnect button. Right, where your data goes: from you, through an encrypted tunnel that passes through the café Wi-Fi, to the VPN company\'s server, and from there to the Internet and websites. A stranger on the café Wi-Fi sees only scramble.';
+  } else if (kind === 'https') {
+    // chat 56: closer to a real Chrome window (2026): tab strip, back/forward/reload, address bar without "https://"
+    // and with the "tune" (two-slider) icon that Chrome uses since 2023; tapping it opens the site-info box.
+    H = 300;
+    const tune = (x, y, c = B.soft) => L(x - 6, y - 3, x + 6, y - 3, c, 1.8) + L(x - 6, y + 3, x + 6, y + 3, c, 1.8) + C(x - 2, y - 3, 2.6, '#fff', c, 1.6) + C(x + 3, y + 3, 2.6, '#fff', c, 1.6);
+    b = R(8, 8, 464, 284, { r: 12, f: '#fff', sw: 2 });
+    // tab strip
+    b += R(8, 8, 464, 34, { r: 12, f: '#dfe3ea', sw: 2 }) + `<rect x="10" y="30" width="460" height="11" fill="#dfe3ea"/>`;
+    b += P('M20 42 L24 16 Q25 13 29 13 L178 13 Q182 13 183 16 L187 42 Z', '#fff', B.ink, 1.4) + C(38, 28, 6, B.blue, 'none', 0) + T(38, 31.5, 'P', { size: 8.5, w: 800, c: '#fff' }) + T(50, 32, 'PeraBank | Log in', { size: 11, w: 700, a: 'start', c: B.ink }) + T(172, 32, '×', { size: 12, w: 700, c: B.soft }) + T(200, 32, '+', { size: 15, w: 600, c: B.soft });
+    // toolbar
+    b += `<rect x="10" y="42" width="460" height="36" fill="#fff"/>` + L(10, 78, 470, 78, '#dfe3ea', 1.4);
+    b += P('M30 60 L24 60 M24 60 L28 56 M24 60 L28 64', 'none', B.soft, 1.8) + P('M48 60 L54 60 M54 60 L50 56 M54 60 L50 64', 'none', '#b7bfcc', 1.8) + `<path d="M78 56 A5 5 0 1 0 79 62" fill="none" stroke="${B.soft}" stroke-width="1.8"/>` + P('M78 53 L79 57 L75 57', 'none', B.soft, 1.6);
+    b += R(94, 47, 330, 26, { r: 13, f: '#eef1f5', s: 'none', sw: 0 }) + C(112, 60, 10, '#dfe9f6', 'none', 0) + tune(112, 60, B.ink);
+    b += T(128, 64.5, 'perabank.com.ph', { size: 12.5, w: 700, a: 'start', c: B.ink }) + T(245, 64.5, '/login', { size: 12.5, w: 600, a: 'start', c: '#8a94a6' }) + T(408, 65, '☆', { size: 13, w: 600, c: B.soft });
+    b += C(446, 60, 9, B.green, 'none', 0) + T(446, 64, 'M', { size: 9.5, w: 800, c: '#fff' });
+    b += tapRing(112, 60, 12, B.blue);
+    // page behind
+    b += R(10, 79, 460, 30, { r: 0, f: B.blue, s: 'none', sw: 0 }) + T(26, 99, 'PeraBank', { size: 13, w: 800, a: 'start', c: '#fff' }) + T(456, 99, 'Help   Branches', { size: 10.5, w: 600, a: 'end', c: '#dfe9f6' });
+    b += T(372, 136, 'Log in to your account', { size: 12, w: 800, c: B.ink }) + T(300, 158, 'Username', { size: 9.5, w: 700, a: 'start', c: B.soft }) + R(300, 162, 144, 20, { r: 4, f: '#fff', s: B.line, sw: 1.2 });
+    b += T(300, 198, 'Password', { size: 9.5, w: 700, a: 'start', c: B.soft }) + R(300, 202, 144, 20, { r: 4, f: '#fff', s: B.line, sw: 1.2 }) + R(300, 234, 144, 24, { r: 6, f: B.blue, s: 'none', sw: 0 }) + T(372, 250, 'Log in', { size: 11, w: 800, c: '#fff' });
+    // site-info box (what opens when you tap the icon)
+    b += R(30, 88, 238, 190, { r: 10, f: 'rgba(24,35,58,0.12)', s: 'none', sw: 0 }) + R(26, 84, 238, 190, { r: 10, f: '#fff', sw: 1.8 });
+    b += T(42, 106, 'perabank.com.ph', { size: 12.5, w: 800, a: 'start', c: B.ink }) + T(248, 106, '×', { size: 13, w: 700, c: B.soft });
+    b += L(26, 116, 264, 116, '#e6eaf0', 1.2) + padlock2(42, 131, false, B.green, 0.36) + T(62, 139, 'Connection is secure', { size: 11.5, w: 700, a: 'start', c: '#2f6b45' }) + T(250, 139, '›', { size: 14, w: 700, c: B.soft });
+    b += R(38, 150, 214, 62, { r: 8, f: '#f4f6f9', s: 'none', sw: 0 }) + R(46, 160, 12, 16, { r: 2, f: '#fff3c4', s: '#b88a1c', sw: 1.2 }) + C(52, 173, 3.2, B.amber, '#b88a1c', 1) + T(66, 170, 'Certificate is valid', { size: 11, w: 700, a: 'start', c: B.ink });
+    b += T(66, 186, 'Issued to: perabank.com.ph', { size: 9.5, w: 600, a: 'start', c: B.soft }) + T(66, 200, 'By: a certificate authority', { size: 9.5, w: 600, a: 'start', c: B.soft });
+    b += L(26, 222, 264, 222, '#e6eaf0', 1.2) + tune(46, 240) + T(62, 244, 'Site settings', { size: 11, w: 600, a: 'start', c: B.ink }) + T(62, 262, 'Cookies and site data', { size: 11, w: 600, a: 'start', c: B.ink });
+    alt = 'A browser window close to real Chrome: a tab named PeraBank | Log in, back, forward and reload buttons, and an address bar showing perabank.com.ph/login with the two-slider site-info icon at its left. Tapping that icon opens a box: Connection is secure, Certificate is valid, issued to perabank.com.ph by a certificate authority, plus Site settings and Cookies and site data.';
+  }
+  return svgWrap(480, H, alt, b);
+}
+
+/** How an ATM skimmer works (chat 56, round 10: cleaner layout). ATM on the left; each part has a dotted leader line to its
+ *  numbered note on the right, so the eye goes straight from the part to its meaning. 480 x 312. */
+export function skimPic() {
+  const num = (x, y, n) => C(x, y, 11, HOT, B.ink, 1.8) + T(x, y + 4.5, String(n), { size: 12.5, c: '#fff' });
+  const lead = (x1, y1, x2, dot = true) => L(x1, y1, x2, y1, '#9aa5b6', 1.6, ' stroke-dasharray="3 4"') + (dot ? C(x1, y1, 3, B.ink, 'none', 0) : '');
+  let b = '';
+  // ATM body
+  b += R(16, 12, 204, 288, { r: 14, f: '#d3dae5', sw: 2.2 });
+  b += R(34, 28, 168, 32, { r: 7, f: '#56607a', sw: 1.8 }) + T(118, 49, 'PeraBank ATM', { size: 12.5, w: 800, c: '#fff' });
+  // camera strip with pinhole (part 1)
+  b += R(62, 70, 112, 12, { r: 4, f: '#b7c0cd', s: B.ink, sw: 1.4 }) + C(152, 76, 2.6, '#111827', 'none', 0) + C(152, 76, 6, 'none', HOT, 1.8);
+  // screen
+  b += R(42, 92, 152, 74, { r: 7, f: '#2b3446', sw: 2 }) + R(49, 99, 138, 60, { r: 3, f: '#e8f0fb', s: 'none', sw: 0 }) + T(118, 125, 'Please enter', { size: 12, w: 700, c: B.blueInk }) + T(118, 142, 'your PIN', { size: 12, w: 700, c: B.blueInk });
+  // keypad
+  b += R(42, 180, 94, 88, { r: 7, f: '#eef1f5', sw: 1.8 });
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) b += R(48 + c * 28, 186 + r * 20, 24, 16, { r: 3, f: '#fff', s: '#8a94a6', sw: 1.2 }) + T(60 + c * 28, 198 + r * 20, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'][r * 3 + c], { size: 10, w: 800, c: B.ink });
+  // card slot (part 2): card going in, bulky orange fake slot over the real one
+  b += R(160, 186, 26, 26, { r: 3, f: '#fff', sw: 1.6 }) + R(160, 191, 26, 5, { r: 0, f: '#2b3446', s: 'none', sw: 0 }) + R(165, 200, 8, 6, { r: 1, f: B.amber, s: B.ink, sw: 1 });
+  b += R(148, 204, 50, 30, { r: 7, f: '#e27b3e', s: B.ink, sw: 2 }) + R(151, 207, 44, 5, { r: 2.5, f: 'rgba(255,255,255,0.35)', s: 'none', sw: 0 }) + R(156, 208, 34, 5, { r: 2, f: '#2b3446', s: 'none', sw: 0 });
+  // cash slot
+  b += R(42, 280, 152, 10, { r: 4, f: '#2b3446', sw: 1.6 });
+  // leaders + notes (numbers share one left edge, text shares one left edge)
+  const NX = 262, TX = 282;
+  b += lead(160, 76, NX - 13, false) + num(NX, 76, 1);
+  b += T(TX, 81, 'Hidden tiny camera', { size: 13, w: 800, a: 'start', c: B.ink }) + ['Records your PIN as you type.', 'Some use a fake keypad on', 'top of the real one instead.'].map((t, k) => T(TX, 101 + k * 16, t, { size: 12, w: 600, a: 'start', c: B.soft })).join('');
+  b += lead(198, 219, NX - 13) + num(NX, 219, 2);
+  b += T(TX, 224, 'Fake card slot (skimmer)', { size: 13, w: 800, a: 'start', c: B.ink }) + ['Fits over the real slot and', 'copies your card as it goes in.'].map((t, k) => T(TX, 244 + k * 16, t, { size: 12, w: 600, a: 'start', c: B.soft })).join('');
+  b += R(NX - 11, 272, 216, 28, { r: 10, f: '#fdeee9', s: 'none', sw: 0 }) + T(NX + 97, 290.5, 'You notice nothing: cash comes out.', { size: 11, w: 800, c: '#9c2f28' });
+  return svgWrap(480, 312, 'An ATM with a skimmer. 1: a hidden tiny camera in a strip above the screen records your PIN; some skimmers use a fake keypad on top of the real one instead. 2: an orange fake card slot fits over the real slot and copies your card as it goes in. You notice nothing: cash comes out.', b);
+}
+
+/** The physical chain when the IPS is its own box (chat 56): provider line -> modem -> firewall -> IPS -> switch -> office devices. 480 x 300. */
+export function ipsChainPic() {
+  const box = (x, y, w, h, f, txt, tc = '#fff', leds = 3) => R(x, y, w, h, { r: 4, f, s: B.ink, sw: 2 }) + R(x + 2, y + 2, w - 4, 4, { r: 2, f: 'rgba(255,255,255,0.3)', s: 'none', sw: 0 })
+    + [...Array(leds)].map((_, k) => `<circle cx="${x + 9 + k * 7}" cy="${y + h - 7}" r="2" fill="${k === leds - 1 ? B.amber : B.green}"/>`).join('') + (txt ? T(x + w / 2, y + h / 2 + 1, txt, { size: 10, w: 800, c: tc }) : '');
+  const name = (x, y, a, b2) => T(x, y, a, { size: 12, w: 800, c: B.ink }) + (b2 ? T(x, y + 15, b2, { size: 10.5, w: 600, c: B.soft }) : '');
+  const cable = (x1, y1, x2, y2) => L(x1, y1, x2, y2, '#3b4659', 3) + ARROW(x1, y1, x2, y2, '#3b4659', 3);
+  let b = '';
+  // row 1, left to right: line from the pole -> modem -> firewall -> IPS (one box every 110 px, labels under each)
+  const y1 = 56;
+  b += L(40, 18, 40, 104, '#8a6a48', 6) + L(24, 26, 56, 26, '#8a6a48', 4) + P(`M56 26 Q86 28 104 ${y1 + 13}`, 'none', '#3b4659', 3) + name(40, 128, 'Fiber line', 'from the street');
+  b += box(108, y1 - 2, 64, 30, '#f4f6f9', '', B.ink, 4) + T(140, y1 + 12, 'MODEM', { size: 9.5, w: 800, c: B.ink }) + name(140, 128, 'Modem (ONT)', 'brings Internet in');
+  b += cable(174, y1 + 13, 210, y1 + 13);
+  b += box(212, y1 - 2, 76, 30, '#56607a', 'FIREWALL') + name(250, 128, 'Firewall', 'checks the rules');
+  b += cable(290, y1 + 13, 324, y1 + 13);
+  b += box(326, y1 - 2, 68, 30, '#e27b3e', 'IPS') + name(360, 128, 'IPS', 'looks for attacks');
+  // down to the switch
+  b += P(`M396 ${y1 + 13} L420 ${y1 + 13} Q432 ${y1 + 13} 432 ${y1 + 25} L432 194`, 'none', '#3b4659', 3) + ARROW(432, 184, 432, 196, '#3b4659', 3);
+  // row 2: switch on the right; one cable runs left, and each device hangs from it
+  const y2 = 198;
+  b += R(388, y2, 84, 26, { r: 4, f: '#f4f6f9', s: B.ink, sw: 2 }) + [...Array(7)].map((_, k) => R(396 + k * 10, y2 + 9, 7, 8, { r: 1, f: '#2b3446', s: 'none', sw: 0 })).join('') + name(430, y2 + 46, 'Switch', 'connects the office');
+  // one cable per device, each from its own switch port (a star, as in Computer networks), not one shared line
+  [[300, 18], [200, 13], [100, 8]].forEach(([x, dy]) => { b += P(`M388 ${y2 + dy} L${x + 6} ${y2 + dy} Q${x} ${y2 + dy} ${x} ${y2 + dy + 6} L${x} ${y2 + 34}`, 'none', '#3b4659', 2.2); });
+  b += R(279, y2 + 34, 42, 28, { r: 3, f: '#2b3446', sw: 2 }) + R(282, y2 + 37, 36, 20, { r: 1, f: '#e8f0fb', s: 'none', sw: 0 }) + L(300, y2 + 62, 300, y2 + 68, B.ink, 2.4) + L(291, y2 + 69, 309, y2 + 69, B.ink, 2.4);
+  b += laptop2(180, y2 + 36, 40, screenLines());
+  b += R(78, y2 + 42, 44, 22, { r: 4, f: '#e4e8ee', s: B.ink, sw: 2 }) + R(86, y2 + 34, 28, 9, { r: 1, f: '#fff', s: B.ink, sw: 1.4 }) + R(86, y2 + 60, 28, 8, { r: 1, f: '#fff', s: B.ink, sw: 1.4 });
+  b += name(200, y2 + 94, 'Office devices', 'computers, laptops, printer');
+  // an IDS off to the side: not in the line; the switch sends it a COPY of the traffic (dashed)
+  b += R(250, 154, 64, 26, { r: 4, f: '#f6e3a8', s: B.ink, sw: 2 }) + T(282, 171.5, 'IDS', { size: 10.5, w: 800, c: '#6e5108' }) + T(282, 194, 'gets a copy only', { size: 10.5, w: 700, c: B.soft });
+  b += `<path d="M392 ${y2} Q392 167 320 167" fill="none" stroke="#c98a1c" stroke-width="2.2" stroke-dasharray="5 4" stroke-linecap="round"/>` + ARROW(328, 167, 318, 167, '#c98a1c', 2.2) + T(362, 190, 'copy', { size: 10.5, w: 800, c: '#8f6a0e' });
+  return svgWrap(480, 312, 'The cable path when the IPS is its own box: the provider\'s fiber line from the street goes into the modem (ONT), then a cable to the firewall, which checks the rules, then a cable to the IPS, which looks for attacks, then to the switch, which connects the office computers, laptops, and printer, each with its own cable. Off to the side, an IDS box is not in the line; the switch sends it only a copy of the traffic. Every message passes through each box in order.', b);
+}
+
+/** VPN for the "From Computer networks" Peek in Lesson 1 (chat 56; replaces vpnTunnel there, the old lesson is untouched).
+ *  You at home -> an encrypted tunnel through the public Internet -> the office network. 420 x 190. */
+export function vpnPeekPic() {
+  let b = R(4, 4, 412, 182, { r: 14, f: '#f1f4f8', s: 'none', sw: 0 });
+  // you at home
+  b += laptop2(20, 66, 70, screenLines()) + T(55, 136, 'you, at home', { size: 12, w: 700, c: B.ink });
+  // office
+  b += R(330, 50, 70, 78, { r: 4, f: '#dfe9f6', s: B.ink, sw: 2 }) + [0, 1, 2].map((r) => [0, 1, 2].map((c) => R(338 + c * 20, 58 + r * 20, 14, 12, { r: 1.5, f: '#fff', s: B.ink, sw: 1.2 })).join('')).join('') + R(357, 112, 16, 16, { r: 1, f: '#8fb0dc', s: B.ink, sw: 1.4 });
+  b += T(365, 146, 'office network', { size: 12, w: 700, c: B.ink });
+  // the public Internet band
+  b += R(110, 40, 200, 104, { r: 52, f: '#e8ecf2', s: 'none', sw: 0 }) + T(210, 34, 'the public Internet', { size: 11.5, w: 700, c: B.soft });
+  // the tunnel
+  b += `<path d="M96 92 L326 92" stroke="#8fb0dc" stroke-width="30" stroke-linecap="round" opacity="0.55"/>` + L(96, 92, 326, 92, B.blue, 2, ' stroke-dasharray="6 5"') + padlock2(196, 88, false, HOT, 0.55);
+  b += T(170, 126, 'encrypted tunnel', { size: 12, w: 800, c: B.blueInk });
+  // a stranger who sees only scramble
+  b += hacker2(236, 132, 0.42) + T(256, 164, 'sees only scramble', { size: 10.5, w: 700, a: 'start', c: '#9c2f28' });
+  return svgWrap(420, 190, 'You at home connect to the office network through an encrypted tunnel across the public Internet. A stranger on the Internet sees only scrambled data.', b);
+}
+
+/** Organization precautions, one doodle per group (chat 56): people, access, watch, partners. 220 x 120. */
+export function orgGroupPic(kind) {
+  let b = '', alt = '';
+  const doc = (x, y, w, h) => R(x, y, w, h, { r: 4, f: '#fff', sw: 2 }) + [0, 1, 2, 3].map((k) => check(x + 11, y + 14 + k * 15, 0.42) + R(x + 20, y + 11 + k * 15, w - 28, 4, { r: 2, f: '#c9d2df', s: 'none', sw: 0 })).join('');
+  if (kind === 'people') {
+    b = blob(110, 62, 100, 52, '#e3ecf8') + ground(110, 112, 80);
+    b += person2(62, 22, 0.86, { shirt: B.blue }) + R(66, 70, 13, 16, { r: 2, f: '#fff', s: B.ink, sw: 1.2 }) + R(66, 70, 13, 5, { r: 2, f: B.blue, s: 'none', sw: 0 });
+    b += doc(104, 22, 62, 76) + T(135, 18, 'RULES', { size: 10, w: 800, c: B.blueInk });
+    b += C(180, 76, 11, '#fff', B.ink, 2) + L(188, 84, 198, 94, B.ink, 3) + C(180, 76, 6, '#dfe9f6', 'none', 0);
+    alt = 'A new employee with an ID badge, a checklist of rules, and a magnifying glass for background checks.';
+  } else if (kind === 'access') {
+    b = blob(110, 62, 100, 52, '#fbe7da') + ground(110, 112, 84);
+    b += R(30, 22, 52, 88, { r: 3, f: '#c9a27a', sw: 2 }) + C(74, 68, 2.6, B.ink, 'none', 0) + R(88, 52, 18, 28, { r: 4, f: '#2b3446', sw: 1.6 }) + C(97, 72, 3, B.green, 'none', 0);
+    b += R(112, 44, 34, 22, { r: 3, f: '#fff', sw: 1.6 }) + R(112, 44, 34, 6, { r: 3, f: B.blue, sw: 1.6 }) + C(121, 58, 4, B.skin, B.ink, 1);
+    b += check(97, 36, 0.62);
+    b += R(158, 30, 44, 80, { r: 3, f: '#d8dee8', sw: 2 }) + padlock2(168, 60, false, B.red, 0.55) + cross(196, 30, 0.62);
+    alt = 'An ID card opens the door the person needs; another door stays locked.';
+  } else if (kind === 'watch') {
+    b = blob(110, 62, 100, 52, '#dcefe2') + ground(110, 112, 70);
+    b += laptop2(52, 18, 116, (x, y, w, h) => {
+      let g = R(x, y, w, 10, { r: 0, f: '#1f2a44', s: 'none', sw: 0 }) + T(x + 4, y + 7.5, 'Activity log', { size: 6.5, w: 800, a: 'start', c: '#fff' });
+      ['09:12  Lea  sales.xlsx', '10:40  Jon  report.docx', '02:13  ???  1,200 files', '11:05  Mia  menu.pdf'].forEach((t, k) => { const yy = y + 13 + k * 13; if (k === 2) g += R(x + 2, yy - 1, w - 4, 12, { r: 2, f: '#fdeee9', s: B.red, sw: 1 }); g += T(x + 5, yy + 8, t, { size: 6.5, w: 700, a: 'start', c: k === 2 ? '#9c2f28' : B.soft, mono: true }); });
+      return g;
+    });
+    b += C(186, 30, 13, '#fff', B.ink, 2) + `<ellipse cx="186" cy="30" rx="8" ry="5" fill="#fff" stroke="${B.ink}" stroke-width="1.6"/>` + C(186, 30, 2.6, B.ink, 'none', 0);
+    alt = 'A laptop showing an activity log; one line, 1,200 files opened at 2 a.m., is marked red as unusual.';
+  } else {
+    b = blob(110, 62, 100, 52, '#f6e3a8') + ground(110, 112, 90);
+    const bld = (x, f, txt) => R(x, 36, 52, 70, { r: 3, f, sw: 2 }) + [0, 1].map((r) => [0, 1].map((c) => R(x + 8 + c * 22, 46 + r * 18, 14, 11, { r: 1.5, f: '#fff', s: B.ink, sw: 1.1 })).join('')).join('') + R(x + 19, 88, 14, 18, { r: 1, f: '#8fb0dc', s: B.ink, sw: 1.2 }) + T(x + 26, 30, txt, { size: 9.5, w: 800, c: B.ink });
+    b += bld(22, '#dfe9f6', 'Your company') + bld(146, '#fbe2d2', 'Supplier');
+    b += L(76, 70, 144, 70, B.ink, 2, ' stroke-dasharray="4 4"') + shield2(110, 46, 0.42, B.greenWash) + check(110, 66, 0.55);
+    alt = 'Your company and a supplier connected by a line with a shield and a check mark: check the partner\'s security first.';
+  }
+  return svgWrap(220, 120, alt, b);
+}

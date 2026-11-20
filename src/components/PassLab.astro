@@ -32,7 +32,7 @@ const examples = ['mia2007', 'P@ssw0rd!', 'Mt9$kQ2x', 'kapepandesalulanhapon'];
     function big(n) { // n = log10 of a number -> words
       if (n < 3) return String(Math.round(Math.pow(10, n)));
       var names = [[18, 'quintillion'], [15, 'quadrillion'], [12, 'trillion'], [9, 'billion'], [6, 'million'], [3, 'thousand']];
-      if (n >= 21) return 'about 10 to the power of ' + Math.floor(n) + ' (a 1 followed by ' + Math.floor(n) + ' zeros)';
+      if (n >= 21) return 'about 10<sup>' + Math.floor(n) + '</sup> (a 1 followed by ' + Math.floor(n) + ' zeros)';
       for (var i = 0; i < names.length; i++) if (n >= names[i][0]) { var v = Math.pow(10, n - names[i][0]); return 'about ' + (v < 10 ? v.toFixed(1) : Math.round(v)) + ' ' + names[i][1]; }
     }
     function time(n) { // n = log10 of seconds
@@ -50,14 +50,14 @@ const examples = ['mia2007', 'P@ssw0rd!', 'Mt9$kQ2x', 'kapepandesalulanhapon'];
       q('.pl-len').textContent = len + (len === 1 ? ' character' : ' characters');
       q('.pl-kinds').textContent = kinds.length ? kinds.join(', ') : 'none yet';
       var lg = len ? len * Math.log10(pool) : 0;
-      q('.pl-count').textContent = len ? big(lg) : '0';
+      q('.pl-count').innerHTML = len ? big(lg) : '0';
       q('.pl-time').textContent = len ? time(lg - 10) : '0 seconds';
       var isCommon = common.indexOf(p.toLowerCase()) >= 0, msg, lvl;
       if (!len) { msg = 'Start typing to see how strong it is.'; lvl = 0; }
       else if (isCommon) { msg = 'This is on lists of the most common passwords. It would be guessed in the first second, whatever the number above says.'; lvl = 0.05; }
       else if (len < 8) { msg = 'Too short. Short passwords can be tried in seconds.'; lvl = 0.15; }
       else if (len < 15) { msg = 'Better, but still short. For a password that is your only lock, aim for 15 or more characters.'; lvl = 0.45; }
-      else { msg = 'Long: good. Length adds strength faster than symbols do. Make it unique to this one account, and turn on MFA too.'; lvl = Math.min(1, 0.7 + (len - 15) / 40); }
+      else { msg = 'Long: good. Length adds strength faster than symbols do. Make it unique to this one account. For even more safety, add a second proof, such as a code sent to your phone (you will learn this next, as multifactor authentication).'; lvl = Math.min(1, 0.7 + (len - 15) / 40); }
       if (len && /(19|20)\d\d/.test(p)) msg += ' It contains a year, which attackers try early (birth years especially).';
       q('.pl-msg').textContent = msg;
       q('.pl-fill').style.width = (lvl * 100) + '%';

@@ -225,8 +225,21 @@ const { course, lesson } = Astro.props;
       var subs = items[idx].subs, sidx = -1;
       subs.forEach(function (s, k) { if (s.el.getBoundingClientRect().top <= line) sidx = k; });
       subs.forEach(function (s, k) { s.a.classList.toggle('is-here', k === sidx); });
+      // Keep the highlighted item visible inside the sidebar's own list (chat 56, her request): when the reader moves to a
+      // new part or section, the list scrolls itself so "you are here" never hides below the fold. Only on change, so it
+      // never fights someone scrolling the list by hand.
+      var hereEl = sidx >= 0 ? subs[sidx].a : items[idx].li.querySelector('a');
+      if (hereEl !== followed) { followed = hereEl; follow(hereEl); }
       var max = document.documentElement.scrollHeight - innerHeight;
       bar.style.width = (max > 0 ? Math.min(100, 100 * scrollY / max) : 0) + '%';
+    }
+    var followed = null, calm = matchMedia('(prefers-reduced-motion: reduce)');
+    function follow(el) {
+      if (!el || !el.offsetParent) return;
+      var pr = panel.getBoundingClientRect(), r = el.getBoundingClientRect(), pad = 56;
+      if (r.top >= pr.top + pad && r.bottom <= pr.bottom - pad) return;
+      var to = panel.scrollTop + (r.top - pr.top) - panel.clientHeight / 2 + r.height / 2;
+      panel.scrollTo({ top: Math.max(0, to), behavior: calm.matches ? 'auto' : 'smooth' });
     }
     addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(spy); } }, { passive: true });
     addEventListener('resize', spy);

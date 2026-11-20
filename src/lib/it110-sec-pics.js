@@ -105,9 +105,26 @@ const laptop2 = (x, y, w = 80, content = null, screen = '#e8f0fb') => {
   g += `<circle cx="${x + w / 2}" cy="${y + 2.6}" r="1" fill="#8a94a6"/>`;
   if (content) g += content(x + 5, y + 5, w - 10, h - 9);
   g += P(`M${x + w * 0.62} ${y + 5} L${x + w * 0.78} ${y + 5} L${x + w * 0.5} ${y + h - 4} L${x + w * 0.34} ${y + h - 4} Z`, 'rgba(255,255,255,0.22)', 'none', 0);
-  g += P(`M${x - 8} ${y + h + 1} L${x + w + 8} ${y + h + 1} L${x + w + 2} ${y + h + kb} L${x - 2} ${y + h + kb} Z`, '#dfe3ea', B.ink, 2);
-  for (let r = 0; r < 2; r++) for (let c = 0; c < 9; c++) g += R(x + 2 + c * ((w - 4) / 9) + r * 2, y + h + 3 + r * (kb * 0.3), (w - 4) / 9 - 2, kb * 0.22, { r: 0.6, f: '#b7bfcc', s: 'none', sw: 0 });
-  g += R(x + w / 2 - w * 0.12, y + h + kb * 0.72, w * 0.24, kb * 0.2, { r: 1, f: '#c8ced8', s: 'none', sw: 0 });
+  // base seen from the front and a little above (chat 56): the back edge (hinge) is as wide as the screen and the front
+  // edge is wider, so the deck widens toward you; key rows widen the same way. Tiny laptops (w < 44) get a plain deck.
+  // The base has real thickness: the top deck (keys) plus a front face below it, like the edge of a real laptop body.
+  const top = y + h + 1, end = y + h + kb, th = Math.max(2.5, kb * 0.26), bot = end - th, sp = Math.max(4, w * 0.07), d = bot - top;
+  g += P(`M${x - sp} ${bot} L${x + w + sp} ${bot} L${x + w + sp} ${end - 2} Q${x + w + sp} ${end} ${x + w + sp - 3} ${end} L${x - sp + 3} ${end} Q${x - sp} ${end} ${x - sp} ${end - 2} Z`, '#b7bfcc', B.ink, 2);
+  if (w >= 44) g += R(x + w / 2 - w * 0.07, bot + th * 0.25, w * 0.14, Math.max(1.2, th * 0.3), { r: 1, f: '#a3acba', s: 'none', sw: 0 });
+  g += P(`M${x} ${top} L${x + w} ${top} L${x + w + sp} ${bot} L${x - sp} ${bot} Z`, '#e4e8ee', B.ink, 2);
+  if (w >= 44) {
+    const rows = 4, kh = d * 0.15, gap = d * 0.065, y0 = top + d * 0.12, cx = x + w / 2, n = 13;
+    const halfAt = (yy) => { const t = (yy - top) / (bot - top); return w / 2 - 5 + t * sp; };
+    for (let r = 0; r < rows; r++) {
+      const yy = y0 + r * (kh + gap), hT = halfAt(yy), hB = halfAt(yy + kh);
+      const key = (c0, c1) => { const a0 = -hT + (2 * hT) * c0 / n, a1 = -hT + (2 * hT) * c1 / n, b0 = -hB + (2 * hB) * c0 / n, b1 = -hB + (2 * hB) * c1 / n;
+        return `<path d="M${(cx + a0 + 0.7).toFixed(1)} ${yy.toFixed(1)} L${(cx + a1 - 0.7).toFixed(1)} ${yy.toFixed(1)} L${(cx + b1 - 0.7).toFixed(1)} ${(yy + kh).toFixed(1)} L${(cx + b0 + 0.7).toFixed(1)} ${(yy + kh).toFixed(1)} Z" fill="#c3cad6"/>`; };
+      if (r < rows - 1) for (let c = 0; c < n; c++) g += key(c, c + 1);
+      else { for (let c = 0; c < n; c++) if (c < 4 || c > 8) g += key(c, c + 1); g += key(4, 9); }
+    }
+    const py = y0 + rows * (kh + gap) + d * 0.03, ph = Math.max(2, bot - py - d * 0.1), pw = w * 0.26;
+    g += P(`M${cx - pw / 2} ${py} L${cx + pw / 2} ${py} L${cx + pw / 2 + 1.5} ${py + ph} L${cx - pw / 2 - 1.5} ${py + ph} Z`, '#d3d9e2', '#b7bfcc', 0.8);
+  }
   return g;
 };
 // A phone with a status bar and a notch. content(x, y, w, h) draws inside the screen.
@@ -356,23 +373,27 @@ const lane = (x, y, w, txt, ok) => R(x, y, w, 34, { r: 17, f: ok ? '#e3f3e9' : '
 
 /** A firewall between the Internet and your network: two allowed messages pass, a stranger is stopped. 480 x 270. */
 export function firewallPic() {
-  let b = blob(240, 140, 230, 120, '#f6f8fb') + globe(48, 136, 32) + T(48, 190, 'the Internet', { size: 14, w: 600, c: B.ink });
-  const ys = [44, 118, 192];
-  // lanes
-  b += lane(96, ys[0], 200, 'web page you asked for', true) + C(116, ys[0] + 17, 11, '#fff', '#3f8a5a', 1.8) + R(110, ys[0] + 10, 12, 14, { r: 1.5, f: '#fff', s: '#2f6b45', sw: 1.4 }) + L(113, ys[0] + 15, 119, ys[0] + 15, '#2f6b45', 1.2) + L(113, ys[0] + 19, 119, ys[0] + 19, '#2f6b45', 1.2);
-  b += lane(96, ys[1], 200, 'stranger trying to log in', false) + C(116, ys[1] + 17, 11, '#fff', '#b23a33', 1.8) + C(116, ys[1] + 14, 3.6, '#4a5266', 'none', 0) + P(`M${109} ${ys[1] + 24} Q116 ${ys[1] + 16} 123 ${ys[1] + 24} Z`, '#4a5266', 'none', 0);
-  b += lane(96, ys[2], 200, 'reply to your video call', true) + C(116, ys[2] + 17, 11, '#fff', '#3f8a5a', 1.8) + R(110, ys[2] + 12, 9, 10, { r: 2, f: '#3f8a5a', s: 'none', sw: 0 }) + P(`M119 ${ys[2] + 17} L124 ${ys[2] + 13} L124 ${ys[2] + 21} Z`, '#3f8a5a', 'none', 0);
-  b += ys.map((y) => P(`M80 136 Q88 ${y + 17} 94 ${y + 17}`, 'none', '#9aa5b6', 1.8, ' stroke-dasharray="4 4"')).join('');
+  // Roomier redraw (chat 56, her feedback: congested; the globe touched the lines). Short lane labels, clear gaps between parts.
+  const ys = [36, 122, 208], LX = 112, LW = 176;
+  let b = globe(42, 136, 26) + T(42, 184, 'the Internet', { size: 13.5, w: 700, c: B.ink });
+  // dotted paths from the globe to each lane, starting a little away from the globe
+  b += ys.map((y) => P(`M76 136 C92 136 92 ${y + 17} ${LX - 6} ${y + 17}`, 'none', '#9aa5b6', 1.8, ' stroke-dasharray="4 4"')).join('');
+  b += lane(LX, ys[0], LW, 'page you asked for', true) + C(LX + 20, ys[0] + 17, 11, '#fff', '#3f8a5a', 1.8) + R(LX + 14, ys[0] + 10, 12, 14, { r: 1.5, f: '#fff', s: '#2f6b45', sw: 1.4 }) + L(LX + 17, ys[0] + 15, LX + 23, ys[0] + 15, '#2f6b45', 1.2) + L(LX + 17, ys[0] + 19, LX + 23, ys[0] + 19, '#2f6b45', 1.2);
+  b += lane(LX, ys[1], LW, 'stranger breaking in', false) + C(LX + 20, ys[1] + 17, 11, '#fff', '#b23a33', 1.8) + C(LX + 20, ys[1] + 14, 3.6, '#4a5266', 'none', 0) + P(`M${LX + 13} ${ys[1] + 24} Q${LX + 20} ${ys[1] + 16} ${LX + 27} ${ys[1] + 24} Z`, '#4a5266', 'none', 0);
+  b += lane(LX, ys[2], LW, 'your video call', true) + C(LX + 20, ys[2] + 17, 11, '#fff', '#3f8a5a', 1.8) + R(LX + 14, ys[2] + 12, 9, 10, { r: 2, f: '#3f8a5a', s: 'none', sw: 0 }) + P(`M${LX + 23} ${ys[2] + 17} L${LX + 28} ${ys[2] + 13} L${LX + 28} ${ys[2] + 21} Z`, '#3f8a5a', 'none', 0);
   // wall with a small flame
-  b += P('M306 22 Q302 6 312 0 Q312 12 318 10 Q316 0 326 -4 Q330 10 334 8 Q338 16 334 22 Z', '#f6ad3a', B.ink, 1.6) + P('M312 22 Q312 14 318 15 Q320 8 326 10 Q328 18 328 22 Z', '#fde3a1', 'none', 0);
-  b += wall(302, 22, 36, 222) + T(320, 264, 'firewall', { size: 14, w: 600, c: '#a6461f' });
-  // arrows
-  b += ARROW(298, ys[0] + 17, 368, ys[0] + 17, '#3f8a5a', 2.6) + check(320, ys[0] + 17, 0.85) + ARROW(298, ys[2] + 17, 368, ys[2] + 17, '#3f8a5a', 2.6) + check(320, ys[2] + 17, 0.85);
-  b += cross(300, ys[1] + 17, 0.95);
+  const WX = 306;
+  b += P(`M${WX + 4} 26 Q${WX} 10 ${WX + 10} 4 Q${WX + 10} 16 ${WX + 16} 14 Q${WX + 14} 4 ${WX + 24} 0 Q${WX + 28} 14 ${WX + 32} 12 Q${WX + 36} 20 ${WX + 32} 26 Z`, '#f6ad3a', B.ink, 1.6) + P(`M${WX + 10} 26 Q${WX + 10} 18 ${WX + 16} 19 Q${WX + 18} 12 ${WX + 24} 14 Q${WX + 26} 22 ${WX + 26} 26 Z`, '#fde3a1', 'none', 0);
+  b += wall(WX, 26, 34, 236) + T(WX + 17, 284, 'firewall', { size: 13.5, w: 700, c: '#a6461f' });
+  // through or stopped
+  b += ARROW(LX + LW + 2, ys[0] + 17, 360, ys[0] + 17, '#3f8a5a', 2.6) + check(WX + 17, ys[0] + 17, 0.85) + ARROW(LX + LW + 2, ys[2] + 17, 360, ys[2] + 17, '#3f8a5a', 2.6) + check(WX + 17, ys[2] + 17, 0.85);
+  b += L(LX + LW + 2, ys[1] + 17, WX - 2, ys[1] + 17, '#b23a33', 2.4) + cross(WX - 4, ys[1] + 17, 0.95);
   // your network
-  b += R(372, 26, 100, 210, { r: 14, f: '#e3ecf8', s: B.blue, sw: 2 }) + laptop2(390, 50, 64, screenLines()) + phone2(386, 128, 30, 56, screenLines()) + R(426, 140, 38, 26, { r: 3, f: '#2b3446', sw: 2 }) + R(429, 143, 32, 20, { r: 1, f: '#e8f0fb', s: 'none', sw: 0 }) + L(445, 166, 445, 176, B.ink, 2.4) + L(436, 177, 454, 177, B.ink, 2.6);
-  b += T(422, 222, 'your network', { size: 14, w: 600, c: B.blueInk });
-  return svgWrap(480, 272, 'A firewall stands between the Internet and your network. A web page you asked for and the reply to your video call pass through. A stranger trying to log in from outside is stopped at the wall.', b);
+  b += R(366, 26, 106, 236, { r: 14, f: '#e3ecf8', s: B.blue, sw: 2 }) + laptop2(386, 48, 66, screenLines());
+  b += phone2(384, 136, 30, 56, screenLines()) + R(424, 148, 38, 26, { r: 3, f: '#2b3446', sw: 2 }) + R(427, 151, 32, 20, { r: 1, f: '#e8f0fb', s: 'none', sw: 0 }) + L(443, 174, 443, 184, B.ink, 2.4) + L(434, 185, 452, 185, B.ink, 2.4);
+  b += T(419, 240, 'your network', { size: 13.5, w: 700, c: B.blueInk });
+  b = `<g transform="translate(0 8)">${b}</g>`;
+  return svgWrap(480, 302, 'A firewall stands between the Internet and your network. The page you asked for and your video call pass through. A stranger trying to break in from outside is stopped at the wall.', b);
 }
 
 /** How a second factor stops a stolen password. step 0..3 (StepShow). 480 x 230. */
@@ -405,7 +426,7 @@ export function mfaPic(step) {
 /** Public key encryption as open padlocks. step 0..3 (StepShow). 480 x 230. */
 export function padlockPic(step) {
   let b = blob(240, 116, 230, 104, '#f6f8fb') + ground(60, 200, 44) + ground(420, 200, 44) + ground(240, 214, 34);
-  b += person2(60, 96, 1.05, { shirt: B.green, hair: '#3a2a20' }) + T(60, 222, 'Ana', { size: 14, w: 600, c: B.ink });
+  b += P('M43 112 Q38 142 46 150 L74 150 Q82 142 77 112 Z', '#3a2a20', B.ink, 1.8) + person2(60, 96, 1.05, { shirt: B.green, hair: '#3a2a20' }) + T(60, 222, 'Ana', { size: 14, w: 600, c: B.ink });
   b += person2(420, 96, 1.05, { shirt: B.blue }) + T(420, 222, 'Ben', { size: 14, w: 600, c: B.ink });
   b += hacker2(240, 140, 0.85);
   // Ana's private key on a tag
@@ -418,10 +439,15 @@ export function padlockPic(step) {
     b += box(330, 62, true) + T(364, 130, 'locked with', { size: 11.5, w: 600, c: B.soft }) + T(364, 145, 'Ana\'s padlock', { size: 11.5, w: 600, c: '#a6461f' });
   } else if (step === 2) {
     b += box(206, 56, true) + ARROW(328, 80, 284, 80, B.ink, 2.4) + ARROW(200, 80, 128, 80, B.ink, 2.4) + cross(284, 152, 0.9) + T(240, 40, 'traveling across the Internet', { size: 12, w: 600, c: B.soft });
+  } else if (step === 4) {
+    // the payoff: what travels in the locked box is a NEW SECRET KEY; afterwards both hold the same key
+    b += R(206, 56, 68, 46, { r: 5, f: '#e9c88f', sw: 2 }) + L(240, 56, 240, 102, '#b8935a', 2) + key2(214, 86, 0.6, '#f2c94c') + padlock2(260, 76, false, HOT, 0.62);
+    b += ARROW(328, 80, 284, 80, B.ink, 2.4) + ARROW(200, 80, 128, 80, B.ink, 2.4) + T(240, 40, 'a new secret key, locked', { size: 12, w: 700, c: B.soft });
+    b += key2(96, 156, 0.6, '#f2c94c') + key2(352, 156, 0.6, '#f2c94c') + cross(284, 152, 0.9) + label(240, 226, 'now both have the same secret key', '#7a5a0c', '#fff3c4', 11.5);
   } else {
     b += box(110, 120, false) + padlock2(186, 128, true, HOT, 0.75) + key2(150, 106, 0.75) + check(214, 108, 0.9);
   }
-  return svgWrap(480, 230, ['Ana gives out open padlocks, her public key. Anyone may have one. She keeps the only key, her private key.', 'Ben puts his secret message in a box and snaps Ana\'s padlock shut.', 'The locked box travels across the Internet. A stranger sees it but cannot open it.', 'Ana opens the box with her private key, which only she has.'][step], b);
+  return svgWrap(480, step === 4 ? 240 : 230, ['Ana gives out open padlocks, her public key. Anyone may have one. She keeps the only key, her private key.', 'Ben puts his secret message in a box and snaps Ana\'s padlock shut.', 'The locked box travels across the Internet. A stranger sees it but cannot open it.', 'Ana opens the box with her private key, which only she has.', 'Ben locks a new secret key in the box with Ana\'s padlock and sends it. The stranger cannot open it. After Ana unlocks it, Ana and Ben both hold the same secret key.'][step], b);
 }
 
 /* ================= ROUND 15: the remaining figures, redrawn with the detailed kit ================= */
@@ -443,34 +469,70 @@ const label = (x, y, txt, c = B.ink, f = '#fff', size = 13) => { const w = txt.l
 
 /** Wi-Fi piggybacking and war driving: one home router, a neighbor's laptop, and a car on the street. 480 x 300. */
 export function wifiSteal() {
-  let b = blob(240, 150, 232, 132, '#f6f8fb') + ground(80, 214, 76) + ground(392, 196, 72) + ground(240, 284, 80);
-  b += houseI(10, 64, 120) + router2(46, 214, 64) + wifi2(78, 196, AIR, 1.3);
-  b += [80, 125, 170, 215].map((r) => P(`M${78 + r * 0.82} ${206 - r * 0.6} A${r} ${r} 0 0 1 ${78 + r * 0.98} ${206 + r * 0.08}`, 'none', '#b4c8e6', 2.6, ' stroke-dasharray="6 6"')).join('');
-  b += label(78, 270, 'Liza\'s Wi-Fi', B.blueInk, '#e3ecf8');
-  b += houseI(330, 40, 124) + laptop2(356, 148, 64, screenLines(), '#fbe7da') + person2(436, 120, 0.62, { shirt: B.orange }) + cross(462, 120, 0.7);
-  b += label(392, 232, 'piggybacking', '#a6461f', '#fbe7da') + T(392, 254, 'uses it without asking', { size: 12, w: 600, c: B.soft });
-  b += car2(176, 222, 1.0) + laptop2(214, 226, 26, null, '#fbe7da') + wifi2(242, 200, HOT, 0.8);
-  b += label(242, 296, 'war driving: hunting for open Wi-Fi', '#a6461f', '#fbe7da', 12);
-  return svgWrap(480, 304, 'Liza\'s home router sends Wi-Fi past her walls. Her neighbor\'s laptop connects without asking: Wi-Fi piggybacking. A car on the street with a laptop is hunting for open Wi-Fi: war driving.', b);
+  // Redrawn chat 56 (her feedback: the old one was messy and unclear). Two separate, numbered scenes, one idea each.
+  const head = (x, y, n, txt) => C(x + 12, y + 12, 12, HOT, B.ink, 1.8) + T(x + 12, y + 17, String(n), { size: 13, c: '#fff' }) + T(x + 32, y + 17.5, txt, { size: 15, w: 800, a: 'start', c: B.ink });
+  const tone = '#f1f4f8';
+  // ---------- 1. Wi-Fi piggybacking ----------
+  let b = R(8, 8, 464, 214, { r: 14, f: tone, s: 'none', sw: 0 }) + head(22, 20, 1, 'Wi-Fi piggybacking');
+  // Liza's room (cutaway), router on a shelf; its Wi-Fi goes through the wall, over the fence
+  b += R(22, 52, 170, 140, { r: 10, f: '#eef3fb', sw: 2 }) + T(107, 70, "Liza's room", { size: 11.5, w: 700, c: B.soft }) + R(22, 178, 170, 14, { r: 0, f: '#d9e2ee', s: 'none', sw: 0 }) + L(22, 178, 192, 178, B.ink, 1.6);
+  b += R(80, 150, 70, 8, { r: 2, f: '#d9b98c', sw: 1.6 }) + router2(84, 126, 62) + T(115, 172, "Liza's router", { size: 11, w: 700, c: B.blueInk });
+  { const cx = 116, cy = 136, a1 = -32 * Math.PI / 180, a2 = 16 * Math.PI / 180;
+    b += [40, 72, 104, 136].map((r) => P(`M${(cx + r * Math.cos(a1)).toFixed(1)} ${(cy + r * Math.sin(a1)).toFixed(1)} A${r} ${r} 0 0 1 ${(cx + r * Math.cos(a2)).toFixed(1)} ${(cy + r * Math.sin(a2)).toFixed(1)}`, 'none', '#7fa3d6', 3)).join(''); }
+  b += R(214, 128, 6, 56, { r: 2, f: '#c9a27a', sw: 1.6 }) + R(232, 128, 6, 56, { r: 2, f: '#c9a27a', sw: 1.6 }) + L(204, 146, 248, 146, '#8a6a48', 3) + L(204, 166, 248, 166, '#8a6a48', 3) + T(226, 204, 'fence', { size: 11.5, w: 700, c: B.soft });
+  // neighbor's room (cutaway)
+  b += R(262, 52, 196, 140, { r: 10, f: '#fdf6ea', sw: 2 }) + T(360, 70, "neighbor's room", { size: 11.5, w: 700, c: B.soft }) + R(262, 178, 196, 14, { r: 0, f: '#e7d3b4', s: 'none', sw: 0 }) + L(262, 178, 458, 178, B.ink, 1.6);
+  b += person2(432, 100, 0.68, { shirt: B.orange }) + R(300, 150, 150, 8, { r: 2, f: '#d9b98c', sw: 1.6 });
+  b += laptop2(318, 104, 66, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#fff', s: 'none', sw: 0 }) + wifi2(x + 12, y + h * 0.72, AIR, 0.38) + R(x + 22, y + 9, w - 28, 4, { r: 2, f: '#9dbbe3', s: 'none', sw: 0 }) + R(x + 22, y + 18, w - 36, 4, { r: 2, f: B.green, s: 'none', sw: 0 }));
+  b += label(350, 94, "Connected: Liza's Wi-Fi", '#2f6b45', '#fff', 11);
+  b += T(360, 212, 'He uses it without asking.', { size: 12.5, w: 800, c: '#9c2f28' });
+  // ---------- 2. War driving ----------
+  const y0 = 232;
+  b += R(8, y0, 464, 220, { r: 14, f: tone, s: 'none', sw: 0 }) + head(22, y0 + 12, 2, 'War driving');
+  // street with small houses, each sending Wi-Fi
+  [[22, HOT], [92, AIR], [162, HOT]].forEach(([x, c]) => { b += houseI(x, y0 + 52, 56) + wifi2(x + 28, y0 + 50, c, 0.55); });
+  b += R(16, y0 + 128, 240, 34, { r: 4, f: '#8a94a6', s: 'none', sw: 0 }) + [0, 1, 2, 3, 4].map((k) => R(28 + k * 48, y0 + 143, 26, 4, { r: 2, f: '#fff', s: 'none', sw: 0 })).join('');
+  b += car2(70, y0 + 102, 0.92) + phone2(132, y0 + 108, 12, 20, null, '#fbe2d2');
+  b += P(`M48 ${y0 + 118} L30 ${y0 + 118} M52 ${y0 + 128} L36 ${y0 + 128}`, 'none', B.soft, 2);
+  // zoomed phone screen: list of networks
+  b += P(`M146 ${y0 + 114} L268 ${y0 + 96} M146 ${y0 + 124} L268 ${y0 + 160}`, 'none', '#b7c3d6', 1.6, ' stroke-dasharray="4 4"');
+  b += R(268, y0 + 40, 192, 160, { r: 12, f: '#fff', sw: 2 }) + T(364, y0 + 62, 'Wi-Fi networks nearby', { size: 12, w: 800, c: B.ink });
+  const nets = [["Liza's Wi-Fi", 'open', true], ['Cruz_Home', 'locked', false], ['SariSari_Store', 'open', true]];
+  nets.forEach(([n, st, open], i) => {
+    const y = y0 + 74 + i * 38;
+    b += R(278, y, 172, 30, { r: 8, f: open ? '#fdeee5' : '#f4f6f9', s: open ? HOT : B.line, sw: open ? 1.8 : 1.2 }) + wifi2(294, y + 22, open ? HOT : '#8a94a6', 0.42) + T(308, y + 19.5, n, { size: 11.5, w: 700, a: 'start', c: B.ink });
+    b += open ? T(442, y + 19.5, 'OPEN', { size: 10.5, w: 800, a: 'end', c: B.orangeInk }) : padlock2(426, y + 12, false, B.soft, 0.36);
+  });
+  b += T(136, y0 + 186, 'A driver goes around looking', { size: 12.5, w: 800, c: '#9c2f28' }) + T(136, y0 + 203, 'for open Wi-Fi to use.', { size: 12.5, w: 800, c: '#9c2f28' });
+  return svgWrap(480, 460, "Two scenes. 1, Wi-Fi piggybacking: Liza's router is in her room. Its Wi-Fi reaches through the wall and over the fence into her neighbor's room, and his laptop says Connected: Liza's Wi-Fi. He uses it without asking. 2, War driving: a car drives down a street of houses while the phone inside lists nearby Wi-Fi networks, marking Liza's Wi-Fi and SariSari_Store as open. A driver goes around looking for open Wi-Fi to use.", b);
 }
 
 /** Interception on shared Wi-Fi. Top: not encrypted (readable). Bottom: encrypted (scrambled). 480 x 360. */
 export function sniffPic() {
+  // Redrawn chat 56 (her feedback: make the idea clearer). Same story twice: Mia sends her password over café Wi-Fi,
+  // a stranger on the same Wi-Fi copies it. Only the result on HIS screen changes.
   let b = '';
   const row = (y, enc) => {
-    let o = R(8, y, 464, 166, { r: 14, f: enc ? '#f1f8f3' : '#fdf3f0', s: enc ? '#bfe0cb' : '#f2c9bf', sw: 1.6 });
-    o += label(enc ? 196 : 176, y + 24, enc ? 'Encrypted (HTTPS): the copy is scrambled' : 'Not encrypted: the copy can be read', enc ? '#2f6b45' : '#9c2f28', '#fff', 12.5);
-    o += phone2(24, y + 44, 34, 64, (x, yy, w, h) => R(x + 3, yy + 6, w - 6, 10, { r: 2, f: '#fff', s: 'none', sw: 0 }) + R(x + 3, yy + 22, w - 6, 10, { r: 2, f: '#fff', s: 'none', sw: 0 }) + R(x + 6, yy + 38, w - 12, 8, { r: 4, f: B.blue, s: 'none', sw: 0 }));
-    o += router2(388, y + 82, 66) + wifi2(421, y + 70, AIR, 0.75);
-    o += L(66, y + 76, 380, y + 76, '#9db6d8', 2.2, ' stroke-dasharray="6 5"');
-    const tag = (x, yy, red) => R(x, yy, 140, 28, { r: 6, f: enc ? '#e3f3e9' : (red ? '#fdeee9' : '#fff'), s: enc ? '#3f8a5a' : (red ? '#b23a33' : B.ink), sw: 1.8 }) + T(x + 70, yy + 19, enc ? 'x8#Qp!2v@7' : 'pass: mia2007', { size: 13, w: 600, c: enc ? '#2f6b45' : (red ? '#9c2f28' : B.ink), mono: true });
-    o += tag(150, y + 62, false);
-    o += hacker2(270, y + 96, 0.62) + laptop2(296, y + 126, 40, (x, yy, w, h) => R(x + 2, yy + 2, w - 4, 4, { r: 1, f: enc ? '#7fe0a0' : '#ff9a8a', s: 'none', sw: 0 }), '#121a2a') + P(`M220 ${y + 92} Q232 ${y + 110} 256 ${y + 118}`, 'none', '#b23a33', 2, ' stroke-dasharray="3 4"');
-    o += tag(96, y + 124, true) + (enc ? check : cross)(252, y + 138, 0.85);
+    const ink = enc ? '#2f6b45' : '#9c2f28';
+    let o = R(8, y, 464, 204, { r: 14, f: enc ? '#eef6f0' : '#fbf0ed', s: 'none', sw: 0 });
+    o += C(26, y + 22, 12, enc ? B.green : B.red, B.ink, 1.8) + T(26, y + 27, enc ? '2' : '1', { size: 13, c: '#fff' }) + T(46, y + 27.5, enc ? 'With encryption (HTTPS)' : 'Without encryption', { size: 15, w: 800, a: 'start', c: B.ink });
+    // Mia's phone -> café router
+    o += phone2(26, y + 44, 30, 54, screenLines()) + T(41, y + 114, "Mia's phone", { size: 11.5, w: 700, c: B.soft });
+    o += router2(392, y + 70, 64) + wifi2(424, y + 58, AIR, 0.7) + T(424, y + 114, 'café Wi-Fi', { size: 11.5, w: 700, c: B.soft });
+    o += L(64, y + 70, 384, y + 70, '#9dbbe3', 2.4, DASH) + ARROW(370, y + 70, 384, y + 70, '#7fa3d6', 2.4);
+    o += R(150, y + 56, 150, 28, { r: 6, f: enc ? '#dcefe2' : '#fff', s: B.ink, sw: 1.8 }) + T(225, y + 75, enc ? 'x8#Qp!2v@7' : 'pass: mia2007', { size: 13, w: 700, c: B.ink, mono: true });
+    // the stranger copies it
+    o += P(`M225 ${y + 86} L225 ${y + 100}`, 'none', B.red, 2, ' stroke-dasharray="4 3"') + ARROW(225, y + 96, 225, y + 104, B.red, 2) + T(232, y + 98, 'he copies it', { size: 11, w: 700, a: 'start', c: '#9c2f28' });
+    o += hacker2(122, y + 110, 0.76);
+    o += T(106, y + 193, 'stranger, same Wi-Fi', { size: 10.5, w: 700, c: B.soft });
+    o += laptop2(171, y + 108, 108, (x, yy, w, h) => R(x, yy, w, h, { r: 0, f: enc ? '#f4f6f9' : '#fff', s: 'none', sw: 0 }) + T(x + w / 2, yy + h * 0.62, enc ? 'x8#Qp!2v@7' : 'pass: mia2007', { size: 11.5, w: 700, c: enc ? '#8a94a6' : '#9c2f28', mono: true }));
+    // result
+    o += (enc ? check(330, y + 148, 0.95) : cross(330, y + 148, 0.95));
+    o += T(348, y + 144, enc ? 'He sees only' : 'He can read', { size: 13, w: 800, a: 'start', c: ink }) + T(348, y + 162, enc ? 'scrambled letters.' : 'her password!', { size: 13, w: 800, a: 'start', c: ink });
     return o;
   };
-  b += row(6, false) + row(186, true);
-  return svgWrap(480, 360, 'Two phones send a password over shared Wi-Fi while a stranger copies the data. Top: without encryption, the copy shows the password. Bottom: with encryption, the copy is scrambled and useless.', b);
+  b += row(8, false) + row(222, true);
+  return svgWrap(480, 434, 'Two cases. 1, without encryption: Mia sends pass: mia2007 from her phone over café Wi-Fi. A stranger on the same Wi-Fi copies it and his laptop shows pass: mia2007. He can read her password. 2, with encryption (HTTPS): the same message travels as x8#Qp!2v@7. The stranger copies it, but his laptop shows only scrambled letters.', b);
 }
 
 /** Evil twin hotspot: a phone's Wi-Fi list with a real and a fake café network, and the stranger nearby. 480 x 330. */
@@ -494,15 +556,30 @@ export function evilTwin() {
 
 /** Private (symmetric) key: the same key locks and unlocks. Toy example (shift each letter by 3). 480 x 200. */
 export function symKeyPic() {
-  const note = (x, y, txt, c, f) => R(x + 3, y + 3, 120, 54, { r: 6, f: 'rgba(24,35,58,0.12)', s: 'none', sw: 0 }) + R(x, y, 120, 54, { r: 6, f, s: c, sw: 2 }) + P(`M${x + 100} ${y} L${x + 120} ${y + 18}`, 'none', c, 1.2) + T(x + 60, y + 33, txt, { size: 13.5, w: 600, c, mono: true });
-  let b = blob(240, 96, 232, 86, '#f6f8fb');
-  b += label(66, 26, 'plaintext', B.ink, '#fff', 12) + label(240, 26, 'ciphertext', '#2f6b45', '#e3f3e9', 12) + label(414, 26, 'plaintext', B.ink, '#fff', 12);
-  b += note(6, 50, 'Kita tayo 3pm', B.ink, '#fff') + note(180, 50, 'Nlwd wdbr 3sp', '#2f6b45', '#f1f8f3') + note(354, 50, 'Kita tayo 3pm', B.ink, '#fff');
-  b += key2(140, 72, 0.7) + ARROW(130, 112, 174, 112, B.ink, 2.2) + T(152, 132, 'lock', { size: 12.5, w: 600, c: B.soft });
-  b += key2(314, 72, 0.7) + ARROW(304, 112, 348, 112, B.ink, 2.2) + T(326, 132, 'unlock', { size: 12.5, w: 600, c: B.soft });
-  b += label(240, 166, 'the SAME secret key locks and unlocks', '#a6461f', '#fbe7da', 13);
-  b += T(240, 194, 'toy example: each letter moves 3 places; real encryption is far stronger', { size: 11, w: 600, c: B.soft });
-  return svgWrap(480, 200, 'Private key encryption: "Kita tayo 3pm" is locked with a secret key into "Nlwd wdbr 3sp", and the same key unlocks it. In this toy example each letter moves 3 places.', b);
+  // Round 2 (chat 56, her feedback: looked amateur): three tidy columns with the same structure, one per step.
+  // Each column: who (top), what happens (middle, with the key), the result (bottom). One shared-key band at the bottom.
+  const note = (cx, y, txt, c, f) => R(cx - 60, y, 120, 30, { r: 7, f, s: c, sw: 1.8 }) + T(cx, y + 19.5, txt, { size: 12, w: 700, c, mono: true });
+  const head = (cx, n, txt) => C(cx - 50, 26, 10, HOT, B.ink, 1.6) + T(cx - 50, 30.5, String(n), { size: 11.5, c: '#fff' }) + T(cx - 34, 31, txt, { size: 12.5, w: 800, a: 'start', c: B.ink });
+  const down = (cx, y, withKey) => L(cx, y, cx, y + 26, '#9aa5b6', 2) + ARROW(cx, y + 16, cx, y + 28, '#9aa5b6', 2) + (withKey ? key2(cx + 12, y + 13, 0.5) : '');
+  const cols = [84, 240, 396];
+  let b = cols.map((cx) => R(cx - 74, 8, 148, 250, { r: 14, f: '#f1f4f8', s: 'none', sw: 0 })).join('');
+  // 1 Ana locks
+  b += head(cols[0], 1, 'Ben locks it') + person2(cols[0], 44, 0.6, { shirt: B.blue }) + T(cols[0], 110, 'Ben', { size: 11.5, w: 700, c: B.soft });
+  b += note(cols[0], 122, 'Kita tayo 3pm', B.ink, '#fff') + down(cols[0], 156, true) + note(cols[0], 188, 'Nlwd wdbr 3sp', '#2f6b45', '#e3f1e8');
+  b += T(cols[0], 240, 'his key scrambles it', { size: 11, w: 700, c: B.soft });
+  // 2 it travels; a stranger copies it
+  b += head(cols[1], 2, 'It travels') + globe(cols[1], 72, 24) + T(cols[1], 110, 'the Internet', { size: 11.5, w: 700, c: B.soft });
+  b += hacker2(cols[1] - 34, 124, 0.46) + R(cols[1] - 10, 132, 66, 26, { r: 8, f: '#fff', s: B.line, sw: 1.4 }) + T(cols[1] + 23, 149.5, '???', { size: 13, w: 800, c: '#9c2f28' });
+  b += note(cols[1], 188, 'Nlwd wdbr 3sp', '#2f6b45', '#e3f1e8') + T(cols[1], 240, 'a stranger sees only this', { size: 11, w: 700, c: '#9c2f28' });
+  // 3 Ben unlocks
+  b += head(cols[2], 3, 'Ana unlocks it') + P(`M${cols[2] - 10} 52 Q${cols[2] - 13} 74 ${cols[2] - 8} 80 L${cols[2] + 8} 80 Q${cols[2] + 13} 74 ${cols[2] + 10} 52 Z`, '#3a2a20', B.ink, 1.6) + person2(cols[2], 44, 0.6, { shirt: B.green, hair: '#3a2a20' }) + T(cols[2], 110, 'Ana', { size: 11.5, w: 700, c: B.soft });
+  b += note(cols[2], 122, 'Nlwd wdbr 3sp', '#2f6b45', '#e3f1e8') + down(cols[2], 156, true) + note(cols[2], 188, 'Kita tayo 3pm', B.ink, '#fff');
+  b += T(cols[2], 240, 'her copy unscrambles it', { size: 11, w: 700, c: B.soft });
+  // arrows between columns
+  b += ARROW(146, 203, 172, 203, B.ink, 2) + ARROW(302, 203, 328, 203, B.ink, 2);
+  // the shared-key band
+  b += R(8, 268, 464, 34, { r: 12, f: '#fff3c4', s: 'none', sw: 0 }) + key2(92, 285, 0.55) + key2(378, 285, 0.55) + T(240, 290, 'Ben and Ana use the SAME secret key', { size: 12.5, w: 800, c: '#7a5a0c' });
+  return svgWrap(480, 310, 'Private key encryption in three steps. 1, Ben locks it: his key turns "Kita tayo 3pm" into "Nlwd wdbr 3sp". 2, it travels over the Internet; a stranger who copies it sees only "Nlwd wdbr 3sp". 3, Ana unlocks it: her copy of the same key turns it back into "Kita tayo 3pm". Ben and Ana use the same key.', b);
 }
 
 /** HTTPS proves the connection is encrypted, not that the site is honest. 480 x 300. */
@@ -518,24 +595,39 @@ export function httpsPic() {
     return o;
   };
   b += win(10, 'https://www.perabank.com.ph', true) + label(330, 150, 'real bank: encrypted AND honest', '#2f6b45', '#e3f3e9', 12.5);
-  b += win(164, 'https://perabank-ph-verify.co', false) + label(320, 306, 'fake site: encrypted, but still a scam', '#9c2f28', '#fdeee9', 12.5);
-  return svgWrap(480, 318, 'Two browser windows, both with HTTPS and a lock icon. The real bank\'s address is perabank.com.ph. The fake one, perabank-ph-verify.co, is also encrypted but is a scam.', b);
+  b += win(182, 'https://perabank-ph-verify.co', false) + label(320, 324, 'fake site: encrypted, but still a scam', '#9c2f28', '#fdeee9', 12.5);
+  return svgWrap(480, 336, 'Two browser windows, both with HTTPS and a lock icon. The real bank\'s address is perabank.com.ph. The fake one, perabank-ph-verify.co, is also encrypted but is a scam.', b);
 }
 
 /** Layers of protection (defense in depth): data in a vault in the middle, rings around it, each with a small picture. 480 x 300. */
 export function layersPic() {
-  const rings = [['people: rules, training, least privilege', '#fbe2d2', '#a6461f'], ['firewall and intrusion prevention', '#f7e7bd', '#7a5a0c'], ['access control: passwords, MFA', '#dfe9f6', '#1c4479'], ['encryption', '#dcefe2', '#2f6b45']];
+  // Round 3 (chat 56, polish): a cleaner grid. Header row (names + icons) is separate from the soft, outline-free
+  // layer columns; attacks are thin solid arrows from label chips in one aligned column, each ending at the face of
+  // the layer that stops it. 480 x 286.
+  const layers = [['People', 'training, rules', '#fbe2d2', '#a6461f'], ['Firewall', 'and IPS', '#f7e7bd', '#7a5a0c'], ['Access', 'control', '#dfe9f6', '#1c4479'], ['Encryption', 'scrambles data', '#dcefe2', '#2f6b45']];
+  const X0 = 112, BW = 66, GAP = 8, BT = 104, BB = 272;
+  const bx = (k) => X0 + k * (BW + GAP), bc = (k) => bx(k) + BW / 2;
   let b = '';
-  rings.forEach(([t, f, c], k) => { const p = k * 32; b += R(10 + p, 8 + p, 460 - p * 2, 304 - p * 2, { r: 26, f, s: c, sw: 2 }) + T(240, 30 + p, t, { size: 13, w: 600, c }); });
-  // little pictures on each ring (left side)
-  b += person2(46, 130, 0.5, { shirt: B.orange }) + person2(434, 130, 0.5, { shirt: B.blue });
-  b += wall(70, 136, 24, 64) + wall(386, 136, 24, 64);
-  b += padlock2(110, 158, false, HOT, 0.7) + fingerprint2(360, 172, 0.7);
-  b += key2(150, 166, 0.6) + key2(296, 166, 0.6);
-  // vault
-  b += R(194, 138, 92, 58, { r: 10, f: '#c8ced8', sw: 2 }) + R(201, 145, 78, 44, { r: 6, f: '#e6eaf0', s: '#8a94a6', sw: 1.4 }) + C(240, 167, 13, '#fff', B.ink, 2) + C(240, 167, 3.4, B.ink, 'none', 0) + [0, 1, 2, 3].map((k) => L(240 + Math.cos(k * 1.57) * 5, 167 + Math.sin(k * 1.57) * 5, 240 + Math.cos(k * 1.57) * 10.5, 167 + Math.sin(k * 1.57) * 10.5, B.ink, 2)).join('');
-  b += T(240, 212, 'your data and accounts', { size: 13, w: 700, c: B.ink });
-  return svgWrap(480, 320, 'Four rings of protection around a vault holding your data: people and rules on the outside, then the firewall and intrusion prevention, then access control, then encryption closest to the data.', b);
+  // header row
+  b += hacker2(50, 18, 0.5) + T(50, 80, 'intruder', { size: 11, w: 700, c: B.soft });
+  layers.forEach(([t1, t2, f, c], k) => {
+    b += C(bc(k), 36, 21, f, c, 1.8) + T(bc(k), 76, t1, { size: 11.5, w: 800, c }) + T(bc(k), 90, t2, { size: 9.5, w: 600, c: B.soft });
+    b += R(bx(k), BT, BW, BB - BT, { r: 10, f, s: 'none', sw: 0 });
+  });
+  b += person2(bc(0), 20, 0.4, { shirt: B.orange }) + wall(bc(1) - 12, 24, 24, 24) + key2(bc(2) - 12, 36, 0.62) + padlock2(bc(3) - 10, 34, false, HOT, 0.62);
+  // the data
+  b += R(414, 162, 58, 44, { r: 8, f: '#c8ced8', sw: 1.8 }) + R(420, 168, 46, 32, { r: 5, f: '#e6eaf0', s: '#8a94a6', sw: 1.2 }) + C(443, 184, 9, '#fff', B.ink, 1.6) + C(443, 184, 2.4, B.ink, 'none', 0) + [0, 1, 2, 3].map((k) => L(443 + Math.cos(k * 1.57) * 3.5, 184 + Math.sin(k * 1.57) * 3.5, 443 + Math.cos(k * 1.57) * 8, 184 + Math.sin(k * 1.57) * 8, B.ink, 1.6)).join('');
+  b += T(443, 222, 'your data', { size: 11, w: 800, c: B.ink });
+  // attacks
+  const RED = '#c2453b';
+  [['fake email', 0], ['break-in try', 1], ['stolen password', 2], ['copied data', 3]].forEach(([txt, k], i) => {
+    const y = 128 + i * 38, end = bx(k) + 6;
+    b += R(6, y - 11, 94, 22, { r: 11, f: '#fff', s: RED, sw: 1.4 }) + T(53, y + 4, txt, { size: 10, w: 700, c: '#9c2f28' });
+    if (k < 3) b += L(100, y, end - 9, y, RED, 2) + ARROW(end - 16, y, end - 7, y, RED, 2) + R(end - 4, y - 12, 4, 24, { r: 2, f: layers[k][3], s: 'none', sw: 0 }) + cross(end + 12, y, 0.55);
+    else b += L(100, y, end + 14, y, RED, 2) + R(end + 18, y - 10, 38, 20, { r: 5, f: '#fff', s: '#2f6b45', sw: 1.4 }) + T(end + 37, y + 4, 'x8#?', { size: 10, w: 800, c: '#2f6b45', mono: true });
+  });
+  b += T(bc(3), 262, 'unreadable', { size: 9.5, w: 700, c: '#2f6b45' });
+  return svgWrap(480, 286, 'Defense in depth: four layers stand between an intruder and your data: people (training and rules), the firewall and IPS, access control, and encryption. A fake email is stopped by trained people. A break-in try is stopped by the firewall. A stolen password is stopped by access control such as MFA. Data copied anyway is unreadable because of encryption.', b);
 }
 
 /** Securing a home router: a router with a settings checklist. 480 x 220. */
@@ -550,19 +642,80 @@ export function routerSettingsPic() {
 
 /** Precautions for organizations: an office scene with a staff-only door, an ID badge, and a locked payroll folder. 480 x 230. */
 export function orgPic() {
-  let b = blob(240, 118, 230, 104, '#f6f8fb') + ground(240, 214, 200);
-  // door with badge reader
-  b += R(30, 34, 92, 172, { r: 4, f: '#b8935a', sw: 2 }) + R(38, 42, 76, 164, { r: 2, f: '#c9a56e', s: '#8f6a3a', sw: 1.4 }) + C(104, 128, 4, B.amber, B.ink, 1.4) + R(44, 60, 64, 22, { r: 4, f: '#fff', sw: 1.6 }) + T(76, 75, 'STAFF ONLY', { size: 9.5, w: 700, c: '#9c2f28' });
-  b += R(132, 110, 22, 32, { r: 4, f: '#2b3446', sw: 1.8 }) + C(143, 122, 4, B.green, 'none', 0) + R(137, 132, 12, 4, { r: 1, f: '#8a94a6', s: 'none', sw: 0 });
-  // employee with badge
-  b += person2(196, 88, 1.15, { shirt: B.blue }) + R(206, 152, 22, 28, { r: 3, f: '#fff', s: B.ink, sw: 1.4 }) + R(206, 152, 22, 8, { r: 3, f: B.blue, s: B.ink, sw: 1.4 }) + C(217, 168, 4, B.skin, 'none', 0) + L(217, 140, 217, 152, B.ink, 1.2);
-  // desk with locked payroll folder
-  b += R(262, 150, 196, 12, { r: 3, f: '#d9b98c', sw: 1.8 }) + L(276, 162, 276, 206, B.ink, 2.4) + L(444, 162, 444, 206, B.ink, 2.4);
-  b += P('M290 150 L290 104 L328 104 L334 112 L374 112 L374 150 Z', '#f6e3a8', B.ink, 2) + T(332, 134, 'PAYROLL', { size: 10, w: 700, c: '#7a5a0c' }) + padlock2(350, 118, false, HOT, 0.55);
-  b += laptop2(392, 110, 52, screenLines());
-  b += label(240, 28, 'only the access each job needs', B.blueInk, '#e3ecf8', 12.5);
-  return svgWrap(480, 222, 'An office with a staff-only door and badge reader, an employee wearing an ID badge, and a locked payroll folder on a desk: each person gets only the access their job needs.', b);
+  // Redrawn chat 56 (her feedback: amateur). Least privilege as three tidy columns: a person, their job, and what they can open.
+  const cols = [[84, 'Clerk', B.blue, '#2a2420', false], [240, 'Payroll officer', B.green, '#3a2a20', true], [396, 'Visitor', B.orange, '#5a3a22', false]];
+  const door = (x, y) => R(x, y, 18, 24, { r: 2, f: '#c9a27a', sw: 1.6 }) + C(x + 14, y + 13, 1.8, B.ink, 'none', 0);
+  const folder = (x, y) => P(`M${x} ${y + 4} L${x + 8} ${y + 4} L${x + 11} ${y} L${x + 24} ${y} L${x + 24} ${y + 20} L${x} ${y + 20} Z`, '#f6d58a', B.ink, 1.6) + T(x + 12, y + 15, '₱', { size: 9, w: 800, c: '#7a5a0c' });
+  const lobby = (x, y) => R(x, y + 4, 22, 18, { r: 2, f: '#dfe9f6', sw: 1.6 }) + P(`M${x - 2} ${y + 5} L${x + 11} ${y - 4} L${x + 24} ${y + 5}`, 'none', B.ink, 1.6);
+  const row = (cx, y, icon, txt, ok) => icon(cx - 58, y) + T(cx - 30, y + 16, txt, { size: 11, w: 700, a: 'start', c: B.ink }) + (ok ? check(cx + 52, y + 11, 0.62) : cross(cx + 52, y + 11, 0.62));
+  let b = '';
+  cols.forEach(([cx, role, shirt, hair, pay], i) => {
+    b += R(cx - 72, 8, 144, 236, { r: 14, f: '#f1f4f8', s: 'none', sw: 0 });
+    if (i !== 0) b += P(`M${cx - 17} 32 Q${cx - 22} 62 ${cx - 13} 70 L${cx + 13} 70 Q${cx + 22} 62 ${cx + 17} 32 Z`, hair, B.ink, 1.4);
+    b += person2(cx, 20, 0.92, { shirt, hair });
+    b += R(cx + 5, 76, 15, 19, { r: 2, f: '#fff', s: B.ink, sw: 1.2 }) + R(cx + 5, 76, 15, 6, { r: 2, f: i === 2 ? B.orange : B.blue, s: 'none', sw: 0 });
+    b += T(cx, 122, role, { size: 12.5, w: 800, c: B.ink });
+    b += L(cx - 58, 132, cx + 58, 132, '#d3dae5', 1.4);
+    b += row(cx, 142, lobby, 'Lobby', true);
+    b += row(cx, 176, door, 'Staff room', i !== 2);
+    b += row(cx, 210, folder, 'Payroll files', pay);
+  });
+  b += R(8, 254, 464, 34, { r: 12, f: '#e3ecf8', s: 'none', sw: 0 }) + T(240, 276, 'Each person can open only what their job needs: least privilege', { size: 12, w: 800, c: B.blueInk });
+  return svgWrap(480, 296, 'Least privilege in an office. The clerk can enter the lobby and the staff room, but cannot open the payroll files. The payroll officer can open all three. A visitor can enter only the lobby.', b);
 }
 
 // Shared with it110-threat-pics.js (chat 55): the detailed doodle kit and small helpers.
 export { L, C, P, lab, DASH, HOT, AIR, face, hood, check, cross, key, padlock, bubble, bubbleUp, packet, addrBar, SHADE, GLOSS, blob, ground, spark, dot, person2, hacker2, laptop2, phone2, padlock2, key2, shield2, envelope2, server2, fingerprint2, wifi2, coin, screenLines, globe, wall, router2, car2, label };
+
+/** Private key encryption, step by step (chat 56). Same layout as padlockPic: Ben left (sender), Ana right (receiver),
+ *  a stranger in the middle. step 0..3. 480 x 230. */
+export function symStepPic(step) {
+  // Same orientation as padlockPic (chat 56): Ana LEFT (receiver), Ben RIGHT (sender), stranger center.
+  // The shared secret key is BLUE everywhere (Ana's private key in Kind 2 is amber), so the two never look alike.
+  const note = (cx, y, txt, enc) => R(cx - 58, y, 116, 30, { r: 7, f: enc ? '#e3f1e8' : '#fff', s: enc ? '#2f6b45' : B.ink, sw: 1.8 }) + T(cx, y + 19.5, txt, { size: 12, w: 700, c: enc ? '#2f6b45' : B.ink, mono: true });
+  const SK = '#8fb0dc';
+  let b = blob(240, 116, 230, 104, '#f6f8fb') + ground(60, 200, 44) + ground(420, 200, 44) + ground(240, 214, 34);
+  b += P('M43 112 Q38 142 46 150 L74 150 Q82 142 77 112 Z', '#3a2a20', B.ink, 1.8) + person2(60, 96, 1.05, { shirt: B.green, hair: '#3a2a20' }) + T(60, 222, 'Ana', { size: 14, w: 600, c: B.ink });
+  b += person2(420, 96, 1.05, { shirt: B.blue }) + T(420, 222, 'Ben', { size: 14, w: 600, c: B.ink });
+  b += hacker2(240, 140, 0.85);
+  b += key2(20, 62, 0.85, SK) + key2(400, 62, 0.85, SK);
+  if (step === 0) {
+    b += label(240, 40, 'two copies of the SAME secret key', B.blueInk, '#e3ecf8', 12) + P('M62 62 Q240 92 396 62', 'none', '#7fa3d6', 2);
+  } else if (step === 1) {
+    b += T(310, 30, 'Ben\'s key scrambles it', { size: 12, w: 700, c: B.soft }) + note(310, 42, 'Kita tayo 3pm', false) + ARROW(310, 76, 310, 94, B.ink, 2) + key2(326, 85, 0.5, SK) + note(310, 98, 'Nlwd wdbr 3sp', true);
+  } else if (step === 2) {
+    b += note(240, 50, 'Nlwd wdbr 3sp', true) + ARROW(368, 65, 304, 65, B.ink, 2.2) + ARROW(176, 65, 112, 65, B.ink, 2.2) + T(240, 36, 'traveling across the Internet', { size: 12, w: 600, c: B.soft });
+    b += bubble(268, 104, 64, 30, 262, 140) + T(300, 124, '???', { size: 14, w: 800, c: '#9c2f28' });
+  } else {
+    b += T(170, 30, 'the SAME key unscrambles it', { size: 12, w: 700, c: B.soft }) + note(170, 42, 'Nlwd wdbr 3sp', true) + ARROW(170, 76, 170, 94, B.ink, 2) + key2(186, 85, 0.5, SK) + note(170, 98, 'Kita tayo 3pm', false);
+  }
+  return svgWrap(480, 230, ['Ana and Ben each hold a copy of the same secret key.', 'Ben\'s key scrambles "Kita tayo 3pm" into "Nlwd wdbr 3sp".', 'The scrambled message travels across the Internet to Ana. A stranger copies it but sees only nonsense.', 'Ana uses her copy of the same key to turn "Nlwd wdbr 3sp" back into "Kita tayo 3pm".'][step], b);
+}
+
+/** Using both kinds together (chat 56): how Ben and Ana get the same secret key. Same layout as padlockPic
+ *  (Ana left with her amber private key, Ben right). The shared secret key is BLUE. step 0..4. 480 x 230. */
+export function keyShareStepPic(step) {
+  const SK = '#8fb0dc';
+  const card = (x, y, locked) => R(x, y, 72, 44, { r: 6, f: '#fff', s: B.ink, sw: 2 }) + key2(x + 12, y + 22, 0.6, SK) + (locked ? padlock2(x + 54, y + 18, false, HOT, 0.62) : '');
+  let b = blob(240, 116, 230, 104, '#f6f8fb') + ground(60, 200, 44) + ground(420, 200, 44) + ground(240, 214, 34);
+  b += P('M43 112 Q38 142 46 150 L74 150 Q82 142 77 112 Z', '#3a2a20', B.ink, 1.8) + person2(60, 96, 1.05, { shirt: B.green, hair: '#3a2a20' }) + T(60, 222, 'Ana', { size: 14, w: 600, c: B.ink });
+  b += person2(420, 96, 1.05, { shirt: B.blue }) + T(420, 222, 'Ben', { size: 14, w: 600, c: B.ink });
+  b += hacker2(240, 140, 0.85);
+  // Ana's private key (amber), always with her
+  b += key2(22, 52, 0.95) + R(14, 70, 92, 22, { r: 6, f: '#fff', s: B.amber, sw: 1.6 }) + T(60, 85, 'private key', { size: 11.5, w: 600, c: '#8f6a0e' });
+  // Ben keeps his original secret key the whole time; what travels is a COPY
+  if (step >= 1 && step <= 3) b += key2(392, 60, 0.85, SK);
+  if (step === 0) {
+    b += key2(372, 58, 0.95, SK) + spark(432, 50, 1, SK) + spark(362, 92, 0.7, SK) + label(400, 30, 'new secret key', B.blueInk, '#e3ecf8', 12);
+  } else if (step === 1) {
+    b += card(290, 58, true) + T(326, 52, 'a copy', { size: 11, w: 700, c: B.blueInk }) + T(326, 124, 'locked with', { size: 11.5, w: 600, c: B.soft }) + T(326, 139, 'Ana\'s public key', { size: 11.5, w: 700, c: '#a6461f' });
+  } else if (step === 2) {
+    b += card(204, 56, true) + T(240, 50, 'the copy', { size: 11, w: 700, c: B.blueInk }) + ARROW(330, 78, 284, 78, B.ink, 2.4) + ARROW(196, 78, 128, 78, B.ink, 2.4) + T(240, 30, 'traveling across the Internet', { size: 12, w: 600, c: B.soft }) + cross(284, 152, 0.9);
+  } else if (step === 3) {
+    b += card(112, 70, false) + padlock2(188, 78, true, HOT, 0.75) + check(214, 60, 0.9) + T(200, 44, 'Ana opens it with her private key', { size: 12, w: 700, c: B.soft });
+  } else {
+    b += key2(96, 150, 0.7, SK) + key2(352, 150, 0.7, SK) + label(240, 40, 'both have the same secret key', B.blueInk, '#e3ecf8', 12);
+    b += R(186, 66, 108, 28, { r: 7, f: '#e3f1e8', s: '#2f6b45', sw: 1.8 }) + T(240, 84.5, 'Nlwd wdbr 3sp', { size: 11.5, w: 700, c: '#2f6b45', mono: true }) + ARROW(184, 80, 130, 80, B.ink, 2) + ARROW(296, 80, 350, 80, B.ink, 2) + T(240, 112, 'now: fast private key encryption', { size: 11.5, w: 700, c: B.soft });
+  }
+  return svgWrap(480, 230, ['Ben\'s computer makes a new secret key.', 'Ben keeps his secret key and locks a copy of it with Ana\'s public key, her open padlock.', 'The locked secret key travels across the Internet to Ana. A stranger copies it but cannot unlock it.', 'Ana unlocks it with her private key and gets the secret key.', 'Now Ana and Ben both have the same secret key, and they use fast private key encryption for their messages.'][step], b);
+}

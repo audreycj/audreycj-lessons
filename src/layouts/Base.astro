@@ -130,5 +130,41 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       f();
     })();
   </script>
+  <script is:inline>
+    // Stay in place on refresh (chat 56, her request). The browser's own restore runs before the page has finished laying out
+    // (styles, fonts, pictures, and the sidebar that narrows the text all arrive a moment later), so the page used to land
+    // higher up. Instead we remember the nearest marked spot (an element with an id) and how far past it you were, and return
+    // there after everything has loaded. Only on reload / back-forward, never on a fresh visit or a #link. Stops as soon as
+    // you scroll yourself.
+    (function () {
+      try {
+        var KEY = 'lx:pos:' + location.pathname, nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        var marks = function () { return Array.prototype.filter.call(document.querySelectorAll('main [id]'), function (el) { return el.offsetParent !== null; }); };
+        function save() {
+          var y = scrollY, list = marks(), best = null;
+          for (var i = 0; i < list.length; i++) { if (list[i].getBoundingClientRect().top <= 1) best = list[i]; else break; }
+          sessionStorage.setItem(KEY, JSON.stringify({ id: best ? best.id : '', off: best ? -best.getBoundingClientRect().top : y, y: y }));
+        }
+        addEventListener('pagehide', save);
+        addEventListener('beforeunload', save);
+        var t = 0; addEventListener('scroll', function () { clearTimeout(t); t = setTimeout(save, 300); }, { passive: true });
+        if (nav.type !== 'reload' && nav.type !== 'back_forward') return;
+        var raw = sessionStorage.getItem(KEY); if (!raw) return;
+        var pos = JSON.parse(raw), user = false;
+        ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (e) { addEventListener(e, function () { user = true; }, { once: true, passive: true }); });
+        function go() {
+          if (user) return;
+          var el = pos.id && document.getElementById(pos.id);
+          var top = el ? el.getBoundingClientRect().top + scrollY + pos.off : pos.y;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+        }
+        go();
+        document.addEventListener('DOMContentLoaded', go);
+        addEventListener('load', function () { go(); setTimeout(go, 150); setTimeout(go, 600); });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(go);
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>

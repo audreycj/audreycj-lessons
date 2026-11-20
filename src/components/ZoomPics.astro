@@ -14,7 +14,7 @@
   (function () {
     var zp = document.getElementById('zp'); if (!zp) return;
     var pic = zp.querySelector('.zp-pic'), cap = zp.querySelector('.zp-cap'), last = null;
-    var SEL = 'figure.illus-fig svg.clean, .def-pic, .fn-card svg.clean:not(.ico), .ss .cw-pic svg, .ph-frame';
+    var SEL = 'figure.illus-fig svg.clean, .def-pic, .fn-card svg.clean:not(.ico), .ss .cw-pic svg, .ph-frame, img.tthumb';
     document.querySelectorAll(SEL).forEach(function (el) { el.classList.add('zp-can'); if (!el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '0'); } });
     function open(el) {
       last = el; pic.innerHTML = '';
@@ -22,7 +22,8 @@
       var copy = el.cloneNode(true); copy.removeAttribute('tabindex'); copy.classList.remove('zp-can'); copy.removeAttribute('width'); copy.removeAttribute('height');
       pic.appendChild(copy);
       var fig = el.closest('figure'), txt = '';
-      if (el.tagName === 'IMG') { var c = fig && fig.querySelector('.ph-cap'); txt = (c ? c.textContent + ' ' : '') ; var src = frame.querySelector('.ph-src'); if (src) txt += src.textContent; }
+      if (el.tagName === 'IMG' && !frame) { txt = el.getAttribute('alt') || ''; } // small table thumbnails (chat 56)
+      else if (el.tagName === 'IMG') { var c = fig && fig.querySelector('.ph-cap'); txt = (c ? c.textContent + ' ' : '') ; var src = frame.querySelector('.ph-src'); if (src) txt += src.textContent; }
       else { var fc = fig && fig.querySelector('figcaption'); txt = fc ? fc.textContent : (el.getAttribute('aria-label') || ''); }
       cap.textContent = txt.trim(); cap.hidden = !cap.textContent;
       zp.hidden = false; document.documentElement.classList.add('zp-open'); zp.querySelector('.zp-x').focus();
