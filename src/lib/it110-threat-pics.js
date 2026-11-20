@@ -78,10 +78,12 @@ export function threatDef(kind) {
       b += bug(128, 30, 0.95) + bug(30, 92, 0.75) + spark(26, 26, 0.9, B.red) + dot(140, 94, 2.4, B.red);
       alt = 'A laptop with a cracked, broken screen showing ERROR, with malware bugs crawling around it.'; break;
     case 'bot':
-      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(80, 112, 62) + laptop2(52, 64, 56, (x, y, w, h) => T(x + w / 2, y + h * 0.62, 'zzz', { size: 9, c: B.soft, mono: true }));
-      b += bug(98, 70, 0.6) + hacker2(126, 18, 0.5) + P('M118 40 Q96 30 84 58', 'none', B.red, 2, ' stroke-dasharray="4 4"') + ARROW(88, 50, 84, 60, B.red, 2);
-      b += say(10, 16, 70, 'obey!', 52, 50, '#fdeee9', B.red, 12);
-      alt = 'A sleeping laptop secretly infected with a bug, taking orders from a hooded stranger: a bot.'; break;
+      // redrawn chat 57: the bot looks normal (a page is open), a bug hides on it, and the botherder steers it with a remote control
+      b = blob(80, 64, 70, 48, '#e3ecf8') + ground(54, 113, 46) + laptop2(16, 48, 76, screenLines()) + bug(22, 52, 0.62);
+      b += hacker2(134, 34, 0.56) + R(104, 62, 13, 22, { r: 3, f: '#3b4659', sw: 1.6 }) + C(110.5, 70, 2.6, B.red, 'none', 0) + R(107, 76, 7, 3, { r: 1, f: '#c8ced8', s: 'none', sw: 0 }) + L(110.5, 62, 110.5, 52, B.ink, 1.8) + C(110.5, 51, 2, B.red, 'none', 0);
+      b += [6, 12, 18].map((r) => P(`M${104 - r * 0.6} ${51 - r * 0.8} A${r} ${r} 0 0 0 ${104 - r * 0.6} ${51 + r * 0.8}`, 'none', B.red, 2)).join('');
+      b += label(54, 32, 'bot', B.red, '#fdeee9', 11) + label(126, 24, 'botherder', '#a6461f', '#fbe7da', 9.5);
+      alt = 'A laptop that looks normal, with a web page open, has a hidden malware bug on it. A hooded botherder controls it from far away with a remote control. The laptop is a bot.'; break;
     case 'malware':
       b = blob(80, 62, 66, 50, '#fbe7da') + ground(80, 112, 50) + doc(46, 22, 54, 74, '#fff') + bug(96, 70, 1.25) + spark(132, 28, 1, B.red) + dot(34, 30, 2.6, B.red) + dot(140, 98, 2.2, B.amber);
       alt = 'A big red bug sitting on a computer file: malicious software.'; break;
@@ -93,7 +95,7 @@ export function threatDef(kind) {
     case 'deface':
       b = blob(80, 62, 70, 50, '#e3ecf8') + ground(80, 112, 62) + R(24, 18, 112, 82, { r: 6, f: '#fff', sw: 2 }) + R(24, 18, 112, 14, { r: 6, f: '#dfe3ea', sw: 2 }) + [0, 1, 2].map((k) => C(32 + k * 7, 25, 2, ['#e06c5a', '#eeb04a', '#5fae6b'][k], 'none', 0)).join('');
       b += R(32, 40, 50, 8, { r: 2, f: B.blueWash, s: 'none', sw: 0 }) + R(32, 54, 96, 4, { r: 2, f: '#d3dbe6', s: 'none', sw: 0 }) + R(32, 62, 80, 4, { r: 2, f: '#d3dbe6', s: 'none', sw: 0 });
-      b += P('M36 92 Q50 70 66 84 T100 74 T130 82', 'none', '#d4422f', 5) + T(82, 82, 'HACKED', { size: 15, c: '#b23a33' }) + spark(140, 20, 1, B.red);
+      b += T(80, 86, 'HACKED', { size: 17, c: '#c0392b' }) + P('M38 94 Q56 88 74 93 T112 92 T128 90', 'none', '#d4422f', 3) + spark(140, 20, 1, B.red);
       alt = 'A website with HACKED spray-painted across it in red: website defacement.'; break;
     case 'breach':
       b = blob(80, 62, 70, 50, '#fbe7da') + ground(64, 112, 44);
@@ -117,7 +119,7 @@ export function threatDef(kind) {
       alt = 'A fishing hook with an email on it, holding a password as bait: phishing.'; break;
     case 'pharming':
       b = blob(80, 62, 72, 50, '#fbe7da') + ground(80, 112, 64) + R(10, 14, 140, 24, { r: 12, f: '#f1f3f6', s: '#b7bfcc', sw: 1.6 }) + T(80, 31, 'perabank.ph', { size: 11, c: B.ink, mono: true });
-      b += ARROW(56, 40, 40, 66, B.green, 2) + R(14, 68, 34, 24, { r: 4, f: '#e3f3e9', s: B.green, sw: 1.6, dash: '4 3' }) + T(31, 84, 'real', { size: 10, c: B.green }) + cross(46, 66, 0.55);
+      b += `<path d="M52 40 L38 66" fill="none" stroke="#9aa6b8" stroke-width="2" stroke-dasharray="4 3"/>` + R(10, 68, 56, 34, { r: 5, f: '#f1f3f6', s: '#9aa6b8', sw: 1.6 }) + T(38, 82, 'real site', { size: 9.5, c: B.greyInk }) + T(38, 95, 'not reached', { size: 8, w: 700, c: B.greyInk }) + cross(46, 52, 0.5);
       b += P('M104 40 Q120 52 116 66', 'none', B.red, 2.2) + ARROW(118, 58, 116, 68, B.red, 2.2) + R(86, 70, 60, 34, { r: 5, f: '#fff', s: B.red, sw: 2 }) + T(116, 84, 'FAKE', { size: 10, c: B.red }) + T(116, 98, 'look-alike', { size: 9, w: 700, c: B.soft });
       alt = 'The right web address is typed, but the trip is secretly sent to a fake look-alike site instead of the real one.'; break;
     case 'spoofing':
@@ -144,12 +146,12 @@ export function threatDef(kind) {
       alt = 'A map with a trail of red dots ending at a location pin, watched by a hooded stranger: cyberstalking.'; break;
     case 'sextortion':
       b = blob(80, 62, 70, 50, '#fbe7da') + ground(52, 112, 34) + phone2(28, 20, 48, 88, (x, y, w, h) => R(x + 4, y + 6, w - 8, h * 0.5, { r: 4, f: '#c9d3e3', s: 'none', sw: 0 }) + T(x + w / 2, y + h * 0.36, 'private', { size: 7.5, w: 700, c: B.soft }));
-      b += padlock2(40, 52, false, B.amber, 0.7) + say(84, 18, 70, 'Pay me or', 92, 50, '#fdeee9', B.red, 11) + say(84, 50, 70, 'I\'ll share', 92, 82, '#fdeee9', B.red, 11) + hacker2(134, 78, 0.4);
+      b += padlock2(40, 52, false, B.amber, 0.7) + say(82, 16, 76, 'Pay me, or', 90, 48, '#fdeee9', B.red, 10.5) + say(82, 50, 76, 'I\'ll share', 90, 82, '#fdeee9', B.red, 10.5) + hacker2(134, 78, 0.4);
       alt = 'A locked private photo on a phone and threatening messages: pay me or I will share it.'; break;
     case 'doxx':
-      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(80, 112, 62) + R(18, 14, 124, 88, { r: 6, f: '#d8b48a', sw: 2 }) + R(30, 24, 66, 62, { r: 3, f: '#fff', sw: 1.6 }) + C(63, 22, 3.4, B.red, B.ink, 1.2);
-      b += C(46, 42, 8, B.skin, B.ink, 1.4) + T(78, 40, 'Bea', { size: 9, c: B.ink }) + T(36, 62, 'Home: Purok 3…', { size: 7.5, w: 700, a: 'start', c: B.red }) + T(36, 74, 'Cell: 09•••', { size: 7.5, w: 700, a: 'start', c: B.red });
-      b += R(104, 30, 30, 22, { r: 2, f: '#fff4c7', sw: 1.4 }) + C(119, 28, 3, B.blue, B.ink, 1) + T(119, 46, 'LOOK', { size: 7.5, c: B.red }) + R(102, 62, 32, 26, { r: 2, f: '#fff', sw: 1.4 }) + C(118, 60, 3, B.amber, B.ink, 1) + P('M108 80 L114 72 L120 78 L126 70', 'none', B.blue, 1.6);
+      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(80, 112, 62) + R(18, 14, 124, 88, { r: 6, f: '#d8b48a', sw: 2 }) + R(26, 22, 78, 66, { r: 3, f: '#fff', sw: 1.6 }) + C(65, 21, 3.4, B.red, B.ink, 1.2);
+      b += C(42, 40, 8, B.skin, B.ink, 1.4) + T(56, 43, 'Bea', { size: 9.5, a: 'start', c: B.ink }) + T(31, 64, 'Home: Purok 3', { size: 8, w: 700, a: 'start', c: B.red }) + T(31, 78, 'Cell: 0917…', { size: 8, w: 700, a: 'start', c: B.red });
+      b += R(108, 28, 28, 22, { r: 2, f: '#fff4c7', sw: 1.4 }) + C(122, 26, 3, B.blue, B.ink, 1) + T(122, 44, 'LOOK', { size: 7.5, c: B.red }) + R(108, 60, 28, 26, { r: 2, f: '#fff', sw: 1.4 }) + C(122, 58, 3, B.amber, B.ink, 1) + P('M112 80 L118 72 L124 78 L130 70', 'none', B.blue, 1.6);
       alt = 'A public board with Bea\'s photo, home address, and phone number pinned for everyone to see: doxxing.'; break;
     case 'wifisec':
       b = blob(80, 62, 70, 50, '#e3ecf8') + ground(56, 112, 44) + router2(22, 84, 70) + wifi2(57, 70, AIR, 1.1);
@@ -191,7 +193,7 @@ export function malwarePic(kind) {
     b += P('M136 64 Q150 84 128 100', 'none', B.red, 1.8, ' stroke-dasharray="4 4"') + R(150, 76, 56, 22, { r: 4, f: '#fdeee9', s: B.red, sw: 1.6 }) + T(178, 91, 'pass…', { size: 11, c: B.red, mono: true });
     alt = 'A hidden eye watches the keys being typed on a laptop and secretly records the password.';
   } else {
-    b = blob(110, 62, 86, 48, '#dcefe2') + ground(90, 112, 40) + phone2(64, 10, 56, 102, (x, y, w, h) => [0, 1, 2, 3, 4, 5].map((k) => R(x + 5 + (k % 3) * (w - 10) / 3, y + 6 + Math.floor(k / 3) * 22, (w - 10) / 3 - 4, 16, { r: 4, f: ['#8fb0dc', '#9fd3ae', '#f2c48a', '#c9b3e6', '#f8c9c2', '#e8b94a'][k], s: 'none', sw: 0 })).join('') + R(x + 5, y + 54, (w - 10) / 3 - 4, 16, { r: 4, f: '#c2453b', s: B.ink, sw: 1.2 }) + T(x + 5 + ((w - 10) / 3 - 4) / 2, y + 66, 'APK', { size: 6.5, c: '#fff' }));
+    b = blob(110, 62, 86, 48, '#dcefe2') + ground(90, 112, 40) + phone2(64, 10, 56, 102, (x, y, w, h) => [0, 1, 2, 3, 4, 5].map((k) => R(x + 5 + (k % 3) * (w - 10) / 3, y + 6 + Math.floor(k / 3) * 22, (w - 10) / 3 - 4, 16, { r: 4, f: ['#8fb0dc', '#9fd3ae', '#f2c48a', '#c9b3e6', '#f8c9c2', '#e8b94a'][k], s: 'none', sw: 0 })).join('') + R(x + 5, y + 54, 2 * (w - 10) / 3 - 4, 16, { r: 4, f: '#c2453b', s: B.ink, sw: 1.2 }) + T(x + 5 + (2 * (w - 10) / 3 - 4) / 2, y + 66, 'APK', { size: 8, c: '#fff' }));
     b += bug(150, 64, 0.75) + P('M138 64 L104 70', 'none', B.red, 1.6, ' stroke-dasharray="3 3"') + T(168, 100, 'fake app', { size: 11.5, c: B.red }) + R(4, 40, 52, 40, { r: 6, f: '#fff', sw: 1.6 }) + T(30, 56, 'Install', { size: 9.5, c: B.ink }) + T(30, 70, 'anyway?', { size: 9.5, c: B.red });
     alt = 'A phone with a red fake app (an APK file from outside the app store) that hides a malware bug.';
   }
@@ -211,7 +213,7 @@ export function scamPic(kind) {
     b += say(90, 14, 124, 'Earn ₱1,500 a day!', 98, 46, '#e3f3e9', B.green, 11) + say(90, 54, 124, 'Top up ₱3,000 first', 98, 86, '#fdeee9', B.red, 11);
     alt = 'A phone pays a few pesos for liking videos. Then the scammer asks for a big top-up before you can withdraw.';
   } else if (kind === 'invest') {
-    b = blob(110, 62, 86, 48, '#dcefe2') + ground(110, 110, 80) + R(18, 16, 92, 80, { r: 6, f: '#fff', sw: 2 }) + P('M28 84 L48 74 L64 78 L84 50 L100 26', 'none', B.green, 3) + ARROW(92, 36, 100, 26, B.green, 3);
+    b = blob(110, 62, 86, 48, '#dcefe2') + ground(110, 110, 80) + R(18, 8, 92, 78, { r: 6, f: '#fff', sw: 2 }) + P('M28 74 L48 64 L64 68 L84 40 L100 18', 'none', B.green, 3) + ARROW(92, 28, 100, 18, B.green, 3);
     b += T(64, 104, 'Double in 7 days!', { size: 11, c: B.green }) + coin(136, 44, 12) + coin(154, 60, 12) + coin(172, 44, 12) + T(156, 96, 'guaranteed?', { size: 12, c: B.red });
     alt = 'A chart that only goes up and coins: an offer to double your money in 7 days, "guaranteed".';
   } else if (kind === 'love') {
@@ -219,8 +221,8 @@ export function scamPic(kind) {
     b += heart(104, 30, 1.1) + heart(122, 18, 0.7) + say(90, 46, 124, 'Need ₱20k for a visa', 98, 78, '#fdeee9', B.red, 11) + hacker2(186, 82, 0.34);
     alt = 'A sweet online "Alex" with hearts asks for money for a visa; the real person behind it is a stranger.';
   } else if (kind === 'mule') {
-    b = blob(110, 62, 86, 48, '#fbe7da') + ground(110, 110, 80) + person2(40, 26, 0.84, { shirt: B.green }) + phone2(66, 50, 36, 62, walletScreen('₱90k', B.red));
-    b += say(102, 10, 114, 'Rent your account?', 112, 44, '#fff', B.ink, 11) + T(160, 66, '₱1,000/week', { size: 11.5, c: B.green }) + hacker2(160, 72, 0.42) + P('M104 84 L140 86', 'none', B.red, 2, ' stroke-dasharray="4 4"') + ARROW(130, 86, 142, 86, B.red, 2);
+    b = blob(110, 62, 86, 48, '#fbe7da') + ground(110, 110, 80) + person2(40, 26, 0.84, { shirt: B.green }) + phone2(62, 48, 46, 66, walletScreen('₱90k', B.red));
+    b += say(102, 10, 114, 'Rent your account?', 112, 44, '#fff', B.ink, 11) + T(160, 66, '₱1,000/week', { size: 11.5, c: B.green }) + hacker2(160, 72, 0.42) + P('M110 84 L140 86', 'none', B.red, 2, ' stroke-dasharray="4 4"') + ARROW(130, 86, 142, 86, B.red, 2);
     alt = 'A stranger offers ₱1,000 a week to "rent" a student\'s e-wallet. Stolen money passes through her account: she becomes a money mule.';
   } else {
     b = blob(110, 62, 86, 48, '#e3ecf8') + ground(110, 110, 80) + phone2(20, 10, 64, 104, (x, y, w, h) => R(x, y, w, h, { r: 6, f: '#2f3d55', s: 'none', sw: 0 }) + C(x + w / 2, y + h * 0.36, 16, '#e9c3a0', 'none', 0) + P(`M${x + w / 2 - 16} ${y + h * 0.33} Q${x + w / 2} ${y + h * 0.1} ${x + w / 2 + 16} ${y + h * 0.33}`, '#5a4636', 'none', 0) + T(x + w / 2, y + h * 0.75, '"Invest now!"', { size: 7.5, c: '#fff' }));
@@ -233,27 +235,7 @@ export function scamPic(kind) {
 
 /* ================= BIG FIGURES ================= */
 /** A botnet: one botherder sends orders to infected devices, which all attack one website. 480 x 300. */
-export function botnetPic() {
-  let b = blob(240, 150, 234, 140, '#f6f8fb') + ground(66, 138, 52) + ground(420, 220, 50);
-  b += laptop2(30, 82, 72, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#1f2a3d', s: 'none', sw: 0 }) + T(x + 5, y + 14, '> attack', { size: 9, a: 'start', c: '#ff8f80', mono: true }) + T(x + 5, y + 26, '> go', { size: 9, a: 'start', c: '#ff8f80', mono: true }));
-  b += hacker2(66, 6, 0.8) + label(66, 172, 'botherder', '#a6461f', '#fbe7da');
-  const bots = [[176, 26, 'pc'], [176, 116, 'phone'], [176, 206, 'cam'], [272, 66, 'tv'], [272, 166, 'router']];
-  bots.forEach(([x, y]) => { b += P(`M108 110 Q${(108 + x) / 2} ${y + 20} ${x - 6} ${y + 20}`, 'none', '#d78a6a', 1.8, ' stroke-dasharray="5 5"'); });
-  bots.forEach(([x, y, k]) => {
-    b += R(x - 6, y - 4, 76, 62, { r: 10, f: '#fff', s: '#c9d2df', sw: 1.6 });
-    if (k === 'pc') b += pc2(x + 6, y + 2, 50, screenLines());
-    if (k === 'phone') b += phone2(x + 18, y, 26, 48, screenLines());
-    if (k === 'cam') b += cctv(x + 6, y + 22, 1);
-    if (k === 'tv') b += tv(x + 6, y + 6, 52);
-    if (k === 'router') b += router2(x + 4, y + 30, 56);
-    b += bug(x + 62, y + 4, 0.55);
-    b += P(`M${x + 70} ${y + 28} Q${(x + 70 + 390) / 2} ${y + 40} 386 ${150 + (y - 116) * 0.25}`, 'none', B.red, 2);
-    b += ARROW(374, 150 + (y - 116) * 0.25 - 1, 386, 150 + (y - 116) * 0.25, B.red, 2);
-  });
-  b += server2(394, 108, 44, 98) + alertBadge(444, 108, 1.2) + label(420, 252, 'target website', B.red, '#fdeee9');
-  b += T(222, 296, 'bots: infected devices that obey the botherder', { size: 13, w: 700, c: B.soft });
-  return svgWrap(480, 304, 'A botherder at a laptop sends orders to five infected devices: a computer, a phone, a CCTV camera, a smart TV, and a router. Each has a malware bug. All five then send traffic to one target website, which shows a red alert.', b);
-}
+// botnetPic: redrawn in chat 57, see the story pictures block at the end of this file.
 
 /** Denial of service, with a canteen analogy. Top: a normal day. Bottom: a flood of fake orders. 480 x 340. */
 export function ddosPic() {
@@ -266,7 +248,7 @@ export function ddosPic() {
       g += person2(100, y + 52, 0.78, { shirt: B.blue }) + phone2(126, y + 86, 24, 42, screenLines());
       g += person2(220, y + 52, 0.78, { shirt: B.orange }) + phone2(246, y + 86, 24, 42, screenLines());
       g += P(`M152 ${y + 104} Q200 ${y + 152} 300 ${y + 132} Q350 ${y + 120} 384 ${y + 100}`, 'none', B.green, 2.4) + ARROW(374, y + 106, 386, y + 99, B.green, 2.4) + ARROW(272, y + 100, 386, y + 82, B.green, 2.4) + check(444, y + 40, 0.9);
-      g += T(270, y + 30, 'orders come in, pages load', { size: 12.5, w: 700, c: '#2f6b45' });
+      g += T(270, y + 30, 'real requests: pages load', { size: 12.5, w: 700, c: '#2f6b45' });
     } else {
       for (let i = 0; i < 12; i++) { const x = 24 + (i % 6) * 36, yy = y + 46 + Math.floor(i / 6) * 38; g += L(x + 26, yy + 12, 386, y + 46 + (i % 6) * 7, 'rgba(194,69,59,0.45)', 1.4); }
       for (let i = 0; i < 12; i++) { const x = 24 + (i % 6) * 36, yy = y + 46 + Math.floor(i / 6) * 38; g += R(x, yy, 26, 24, { r: 5, f: '#fff', s: '#c2453b', sw: 1.4 }) + bug(x + 13, yy + 12, 0.4); }
@@ -277,32 +259,24 @@ export function ddosPic() {
     return g;
   };
   b = row(6, false) + row(176, true);
-  return svgWrap(480, 340, 'Top: on a normal day, two students send orders and the server answers. Bottom: in a denial of service attack, many infected devices flood the server with fake requests, so a real student\'s page keeps loading.', b);
+  return svgWrap(480, 340, 'Top: on a normal day, two students send requests and the server answers. Bottom: in a denial of service attack, many infected devices flood the server with fake requests, so a real student\'s page keeps loading.', b);
 }
 
 /** The 3-2-1 backup rule. 480 x 250. */
-export function backupPic() {
-  let b = blob(240, 120, 232, 112, '#f6f8fb');
-  const col = (x, n, t1, t2) => R(x, 14, 140, 228, { r: 14, f: '#fff', s: '#c9d2df', sw: 1.6 }) + T(x + 70, 62, n, { size: 40, c: B.blue }) + T(x + 70, 210, t1, { size: 14, c: B.ink }) + T(x + 70, 230, t2, { size: 12.5, w: 700, c: B.soft });
-  b += col(10, '3', '3 copies', 'the file + 2 backups') + col(170, '2', '2 kinds of storage', 'e.g., laptop + drive') + col(330, '1', '1 copy away', 'cloud or another place');
-  b += doc(38, 82, 28, 38) + doc(68, 82, 28, 38) + doc(98, 82, 28, 38) + P('M44 132 L120 132', 'none', 'none', 0);
-  b += laptop2(186, 88, 56, screenLines()) + R(262, 92, 30, 42, { r: 5, f: '#3b4659', sw: 2 }) + R(268, 98, 18, 6, { r: 2, f: '#6b7a94', s: 'none', sw: 0 }) + C(277, 124, 2.4, B.green, 'none', 0) + L(242, 120, 262, 118, B.ink, 2);
-  b += P('M372 132 Q362 132 362 120 Q362 106 378 106 Q382 90 400 92 Q414 82 428 96 Q446 96 446 114 Q446 132 430 132 Z', '#e8f0fb', B.ink, 2) + ARROW(400, 154, 400, 136, B.blue, 2.4) + T(400, 170, 'synced', { size: 11, w: 700, c: B.soft });
-  return svgWrap(480, 250, 'The 3-2-1 backup rule: keep 3 copies of important files, on 2 kinds of storage (such as a laptop and an external drive), with 1 copy in another place, such as the cloud.', b);
-}
+// backupPic: redrawn in chat 57, see the end of this file.
 
 /** The phishing family: email, text, call, and QR code. 480 x 330. */
 export function phishFamilyPic() {
   let b = '';
-  const panel = (x, y, name, sub) => R(x, y, 226, 156, { r: 14, f: '#fff', s: '#c9d2df', sw: 1.6 }) + label(x + 113, y + 140, name, B.blueInk, '#e3ecf8', 13) + T(x + 113, y + 24, sub, { size: 12, w: 700, c: B.soft });
+  const panel = (x, y, name, sub) => R(x, y, 226, 156, { r: 14, f: SOFT, s: 'none', sw: 0 }) + label(x + 113, y + 140, name, B.blueInk, '#e3ecf8', 13) + T(x + 113, y + 24, sub, { size: 12, w: 700, c: B.soft });
   b += panel(8, 6, 'phishing', 'by email') + panel(246, 6, 'smishing', 'by text (SMS)') + panel(8, 172, 'vishing', 'by voice call') + panel(246, 172, 'quishing', 'by QR code');
-  b += envelope2(58, 44, 84, 56) + R(112, 70, 70, 22, { r: 4, f: '#fff', s: B.red, sw: 1.6 }) + T(147, 85, 'Verify now', { size: 10.5, c: B.red }) + alertBadge(150, 46);
+  b += envelope2(58, 44, 84, 56) + R(106, 70, 84, 24, { r: 4, f: '#fff', s: B.red, sw: 1.6 }) + T(148, 86.5, 'Verify now', { size: 12, c: B.red }) + alertBadge(150, 46);
   b += phone2(310, 36, 44, 84, (x, y, w, h) => R(x + 3, y + 4, w - 8, h * 0.6, { r: 5, f: '#fff', s: '#c9d2df', sw: 1 }) + L(x + 7, y + 14, x + w - 10, y + 14, '#b7c7e0', 2.4) + L(x + 7, y + 22, x + w - 14, y + 22, '#b7c7e0', 2.4) + T(x + w / 2 - 2, y + 36, 'link', { size: 7.5, c: B.red }));
-  b += say(362, 44, 98, 'Account locked!', 362, 82, '#fdeee9', B.red, 11);
+  b += say(358, 44, 108, 'Account locked!', 366, 82, '#fdeee9', B.red, 12);
   b += phone2(56, 204, 44, 84, (x, y, w, h) => R(x, y, w, h, { r: 6, f: '#2f3d55', s: 'none', sw: 0 }) + T(x + w / 2, y + 16, 'Bank?', { size: 8, c: '#fff' }) + C(x + w / 2, y + h - 12, 6, '#3f9a5f', 'none', 0));
-  b += say(110, 208, 112, 'Read me the OTP', 116, 246, '#fdeee9', B.red, 11) + P('M110 262 q8 -6 0 -12 M118 266 q12 -10 0 -20', 'none', B.blueMid, 2);
+  b += say(108, 206, 120, 'Read me the OTP', 116, 246, '#fdeee9', B.red, 12) + P('M110 262 q8 -6 0 -12 M118 266 q12 -10 0 -20', 'none', B.blueMid, 2);
   b += R(292, 204, 70, 84, { r: 4, f: '#fff4c7', sw: 1.8 }) + T(327, 218, 'PARKING', { size: 8.5, c: B.ink }) + qr(307, 226, 40) + R(302, 221, 50, 50, { r: 2, f: 'rgba(255,255,255,0)', s: B.red, sw: 1.8, dash: '4 3' });
-  b += T(414, 226, 'sticker', { size: 11, c: B.red }) + T(414, 240, 'over the', { size: 11, c: B.red }) + T(414, 254, 'real code', { size: 11, c: B.red }) + ARROW(392, 244, 364, 254, B.red, 2);
+  b += T(416, 224, 'fake sticker', { size: 12, c: B.red }) + T(416, 240, 'over the', { size: 12, c: B.red }) + T(416, 256, 'real code', { size: 12, c: B.red }) + ARROW(392, 244, 364, 254, B.red, 2);
   return svgWrap(480, 334, 'Four kinds of phishing: phishing by email ("Verify now"), smishing by text message ("Account locked!"), vishing by phone call ("Read me the OTP"), and quishing by a fake QR code sticker placed over the real one on a parking sign.', b);
 }
 
@@ -322,17 +296,7 @@ export function oversharePic() {
 }
 
 /** If you were scammed: four steps, in order. 480 x 236. */
-export function reportPic() {
-  let b = '';
-  const step = (x, n, t1, t2) => R(x, 8, 110, 220, { r: 14, f: '#fff', s: '#c9d2df', sw: 1.6 }) + C(x + 20, 30, 13, B.orange, B.ink, 2) + T(x + 20, 35, String(n), { size: 14, c: '#fff' }) + T(x + 55, 192, t1, { size: 12.5, c: B.ink }) + T(x + 55, 210, t2, { size: 12.5, c: B.ink });
-  b += step(6, 1, 'Call your bank', 'or e-wallet') + step(124, 2, 'Report to', 'hotline 1326') + step(242, 3, 'Change your', 'passwords') + step(360, 4, 'Keep proof:', 'screenshots');
-  b += phone2(38, 56, 46, 88, walletScreen('FROZEN', B.red)) + padlock2(62, 128, false, B.amber, 0.6);
-  b += phone2(156, 56, 46, 88, (x, y, w, h) => R(x, y, w, h, { r: 6, f: '#2f3d55', s: 'none', sw: 0 }) + T(x + w / 2, y + 22, '1326', { size: 12, c: '#fff', mono: true }) + T(x + w / 2, y + 36, 'calling…', { size: 7, w: 600, c: '#c9d3e3' }) + C(x + w / 2, y + h - 12, 7, '#d4422f', 'none', 0));
-  b += R(262, 64, 70, 30, { r: 15, f: '#f1f3f6', s: '#b7bfcc', sw: 1.4 }) + [0, 1, 2, 3, 4, 5].map((k) => C(276 + k * 9, 79, 2.8, B.ink, 'none', 0)).join('') + shield2(297, 100, 0.55, B.greenWash) + check(312, 112, 0.7);
-  b += [0, 1, 2].map((k) => R(382 + k * 10, 60 + k * 10, 50, 80, { r: 5, f: '#fff', sw: 1.6 }) + R(386 + k * 10, 66 + k * 10, 42, 20, { r: 3, f: B.blueWash, s: 'none', sw: 0 }) + L(388 + k * 10, 96 + k * 10, 424 + k * 10, 96 + k * 10, B.line, 2.4) + L(388 + k * 10, 104 + k * 10, 416 + k * 10, 104 + k * 10, B.line, 2.4)).join('');
-  [116, 234, 352].forEach((x) => { b += ARROW(x, 118, x + 8, 118, B.orange, 2.4); });
-  return svgWrap(480, 236, 'Four steps after a scam: 1, call your bank or e-wallet to freeze the account; 2, report to hotline 1326; 3, change your passwords; 4, keep proof such as screenshots.', b);
-}
+// reportPic: redrawn in chat 57, see the end of this file.
 
 /* ================= "PICTURE THIS" SCENES (chat 55, round 4) ================= */
 // a girl: long hair behind the head, then the kit's person
@@ -728,4 +692,544 @@ export function orgGroupPic(kind) {
     alt = 'Your company and a supplier connected by a line with a shield and a check mark: check the partner\'s security first.';
   }
   return svgWrap(220, 120, alt, b);
+}
+
+/* =====================================================================
+   Lesson 2 story pictures (chat 57, her feedback: "Picture this" drawings bigger and in the Lesson 1 style;
+   bot/botnet pictures better). Numbered soft panels stacked top to bottom (they stay readable on phones),
+   one idea per panel, every part labeled, labels apart from the drawing. 480 wide.
+   ===================================================================== */
+const SOFT = '#f1f4f8';
+const stHead = (x, y, n, txt, c = HOT) => C(x + 12, y + 12, 12, c, B.ink, 1.8) + T(x + 12, y + 17, String(n), { size: 13, c: '#fff' }) + T(x + 32, y + 17.5, txt, { size: 15, w: 800, a: 'start', c: B.ink });
+const stPanel = (y, h, f = SOFT) => R(8, y, 464, h, { r: 14, f, s: 'none', sw: 0 });
+const desk = (x, y, w) => R(x, y, w, 8, { r: 3, f: '#c8a27a', sw: 1.6 }) + L(x + 10, y + 8, x + 10, y + 26, B.ink, 2) + L(x + w - 10, y + 8, x + w - 10, y + 26, B.ink, 2);
+const tower = (x, y, w = 26, h = 50) => R(x, y, w, h, { r: 4, f: '#3b4659', sw: 2 }) + R(x + 5, y + 7, w - 10, 4, { r: 2, f: '#6b7a94', s: 'none', sw: 0 }) + R(x + 5, y + 14, w - 10, 4, { r: 2, f: '#6b7a94', s: 'none', sw: 0 }) + C(x + w / 2, y + h - 10, 2.6, B.green, 'none', 0);
+const usb = (x, y, s = 1) => R(x, y, 9 * s, 18 * s, { r: 2, f: B.blue, sw: 1.4 }) + R(x + 1.5 * s, y - 6 * s, 6 * s, 7 * s, { r: 1, f: '#c8ced8', sw: 1.2 });
+const zoomLines = (x1, y1, x2, y2, x3, y3, x4, y4) => L(x1, y1, x3, y3, '#b7c3d6', 1.4) + L(x2, y2, x4, y4, '#b7c3d6', 1.4);
+const winTitle = (x, y, w, title, f = '#e4e9f1') => R(x, y, w, 24, { r: 8, f, sw: 2 }) + `<rect x="${x + 1}" y="${y + 14}" width="${w - 2}" height="10" fill="${f}"/>` + [0, 1, 2].map((k) => C(x + 12 + k * 10, y + 12, 3, ['#e06c5a', '#eeb04a', '#5fae6b'][k], 'none', 0)).join('') + T(x + w / 2 + 14, y + 16.5, title, { size: 12, w: 700, c: B.soft });
+const lockMini = (x, y, c = B.amber) => P(`M${x - 4} ${y - 2} L${x - 4} ${y - 6} Q${x - 4} ${y - 11} ${x} ${y - 11} Q${x + 4} ${y - 11} ${x + 4} ${y - 6} L${x + 4} ${y - 2}`, 'none', B.ink, 1.6) + R(x - 6.5, y - 3, 13, 10, { r: 2, f: c, sw: 1.4 });
+const ransomScreen = (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#7a1f1a', s: 'none', sw: 0 }) + T(x + w / 2, y + h * 0.44, 'YOUR FILES ARE LOCKED', { size: Math.max(6, w * 0.066), c: '#fff', mono: true }) + T(x + w / 2, y + h * 0.66, 'Pay ₱50,000', { size: Math.max(6, w * 0.075), c: '#ffd2c7', mono: true }) + T(x + w / 2, y + h * 0.86, 'to unlock them', { size: Math.max(5.5, w * 0.06), w: 600, c: '#ffd2c7', mono: true });
+const result = (x, y, txt, c = '#9c2f28') => T(x, y, txt, { size: 13.5, w: 800, a: 'start', c });
+// A realistic email reading pane. o: { subject, name, email, badge, avatar, date, body:[lines], file, badgeColor, size }
+const mailWin = (x, y, w, o) => {
+  const pad = 18, L0 = x + pad, R0 = x + w - pad, lines = o.body || [];
+  // lay the rows out, then size the window to the content with an even bottom margin
+  const subY = y + 50, senY = y + 74, divY = y + 96, bodY = y + 118;
+  const tileY = bodY + (lines.length - 1) * 16 + 14, tileH = 46, tw = w - 2 * pad;
+  const h = (tileY + tileH + 16) - y;
+  let g = winBox(x, y, w, h, 'Mail');
+  g += T(L0, subY, o.subject, { size: 15, a: 'start', c: B.ink });
+  g += `<path d="M0 0 l3 6 6.6 1 -4.8 4.6 1.1 6.6 -5.9 -3.1 -5.9 3.1 1.1 -6.6 -4.8 -4.6 6.6 -1 Z" transform="translate(${R0 - 16} ${subY - 13})" fill="none" stroke="#b7bfcc" stroke-width="1.4" stroke-linejoin="round"/>`;
+  g += C(L0 + 11, senY, 11, o.avatar || '#6b7a94', 'none', 0) + T(L0 + 11, senY + 4, o.badge || 'A', { size: 11, c: '#fff' });
+  g += T(L0 + 28, senY - 4, o.name, { size: 11.5, a: 'start', c: B.ink }) + T(L0 + 28, senY + 10, o.email, { size: 9.5, w: 600, a: 'start', c: B.greyInk });
+  g += T(R0, senY - 4, o.date, { size: 9.5, w: 600, a: 'end', c: B.greyInk }) + T(R0, senY + 10, 'to: me', { size: 9.5, w: 600, a: 'end', c: B.greyInk });
+  g += L(L0, divY, R0, divY, '#e4e8ee', 1.4);
+  lines.forEach((ln, k) => { g += T(L0, bodY + k * 16, ln, { size: 11, w: 600, a: 'start', c: B.ink }); });
+  g += R(L0, tileY, tw, tileH, { r: 8, f: '#f7f9fc', s: '#d3dbe6', sw: 1.4 });
+  g += `<g transform="translate(${L0 + 14} ${tileY + 8})">` + P('M0 0 L18 0 L26 8 L26 31 L0 31 Z', '#fff', '#9aa6b8', 1.6) + P('M18 0 L18 8 L26 8', '#e4e9f1', '#9aa6b8', 1.4) + R(-2, 19, 32, 12, { r: 2, f: o.badgeColor || B.red, s: 'none', sw: 0 }) + T(14, 28.5, o.fileType || 'VBS', { size: 7.5, c: '#fff' }) + '</g>';
+  g += T(L0 + 54, tileY + 19, o.file, { size: 10, a: 'start', c: B.ink, mono: true }) + T(L0 + 54, tileY + 34, o.size || '10 KB', { size: 9.5, w: 600, a: 'start', c: B.greyInk });
+  g += `<g transform="translate(${R0 - 14} ${tileY + 15})">` + L(0, -4, 0, 8, '#6b7a94', 1.8) + P('M-5 3 L0 9 L5 3', 'none', '#6b7a94', 1.8) + L(-6, 13, 6, 13, '#6b7a94', 1.8) + '</g>';
+  return g;
+};
+
+/** "Picture this" stories, 480 wide, 3 numbered panels. kind: shop (Part 1), mia (Part 2), bea (Part 3). */
+export function storyPic(kind) {
+  let b = '', alt = '', H = 500;
+  if (kind === 'shop') {
+    // chat 57 round 2: real-looking file window, more room around the panels and the locked monitor
+    H = 624;
+    // 1. the USB file
+    b += stPanel(8, 222) + stHead(22, 20, 1, 'At the computer shop, she opens a file from her USB');
+    b += girl(62, 84, 0.9, { shirt: B.orange }) + desk(24, 158, 210);
+    b += pc2(100, 88, 92, (x, y, w, h) => R(x + 4, y + 6, w - 8, h - 12, { r: 3, f: '#fff', s: '#c9d2df', sw: 1 }) + R(x + 9, y + 12, 12, 12, { r: 2, f: '#8fb0dc', s: 'none', sw: 0 }) + R(x + 25, y + 15, w - 38, 5, { r: 2, f: '#f6c9a8', s: 'none', sw: 0 }) + R(x + 9, y + 30, 12, 12, { r: 2, f: '#d3dbe6', s: 'none', sw: 0 }) + R(x + 25, y + 33, w - 46, 5, { r: 2, f: '#d3dbe6', s: 'none', sw: 0 }));
+    b += tower(198, 108) + usb(186, 132) + T(190, 178, 'USB drive', { size: 11.5, w: 700, c: B.soft });
+    b += zoomLines(188, 94, 188, 134, 246, 52, 246, 172);
+    // file explorer window: title bar, side panel, list of files
+    b += R(246, 48, 222, 124, { r: 8, f: '#fff', sw: 2 }) + winTitle(246, 48, 222, 'USB drive (E:)');
+    b += `<path d="M247 72 L316 72 L316 171 L254 171 Q247 171 247 164 Z" fill="#f4f6f9"/>` + L(316, 72, 316, 171, '#d3dbe6', 1.4);
+    b += T(256, 92, 'This PC', { size: 10, w: 700, a: 'start', c: B.greyInk }) + R(252, 101, 58, 18, { r: 5, f: '#e3ecf8', s: 'none', sw: 0 }) + T(258, 114, 'USB (E:)', { size: 10, w: 800, a: 'start', c: B.blueInk }) + T(256, 136, 'Downloads', { size: 10, w: 700, a: 'start', c: B.greyInk });
+    b += T(326, 90, 'Name', { size: 9.5, w: 700, a: 'start', c: B.greyInk }) + L(322, 96, 462, 96, '#e1e6ee', 1.2);
+    b += P('M326 106 L333 106 L335 109 L344 109 L344 118 L326 118 Z', '#f2c14e', '#b8891d', 1.2) + T(350, 116, 'Photos', { size: 10.5, w: 700, a: 'start', c: B.ink });
+    b += R(321, 123, 144, 20, { r: 4, f: '#d6e4f7', s: B.blue, sw: 1.2 }) + R(326, 127, 13, 12, { r: 2, f: '#3b4659', s: 'none', sw: 0 }) + R(328, 129, 9, 3, { r: 1, f: '#8fb0dc', s: 'none', sw: 0 }) + T(343, 137, 'Project_FINAL.exe', { size: 10, a: 'start', c: B.ink, mono: true });
+    b += P('M326 148 L334 148 L338 152 L338 162 L326 162 Z', '#fff', B.greyInk, 1.2) + T(350, 159, 'notes.txt', { size: 10.5, w: 700, a: 'start', c: B.ink });
+    b += P('M447 131 L447 147 L451 143 L455 151 L458 149 L454 141 L460 141 Z', '#fff', B.ink, 1.4);
+    b += T(254, 196, 'She double-clicks it.', { size: 12, w: 700, a: 'start', c: B.soft }) + T(254, 213, 'Nothing seems to happen.', { size: 12, w: 700, a: 'start', c: B.soft });
+    // 2. It spreads (panel starts at 248)
+    b += stPanel(248, 172) + stHead(22, 260, 2, 'During the day, it spreads to the other computers');
+    const xs = [40, 150, 260, 370];
+    xs.forEach((x) => {
+      b += pc2(x, 298, 70, screenLines()) + P(`M${x + 35} 352 Q${x + 35} 374 ${x + 35 < 240 ? 186 : 294} 374`, 'none', B.ink, 1.8) + bug(x + 66, 298, 0.6);
+    });
+    b += R(186, 362, 108, 24, { r: 6, f: '#e4e8ee', sw: 1.8 }) + T(240, 378.5, 'shop network', { size: 11, c: B.soft });
+    b += ARROW(118, 316, 146, 316, B.red, 2.2) + ARROW(228, 316, 256, 316, B.red, 2.2) + ARROW(338, 316, 366, 316, B.red, 2.2);
+    b += T(240, 408, 'It starts on her computer, then copies itself over the shop network.', { size: 12.5, w: 800, c: '#9c2f28' });
+    // 3. Evening: locked (panel starts at 438)
+    b += stPanel(438, 178) + stHead(22, 450, 3, 'By evening, the files are locked');
+    b += pc2(44, 490, 136, ransomScreen) + lockMini(112, 509, B.amber);
+    b += R(206, 488, 170, 96, { r: 8, f: '#fff', sw: 2 }) + winTitle(206, 488, 170, 'Files');
+    ['thesis.docx.locked', 'photo1.jpg.locked', 'sales.xlsx.locked'].forEach((n, k) => { b += lockMini(222, 532 + k * 18, '#f2c48a') + T(234, 535 + k * 18, n, { size: 10.5, a: 'start', c: '#9c2f28', mono: true }); });
+    b += person2(424, 494, 0.86, { shirt: '#7a8aa3', sad: true }) + T(424, 590, 'shop owner', { size: 11.5, w: 700, c: B.soft });
+    alt = 'Three panels. 1: At a computer shop, a student opens Project_FINAL.exe from her USB drive; nothing seems to happen. 2: During the day, malware spreads over the shop network to the other computers. 3: By evening, a red screen says "Your files are locked. Pay ₱50,000 to unlock them," the files have strange names ending in .locked, and the shop owner looks worried.';
+  } else if (kind === 'mia') {
+    H = 516;
+    // 1. the text
+    b += stPanel(8, 176) + stHead(22, 20, 1, 'A text message arrives');
+    b += girl(66, 56, 0.95, { shirt: B.blue, sad: true }) + phone2(82, 100, 30, 52, (x, y, w, h) => R(x + 2, y + 2, w - 4, 14, { r: 3, f: '#fdeee9', s: 'none', sw: 0 }));
+    b += zoomLines(108, 104, 108, 140, 170, 50, 170, 170);
+    b += R(170, 48, 288, 124, { r: 12, f: '#fff', sw: 2 }) + C(194, 72, 12, B.blue, 'none', 0) + T(194, 76.5, 'P', { size: 12, c: '#fff' }) + T(214, 70, 'PeraPay', { size: 13, a: 'start', c: B.ink }) + T(214, 84, 'Text message · now', { size: 10.5, w: 600, a: 'start', c: B.greyInk });
+    b += R(182, 94, 264, 70, { r: 10, f: '#eef1f5', s: 'none', sw: 0 }) + T(192, 114, 'ALERT: Your account will be LOCKED', { size: 12, w: 700, a: 'start', c: B.ink }) + T(192, 132, 'in 2 hours. Verify now:', { size: 12, w: 700, a: 'start', c: B.ink }) + T(192, 152, 'perapay-verify.com', { size: 12, w: 700, a: 'start', c: B.blue, mono: true }).replace('<text', '<text text-decoration="underline"');
+    // 2. the fake page
+    b += stPanel(192, 166) + stHead(22, 204, 2, 'She taps the link and types her details');
+    b += phone2(36, 234, 110, 116, (x, y, w, h) => R(x + 4, y, w - 8, 14, { r: 7, f: '#fff', s: '#b7bfcc', sw: 1 }) + T(x + w / 2, y + 10, 'perapay-verify.com', { size: 7, c: B.red, mono: true }) + R(x, y + 18, w, 16, { r: 0, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 30, 'PeraPay', { size: 10, c: '#fff' }) + [['0917 555 1234', 40], ['PIN  ••••', 56], ['Code  482916', 72]].map(([t, yy]) => R(x + 6, y + yy, w - 12, 13, { r: 3, f: '#fff', s: '#b7bfcc', sw: 1 }) + T(x + 10, y + yy + 9.5, t, { size: 7, w: 700, a: 'start', c: B.ink, mono: true })).join(''));
+    b += label(214, 326, 'fake page', B.red, '#fdeee9', 12);
+    b += P('M152 292 Q230 278 296 292', 'none', B.red, 2) + ARROW(286, 289, 298, 293, B.red, 2.2) + T(224, 274, 'copied to the scammer', { size: 11.5, w: 700, c: '#9c2f28' });
+    b += laptop2(306, 244, 104, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#1f2a3d', s: 'none', sw: 0 }) + ['0917 555 1234', 'PIN: 4417', 'Code: 482916'].map((t, k) => T(x + 6, y + 14 + k * 14, t, { size: 8.5, a: 'start', c: '#ff9f8f', mono: true })).join('')) + hacker2(440, 254, 0.62);
+    b += T(358, 348, 'scammer', { size: 11.5, w: 700, c: B.soft });
+    // 3. ten minutes later
+    b += stPanel(374, 134) + stHead(22, 386, 3, 'Ten minutes later, her money is gone');
+    b += R(40, 418, 196, 80, { r: 12, f: '#fff', sw: 2 }) + R(40, 418, 196, 24, { r: 12, f: B.blue, sw: 2 }) + `<rect x="41" y="430" width="194" height="12" fill="${B.blue}"/>` + T(138, 435, 'PeraPay balance', { size: 12, c: '#fff' });
+    b += T(98, 472, '₱8,450', { size: 17, c: B.soft, mono: true }) + L(64, 467, 132, 467, B.red, 2.4) + ARROW(140, 466, 160, 466, B.ink, 2) + T(198, 473, '₱0.00', { size: 19, c: B.red, mono: true });
+    b += T(138, 492, 'Sent ₱8,450 to 0998 *** 1234', { size: 10, w: 700, c: B.soft });
+    b += girl(412, 414, 0.95, { shirt: B.blue, sad: true }) + bubble(262, 420, 118, 46, 372, 478, '#fff') + T(321, 439, '"I never', { size: 12.5, w: 700, c: B.ink }) + T(321, 457, 'sent that!"', { size: 12.5, w: 700, c: B.ink });
+    alt = 'Three panels. 1: Mia gets a text that looks like it is from PeraPay: "ALERT: Your account will be LOCKED in 2 hours. Verify now: perapay-verify.com". 2: She taps the link; a fake PeraPay page asks for her number, PIN, and the code just sent to her, and everything she types is copied to a scammer\'s laptop. 3: Ten minutes later, her balance drops from ₱8,450 to ₱0.00, sent to an unknown number.';
+  } else {
+    // bea
+    const post = (x, y, w) => {
+      let g = R(x, y, w, 120, { r: 10, f: '#fff', sw: 2 }) + C(x + 16, y + 16, 9, '#f2c48a', B.ink, 1.4) + T(x + 30, y + 15, 'Bea Reyes', { size: 10.5, a: 'start', c: B.ink }) + T(x + 30, y + 27, '📍 Purok 3, Dahican', { size: 8.5, w: 700, a: 'start', c: B.soft });
+      g += R(x + 8, y + 34, w - 16, 66, { r: 4, f: '#cfe3f3', s: 'none', sw: 0 }) + R(x + 8, y + 86, w - 16, 14, { r: 0, f: '#d8e6c8', s: 'none', sw: 0 });
+      g += R(x + w - 66, y + 56, 50, 40, { r: 1, f: '#f3e6d0', sw: 1.4 }) + P(`M${x + w - 72} ${y + 58} L${x + w - 41} ${y + 40} L${x + w - 10} ${y + 58} Z`, '#b9583f', B.ink, 1.4) + R(x + w - 34, y + 74, 10, 22, { r: 1, f: '#8a5a3a', sw: 1.2 }) + R(x + w - 60, y + 60, 16, 10, { r: 1, f: '#fff', sw: 1 }) + T(x + w - 52, y + 68, '27', { size: 7.5, c: B.ink });
+      g += girl(x + 40, y + 46, 0.5, { shirt: B.green }) + T(x + 10, y + 113, 'First day of class! 😊', { size: 9, w: 700, a: 'start', c: B.ink });
+      return g;
+    };
+    // 1. she posts
+    b += stPanel(8, 168) + stHead(22, 20, 1, 'Bea posts a first-day-of-class photo');
+    b += girl(66, 64, 0.95, { shirt: B.green }) + phone2(82, 108, 30, 52, chatLines(['#dfe9f6', '#dfe9f6']));
+    b += zoomLines(108, 112, 108, 150, 180, 46, 180, 168) + post(180, 46, 200);
+    b += T(424, 96, '♥ 32', { size: 12, c: '#c2416a' }) + T(424, 116, 'likes', { size: 11, w: 700, c: B.soft });
+    // 2. the stranger
+    b += stPanel(184, 160) + stHead(22, 196, 2, 'A stranger\'s account messages her every night');
+    b += phone2(40, 226, 150, 112, (x, y, w, h) => ['user_x82 liked 9 of your photos', 'user_x82: hi bea', 'user_x82: why don\'t you reply?', 'user_x82: I know you saw this'].map((t, k) => R(x + 4, y + 2 + k * 23, w - 8, 19, { r: 5, f: k ? '#fdeee9' : '#eef1f5', s: 'none', sw: 0 }) + T(x + 9, y + 15 + k * 23, t, { size: 8, w: 700, a: 'start', c: k ? '#9c2f28' : B.soft })).join(''));
+    b += ['11:02 PM', '11:40 PM', '12:15 AM', '1:03 AM'].map((t, k) => T(206, 254 + k * 23, t, { size: 11, w: 700, a: 'start', c: B.greyInk })).join('');
+    b += moonWin(290, 230) + hacker2(400, 236, 0.9) + T(400, 336, 'unknown account', { size: 11.5, w: 700, c: B.soft });
+    // 3. the comment
+    b += stPanel(360, 140) + stHead(22, 372, 3, 'Then he comments on her photo');
+    b += R(40, 402, 300, 52, { r: 12, f: '#fff', s: B.red, sw: 1.8 }) + C(64, 428, 13, '#4a5266', B.ink, 1.6) + `<ellipse cx="64" cy="431" rx="6" ry="7" fill="${B.skin}"/>` + R(58, 427, 12, 3.4, { r: 1.5, f: '#111827', s: 'none', sw: 0 }) + T(86, 422, 'user_x82 commented:', { size: 11, w: 700, a: 'start', c: B.soft }) + T(86, 442, '"Nice house. Purok 3, right?"', { size: 13.5, a: 'start', c: B.red });
+    b += result(40, 482, 'She never told him where she lives.');
+    b += girl(390, 392, 0.95, { shirt: B.green, sad: true }) + phone2(406, 436, 30, 52, chatLines(['#f8c9c2', '#f8c9c2']));
+    alt = 'Three panels. 1: Bea posts a first-day-of-class photo with a location tag, Purok 3, Dahican, and her house number 27 behind her. 2: An unknown account, user_x82, likes 9 of her photos and sends her messages late every night. 3: He comments "Nice house. Purok 3, right?" She never told him where she lives.';
+  }
+  return svgWrap(480, H, alt, b);
+}
+
+/** Bots and botnets (redrawn chat 57). 1: one command reaches many bots. 2: the owner at home notices nothing. 480 x 520. */
+export function botnetPic() {
+  // chat 57 round 5 (her request): realistic control: the botherder uses a control panel; the order goes through a
+  // command and control (C2) server, which the bots keep checking for new orders.
+  let b = stPanel(8, 306) + stHead(22, 20, 1, 'The botherder sends one order to all the bots');
+  // botherder at a laptop with a control panel (made-up name)
+  b += hacker2(64, 50, 0.8) + laptop2(14, 126, 104, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#1f2a3d', s: 'none', sw: 0 }) + R(x, y, w, 11, { r: 0, f: '#33415c', s: 'none', sw: 0 }) + T(x + 4, y + 8.5, 'Control panel', { size: 7, a: 'start', c: '#c9d3e3' })
+    + T(x + 4, y + 23, 'Bots online:', { size: 7.5, w: 700, a: 'start', c: '#c9d3e3' }) + T(x + w - 4, y + 23, '5,214', { size: 8.5, a: 'end', c: '#7fd39b', mono: true })
+    + R(x + 4, y + 30, w - 8, 12, { r: 3, f: '#e27b3e', s: 'none', sw: 0 }) + T(x + w / 2, y + 39, 'Send spam', { size: 7.5, c: '#fff' }) + R(x + 4, y + 45, w - 8, 10, { r: 3, f: '#46536e', s: 'none', sw: 0 }) + T(x + w / 2, y + 52.5, 'Attack a website', { size: 6.5, w: 700, c: '#c9d3e3' }));
+  b += label(66, 230, 'botherder', '#a6461f', '#fbe7da', 12.5);
+  // C2 server in the middle
+  b += ARROW(126, 160, 150, 160, B.red, 2.4) + server2(154, 128, 40, 70) + T(174, 218, 'C2 server', { size: 12, c: B.ink }) + T(174, 234, 'command and', { size: 10, w: 700, c: B.soft }) + T(174, 247, 'control server', { size: 10, w: 700, c: B.soft });
+  // bot list
+  const rows = [
+    ['laptop', "Ana's laptop", 'at home'],
+    ['phone', "Ben's old phone", 'in his pocket'],
+    ['cam', 'a CCTV camera', 'weak password'],
+    ['router', 'a Wi-Fi router', 'never updated'],
+    ['tv', 'a smart TV', 'in a living room'],
+  ];
+  const y0 = 54, rh = 44;
+  rows.forEach(([k, name, sub], i) => {
+    const y = y0 + i * rh, cy = y + 19;
+    b += P(`M196 163 C218 163 214 ${cy} 232 ${cy}`, 'none', '#d78a6a', 1.8) + C(232, cy, 2.6, '#d78a6a', 'none', 0);
+    b += R(236, y, 184, 38, { r: 10, f: '#fff', s: '#c9d2df', sw: 1.4 });
+    if (k === 'laptop') b += laptop2(246, y + 8, 30, screenLines());
+    if (k === 'phone') b += phone2(254, y + 4, 17, 30);
+    if (k === 'cam') b += cctv(248, y + 18, 0.62);
+    if (k === 'router') b += `<g transform="translate(244 ${y + 9}) scale(0.6)">` + router2(0, 24, 60) + '</g>';
+    if (k === 'tv') b += tv(246, y + 6, 32);
+    b += T(294, y + 17, name, { size: 12.5, w: 800, a: 'start', c: B.ink }) + T(294, y + 31, sub, { size: 10.5, w: 700, a: 'start', c: B.greyInk });
+    b += bug(278, y + 6, 0.48);
+  });
+  // brace: the botnet
+  const top = y0, bot = y0 + 4 * rh + 38, mid = (top + bot) / 2;
+  b += P(`M426 ${top} Q436 ${top} 436 ${top + 12} L436 ${mid - 10} Q436 ${mid} 446 ${mid} Q436 ${mid} 436 ${mid + 10} L436 ${bot - 12} Q436 ${bot} 426 ${bot}`, 'none', B.ink, 2);
+  b += `<text x="458" y="${mid}" transform="rotate(-90 458 ${mid})" font-family="Nunito, system-ui, sans-serif" font-size="14" font-weight="800" fill="#9c2f28" text-anchor="middle">botnet</text>`;
+  b += T(240, 286, 'Each device is a bot (zombie computer).', { size: 11.5, w: 700, c: B.soft }) + T(240, 303, 'The bots keep asking the C2 server for new orders.', { size: 11.5, w: 700, c: B.soft });
+  b += '<g transform="translate(0 18)">';
+  // 2. at home
+  b += stPanel(314, 214) + stHead(22, 326, 2, 'At home, the owner notices nothing');
+  b += girl(70, 368, 0.95, { shirt: '#f4f6f9' }) + desk(26, 462, 190);
+  b += laptop2(108, 400, 92, (x, y, w, h) => R(x, y, w, 9, { r: 0, f: '#c9d8ee', s: 'none', sw: 0 }) + T(x + 4, y + 7.5, 'IT 110 Module 3', { size: 6, a: 'start', c: B.blueInk }) + R(x + 4, y + 14, w * 0.5, 4, { r: 2, f: '#b7c7e0', s: 'none', sw: 0 }) + R(x + 4, y + 22, w * 0.75, 4, { r: 2, f: '#d3dbe6', s: 'none', sw: 0 }) + R(x + 4, y + 30, w * 0.65, 4, { r: 2, f: '#d3dbe6', s: 'none', sw: 0 }) + R(x + 4, y + 38, w * 0.7, 4, { r: 2, f: '#d3dbe6', s: 'none', sw: 0 }));
+  b += bubble(104, 354, 150, 28, 114, 386, '#fff') + T(179, 373, '"It\'s a bit slow today."', { size: 11.5, w: 700, c: B.ink });
+  // hidden window
+  b += zoomLines(200, 408, 200, 456, 252, 366, 252, 486);
+  b += R(252, 360, 206, 128, { r: 10, f: '#fff', s: B.red, sw: 1.8, dash: '6 4' }) + T(355, 380, 'Hidden in the background', { size: 12, c: '#9c2f28' });
+  b += R(266, 390, 178, 58, { r: 6, f: '#fdeee9', s: 'none', sw: 0 }) + T(276, 408, 'Sending messages…', { size: 11, w: 700, a: 'start', c: B.ink }) + R(276, 416, 158, 8, { r: 4, f: '#fff', s: '#e3b3a3', sw: 1 }) + R(276, 416, 112, 8, { r: 4, f: B.red, s: 'none', sw: 0 }) + T(276, 440, '4,812 spam messages sent', { size: 10.5, w: 700, a: 'start', c: '#9c2f28' });
+  [[290, 468], [330, 462], [370, 468], [410, 462]].forEach(([x, y]) => { b += R(x - 11, y - 7, 22, 15, { r: 2, f: '#fff', sw: 1.4 }) + P(`M${x - 11} ${y - 7} L${x} ${y + 1} L${x + 11} ${y - 7}`, 'none', B.ink, 1.2); });
+  b += T(240, 516, 'Her laptop is now part of a botnet, and she does not know it.', { size: 12.5, w: 800, c: '#9c2f28' });
+  b += '</g>';
+  return svgWrap(480, 554, 'Two panels. 1: A botherder clicks Send spam on a control panel that shows 5,214 bots online. The order goes to a command and control (C2) server, and from there to five infected devices, each with a malware bug: Ana\'s laptop at home, Ben\'s old phone, a CCTV camera with a weak password, a Wi-Fi router that was never updated, and a smart TV. Together they form a botnet. 2: At home, Ana studies on her laptop and says "It\'s a bit slow today." Hidden in the background, her laptop has sent 4,812 spam messages.', b);
+}
+
+/** The 3-2-1 backup rule (redrawn chat 57: harmonious grid, aligned baselines, realistic icons). 480 x 290. */
+export function backupPic() {
+  let b = '';
+  const cw = 148, gap = 10, x0 = 8, cxs = [x0, x0 + cw + gap, x0 + 2 * (cw + gap)];
+  // one rounded card per column, all the same size
+  cxs.forEach((x) => { b += R(x, 8, cw, 240, { r: 16, f: '#f3f6fa', s: 'none', sw: 0 }); });
+  // number badge, title and captions sit on the SAME baselines across all three columns
+  const head = (x, n, title) => { const cx = x + cw / 2; return C(cx, 44, 18, B.blue, 'none', 0) + C(cx, 44, 18, 'none', '#1f4f8f', 1.5) + T(cx, 52, n, { size: 21, c: '#fff' }) + T(cx, 88, title, { size: 15, c: B.ink }); };
+  const cap = (x, y, t, c = B.soft, sz = 11.5) => T(x + cw / 2, y, t, { size: sz, w: 700, c });
+  b += head(cxs[0], '3', '3 copies') + head(cxs[1], '2', '2 kinds of storage') + head(cxs[2], '1', '1 copy kept away');
+  // icon band: all three icons share the same vertical centre and a soft ground shadow
+  const dcx = cxs[0] + cw / 2;
+  b += ground(dcx, 176, 52);
+  [[-34, '#dde7f5'], [-17, '#e9f0fa'], [0, '#fff']].forEach(([dx, f]) => { b += doc(dcx - 18 + dx + 34, 112, 40, 54, f); });
+  b += label(dcx, 190, 'thesis.docx', B.blueInk, '#fff', 11) + cap(cxs[0], 220, 'the original and 2 backups');
+  const lcx = cxs[1] + cw / 2;
+  b += ground(lcx, 176, 58);
+  b += laptop2(lcx - 54, 114, 64, screenLines());
+  b += L(lcx + 14, 152, lcx + 30, 152, B.ink, 2) + R(lcx + 30, 120, 32, 50, { r: 7, f: '#3b4659', s: B.ink, sw: 2 }) + R(lcx + 36, 127, 20, 7, { r: 3, f: '#6b7a94', s: 'none', sw: 0 }) + C(lcx + 46, 160, 2.6, B.green, 'none', 0);
+  b += cap(cxs[1], 192, 'laptop + external drive') + cap(cxs[1], 220, 'unplug the drive after', B.green);
+  const ccx = cxs[2] + cw / 2;
+  b += ground(ccx, 178, 50);
+  b += P(`M${ccx - 44} ${166} Q${ccx - 60} ${166} ${ccx - 60} ${146} Q${ccx - 60} ${122} ${ccx - 32} ${124} Q${ccx - 26} ${100} ${ccx + 2} ${102} Q${ccx + 24} ${88} ${ccx + 42} ${108} Q${ccx + 60} ${108} ${ccx + 60} ${134} Q${ccx + 60} ${166} ${ccx + 38} ${166} Z`, '#e8f0fb', B.ink, 2.2) + check(ccx, 142, 1);
+  b += cap(cxs[2], 192, 'cloud storage, or') + cap(cxs[2], 220, 'a drive at another place');
+  return svgWrap(480, 256, 'The 3-2-1 backup rule, shown as three cards. Card 3: keep 3 copies of an important file such as thesis.docx, the original and 2 backups. Card 2: keep them on 2 kinds of storage, such as a laptop and an external drive you unplug after each backup. Card 1: keep 1 copy away, such as cloud storage or a drive kept at another place.', b);
+}
+
+/** If you were scammed: four steps, in order (redrawn chat 57: 2 x 2, bigger pictures and text). 480 x 432. */
+export function reportPic() {
+  let b = '';
+  const box = (x, y, n, t1, a, c) => R(x, y, 228, 204, { r: 14, f: SOFT, s: 'none', sw: 0 }) + stHead(x + 12, y + 12, n, t1) + T(x + 44, y + 50, a, { size: 12, w: 700, a: 'start', c: B.soft }) + T(x + 44, y + 66, c, { size: 12, w: 700, a: 'start', c: B.soft });
+  b += box(8, 8, 1, 'Call your bank', 'or e-wallet. Ask them to', 'freeze the account.') + box(244, 8, 2, 'Report to 1326', 'the national anti-scam', 'hotline (free, 24/7)');
+  b += box(8, 220, 3, 'Change passwords', 'Start with your email.', 'Turn on MFA.') + box(244, 220, 4, 'Keep proof', 'Take screenshots.', 'Do not delete the chat.');
+  // 1 bank / e-wallet frozen
+  b += phone2(60, 84, 62, 116, walletScreen('FROZEN', B.red)) + person2(172, 112, 0.82, { shirt: B.green }) + bubble(136, 80, 90, 26, 166, 112, '#fff') + T(181, 97.5, 'Freeze it!', { size: 11.5, c: B.ink });
+  // 2 call 1326
+  b += phone2(318, 84, 62, 116, (x, y, w, h) => R(x, y, w, h, { r: 8, f: '#2f3d55', s: 'none', sw: 0 }) + T(x + w / 2, y + 30, '1326', { size: 17, c: '#fff', mono: true }) + T(x + w / 2, y + 46, 'calling…', { size: 9, w: 600, c: '#c9d3e3' }) + C(x + w / 2, y + h - 16, 9, '#d4422f', 'none', 0)) + [10, 18, 26].map((r) => P(`M${390 + r * 0.5} ${140 - r * 0.8} A${r} ${r} 0 0 1 ${390 + r * 0.5} ${140 + r * 0.8}`, 'none', B.blueMid, 2.4)).join('');
+  // 3 new password + shield
+  b += R(36, 300, 170, 34, { r: 17, f: '#fff', s: '#b7bfcc', sw: 1.6 }) + [0, 1, 2, 3, 4, 5, 6, 7].map((k) => C(58 + k * 15, 317, 3.6, B.ink, 'none', 0)).join('') + shield2(84, 346, 0.7, B.greenWash) + check(104, 366, 0.8) + T(160, 378, 'new and long', { size: 12, w: 700, c: B.green });
+  // 4 screenshots
+  b += [0, 1, 2].map((k) => R(290 + k * 22, 292 + k * 10, 62, 100, { r: 7, f: '#fff', sw: 1.8 }) + R(296 + k * 22, 300 + k * 10, 50, 16, { r: 4, f: k === 2 ? '#fdeee9' : B.blueWash, s: 'none', sw: 0 }) + L(298 + k * 22, 328 + k * 10, 338 + k * 22, 328 + k * 10, B.line, 2.6) + L(298 + k * 22, 338 + k * 10, 330 + k * 22, 338 + k * 10, B.line, 2.6) + L(298 + k * 22, 348 + k * 10, 336 + k * 22, 348 + k * 10, B.line, 2.6)).join('');
+  b += T(357, 328, 'scam link', { size: 8, c: B.red, mono: true }) + T(436, 360, 'proof', { size: 12, c: B.blueInk });
+  return svgWrap(480, 432, 'Four steps after a scam: 1, call your bank or e-wallet and ask them to freeze the account; 2, report to 1326, the free 24/7 national anti-scam hotline; 3, change your passwords, starting with your email, and turn on MFA; 4, take screenshots as proof, and do not delete the chat.', b);
+}
+
+/* =====================================================================
+   chat 57 round 7 (her request): each kind of malware, step by step, with realistic pictures
+   (real-looking windows, file lists, phones). malwareStep(kind, i): i = 0 how it starts, 1 what happens next, 2 the result.
+   480 x 260, one soft stage, labels apart from the drawing. Made-up names only.
+   ===================================================================== */
+const stage = () => R(4, 4, 472, 252, { r: 14, f: SOFT, s: 'none', sw: 0 });
+const winBox = (x, y, w, h, title, f = '#e4e9f1') => R(x, y, w, h, { r: 8, f: '#fff', sw: 2 }) + winTitle(x, y, w, title, f);
+// a program file: blue body with a name; virus = red strip of hidden code added at its end
+const progFile = (x, y, name, virus = false, w = 108) => {
+  let g = R(x, y, w, 30, { r: 6, f: '#fff', s: '#b7c3d6', sw: 1.4 }) + R(x + 7, y + 8, 14, 14, { r: 3, f: '#3b4659', s: 'none', sw: 0 }) + R(x + 9.5, y + 10.5, 9, 3.5, { r: 1, f: '#8fb0dc', s: 'none', sw: 0 });
+  g += T(x + 27, y + 19.5, name, { size: 10.5, w: 700, a: 'start', c: B.ink, mono: true });
+  if (virus) g += R(x + w - 14, y + 4, 9, 22, { r: 3, f: B.red, s: 'none', sw: 0 }) + bug(x + w - 4, y - 2, 0.38);
+  return g;
+};
+const tag = (x, y, t, c = B.soft, size = 11.5, a = 'middle') => T(x, y, t, { size, w: 700, a, c });
+const redTag = (x, y, t) => label(x, y, t, B.red, '#fdeee9', 11.5);
+const okTag = (x, y, t) => label(x, y, t, B.green, '#e3f3e9', 11.5);
+const pcMini = (x, y, state) => pc2(x, y, 52, (px, py, w, h) => R(px, py, w, h, { r: 0, f: state === 'bad' ? '#f6d5d0' : '#e8f0fb', s: 'none', sw: 0 }) + R(px + 3, py + 3, w * 0.6, 3, { r: 1, f: state === 'bad' ? '#e8a99f' : '#b7c7e0', s: 'none', sw: 0 }) + R(px + 3, py + 9, w * 0.4, 3, { r: 1, f: state === 'bad' ? '#e8a99f' : '#b7c7e0', s: 'none', sw: 0 }));
+const dashArrow = (x1, y1, x2, y2, c = B.red) => `<path d="M${x1} ${y1} L${x2} ${y2}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>` + ARROW(x1 + (x2 - x1) * 0.8, y1 + (y2 - y1) * 0.8, x2, y2, c, 2);
+
+export function malwareStep(kind, i) {
+  let b = stage(), alt = '';
+  if (kind === 'virus') {
+    if (i === 0) {
+      // top: the email with the attachment
+      b += winBox(14, 8, 300, 98, 'Mail');
+      b += C(36, 48, 10, '#7a8aa3', 'none', 0) + T(36, 52, 'C', { size: 10, c: '#fff' }) + T(52, 46, 'Carlo (classmate)', { size: 11.5, a: 'start', c: B.ink }) + T(52, 61, 'Fun reviewer game for the exam!', { size: 10, w: 700, a: 'start', c: B.soft });
+      b += progFile(26, 70, 'ReviewerGame.exe', false, 150) + tag(184, 89, '← she opens it', B.blueInk, 11, 'start');
+      b += girl(360, 38, 0.8, { shirt: B.green });
+      // split: what is inside the file
+      b += R(14, 112, 452, 138, { r: 10, f: '#fff', s: '#c9d2df', sw: 1.4 }) + T(28, 132, 'Inside the file, there are two parts:', { size: 12, w: 700, a: 'start', c: B.ink });
+      // left: the game she sees
+      b += R(28, 144, 150, 96, { r: 8, f: '#dfe9f6', s: 'none', sw: 0 }) + T(103, 163, 'PART 1', { size: 10, c: B.blueInk }) + R(44, 172, 118, 40, { r: 5, f: '#fff', s: '#b7c7e0', sw: 1.2 }) + T(103, 190, 'the game', { size: 12, c: B.ink }) + T(103, 203, 'she sees it', { size: 9.5, w: 700, c: B.soft }) + T(103, 230, '(looks normal)', { size: 10.5, w: 700, c: B.soft });
+      // right: the pretend hidden code, in a dark box (not a real program)
+      b += R(192, 144, 262, 96, { r: 8, f: '#1f2a3d', s: 'none', sw: 0 }) + R(192, 144, 262, 18, { r: 8, f: '#2c3a54', s: 'none', sw: 0 }) + `<rect x="192" y="153" width="262" height="9" fill="#2c3a54"/>` + T(206, 157, 'PART 2: hidden code (not a real program)', { size: 9.5, w: 700, a: 'start', c: '#c9d5e6', mono: true });
+      const vcode = [['when this file is opened:', '#7fd39b'], ['  1. start the game', '#c9d5e6'], ['  2. find other programs', '#c9d5e6'], ['  3. copy my code into them', '#ff9f8f'], ['  4. do this again each time', '#ff9f8f']];
+      vcode.forEach(([t, c], k) => { b += T(206, 178 + k * 13.6, t, { size: 10, w: 600, a: 'start', c, mono: true }); });
+      alt = 'An email from a classmate has an attachment, ReviewerGame.exe. Inside the file are two parts. Part 1 is the game she sees, which looks normal. Part 2 is hidden pretend code (not a real program) that reads: when this file is opened, start the game, find other programs, copy my code into them, and do this again each time.';
+    } else if (i === 1) {
+      b += winBox(24, 22, 270, 214, 'This PC > Programs');
+      const files = [['ReviewerGame.exe', 1], ['Paint.exe', 1], ['Calculator.exe', 0], ['Notes.exe', 1], ['Typing.exe', 0]];
+      files.forEach(([n, v], k) => { b += progFile(40, 58 + k * 35, n, v, 190); });
+      b += redTag(370, 72, 'virus is running');
+      [108, 178].forEach((y) => { b += P(`M232 73 Q272 ${(73 + y) / 2} 236 ${y}`, 'none', B.red, 1.8) + ARROW(244, y - 5, 236, y, B.red, 1.8); });
+      b += tag(386, 120, 'It copies its code', B.ink, 12.5) + tag(386, 137, 'into other programs', B.ink, 12.5) + tag(386, 154, 'on her computer.', B.ink, 12.5);
+      b += tag(386, 190, 'She notices nothing.', B.soft, 12) + tag(386, 207, 'The programs still work.', B.soft, 12);
+      alt = 'A list of programs on her computer. The virus copies its red code into Paint.exe and Notes.exe. The programs still work, so she notices nothing.';
+    } else {
+      b += laptop2(30, 70, 110, (x, y, w, h) => R(x + 6, y + 8, w - 12, 26, { r: 4, f: '#fff', s: '#c9d2df', sw: 1 }) + T(x + w / 2, y + 25, 'Paint.exe', { size: 9, c: B.ink, mono: true }) + R(x + w - 18, y + 10, 5, 22, { r: 2, f: B.red, s: 'none', sw: 0 }));
+      b += tag(85, 178, "Jessa's laptop", B.soft);
+      b += R(176, 104, 12, 26, { r: 3, f: B.blue, sw: 1.6 }) + R(178.5, 96, 7, 9, { r: 1.5, f: '#c8ced8', sw: 1.2 }) + P('M146 118 L170 118', 'none', B.ink, 2) + ARROW(194, 118, 238, 118, B.red, 2.2) + tag(182, 150, 'USB or chat', B.soft);
+      b += laptop2(250, 70, 110, (x, y, w, h) => R(x + 6, y + 8, w - 12, 26, { r: 4, f: '#fff', s: '#c9d2df', sw: 1 }) + T(x + w / 2, y + 25, 'Paint.exe', { size: 9, c: B.ink, mono: true }) + R(x + w - 18, y + 10, 5, 22, { r: 2, f: B.red, s: 'none', sw: 0 }));
+      b += person2(410, 70, 0.9, { shirt: B.orange }) + tag(305, 178, "friend's laptop", B.soft);
+      b += redTag(305, 52, 'opens it: infected');
+      b += tag(240, 220, 'A virus spreads only when a person opens an infected file.', '#9c2f28', 12.5);
+      alt = 'Jessa shares Paint.exe with a friend by USB or chat. The file has the virus code. When the friend opens it, the friend\'s laptop is infected too. A virus spreads only when a person opens an infected file.';
+    }
+  } else if (kind === 'worm') {
+    const xs = [40, 120, 200, 280, 360];
+    const upd = ['', 'missing update', 'updated', 'missing update', 'updated'];
+    const tpts = [196, 221, 240, 259, 284]; // where each cable meets the TOP edge of the switch
+    b += tag(240, 30, 'Office network', B.soft, 12);
+    // cables first, each ending on the switch's top edge, so the switch (drawn after) covers the ends
+    xs.forEach((x, k) => {
+      b += P(`M${x + 34} 115 Q${x + 34} 190 ${tpts[k]} 198`, 'none', '#9aa6b8', 1.6);
+    });
+    // the switch, on top of the cable ends
+    b += R(186, 196, 108, 24, { r: 6, f: '#e4e8ee', sw: 1.8 }) + T(240, 212.5, 'network switch', { size: 11, c: B.soft });
+    // the computers and their labels
+    xs.forEach((x, k) => {
+      const st = i === 0 ? (k === 0 ? 'bad' : 'ok') : (k === 0 || k === 1 || k === 3 ? 'bad' : 'ok');
+      b += pcMini(x + 8, 70, st);
+      if (st === 'bad') b += bug(x + 58, 70, 0.5);
+      if (k) b += tag(x + 34, 140, upd[k], upd[k] === 'updated' ? B.green : '#9c2f28', 10.5);
+      else b += tag(x + 34, 140, 'infected first', '#9c2f28', 10.5);
+    });
+    if (i === 0) {
+      b += envelope2(14, 150, 40, 26) + tag(34, 196, 'from email', B.soft, 10.5) + tag(34, 210, 'or Internet', B.soft, 10.5);
+      b += tag(240, 244, 'The worm gets into one computer.', '#9c2f28', 12.5);
+      alt = 'An office network of five computers on a switch. One computer is infected first, through an email or the Internet. Two other computers are missing an update; two are updated.';
+    } else if (i === 1) {
+      [120, 200, 280, 360].forEach((x, k) => { b += `<path d="M${78 + k * 4} 66 Q${(78 + x + 34) / 2} ${52 - k * 9} ${x + 30} 66" fill="none" stroke="${B.red}" stroke-width="1.6" stroke-dasharray="5 4"/>`; });
+      [200, 360].forEach((x) => { b += check(x + 58, 74, 0.6); });
+      b += tag(240, 244, 'It looks for the same security hole. No one clicks anything.', '#9c2f28', 12.5);
+      alt = 'The infected computer sends copies of the worm to every computer on the network. The two computers missing an update get infected. The two updated computers block it.';
+    } else {
+      b = stage() + tag(240, 32, 'Each new copy does the same, over and over', B.ink, 13);
+      // grid of many small computers, most infected
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 10; c++) { const x = 34 + c * 42, y = 50 + r * 40, bad = (r * 10 + c) % 7 !== 3; b += R(x, y, 30, 20, { r: 3, f: bad ? '#f6d5d0' : '#e8f0fb', s: bad ? B.red : '#9aa6b8', sw: 1.4 }) + L(x + 15, y + 20, x + 15, y + 25, B.ink, 1.6) + L(x + 9, y + 26, x + 21, y + 26, B.ink, 1.6); }
+      b += R(40, 214, 400, 34, { r: 10, f: '#fff', s: '#c9d2df', sw: 1.4 }) + T(240, 236, 'WannaCry worm, May 2017: over 200,000 computers in 150 countries', { size: 11.5, w: 800, c: '#9c2f28' });
+      alt = 'A grid of 40 small computers, most of them red and infected. A note says the WannaCry worm in May 2017 infected over 200,000 computers in 150 countries.';
+    }
+  } else if (kind === 'trojan') {
+    if (i === 0) {
+      b += winBox(24, 20, 432, 226, 'free-softz.biz');
+      b += R(40, 54, 400, 26, { r: 13, f: '#f1f3f6', s: '#b7bfcc', sw: 1.4 }) + T(56, 71.5, 'free-softz.biz/photo-editor-full-cracked', { size: 11, w: 700, a: 'start', c: B.ink, mono: true });
+      b += T(240, 112, 'PhotoPro 2026 FULL VERSION', { size: 17, c: B.ink }) + T(240, 132, 'Free! No license needed (cracked)', { size: 12, w: 700, c: B.soft });
+      b += R(160, 148, 160, 40, { r: 10, f: B.green, sw: 2 }) + T(240, 173, 'DOWNLOAD NOW', { size: 14, c: '#fff' }) + P('M300 176 L300 194 L304 190 L308 198 L311 196 L307 188 L313 188 Z', '#fff', B.ink, 1.4);
+      b += tag(240, 220, 'A program that costs money, offered free on an unofficial site', '#9c2f28', 12);
+      alt = 'A web page on free-softz.biz offers PhotoPro 2026 full version for free, cracked, with a big green Download now button.';
+    } else if (i === 1) {
+      b += winBox(24, 20, 220, 130, 'PhotoPro Setup') + T(134, 70, 'Installing PhotoPro…', { size: 12, c: B.ink }) + R(44, 84, 180, 12, { r: 6, f: '#eef1f5', s: '#c9d2df', sw: 1 }) + R(44, 84, 130, 12, { r: 6, f: B.green, s: 'none', sw: 0 }) + R(160, 112, 64, 24, { r: 5, f: '#e4e9f1', sw: 1.4 }) + T(192, 128.5, 'Next', { size: 11, c: B.ink });
+      b += tag(134, 172, 'What she sees', B.soft, 12);
+      b += R(270, 20, 186, 200, { r: 10, f: '#fff', s: B.red, sw: 1.8, dash: '6 4' }) + T(363, 42, 'What really happens', { size: 12, c: '#9c2f28' });
+      b += R(286, 58, 154, 40, { r: 6, f: '#dfe9f6', s: 'none', sw: 0 }) + tag(363, 75, 'PhotoPro', B.blueInk, 12) + tag(363, 90, 'is installed', B.blueInk, 10.5);
+      b += R(286, 108, 154, 58, { r: 6, f: '#fdeee9', s: 'none', sw: 0 }) + tag(363, 126, 'a hidden program', '#9c2f28', 12) + tag(363, 142, 'is installed too, and', '#9c2f28', 10.5) + tag(363, 156, 'starts with the computer', '#9c2f28', 10.5);
+      b += tag(363, 188, 'It does not copy itself.', B.soft, 11) + tag(363, 204, 'She installed it herself.', B.soft, 11);
+      alt = 'The installer shows a normal progress bar for PhotoPro. What really happens: PhotoPro is installed, and a hidden program is installed too, which starts every time the computer starts. A Trojan horse does not copy itself; she installed it herself.';
+    } else {
+      b += laptop2(30, 60, 120, (x, y, w, h) => R(x + 6, y + 8, w - 12, h - 16, { r: 3, f: '#fff', s: '#c9d2df', sw: 1 }) + T(x + w / 2, y + h / 2 + 3, 'PhotoPro', { size: 10, c: B.blueInk })) + tag(90, 178, 'her laptop', B.soft);
+      b += dashArrow(162, 100, 300, 100) + R(176, 70, 116, 24, { r: 5, f: '#fdeee9', s: B.red, sw: 1.4 }) + T(234, 86.5, 'saved passwords', { size: 11, c: B.red });
+      b += dashArrow(300, 140, 162, 140) + R(176, 146, 116, 24, { r: 5, f: '#fdeee9', s: B.red, sw: 1.4 }) + T(234, 162.5, 'remote control', { size: 11, c: B.red });
+      b += laptop2(312, 70, 96, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#1f2a3d', s: 'none', sw: 0 }) + T(x + 5, y + 14, 'mia@... : Mia2007!', { size: 7.5, a: 'start', c: '#ff9f8f', mono: true }) + T(x + 5, y + 28, 'ben@... : ben1234', { size: 7.5, a: 'start', c: '#ff9f8f', mono: true })) + hacker2(436, 78, 0.6) + tag(380, 178, 'criminal', B.soft);
+      b += tag(240, 222, 'The hidden program sends her passwords and lets the criminal in.', '#9c2f28', 12);
+      alt = 'The hidden program on her laptop sends her saved passwords to the criminal and lets the criminal control her computer from far away.';
+    }
+  } else if (kind === 'ransom') {
+    if (i === 0) {
+      b += mailWin(18, 22, 266, { subject: 'URGENT: Unpaid invoice', name: 'Supplier Billing', email: 'billing@sup-vendor.ph', avatar: '#a6461f', badge: 'S', date: 'Today 9:12 AM', body: ['Good day. Please see the', 'attached invoice and pay', 'within 24 hours.'], file: 'Invoice_Nov.zip', fileType: 'ZIP', badgeColor: '#c77d12', size: '2.3 MB' });
+      b += tag(372, 40, 'An office clerk', B.blueInk, 11.5) + tag(372, 56, 'opens it.', B.blueInk, 11.5) + person2(372, 82, 0.8, { shirt: '#7a8aa3' }) + ARROW(338, 108, 288, 120, B.blueInk, 2);
+      b += tag(392, 176, 'Some gangs break in', B.soft, 11) + tag(392, 192, 'another way, through', B.soft, 11) + tag(392, 208, 'old servers that were', B.soft, 11) + tag(392, 224, 'never updated.', B.soft, 11);
+      alt = 'An urgent email from Supplier Billing asks the clerk to pay an unpaid invoice today. The attachment is Invoice_Nov.zip. An office clerk opens it. Some gangs break in through old, unpatched servers instead.';
+    } else if (i === 1) {
+      b += winBox(24, 20, 230, 214, 'Shared folder: Office files');
+      ['payroll.xlsx', 'contracts.pdf', 'clients.docx', 'photos.zip', 'report.docx'].forEach((n, k) => { const done = k < 3; b += lockMini(46, 70 + k * 32, done ? '#f2c48a' : '#d3dbe6') + T(60, 73 + k * 32, done ? n + '.locked' : n, { size: 11, a: 'start', c: done ? '#9c2f28' : B.ink, mono: true }); });
+      b += tag(139, 228, 'locked one by one', '#9c2f28', 11.5);
+      b += dashArrow(262, 70, 352, 70) + tag(306, 60, 'copies files out', '#9c2f28', 11) + server2(362, 40, 40, 66) + tag(382, 124, "gang's server", B.soft, 11);
+      b += R(272, 150, 184, 58, { r: 8, f: '#fff', s: '#c9d2df', sw: 1.4 }) + tag(364, 172, 'backup copies on this PC', B.ink, 11.5) + tag(364, 192, 'deleted', '#9c2f28', 12) + cross(440, 186, 0.6);
+      b += tag(364, 232, 'All of this happens quietly.', B.soft, 11.5);
+      alt = 'Quietly, the ransomware copies the office files out to the gang\'s server, locks the files one by one (payroll.xlsx.locked, contracts.pdf.locked), and deletes the backup copies on the computer.';
+    } else {
+      b += pc2(40, 30, 220, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#7a1f1a', s: 'none', sw: 0 }) + T(x + w / 2, y + 26, 'YOUR FILES ARE LOCKED', { size: 13, c: '#fff', mono: true }) + T(x + w / 2, y + 50, 'Pay US$5,000 in bitcoin', { size: 10.5, c: '#ffd2c7', mono: true }) + T(x + w / 2, y + 68, 'or we post your files online.', { size: 9.5, c: '#ffd2c7', mono: true }) + R(x + w / 2 - 50, y + 80, 100, 24, { r: 4, f: '#4d1210', s: 'none', sw: 0 }) + T(x + w / 2, y + 97, '71:59:42', { size: 14, c: '#fff', mono: true }));
+      b += tag(150, 196, 'the ransom note', B.soft);
+      b += R(290, 40, 166, 150, { r: 10, f: '#fff', s: '#c9d2df', sw: 1.4 }) + T(373, 64, 'What to do', { size: 13, c: B.green });
+      [['Unplug from the network', 0], ['Tell IT or the owner', 1], ['Restore from a backup', 2], ['Do not pay', 3]].forEach(([t, k]) => { b += check(306, 86 + k * 28, 0.55) + T(318, 90 + k * 28, t, { size: 11, w: 700, a: 'start', c: B.ink }); });
+      b += tag(240, 232, 'Paying does not promise you get the files back.', '#9c2f28', 12);
+      alt = 'A ransom note: your files are locked, pay US$5,000 in bitcoin or we post your files online, with a countdown timer. Beside it, what to do: unplug from the network, tell IT or the owner, restore from a backup, do not pay.';
+    }
+  } else if (kind === 'spyware') {
+    if (i === 0) {
+      b += girl(58, 64, 0.95, { shirt: B.blue }) + desk(14, 162, 210);
+      b += pc2(100, 56, 120, (x, y, w, h) => R(x, y, w, 10, { r: 0, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 8, 'PeraBank', { size: 7, c: '#fff' }) + R(x + 10, y + 18, w - 20, 11, { r: 2, f: '#fff', s: '#b7bfcc', sw: 0.8 }) + T(x + 14, y + 26, 'mia.santos@...', { size: 6.5, w: 700, a: 'start', c: B.ink }) + R(x + 10, y + 34, w - 20, 11, { r: 2, f: '#fff', s: '#b7bfcc', sw: 0.8 }) + T(x + 14, y + 42, '••••••••', { size: 7, w: 700, a: 'start', c: B.ink }));
+      b += tag(160, 204, 'a computer at a computer shop', B.soft);
+      b += zoomLines(220, 70, 220, 120, 266, 40, 266, 190);
+      b += R(266, 40, 190, 150, { r: 10, f: '#fff', s: B.red, sw: 1.8, dash: '6 4' }) + T(361, 62, 'Hidden on this computer', { size: 11.5, c: '#9c2f28' });
+      b += R(280, 76, 162, 30, { r: 6, f: '#fdeee9', s: 'none', sw: 0 }) + T(361, 95.5, 'keylogger (running)', { size: 11, c: B.ink, mono: true });
+      b += tag(361, 128, 'Someone installed it earlier,', B.soft, 11) + tag(361, 143, 'or it came with a free app.', B.soft, 11) + tag(361, 172, 'No window, no icon.', B.soft, 11);
+      alt = 'Mia logs in to PeraBank on a computer at a computer shop. Hidden on the computer, a keylogger is running. Someone installed it earlier, or it came with a free app. It has no window and no icon.';
+    } else if (i === 1) {
+      b += winBox(24, 20, 270, 214, 'log.txt (hidden file)');
+      ['09:41  perabank.ph', '09:41  mia.santos@mail.ph', '09:42  Mia2007!', '09:45  messenger.com', '09:46  "see you later"'].forEach((t, k) => { b += T(40, 70 + k * 30, t, { size: 11, w: 700, a: 'start', c: k === 2 ? B.red : B.ink, mono: true }); });
+      b += R(34, 114, 242, 23, { r: 4, f: 'rgba(178,58,51,0.08)', s: B.red, sw: 1.4 });
+      b += tag(386, 100, 'Every key she presses', B.ink, 12.5) + tag(386, 118, 'is saved, with the time.', B.ink, 12.5) + tag(386, 152, 'Some spyware also takes', B.soft, 11.5) + tag(386, 168, 'screenshots and records', B.soft, 11.5) + tag(386, 184, 'the sites she visits.', B.soft, 11.5);
+      alt = 'A hidden file, log.txt, lists what Mia typed with the time: perabank.ph, her email, her password Mia2007!, and messages. Some spyware also takes screenshots and records the sites she visits.';
+    } else {
+      b += pc2(30, 60, 110, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#e8f0fb', s: 'none', sw: 0 }) + doc(x + 34, y + 8, 30, 38)) + tag(85, 160, 'shop computer', B.soft);
+      b += dashArrow(150, 100, 290, 100) + T(220, 90, 'log.txt sent', { size: 11, c: '#9c2f28' });
+      b += laptop2(300, 60, 100, (x, y, w, h) => R(x, y, w, 10, { r: 0, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 8, 'PeraBank', { size: 7, c: '#fff' }) + T(x + w / 2, y + 28, 'Welcome, Mia', { size: 8, c: B.ink }) + T(x + w / 2, y + 42, 'Send money ›', { size: 7.5, c: B.red })) + hacker2(434, 66, 0.62) + tag(370, 160, 'criminal, far away', B.soft);
+      b += tag(240, 206, 'He logs in as Mia with the stolen password.', '#9c2f28', 12.5) + tag(240, 226, 'This is why MFA (a second proof) matters.', B.green, 12);
+      alt = 'The log file is sent to a criminal far away, who logs in to PeraBank as Mia with the stolen password. A second proof, MFA, would stop him.';
+    }
+  } else {
+    // mobile malware
+    const phoneAt = (x, y, content) => phone2(x, y, 120, 210, content, '#f7f9fc');
+    if (i === 0) {
+      // a realistic Messages screen. A clean status bar covers the default phone stubs at the top.
+      b += phoneAt(34, 18, (x, y, w, h) => {
+        let g = R(x, y - 8, w, 54, { r: 16, f: '#f4f6f9', s: 'none', sw: 0 });
+        // status bar: time + battery
+        g += T(x + 14, y + 1, '9:41', { size: 7.5, a: 'start', c: B.ink });
+        g += R(x + w - 26, y - 4, 13, 7, { r: 1.5, f: 'none', s: '#6b7a94', sw: 1 }) + R(x + w - 12, y - 2, 1.4, 3, { r: 0.6, f: '#6b7a94', s: 'none', sw: 0 }) + R(x + w - 24.5, y - 2.5, 9, 4, { r: 0.6, f: B.green, s: 'none', sw: 0 });
+        // conversation header: back chevron, sender number, "Text Message"
+        g += P(`M${x + 12} ${y + 22} l6 -5 M${x + 12} ${y + 22} l6 5`, 'none', B.blue, 2);
+        g += T(x + w / 2, y + 20, '+63 905 712 3348', { size: 8, c: B.ink }) + T(x + w / 2, y + 31, 'Text Message', { size: 7, w: 600, c: B.greyInk });
+        g += L(x, y + 38, x + w, y + 38, '#dbe1ea', 1);
+        g += T(x + w / 2, y + 56, 'Today 9:41 AM', { size: 7, w: 600, c: B.greyInk });
+        const bx = x + 8, bw = w - 26;
+        g += R(bx, y + 64, bw, 72, { r: 12, f: '#e6ebf2', s: 'none', sw: 0 }) + P(`M${bx} ${y + 80} l-5 4 l5 4 Z`, '#e6ebf2', 'none', 0);
+        g += T(bx + 10, y + 80, 'FREE ₱500 LOAD!', { size: 8.5, a: 'start', c: B.ink }) + T(bx + 10, y + 94, 'Claim your PeraBonus', { size: 7.5, w: 600, a: 'start', c: B.ink }) + T(bx + 10, y + 105, 'now. Get the app:', { size: 7.5, w: 600, a: 'start', c: B.ink });
+        g += T(bx + 10, y + 122, 'perabonus.apk', { size: 8, a: 'start', c: '#2563c9', mono: true }) + L(bx + 10, y + 125, bx + 62, y + 125, '#2563c9', 0.9);
+        return g;
+      });
+      b += tag(94, 246, 'a text from an unknown number', B.soft, 11);
+      b += zoomLines(158, 124, 158, 140, 232, 74, 232, 182);
+      // right: a clean "app file" card with an app icon, with room below the last line
+      b += R(232, 52, 224, 166, { r: 12, f: '#fff', s: '#c9d2df', sw: 1.4 });
+      b += R(250, 70, 44, 44, { r: 11, f: '#2e7d4f', s: B.ink, sw: 1.4 }) + C(272, 88, 4, '#fff', 'none', 0) + T(272, 106, '₱', { size: 17, c: '#fff' });
+      b += T(306, 84, 'perabonus.apk', { size: 12.5, a: 'start', c: B.ink, mono: true }) + T(306, 102, 'Android app file (APK)', { size: 10, w: 600, a: 'start', c: B.greyInk });
+      b += L(250, 126, 438, 126, '#eceff3', 1.4);
+      b += R(250, 140, 18, 18, { r: 4, f: '#fdeee9', s: '#e3b3a3', sw: 1.2 }) + T(259, 153, '!', { size: 12, c: B.red });
+      b += T(276, 147, 'It came from a link,', { size: 11, w: 700, a: 'start', c: '#9c2f28' }) + T(276, 161, 'not from Google Play.', { size: 11, w: 700, a: 'start', c: '#9c2f28' });
+      b += T(250, 186, 'Real app stores check an app', { size: 10.5, w: 600, a: 'start', c: B.soft }) + T(250, 198, 'before you can install it.', { size: 10.5, w: 600, a: 'start', c: B.soft });
+      alt = 'A text message from an unknown number says "FREE PHP 500 load! Claim your PeraBonus now. Get the app: perabonus.apk". A card on the right shows perabonus.apk is an Android app file (APK) that came from a link, not from Google Play, where apps are checked before you can install them.';
+    } else if (i === 1) {
+      b += phoneAt(40, 22, (x, y, w, h) => R(x, y, w, h, { r: 6, f: '#5d6880', s: 'none', sw: 0 }) + R(x + 6, y + 40, w - 12, 108, { r: 10, f: '#fff', s: 'none', sw: 0 }) + T(x + w / 2, y + 62, 'Install unknown', { size: 9, c: B.ink }) + T(x + w / 2, y + 74, 'apps?', { size: 9, c: B.ink }) + T(x + w / 2, y + 92, 'Your phone is safer', { size: 7.5, w: 700, c: B.soft }) + T(x + w / 2, y + 102, 'without them.', { size: 7.5, w: 700, c: B.soft }) + T(x + 28, y + 132, 'Cancel', { size: 8.5, c: B.blue }) + R(x + w - 52, y + 122, 42, 16, { r: 8, f: B.blue, s: 'none', sw: 0 }) + T(x + w - 31, y + 133, 'Allow', { size: 8.5, c: '#fff' }));
+      b += tag(100, 250, 'warning 1: unknown apps', B.soft);
+      b += phoneAt(250, 22, (x, y, w, h) => R(x, y, w, h, { r: 6, f: '#5d6880', s: 'none', sw: 0 }) + R(x + 6, y + 30, w - 12, 128, { r: 10, f: '#fff', s: 'none', sw: 0 }) + T(x + w / 2, y + 52, 'Allow PeraBonus to', { size: 8.5, c: B.ink }) + T(x + w / 2, y + 64, 'read your SMS?', { size: 8.5, c: B.ink }) + L(x + 14, y + 76, x + w - 14, y + 76, '#e1e6ee', 1) + T(x + w / 2, y + 94, 'Allow PeraBonus to', { size: 8.5, c: B.ink }) + T(x + w / 2, y + 106, 'control your screen?', { size: 8.5, c: B.ink }) + R(x + 16, y + 124, w - 32, 18, { r: 9, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 136.5, 'Allow', { size: 8.5, c: '#fff' }));
+      b += tag(310, 250, 'warning 2: permissions', B.soft);
+      b += tag(205, 128, 'He taps', '#9c2f28', 11.5) + tag(205, 144, 'Allow', '#9c2f28', 11.5) + tag(205, 160, 'twice.', '#9c2f28', 11.5);
+      alt = 'Two phone screens. Warning 1: Install unknown apps? Your phone is safer without them, with Cancel and Allow. Warning 2: Allow PeraBonus to read your SMS? Allow PeraBonus to control your screen? He taps Allow both times.';
+    } else {
+      b += phoneAt(40, 22, (x, y, w, h) => R(x + 6, y + 6, w - 12, 46, { r: 8, f: '#e6ebf2', s: 'none', sw: 0 }) + T(x + 12, y + 20, 'PeraPay', { size: 8, a: 'start', c: B.soft }) + T(x + 12, y + 34, 'Your OTP is 482916.', { size: 8.5, a: 'start', c: B.ink }) + T(x + 12, y + 45, 'Do not share it.', { size: 7.5, w: 700, a: 'start', c: B.soft }) + [0, 1, 2, 3, 4, 5].map((k) => R(x + 12 + (k % 3) * 30, y + 70 + Math.floor(k / 3) * 34, 22, 22, { r: 6, f: ['#8fb0dc', '#9fd3ae', '#f2c48a', '#c9b3e6', '#f8c9c2', '#e8b94a'][k], s: 'none', sw: 0 })).join('') + T(x + w / 2, y + 152, 'no PeraBonus icon', { size: 7.5, w: 700, c: B.soft }));
+      b += tag(100, 250, 'his phone', B.soft);
+      b += dashArrow(168, 70, 316, 70) + T(242, 60, 'OTP copied', { size: 11, c: '#9c2f28' });
+      b += laptop2(326, 50, 90, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#1f2a3d', s: 'none', sw: 0 }) + T(x + 5, y + 14, 'OTP: 482916', { size: 8, a: 'start', c: '#ff9f8f', mono: true }) + T(x + 5, y + 28, 'send ₱9,800', { size: 8, a: 'start', c: '#ff9f8f', mono: true })) + hacker2(440, 60, 0.55);
+      b += tag(318, 152, 'The app hides its icon,', B.ink, 12) + tag(318, 170, 'reads his texts, and sends', B.ink, 12) + tag(318, 188, 'his OTPs to the criminal.', B.ink, 12) + tag(318, 216, 'The criminal moves his money.', '#9c2f28', 12);
+      alt = 'His phone gets a PeraPay OTP text. The malware app has hidden its icon. It copies the OTP to the criminal, who uses it to send ₱9,800 from his account.';
+    }
+  }
+  return svgWrap(480, 260, alt, b);
+}
+
+/* =====================================================================
+   chat 57 round 12 (her request): a "featured case" card for a famous real incident, with a detailed drawing.
+   iloveyouPic: the ILOVEYOU email worm (Manila, 2000). 480 x 250. House style, no photos.
+   ===================================================================== */
+export function iloveyouPic() {
+  let b = stage();
+  // left: a realistic email reading pane, with room to breathe inside the window
+  b += winBox(10, 10, 294, 232, 'Mail');
+  // subject line + star (sits below the title bar with a clear gap)
+  b += T(30, 60, 'ILOVEYOU', { size: 15, a: 'start', c: B.ink }) + `<path d="M0 0 l3 6 6.6 1 -4.8 4.6 1.1 6.6 -5.9 -3.1 -5.9 3.1 1.1 -6.6 -4.8 -4.6 6.6 -1 Z" transform="translate(272 48)" fill="none" stroke="#b7bfcc" stroke-width="1.4" stroke-linejoin="round"/>`;
+  // sender row: avatar, name, date; "to: me"
+  b += C(40, 80, 11, '#6b7a94', 'none', 0) + T(40, 84, 'A', { size: 11, c: '#fff' }) + T(56, 76, 'Arnel Cruz', { size: 11.5, a: 'start', c: B.ink }) + T(56, 90, 'arnelcruz@email.ph', { size: 9.5, w: 600, a: 'start', c: B.greyInk });
+  b += T(286, 76, 'May 4, 2000', { size: 9.5, w: 600, a: 'end', c: B.greyInk }) + T(286, 90, 'to: me', { size: 9.5, w: 600, a: 'end', c: B.greyInk });
+  b += L(30, 102, 284, 102, '#e4e8ee', 1.4);
+  // body text
+  b += T(30, 122, 'Hi! kindly check the attached LOVE', { size: 11, w: 600, a: 'start', c: B.ink }) + T(30, 138, 'LETTER coming from me :-)', { size: 11, w: 600, a: 'start', c: B.ink });
+  // attachment tile, like a real mail client
+  b += R(30, 156, 258, 48, { r: 8, f: '#f7f9fc', s: '#d3dbe6', sw: 1.4 });
+  // file icon: a document with a red .vbs type badge
+  b += `<g transform="translate(44 165)">` + P('M0 0 L18 0 L26 8 L26 31 L0 31 Z', '#fff', '#9aa6b8', 1.6) + P('M18 0 L18 8 L26 8', '#e4e9f1', '#9aa6b8', 1.4) + R(-2, 19, 30, 12, { r: 2, f: B.red, s: 'none', sw: 0 }) + T(13, 28.5, 'VBS', { size: 8, c: '#fff' }) + '</g>';
+  b += T(84, 176, 'LOVE-LETTER-FOR-YOU.TXT.vbs', { size: 10, a: 'start', c: B.ink, mono: true }) + T(84, 191, '10 KB', { size: 9.5, w: 600, a: 'start', c: B.greyInk });
+  // download arrow
+  b += `<g transform="translate(272 172)">` + L(0, -4, 0, 8, '#6b7a94', 1.8) + P('M-5 3 L0 9 L5 3', 'none', '#6b7a94', 1.8) + L(-6, 13, 6, 13, '#6b7a94', 1.8) + '</g>';
+  // the real nature of the file
+  b += T(30, 226, 'A file ending in .vbs is a program, not a letter.', { size: 10, w: 700, a: 'start', c: '#9c2f28' });
+  // right: it mails itself out to the world. Clean, symmetric fan of envelopes from the globe edge.
+  b += ARROW(300, 100, 326, 100, B.red, 2.4) + T(392, 40, 'When opened, it mails', { size: 11, w: 700, c: B.soft }) + T(392, 55, 'a copy of itself to', { size: 11, w: 700, c: B.soft }) + T(392, 70, 'everyone you know.', { size: 11, w: 700, c: B.soft });
+  const gx = 392, gy = 150, gr = 34;
+  const env = (x, y) => `<g transform="translate(${x} ${y})">` + R(-11, -8, 22, 16, { r: 2, f: '#fff', s: B.ink, sw: 1.6 }) + P('M-11 -8 L0 1 L11 -8', 'none', B.ink, 1.4) + '</g>';
+  // four clean curved rays from the globe edge to four envelopes (no lines over the globe)
+  const rays = [[-0.74, -0.67, 336, 104], [0.74, -0.67, 448, 104], [-0.74, 0.67, 336, 196], [0.74, 0.67, 448, 196]];
+  rays.forEach(([ux, uy, ex, ey]) => { const sx = gx + ux * gr, sy = gy + uy * gr; b += P(`M${sx.toFixed(0)} ${sy.toFixed(0)} Q${((sx + ex) / 2).toFixed(0)} ${((sy + ey) / 2 - 6 * Math.sign(uy)).toFixed(0)} ${ex} ${ey}`, 'none', '#d78a6a', 1.6); });
+  b += globe(gx, gy, gr);
+  rays.forEach(([ux, uy, ex, ey]) => { b += env(ex, ey); });
+  // Manila pin on the globe
+  b += `<g transform="translate(${gx - 12} ${gy - 12})">` + P('M12 0 C5 0 0 5 0 12 C0 21 12 32 12 32 C12 32 24 21 24 12 C24 5 19 0 12 0 Z', B.red, B.ink, 1.6) + C(12, 11, 4.5, '#fff', 'none', 0) + '</g>';
+  b += label(gx, 232, 'started in Manila', B.red, '#fff', 10.5);
+  return svgWrap(480, 250, 'An email in an inbox from a classmate, with the subject ILOVEYOU and an attachment named LOVE-LETTER-FOR-YOU.TXT.vbs that hides a worm. When it is opened, it mails a copy of itself to everyone in the address book and spreads around the world. A pin marks Manila, where it started.', b);
+}
+
+/** Website defacement: the real site, then the same site changed by intruders. 480 x 250. */
+export function defacePic() {
+  let b = '';
+  const browser = (x, y, w, hh, url, body, dark) => {
+    let g = R(x, y, w, hh, { r: 10, f: dark ? '#1b1f2a' : '#fff', s: '#c9d2df', sw: 1.6 });
+    g += R(x, y, w, 24, { r: 10, f: '#e9edf2', s: 'none', sw: 0 }) + `<rect x="${x + 1}" y="${y + 14}" width="${w - 2}" height="10" fill="#e9edf2"/>`;
+    g += [0, 1, 2].map((k) => C(x + 12 + k * 10, y + 12, 3, ['#e06c5a', '#eeb04a', '#5fae6b'][k], 'none', 0)).join('');
+    g += R(x + 46, y + 6, w - 58, 13, { r: 6.5, f: '#fff', s: '#cfd6e0', sw: 1 }) + T(x + 55, y + 16.5, url, { size: 8, a: 'start', c: dark ? '#6b7a94' : B.greyInk, mono: true });
+    g += body(x, y + 24, w, hh - 24);
+    return g;
+  };
+  // the real government site
+  const realBody = (x, y, w, h) => {
+    let g = R(x, y, w, 30, { r: 0, f: '#13407e', s: 'none', sw: 0 });
+    g += C(x + 20, y + 15, 9, '#f2c94c', '#0d2e5c', 1) + `<path d="M${x + 20} ${y + 9} l1.6 3.3 3.6 .5 -2.6 2.5 .6 3.6 -3.2 -1.7 -3.2 1.7 .6 -3.6 -2.6 -2.5 3.6 -.5 Z" fill="#0d2e5c"/>`;
+    g += T(x + 34, y + 13, 'Bureau of Public Records', { size: 8.5, a: 'start', c: '#fff' }) + T(x + 34, y + 24, 'Republic of the Philippines', { size: 7, w: 600, a: 'start', c: '#bcd0ea' });
+    g += R(x, y + 30, w, 12, { r: 0, f: '#0d2e5c', s: 'none', sw: 0 }) + ['Home', 'Services', 'News', 'Contact'].map((t, k) => T(x + 12 + k * 34, y + 38.5, t, { size: 6.5, a: 'start', c: '#dbe6f4' })).join('');
+    g += R(x + 12, y + 52, w - 24, 20, { r: 4, f: '#eef3fb', s: 'none', sw: 0 }) + T(x + 22, y + 65, 'Welcome to the official website', { size: 8, a: 'start', c: '#13407e' });
+    [0, 1, 2].forEach((k) => { g += R(x + 12 + k * ((w - 24) / 3 + 2), y + 80, (w - 24) / 3 - 6, 34, { r: 4, f: '#fff', s: '#dbe1ea', sw: 1 }) + R(x + 16 + k * ((w - 24) / 3 + 2), y + 84, (w - 24) / 3 - 14, 10, { r: 2, f: '#cfe0f3', s: 'none', sw: 0 }) + L(x + 16 + k * ((w - 24) / 3 + 2), y + 100, x + 16 + k * ((w - 24) / 3 + 2) + (w - 24) / 3 - 16, y + 100, '#e1e6ee', 2) + L(x + 16 + k * ((w - 24) / 3 + 2), y + 107, x + 16 + k * ((w - 24) / 3 + 2) + (w - 24) / 3 - 24, y + 107, '#e1e6ee', 2); });
+    return g;
+  };
+  // the defaced site
+  const hackBody = (x, y, w, h) => {
+    let g = R(x, y, w, h, { r: 0, f: '#141821', s: 'none', sw: 0 });
+    g += C(x + w / 2, y + 30, 16, 'none', B.red, 2) + P(`M${x + w / 2 - 7} ${y + 24} l14 12 M${x + w / 2 + 7} ${y + 24} l-14 12`, 'none', B.red, 2.4);
+    g += T(x + w / 2, y + 62, 'HACKED', { size: 20, c: '#e8514a' });
+    g += T(x + w / 2, y + 82, 'Your website is not secure.', { size: 8.5, w: 600, c: '#c3ccda' });
+    g += T(x + w / 2, y + 98, '#FIX_YOUR_SECURITY', { size: 8.5, c: '#5fae6b', mono: true });
+    g += T(x + w / 2, y + 116, '— unknown group', { size: 7.5, w: 600, c: '#7a8596' });
+    return g;
+  };
+  b += browser(8, 20, 224, 164, 'records.gov.ph', realBody, false) + label(120, 206, 'Before (the real site)', '#2f6b45', '#e3f3e9', 11.5);
+  b += browser(248, 20, 224, 164, 'records.gov.ph', hackBody, true) + label(360, 206, 'After (changed by intruders)', B.red, '#fdeee9', 11.5);
+  b += ARROW(232, 102, 248, 102, B.red, 2.6);
+  return svgWrap(480, 230, 'Two browser windows side by side. On the left, labeled Before, the real website of a government office, the Bureau of Public Records, with a blue header and normal content. On the right, labeled After, the same web address shows a black page that says HACKED, your website is not secure, with a protest hashtag, left by an unknown group.', b);
+}
+
+/** How antivirus works: it scans files, flags a known threat, and moves it to quarantine. 480 x 232. */
+export function antivirusPic() {
+  let b = '';
+  // left: a realistic "Security" app window scanning files
+  b += R(10, 14, 268, 204, { r: 10, f: '#fff', s: '#c9d2df', sw: 1.6 }) + winTitle(10, 14, 268, 'Security');
+  b += C(32, 56, 11, '#2e7d4f', 'none', 0) + P('M27 56 l3.5 3.5 l6 -7', 'none', '#fff', 2.4) + T(48, 52, 'Antivirus', { size: 12, a: 'start', c: B.ink }) + T(48, 66, 'Scanning your files…', { size: 9.5, w: 600, a: 'start', c: B.greyInk });
+  b += R(48, 72, 214, 7, { r: 3.5, f: '#eef1f5', s: '#d3dbe6', sw: 1 }) + R(48, 72, 150, 7, { r: 3.5, f: '#2e7d4f', s: 'none', sw: 0 });
+  const row = (y, name, bad) => {
+    let g = R(24, y, 240, 32, { r: 7, f: bad ? '#fdeee9' : '#f7faf8', s: bad ? '#e3b3a3' : '#dbe6de', sw: 1.2 });
+    g += `<g transform="translate(34 ${y + 6})">` + P('M0 0 L13 0 L19 6 L19 20 L0 20 Z', '#fff', '#9aa6b8', 1.4) + P('M13 0 L13 6 L19 6', '#e4e9f1', '#9aa6b8', 1.2) + '</g>';
+    g += T(62, y + 20, name, { size: 10.5, a: 'start', c: B.ink, mono: true });
+    if (bad) g += R(176, y + 7, 78, 18, { r: 9, f: B.red, s: 'none', sw: 0 }) + T(215, y + 19.5, 'threat', { size: 10, c: '#fff' });
+    else g += C(246, y + 16, 9, '#2e7d4f', 'none', 0) + P(`M242 ${y + 16} l3 3 l6 -6.5`, 'none', '#fff', 2);
+    return g;
+  };
+  b += row(92, 'photo.jpg', false) + row(130, 'notes.docx', false) + row(168, 'FreeGame.exe', true);
+  // right: the threat is moved to a locked quarantine box
+  b += ARROW(278, 184, 318, 150, B.red, 2.4) + T(392, 36, 'The threat is moved to', { size: 11, w: 700, c: B.soft }) + T(392, 51, 'a locked box, away from', { size: 11, w: 700, c: B.soft }) + T(392, 66, 'your other files.', { size: 11, w: 700, c: B.soft });
+  b += R(322, 86, 140, 96, { r: 10, f: '#fdf3f1', s: '#e3b3a3', sw: 1.6 }) + padlock2(382, 96, false, B.amber, 0.7) + T(392, 150, 'Quarantine', { size: 12.5, c: '#9c2f28' });
+  b += `<g transform="translate(366 118)">` + P('M0 0 L13 0 L19 6 L19 22 L0 22 Z', '#fff', '#9aa6b8', 1.4) + R(-2, 14, 24, 9, { r: 2, f: B.red, s: 'none', sw: 0 }) + T(10, 21, 'EXE', { size: 6.5, c: '#fff' }) + '</g>';
+  b += T(392, 168, 'FreeGame.exe', { size: 9, w: 600, c: B.greyInk, mono: true });
+  b += T(392, 206, 'Your other files stay safe.', { size: 11, w: 700, c: '#2f6b45' });
+  return svgWrap(480, 232, 'An antivirus app called Security scans a list of files. photo.jpg and notes.docx are marked safe with green checks. FreeGame.exe is marked as a threat in red. The antivirus moves that file to a locked Quarantine box, away from the other files, so the rest stay safe.', b);
 }

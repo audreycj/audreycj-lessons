@@ -12,7 +12,8 @@ export const B = {
   red: '#b23a33', redWash: '#f8dcd8', grey: '#d9dee6', greyInk: '#6b7688', skin: '#e9c3a0', hair: '#2a2420',
 };
 export const r1 = (svg) => svg.replace(/(\d+\.\d)\d+/g, '$1');
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// chat 57: also escape double quotes, so a quote inside a picture's description (aria-label) cannot break the <svg> tag
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /* ---------- small helpers for the clean pictures ---------- */
 export const T = (x, y, str, o = {}) =>

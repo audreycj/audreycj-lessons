@@ -1816,3 +1816,23 @@ body.nb .org-grid { grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
 body.nb .org-grid .fn-card ul { margin: 0; padding-left: 1.2rem; }
 body.nb .org-grid .fn-card li + li { margin-top: 0.55em; }
 
+
+/* ===== IT 110 chat 57: "Picture this" story pictures (storyPic) sit full width inside the note, under its text ===== */
+body.nb .sticky.has-story { transform: none; }
+body.nb .sticky.has-story > .story-fig { margin: 1.1rem 0 0.2rem; }
+body.nb .sticky.has-story > .story-fig svg.clean { width: 100%; max-width: 36rem; display: block; margin-inline: auto; }
+
+/* ===== IT 110 chat 57: "Featured case" card (famous real incident) — nb pages only ===== */
+body.nb .case { position: relative; border: 2px solid #18233a; border-radius: 16px; background: linear-gradient(180deg, #fbe7bf 0%, #fdf4e2 40%, #ffffff 100%); box-shadow: 4px 4px 0 #d99a2b; padding: 1.6rem 1.8rem; margin: 2.4rem 0; }
+body.nb .flow > .case { margin: 2.4rem 0; }
+body.nb .case-tag { display: inline-block; font-family: var(--font-display); font-weight: 600; font-size: 1rem; letter-spacing: 0.02em; color: #fff; background: #c77d12; border: 1.5px solid #18233a; border-radius: 999px; padding: 0.22rem 0.9rem; margin: 0 0 0.6rem; }
+body.nb .case-title { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; margin: 0.1rem 0 0.2rem; }
+body.nb .case-sub { color: #3b4659; font-weight: 600; margin: 0 0 1rem; }
+body.nb .case-fig { margin: 0.6rem 0 1.1rem; }
+body.nb .case-fig { background: #fff; border: 1.5px solid #e8c98a; border-radius: 12px; padding: 0.6rem; }
+body.nb .case-fig svg.clean { width: 100%; max-width: 34rem; display: block; margin-inline: auto; }
+body.nb .case-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.4rem; margin: 1.1rem 0; padding: 1rem 1.1rem; background: #fff; border: 1.5px solid #e8c98a; border-radius: 12px; }
+body.nb .case-facts > div { display: flex; flex-direction: column; }
+body.nb .case-facts dt { font-family: var(--font-display); font-size: 0.82rem; color: #8a5a05; }
+body.nb .case-facts dd { margin: 0; font-weight: 600; }
+@media (max-width: 40rem) { body.nb .case-facts { grid-template-columns: 1fr; } }

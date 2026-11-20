@@ -5,13 +5,47 @@ import Peek from '../../components/Peek.astro';
 import SortTap from '../../components/SortTap.astro';
 import RedFlags from '../../components/RedFlags.astro';
 import ZoomPics from '../../components/ZoomPics.astro';
+import StepShow from '../../components/StepShow.astro';
 import { course } from '../../data/it110.js';
-import { ciaPic, mfaPic, firewallPic, httpsPic } from '../../lib/it110-sec-pics.js';
-import { scenePic, threatDef, malwarePic, scamPic, botnetPic, ddosPic, backupPic, phishFamilyPic, oversharePic, reportPic } from '../../lib/it110-threat-pics.js';
+import { ciaPic, mfaPic, firewallPic, httpsPic, defPic } from '../../lib/it110-sec-pics.js';
+import { storyPic, malwareStep, iloveyouPic, defacePic, antivirusPic, threatDef, malwarePic, scamPic, botnetPic, ddosPic, backupPic, phishFamilyPic, oversharePic, reportPic } from '../../lib/it110-threat-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const L1 = base + '/it110/net-security/';
 
 // Peeks back to Lesson 1 (her rule: every back-reference comes with its meaning right there)
+const cybercrimePeek = '<p>From <b>Lesson 1</b>, Part 1: <b>cybercrime</b> (also called computer crime) is any crime done <b>using a computer or a network</b>. It includes breaking into systems, stealing money or data, damaging systems, and online scams.</p>' + defPic('cybercrime');
+// chat 57 round 7: each type of malware, step by step (realistic pictures in malwareStep)
+const mpic = (k) => malwarePic(k).replace('class="clean"', 'class="clean def-pic"');
+const virusSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('virus', i), say: [
+  'Carlo, a classmate, emails Jessa a "reviewer game" named ReviewerGame.exe. The file really has two parts. One part is the game. The other part is hidden <b class="term">virus</b> code. When Jessa opens the file, the game starts, and the virus code runs too. The box on the right shows, in plain words, what the hidden part is told to do. It is not real virus code.',
+  'While the game runs, the virus quietly copies its code into other programs on her computer, such as Paint.exe and Notes.exe. The programs still work, so Jessa notices nothing. Some viruses also damage or delete files, right away or on a set date.',
+  'Later, Jessa shares Paint.exe with a friend by USB drive or chat. When the friend opens it, the virus runs on the friend\'s laptop, and everything starts again. A virus spreads <b>only when a person opens</b> an infected file. One real virus, called CIH, worked this way in the late 1990s. Each time someone opened an infected program, it copied itself into more programs, and it damaged millions of computers around the world before it was stopped.',
+][i] }));
+const wormSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('worm', i), say: [
+  'An office has five computers on one network. A <b class="term">worm</b> gets into one of them, for example through an email attachment or straight from the Internet. Two of the other computers are missing a security update. The other two have it.',
+  'The worm does not wait for anyone. It sends copies of itself over the network to every computer it can reach, looking for the same security hole. The two computers without the update are infected. The two updated computers are safe, because the update fixed the hole. <b>No one clicks anything.</b>',
+  'Every new copy does the same thing, so the number of infected computers grows very fast. In May 2017, the WannaCry worm infected over 200,000 computers in 150 countries within a few days. Microsoft had released the update that fixes its hole about two months earlier.',
+][i] }));
+const trojanSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('trojan', i), say: [
+  'Jessa wants a photo editor that costs money. She finds a site, free-softz.biz, that offers the full version for free. It is "cracked", which means changed so it needs no paid license. She clicks Download now. Sites like this often hide <b class="term">Trojan horses</b>.',
+  'The installer looks normal, and the photo editor really works. But the installer also adds a <b>hidden program</b> and sets it to start every time the computer starts. It does not copy itself. Jessa installed it herself, because she believed it was safe.',
+  'The hidden program sends her saved passwords to a criminal. It also lets the criminal control her computer from far away. A hidden way into a computer like this is called a <b class="term">backdoor</b>. A real example is the Zeus Trojan, found in 2007. It reached millions of computers through fake emails and downloads, and it quietly stole online-banking passwords so criminals could take people\'s money.',
+][i] }));
+const ransomSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('ransom', i), say: [
+  'An office clerk gets an urgent email that says, "Unpaid invoice, pay today." The attachment, Invoice_Nov.zip, hides <b class="term">ransomware</b>. The clerk opens it. Some ransomware gangs get in another way, through old servers that were never updated.',
+  'At first, nothing seems wrong. Quietly, the ransomware copies the office files to the gang\'s server. Then it locks the files one by one by scrambling them, including the shared folders that other workers use. It also deletes the backup copies kept on the same computer.',
+  'Finally, a ransom note appears. It says to pay in bitcoin before the timer ends, or the files stay locked and the stolen copies will be posted online. <b>Do not pay.</b> Unplug the computer from the network, tell the IT staff or the owner, and restore the files from a backup kept somewhere else. Paying does not promise that you get your files back. In May 2021, ransomware hit Colonial Pipeline, a large fuel company in the United States. The company had to stop its pipeline for several days, which caused fuel shortages, and it paid the criminals about US$4.4 million.',
+][i] }));
+const spywareSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('spyware', i), say: [
+  'Mia uses a computer at a computer shop to check her PeraBank account. She does not know that a <b class="term">keylogger</b> is running on it. Someone installed it earlier, or it came hidden inside a free app. It has no window and no icon.',
+  'The keylogger saves every key Mia presses, with the time, in a hidden file. Now it has the bank website, her email, and her password, Mia2007!. Other <b class="term">spyware</b> also takes screenshots and records the websites a person visits.',
+  'The keylogger sends the file to a criminal far away, and he logs in to PeraBank as Mia. A second proof, such as a code sent to her phone, would stop him. Avoid logging in to important accounts on public computers. Spyware can also target phones. One famous example, called Pegasus, can secretly read messages and switch on the camera and microphone, and in 2021 researchers found it was used to spy on journalists and government critics in many countries.',
+][i] }));
+const mobileSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('mobile', i), say: [
+  'Ben gets a text that says, "FREE ₱500 LOAD! Get the PeraBonus app here." The link downloads perabonus.apk. An <b>APK</b> (Android Package Kit) file is an Android app file. This one comes from a link, not from Google Play, where apps are checked before people can install them.',
+  'Android warns Ben twice. First, it asks if he will allow apps from unknown sources. Then the app asks for permission to read his text messages and to control his screen. Ben taps Allow both times. These permissions give the <b class="term">mobile malware</b> what it needs.',
+  'The app hides its icon, so Ben forgets about it. When PeraPay texts him a one-time PIN (OTP), the app copies it to the criminal, who uses it to send money out of Ben\'s account. Install apps only from the official store, and say no when an app asks for your texts or screen without a clear reason. A real example is FluBot. From 2021, it spread by text messages about a waiting package. It stole banking details from phones that installed it and used those phones to text more people, until police in Europe shut it down in 2022.',
+][i] }));
 const ciaPeek = '<p>From <b>Lesson 1</b>, Part 1: the <b>CIA triad</b> names the three things security protects. <b>Confidentiality</b>: only the right people can see the data. <b>Integrity</b>: no one changes it without permission. <b>Availability</b>: it works when you need it.</p>' + ciaPic('a');
 const integrityPeek = '<p>From <b>Lesson 1</b>, Part 1: <b>integrity</b> means the data is correct and is not changed without permission.</p>' + ciaPic('i');
 const firewallPeek = '<p>From <b>Lesson 1</b>, Part 4: a <b>firewall</b> checks the traffic going in and out of a network against rules and blocks what is not allowed, like a guard at a checkpoint.</p>' + firewallPic();
@@ -140,36 +174,82 @@ const final = [
       <h2>Computer sabotage: malware and attacks that break things</h2>
     </div>
     <div class="flow">
-      <div class="sticky has-pic">
+      <div class="sticky has-story">
         <p class="note-label">Picture this</p>
         <p>At a computer shop in Mati, a student plugs in a USB flash drive to print a project. A file named <code>Project_FINAL.exe</code> opens. Nothing seems to happen. By evening, every computer in the shop is slow, files have strange names, and a note on the screen asks for money to unlock them.</p>
-      <Fragment set:html={scenePic('shop')} /></div>
+        <figure class="fig illus-fig illus big story-fig"><Fragment set:html={storyPic('shop')} /><figcaption>The computer shop story, step by step.</figcaption></figure>
+      </div>
       <p class="bridge">Lesson 1 was about intruders getting <b>in</b>. This part is about what some of them do next: damage computers, data, and services.</p>
       <div class="def has-pic"><p class="note-label">Computer sabotage</p><p>Acts that <b>destroy, damage, or disable</b> computers, their data, or the services they run. It includes harmful programs (malware), attacks that make systems stop working, and secretly changing data or websites.</p><Fragment set:html={threatDef('sabotage')} /></div>
-      <p>Computer sabotage is a kind of cybercrime. Its four main forms, in the order this part covers them, are <b>botnets</b>, <b>malware</b>, <b>denial of service attacks</b>, and <b>data or website alteration</b>.</p>
+      <p>Computer sabotage is one kind of <Peek label="cybercrime" title="From Lesson 1" html={cybercrimePeek} />. <b class="term">Cybercrime</b> is a big group that covers <b>any</b> crime done using a computer or a network. Computer sabotage is the part of that group whose goal is to <b>damage or stop</b> something. Other kinds of cybercrime have other goals. So every act of computer sabotage is a cybercrime, but not every cybercrime is computer sabotage.</p>
+      <p>This table compares the two:</p>
+      <div class="scroll-x"><table class="tbl">
+        <colgroup><col style="width: 22%" /><col style="width: 39%" /><col style="width: 39%" /></colgroup>
+        <thead><tr><th></th><th>Cybercrime</th><th>Computer sabotage</th></tr></thead>
+        <tbody>
+          <tr><td><b>What it is</b></td><td>Any crime done using a computer or a network.</td><td>One kind of cybercrime.</td></tr>
+          <tr><td><b>The criminal's goal</b></td><td>It can have many goals, such as getting in, stealing, cheating, or hurting someone.</td><td>It has one goal, which is to destroy, damage, or stop computers, data, or services.</td></tr>
+          <tr><td><b>Examples</b></td><td>Breaking into someone's account, stealing money with a fake text message, and posting mean messages to hurt someone.</td><td>Malware that deletes or locks files, an attack that stops a website, and secretly changing grades.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Computer sabotage has four main forms. This part covers them in this order: <b>botnets</b>, <b>malware</b>, <b>denial of service attacks</b>, and <b>data or website alteration</b>.</p>
 
       <h3 id="botnets">Botnets</h3>
       <p class="bridge">Many attacks are not done from one computer. They are done from thousands of ordinary computers that their owners do not know are infected.</p>
       <div class="def has-pic"><p class="note-label">Bot and botnet</p><p>A <b class="term">bot</b> (also called a <b class="term">zombie computer</b>) is a device infected with malware that lets a criminal control it from far away. A group of bots controlled by one person is a <b class="term">botnet</b>. The criminal who controls it is called a <b class="term">botherder</b>.</p><Fragment set:html={threatDef('bot')} /></div>
       <p>Bots are not only computers. Phones, Wi-Fi routers, CCTV cameras, and smart TVs with weak passwords or old software can all become bots:</p>
-      <figure class="fig illus-fig illus big"><Fragment set:html={botnetPic()} /><figcaption>One botherder, many bots. The owners of the bots usually notice nothing, except maybe a slow device.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={botnetPic()} /><figcaption>How a botnet works, step by step.</figcaption></figure>
+      <p>How does one order reach thousands of bots? The botherder does not contact each bot. Instead, every bot secretly checks in, again and again, with a computer called a <b class="term">command and control server</b> (<b class="term">C2 server</b>) to ask for new orders. "C2" is short for the two C's in "command and control." The name comes from the military, where command and control means leading and directing troops. The botherder puts one order on the C2 server, often by clicking a button on a control panel, and every bot carries it out.</p>
       <p>Criminals use botnets to send spam and scam messages, to steal data from the infected devices, and to attack websites all at once (denial of service, later in this part). Some even rent their botnets out to other criminals.</p>
 
       <h3 id="malware">Malware</h3>
       <p class="bridge">Malware is how a device becomes a bot, and much more. It is the most common kind of computer sabotage.</p>
-      <div class="def has-pic"><p class="note-label">Malware</p><p>Short for <b>malicious software</b>. Any program written to <b>harm</b> a computer or its user: to damage files, steal information, spy, or take control. People often call all malware "viruses", but a virus is only one kind.</p><Fragment set:html={threatDef('malware')} /></div>
-      <p>Each kind of malware is named after <b>how it spreads</b> or <b>what it does</b>. Here are the six you should know:</p>
-      <div class="fn-grid">
-        <div class="fn-card" id="virus" data-toc="Virus"><Fragment set:html={malwarePic('virus')} /><p class="fn-t">Computer virus</p><p class="fn-sub">spreads when a file is opened</p><p>A <b class="term">computer virus</b> attaches itself to a file or program. It runs and copies itself into other files <b>only when a person opens</b> the infected file, much like a flu virus needs a host.</p></div>
-        <div class="fn-card" id="worm" data-toc="Worm"><Fragment set:html={malwarePic('worm')} /><p class="fn-t">Computer worm</p><p class="fn-sub">spreads by itself</p><p>A <b class="term">computer worm</b> does not need a file or a person. It spreads <b>by itself</b> over a network, from one computer to the next, often through a security hole. Worms can infect thousands of computers in hours.</p></div>
-        <div class="fn-card" id="trojan" data-toc="Trojan horse"><Fragment set:html={malwarePic('trojan')} /><p class="fn-t">Trojan horse</p><p class="fn-sub">pretends to be useful</p><p>A <b class="term">Trojan horse</b> looks like a useful program, such as a free game, a "cracked" app, or a fake update, but hides something harmful inside. It does <b>not copy itself</b>. You install it yourself, thinking it is safe.</p></div>
-        <div class="fn-card" id="ransomware" data-toc="Ransomware"><Fragment set:html={malwarePic('ransom')} /><p class="fn-t">Ransomware</p><p class="fn-sub">locks your files for money</p><p><b class="term">Ransomware</b> scrambles (encrypts) your files so you cannot open them, then asks for payment, often in cryptocurrency. Many gangs also steal the files first and threaten to post them online.</p></div>
-        <div class="fn-card" id="spyware" data-toc="Spyware"><Fragment set:html={malwarePic('spyware')} /><p class="fn-t">Spyware</p><p class="fn-sub">watches you in secret</p><p><b class="term">Spyware</b> secretly collects information about you, such as the sites you visit, your messages, or your passwords. A <b class="term">keylogger</b> is spyware that records every key you press.</p></div>
-        <div class="fn-card" id="mobile-malware" data-toc="Mobile malware"><Fragment set:html={malwarePic('mobile')} /><p class="fn-t">Mobile malware</p><p class="fn-sub">targets phones</p><p><b class="term">Mobile malware</b> is malware made for phones and tablets. It often hides in fake apps, especially <b>APK</b> files (Android app files) downloaded from outside the official app store, and can read your texts, including your OTPs.</p></div>
-      </div>
+      <div class="def has-pic"><p class="note-label">Malware</p><p>Short for <b>malicious software</b>. Any program written to <b>harm</b> a computer or its user, for example to damage files, steal information, spy, or take control. People often call all malware "viruses", but a virus is only one kind.</p><Fragment set:html={threatDef('malware')} /></div>
+      <p>There are six types of malware you should know. Three of them, computer viruses, computer worms, and Trojan horses, are named after <b>how they spread or get in</b>. Ransomware and spyware are named after <b>what they do</b>, and mobile malware is named after <b>what it attacks</b>. For each type, read the definition, then tap through its step-by-step panel to see how it gets in and what happens next.</p>
+
+      <p class="bridge">The first type is named after how it spreads. Like a flu virus, it needs a person to carry it from one place to the next.</p>
+      <div class="def has-pic" id="virus" data-toc="Computer virus"><p class="note-label">Computer virus</p><p>A <b class="term">computer virus</b> attaches itself to a file or program. It runs and copies itself into other files <b>only when a person opens</b> the infected file, much like a flu virus needs a host.</p><Fragment set:html={mpic('virus')} /></div>
+      <StepShow id="virus-steps" steps={virusSteps} cap="How a computer virus spreads, step by step" hint="Tap Next to see what happens." />
+
+      <p class="bridge">The second type is also named after how it spreads, but it does not need a person at all.</p>
+      <div class="def has-pic" id="worm" data-toc="Computer worm"><p class="note-label">Computer worm</p><p>A <b class="term">computer worm</b> does not need a file or a person. It spreads <b>by itself</b> over a network, from one computer to the next, often through a security hole. Worms can infect thousands of computers in hours.</p><Fragment set:html={mpic('worm')} /></div>
+      <StepShow id="worm-steps" steps={wormSteps} cap="How a computer worm spreads, step by step" hint="Tap Next to see what happens." />
+
+      <aside class="case" aria-label="Featured case: the ILOVEYOU worm">
+        <p class="case-tag">Featured case</p>
+        <h4 class="case-title">The ILOVEYOU worm (2000)</h4>
+        <p class="case-sub">A worm made by a Filipino student that reached the whole world in about one day.</p>
+        <figure class="fig illus-fig illus case-fig"><Fragment set:html={iloveyouPic()} /><figcaption>The ILOVEYOU email and how it mailed itself around the world.</figcaption></figure>
+        <p>In May 2000, people all over the world received an email with the subject <b>ILOVEYOU</b> and an attachment that looked like a love letter, named <code>LOVE-LETTER-FOR-YOU.TXT.vbs</code>. When they opened the attachment, the worm mailed a copy of itself to everyone in their address book, and it overwrote files such as photos and documents.</p>
+        <p>ILOVEYOU spread by mailing itself, which is why it is called a worm. But it still needed each person to open the attachment, so it also used a trick, the words "I love you", to make people curious. Within one day, it had reached tens of millions of computers.</p>
+        <dl class="case-facts">
+          <div><dt>Where it started</dt><dd>Manila, Philippines</dd></div>
+          <div><dt>Who made it</dt><dd>Onel de Guzman, a 24-year-old computer student</dd></div>
+          <div><dt>How far it spread</dt><dd>Tens of millions of computers in about one day</dd></div>
+          <div><dt>Damage</dt><dd>Billions of dollars worldwide</dd></div>
+        </dl>
+        <p>At the time, the Philippines had no law against making malware, so de Guzman was not punished. This pushed the country to pass its first law on electronic crimes, the Electronic Commerce Act (Republic Act 8792), in 2000.</p>
+      </aside>
+
+      <p class="bridge">The third type does not spread by itself. It is named after how it gets in, by tricking you into installing it.</p>
+      <div class="def has-pic" id="trojan" data-toc="Trojan horse"><p class="note-label">Trojan horse</p><p>A <b class="term">Trojan horse</b> looks like a useful program, such as a free game, a "cracked" app, or a fake update, but hides something harmful inside. It does <b>not copy itself</b>. You install it yourself, thinking it is safe.</p><Fragment set:html={mpic('trojan')} /></div>
+      <StepShow id="trojan-steps" steps={trojanSteps} cap="How a Trojan horse gets in, step by step" hint="Tap Next to see what happens." />
+
+      <p class="bridge">The next two types are named after what they do. Ransomware locks your files to get money.</p>
+      <div class="def has-pic" id="ransomware" data-toc="Ransomware"><p class="note-label">Ransomware</p><p><b class="term">Ransomware</b> scrambles (encrypts) your files so you cannot open them, then asks for payment, often in cryptocurrency. Many gangs also steal the files first and threaten to post them online.</p><Fragment set:html={mpic('ransom')} /></div>
+      <StepShow id="ransom-steps" steps={ransomSteps} cap="How a ransomware attack happens, step by step" hint="Tap Next to see what happens." />
+
+      <p class="bridge">Spyware does not lock or break anything. It watches you in secret.</p>
+      <div class="def has-pic" id="spyware" data-toc="Spyware and keyloggers"><p class="note-label">Spyware and keyloggers</p><p><b class="term">Spyware</b> secretly collects information about you, such as the sites you visit, your messages, or your passwords. A <b class="term">keylogger</b> is spyware that records every key you press.</p><Fragment set:html={mpic('spyware')} /></div>
+      <StepShow id="spyware-steps" steps={spywareSteps} cap="How a keylogger steals a password, step by step" hint="Tap Next to see what happens." />
+
+      <p class="bridge">The last type is named after what it attacks, which is phones and tablets.</p>
+      <div class="def has-pic" id="mobile-malware" data-toc="Mobile malware"><p class="note-label">Mobile malware</p><p><b class="term">Mobile malware</b> is malware made for phones and tablets. It often hides in fake apps, especially <b>APK</b> files (Android app files) downloaded from outside the official app store, and can read your texts, including your OTPs.</p><Fragment set:html={mpic('mobile')} /></div>
+      <StepShow id="mobile-steps" steps={mobileSteps} cap="How mobile malware gets into a phone, step by step" hint="Tap Next to see what happens." />
+
       <div class="look">
         <p class="note-label">Take note</p>
-        <p><b>Virus vs. worm:</b> a virus needs a person to open an infected file; a worm spreads by itself over a network. <b>Trojan horse:</b> it tricks you into installing it, and it does not copy itself. Ransomware and spyware are named for <b>what they do</b>, so they can arrive as a virus, a worm, or a Trojan horse.</p>
+        <p><b>Virus or worm?</b> A virus needs a person to open an infected file. A worm spreads by itself over a network. <b>Trojan horse?</b> It tricks you into installing it, and it does not copy itself. Ransomware and spyware are named for <b>what they do</b>, so they can arrive as a virus, a worm, or a Trojan horse.</p>
       </div>
       <p>Here are the most common ways malware gets into a device:</p>
       <ul>
@@ -192,14 +272,20 @@ const final = [
       <h3 id="dos">Denial of service (DoS) attacks</h3>
       <p class="bridge">Malware attacks one device at a time. A denial of service attack goes after a whole <b>website or service</b>, and it is often done with a botnet.</p>
       <div class="def has-pic"><p class="note-label">Denial of service (DoS) attack</p><p>An attack that <b>floods</b> a website, server, or network with so much fake traffic that it slows down or stops, and real users cannot use it. When the traffic comes from many computers at once, such as a botnet, it is called a <b class="term">distributed denial of service (DDoS) attack</b>.</p><Fragment set:html={threatDef('dos')} /></div>
-      <p>Think of the school canteen at noon. If hundreds of pranksters line up and order nothing, real students cannot buy lunch. A DDoS attack does the same to a server:</p>
+      <p>Your device and a server talk by sending short messages called <b class="term">requests</b>. Opening a page, loading a picture, clicking a button, submitting a form, or sending a message each send one or more requests, like placing orders at a counter. The server answers each one. A server can answer only so many requests at the same time.</p>
+      <p>Think of the school canteen at noon. If hundreds of pranksters line up and order nothing, real students cannot buy lunch. A DDoS attack does the same to a server by sending it many fake requests at once:</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={ddosPic()} /><figcaption>The server is not broken into. It is simply too busy answering fake requests to serve real people.</figcaption></figure>
       <p>A denial of service attack goes after the <Peek label="availability" title="From Lesson 1" html={ciaPeek} /> of a system. Attackers use it to protest, to show off, to cover up another attack, or to ask a company for money to stop.</p>
+      <div class="look">
+        <p class="note-label">Take note</p>
+        <p>What makes a request <b>fake</b>? It is a real request in shape, the same kind your own device sends, but it is sent only to <b>use up the server</b>, not to really use the website. Most are normal-looking requests sent again and again from a botnet, so they are hard to tell apart from real visitors. Some bots also <b>start a connection and never finish it</b>, which keeps the server waiting and ties up its memory, like calling a hotline and staying silent on the line so no one else can get through.</p>
+      </div>
 
       <h3 id="alteration">Data, program, and website alteration</h3>
       <p class="bridge">The last form of sabotage does not stop a system. It <b>changes</b> what is inside it.</p>
       <div class="def has-pic"><p class="note-label">Data and program alteration</p><p>Secretly <b>changing or deleting</b> data or programs without permission, such as changing grades or bank records, or adding harmful code to a program. Changing the look or content of a website without permission is called <b class="term">website defacement</b>.</p><Fragment set:html={threatDef('deface')} /></div>
       <p>This attacks the <Peek label="integrity" title="From Lesson 1" html={integrityPeek} /> of data. Philippine government websites have been defaced many times, usually with protest messages. Changes to data can be even worse when no one notices them, because people keep trusting wrong records.</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={defacePic()} /><figcaption>Website defacement: the real government website, then the same web address after intruders changed it. The names here are made up.</figcaption></figure>
 
       <h3 id="protect-sabotage">Protecting against computer sabotage</h3>
       <p class="bridge">You have now seen the four forms of sabotage. These safeguards protect against them. Most are habits you can start today.</p>
@@ -211,6 +297,8 @@ const final = [
         <li><b>Use a <Peek label="firewall" title="From Lesson 1" html={firewallPeek} /></b> and strong, unique router and device passwords, so your devices do not become bots.</li>
         <li><b>Back up your files</b>, following the 3-2-1 rule below.</li>
       </ul>
+      <p>Here is how antivirus does its job. It scans your files, compares each one with a list of known malware, and moves any match into a safe, locked area called <b class="term">quarantine</b>, so the file cannot run or spread. You can then delete it.</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={antivirusPic()} /><figcaption>Antivirus scans your files, flags a known threat, and moves it to quarantine, away from the safe files.</figcaption></figure>
       <p>Backups are the best protection against ransomware, because you can get your files back without paying. Security experts recommend this simple rule:</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={backupPic()} /><figcaption>The 3-2-1 backup rule. Keep at least one copy disconnected or in the cloud, so ransomware on your computer cannot reach it.</figcaption></figure>
       <div class="look">
@@ -232,10 +320,11 @@ const final = [
       <h2>Online theft, identity theft, and scams</h2>
     </div>
     <div class="flow">
-      <div class="sticky has-pic">
+      <div class="sticky has-story">
         <p class="note-label">Picture this</p>
         <p>Mia's phone buzzes: "PeraPay ALERT: your account will be LOCKED in 2 hours. Verify now." She taps the link, and a page that looks exactly like PeraPay asks for her number, her PIN, and the code just sent to her phone. Ten minutes later, her ₱8,450 balance is gone.</p>
-      <Fragment set:html={scenePic('mia')} /></div>
+        <figure class="fig illus-fig illus big story-fig"><Fragment set:html={storyPic('mia')} /><figcaption>Mia's story, step by step.</figcaption></figure>
+      </div>
       <p class="bridge">Part 1 was about damage. This part is about <b>theft</b>: of data, of money, and of who you are. Most of it does not need advanced hacking. It needs only one person to be fooled.</p>
       <div class="def has-pic"><p class="note-label">Online theft</p><p>Stealing data, money, or property using the Internet. A big source of stolen data is a <b class="term">data breach</b>, when private information held by a company, school, or government office is <b>seen or stolen</b> by people who should not have it.</p><Fragment set:html={threatDef('breach')} /></div>
       <p>Data breaches happen through hacking, malware such as the <Peek label="PhilHealth ransomware" title="From Part 1" html={philPeek} />, lost laptops, or insiders. The stolen names, birthdays, ID numbers, and passwords are then sold or used for the crime below.</p>
@@ -351,10 +440,11 @@ const final = [
       <h2>Personal safety online</h2>
     </div>
     <div class="flow">
-      <div class="sticky has-pic">
+      <div class="sticky has-story">
         <p class="note-label">Picture this</p>
         <p>Bea posts a happy first-day-of-class photo. A week later, an account she does not know comments on all her posts, sends her messages every night, and one day writes, "Nice house. Purok 3, right?" She never told him where she lives.</p>
-      <Fragment set:html={scenePic('bea')} /></div>
+        <figure class="fig illus-fig illus big story-fig"><Fragment set:html={storyPic('bea')} /><figcaption>Bea's story, step by step.</figcaption></figure>
+      </div>
       <p class="bridge">Parts 1 and 2 were about devices, data, and money. This part is about <b>people</b>: online threats that can hurt someone's feelings, reputation, or physical safety.</p>
 
       <h3 id="cyberbullying">Cyberbullying</h3>
