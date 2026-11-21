@@ -57,13 +57,14 @@ const integrityPeek = '<p>From <b>Lesson 1</b>, Part 1: <b>integrity</b> means t
 const firewallPeek = '<p>From <b>Lesson 1</b>, Part 4: a <b>firewall</b> checks the traffic going in and out of a network against rules and blocks what is not allowed, like a guard at a checkpoint.</p>' + firewallPic();
 const mfaPeek = '<p>From <b>Lesson 1</b>, Part 3: <b>multifactor authentication (MFA)</b> asks for two or more different kinds of proof, such as your password plus a one-time code sent to your phone. A stolen password alone is then not enough.</p>' + mfaPic(2);
 const otpPeek = '<p>From <b>Lesson 1</b>, Part 3: a <b>one-time PIN (OTP)</b> is a short code sent to your phone for one login or one payment. It proves you have your phone. <b>Never give it to anyone.</b> Real banks never ask for it.</p>' + mfaPic(3);
-const httpsPeek = '<p>From <b>Lesson 1</b>, Part 4: <b>HTTPS</b> (Hypertext Transfer Protocol Secure) and the lock icon mean the connection is <b>encrypted</b>. They do not prove the website is honest: scam sites can use HTTPS too.</p>' + httpsPic();
+const httpsPeek = '<p>From <b>Lesson 1</b>, Part 4: <b>HTTPS</b> (Hypertext Transfer Protocol Secure) and the lock icon mean the connection is <b>encrypted</b>. They do not prove the website is honest, because scam sites can use HTTPS too.</p>' + httpsPic();
 const paoloPeek = '<p>From <b>Lesson 1</b>, Part 1: late at night, Jessa got a message from her classmate Paolo asking to borrow ₱500. But Paolo\'s account had been taken over. The stranger was sending the same message to everyone on Paolo\'s friends list.</p>';
 const philPeek = '<p>From Part 1: in September 2023, the Medusa <b>ransomware</b> group attacked PhilHealth, demanded US$300,000, and posted the stolen files online when PhilHealth refused to pay.</p>' + malwarePic('ransom');
 const lovePeek = '<p>From Part 2: in a <b>love scam</b>, someone builds an online relationship using stolen photos (<b>catfishing</b>), then asks for money.</p>' + scamPic('love');
 const deepPeek = '<p>From Part 2 of this lesson: a <b>deepfake</b> is a video, photo, or voice made with AI (artificial intelligence) to copy a real person.</p>' + scamPic('deep');
 const socialPeek = '<p>From Part 2 of this lesson: <b>social engineering</b> means tricking people, instead of computers, into giving away information, money, or access.</p>';
 const vpnPeek = '<p>From Lesson 1: a <b>VPN</b> (virtual private network) makes an encrypted tunnel over the Internet, so a worker at home can use the office network safely.</p>';
+const ddosPeek = '<p>From earlier in Part 1: a <b>denial of service (DoS) attack</b> floods a website or server with fake traffic so real users cannot use it. When the flood comes from many devices at once, such as a botnet, it is a <b>distributed denial of service (DDoS) attack</b>.</p>';
 const malwarePeek = '<p>From Part 1 of this lesson: <b>malware</b>, short for malicious software, is any program written to harm a computer or its user, for example to steal information, spy, or take control.</p>';
 
 // Practice: which kind of malware?
@@ -148,7 +149,7 @@ const final = [
   { q: 'Computer sabotage includes all of these EXCEPT...', opts: ['spreading malware', 'a denial of service attack', 'turning on automatic updates'], a: 2, why: 'Automatic updates protect you. The other two damage or disable computers.' },
   { q: 'A program that looks like a free game but secretly lets a stranger into your computer is a...', opts: ['worm', 'Trojan horse', 'digital certificate'], a: 1, why: 'A Trojan horse pretends to be something useful.' },
   { q: 'Ransomware is malware that...', opts: ['locks or steals your files and asks for payment', 'shows ads only', 'makes your Wi-Fi faster'], a: 0, why: 'Like the 2023 attack on PhilHealth.' },
-  { q: 'The 3-2-1 backup rule means...', opts: ['3 passwords, 2 phones, 1 laptop', '3 copies, on 2 kinds of storage, with 1 copy kept in another place', 'back up 3 times a day for 2 weeks'], a: 1, why: 'At least one copy away from your computer survives ransomware, fire, or theft.' },
+  { q: 'The 3-2-1 backup rule means...', opts: ['3 passwords, 2 phones, 1 laptop', '3 copies, on 2 kinds of storage, with 1 copy kept in another place', 'back up 3 times a day for 2 weeks'], a: 1, why: 'A copy kept unplugged or in a cloud backup with version history survives ransomware, fire, or theft.' },
   { q: 'A data breach is...', opts: ['when private data is seen or stolen by people who should not have it', 'when a website loads slowly', 'a kind of backup'], a: 0, why: 'Breaches are one of the main sources of stolen identities.' },
   { q: 'Phishing in general means...', opts: ['fake messages that trick people into giving away passwords, codes, or money', 'hacking a Wi-Fi router', 'a broken hard drive'], a: 0, why: 'Phishing is a kind of social engineering.' },
   { q: 'Which is a red flag in a message?', opts: ['It uses your full name and says nothing urgent', 'It was sent by a friend you are talking to face to face', 'It says your account will be locked in 2 hours unless you tap a link'], a: 2, why: 'Rushing you with a threat is one of the strongest signs of a scam.' },
@@ -164,7 +165,7 @@ const final = [
     <p class="crumbs"><a href={base + course.href}>IT 110</a> › Final › Security and information systems</p>
     <p class="kicker">Network and Internet security · Lesson 2 of 2</p>
     <h1>Network and Internet security: malware, scams, and staying safe</h1>
-    <p class="lede">What attackers do once they reach you: harmful programs, tricks that steal your money and identity, and threats to your safety. And how to protect yourself and where to report.</p>
+    <p class="lede">What attackers do once they reach you, such as harmful programs, tricks that steal your money and identity, and threats to your safety. Also, how to protect yourself and where to report.</p>
     <div class="goals">
       <p class="note-label">By the end, you can:</p>
       <ol>
@@ -188,7 +189,7 @@ const final = [
         <p>At a computer shop in Mati, a student plugs in a USB flash drive to print a project. A file named <code>Project_FINAL.exe</code> opens. Nothing seems to happen. By evening, every computer in the shop is slow, files have strange names, and a note on the screen asks for money to unlock them.</p>
         <figure class="fig illus-fig illus big story-fig"><Fragment set:html={storyPic('shop')} /><figcaption>The computer shop story, step by step.</figcaption></figure>
       </div>
-      <p class="bridge">Lesson 1 was about intruders getting <b>in</b>. This part is about what some of them do next: damage computers, data, and services.</p>
+      <p class="bridge">Lesson 1 was about intruders getting <b>in</b>. This part is about what some of them do next, which is to damage computers, data, and services.</p>
       <div class="def has-pic"><p class="note-label">Computer sabotage</p><p>Acts that <b>destroy, damage, or disable</b> computers, their data, or the services they run. It includes harmful programs (malware), attacks that make systems stop working, and secretly changing data or websites.</p><Fragment set:html={threatDef('sabotage')} /></div>
       <p>Computer sabotage is one kind of <Peek label="cybercrime" title="From Lesson 1" html={cybercrimePeek} />. <b class="term">Cybercrime</b> is a big group that covers <b>any</b> crime done using a computer or a network. Computer sabotage is the part of that group whose goal is to <b>damage or stop</b> something. Other kinds of cybercrime have other goals. So every act of computer sabotage is a cybercrime, but not every cybercrime is computer sabotage.</p>
       <p>This table compares the two:</p>
@@ -201,7 +202,7 @@ const final = [
           <tr><td><b>Examples</b></td><td>Breaking into someone's account, stealing money with a fake text message, and posting mean messages to hurt someone.</td><td>Malware that deletes or locks files, an attack that stops a website, and secretly changing grades.</td></tr>
         </tbody>
       </table></div>
-      <p>Computer sabotage has four main forms. This part covers them in this order: <b>botnets</b>, <b>malware</b>, <b>denial of service attacks</b>, and <b>data or website alteration</b>.</p>
+      <p>Computer sabotage has four main forms. This part covers them in this order, starting with <b>botnets</b>, then <b>malware</b>, <b>denial of service attacks</b>, and <b>data or website alteration</b>.</p>
 
       <h3 id="botnets">Botnets</h3>
       <p class="bridge">Many attacks are not done from one computer. They are done from thousands of ordinary computers that their owners do not know are infected.</p>
@@ -322,7 +323,7 @@ const final = [
       <p class="bridge">The last form of sabotage does not stop a system. It <b>changes</b> what is inside it.</p>
       <div class="def has-pic"><p class="note-label">Data and program alteration</p><p>Secretly <b>changing or deleting</b> data or programs without permission, such as changing grades or bank records, or adding harmful code to a program. Changing the look or content of a website without permission is called <b class="term">website defacement</b>.</p><Fragment set:html={threatDef('deface')} /></div>
       <p>This attacks the <Peek label="integrity" title="From Lesson 1" html={integrityPeek} /> of data. Philippine government websites have been defaced many times, usually with protest messages. Changes to data can be even worse when no one notices them, because people keep trusting wrong records.</p>
-      <figure class="fig illus-fig illus big"><Fragment set:html={defacePic()} /><figcaption>Website defacement: the real government website, then the same web address after intruders changed it. The names here are made up.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={defacePic()} /><figcaption>Website defacement. On the left is the real government website, and on the right is the same web address after intruders changed it. The names here are made up.</figcaption></figure>
 
       <h3 id="protect-sabotage">Protecting against computer sabotage</h3>
       <p class="bridge">You have now seen the four forms of sabotage. These safeguards protect against them. Most are habits you can start today.</p>
@@ -337,18 +338,19 @@ const final = [
       <p>Here is how antivirus does its job. It scans your files, compares each one with a list of known malware, and moves any match into a safe, locked area called <b class="term">quarantine</b>, so the file cannot run or spread. You can then delete it.</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={antivirusPic()} /><figcaption>Antivirus scans your files, flags a known threat, and moves it to quarantine, away from the safe files.</figcaption></figure>
       <p>Backups are the best protection against ransomware, because you can get your files back without paying. Security experts recommend this simple rule:</p>
-      <figure class="fig illus-fig illus big"><Fragment set:html={backupPic()} /><figcaption>The 3-2-1 backup rule. Keep at least one copy disconnected or in the cloud, so ransomware on your computer cannot reach it.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={backupPic()} /><figcaption>The 3-2-1 backup rule. Keep at least one copy where ransomware on your computer cannot reach it, such as a drive you unplug after each backup, or a cloud backup that keeps older versions of your files. A cloud folder that syncs with your computer, such as Google Drive or OneDrive, is not enough by itself, because the locked files are copied into it too. Turn on its version history, so you can get the older, unlocked files back.</figcaption></figure>
       <div class="look">
         <p class="note-label">Take note</p>
         <p>Antivirus cannot catch everything, especially brand-new malware. That is why security uses <b>layers</b>, which means using updates, antivirus, careful habits, firewalls, and backups together. If ransomware strikes, government agencies advise <b>not paying</b>. Payment does not guarantee you get your files back, and it pays for more attacks.</p>
       </div>
-      <p>Organizations, such as schools, companies, and government offices, need more than personal habits, because one attack can stop services for thousands of people. Here are five main measures that organizations take against computer sabotage:</p>
+      <p>Organizations, such as schools, companies, and government offices, need more than personal habits, because one attack can stop services for thousands of people. Here are six main measures that organizations take against computer sabotage:</p>
       <ul>
         <li><b>Update every computer on a schedule.</b> IT staff install security updates on all computers and servers, and they replace old systems that no longer get updates.</li>
         <li><b>Train the staff.</b> Workers learn to spot fake emails and unsafe files, because one click by one worker can let ransomware in.</li>
         <li><b>Require a second proof</b>, or <Peek label="MFA" title="From Lesson 1" html={mfaPeek} />, for every account, especially for remote access such as a <Peek label="VPN" title="From Lesson 1" html={vpnPeek} />. A leaked password alone let the criminals into Colonial Pipeline.</li>
         <li><b>Keep backups offline and test them.</b> At least one copy is kept where ransomware cannot reach it, and the IT staff check from time to time that the files can really be restored.</li>
-        <li><b>Prepare an <b class="term">incident response plan</b>.</b> This is a written plan of who does what when an attack happens, such as who unplugs the computers, who calls the police, and how services keep running. Many organizations also pay for a <b class="term">DDoS protection service</b>, which filters out flood traffic before it reaches their website.</li>
+        <li><b>Prepare an <b class="term">incident response plan</b>.</b> This is a written plan of who does what when an attack happens, such as who unplugs the computers, who calls the police, and how services keep running.</li>
+        <li><b>Protect websites from floods.</b> Many organizations pay for a <b class="term">DDoS protection service</b>, which filters out the flood of fake requests in a <Peek label="distributed denial of service (DDoS) attack" title="From earlier in Part 1" html={ddosPeek} /> before it reaches their website.</li>
       </ul>
 
       <div class="sub">
@@ -394,7 +396,7 @@ const final = [
       <h3 id="phishing">Phishing and its types</h3>
       <p class="bridge">Phishing is a kind of social engineering that uses <b>fake messages</b>.</p>
       <div class="def has-pic"><p class="note-label">Phishing</p><p>Sending <b>fake messages</b> that pretend to come from a trusted company or person, to trick people into giving away passwords, PINs, codes, or money, often on a <b>fake website</b>. The name comes from the word "fishing", because the fake message works like <b>bait</b> on a fishing hook.</p><Fragment set:html={threatDef('phishing')} /></div>
-      <p>Phishing has <b>five main types</b>. Four of them are named after <b>how</b> the fake message reaches you: <b class="term">phishing</b> by email, <b class="term">smishing</b> by text message, <b class="term">vishing</b> by voice call, and <b class="term">quishing</b> by QR code. The fifth type, <b class="term">spear phishing</b>, is named after <b>who</b> it targets. Notice that the word <b class="term">phishing</b> is used in two ways. It is the name of the whole family, and it is also the name of its email type.</p>
+      <p>Phishing has <b>five main types</b>. Four of them are named after <b>how</b> the fake message reaches you. They are <b class="term">phishing</b> by email, <b class="term">smishing</b> by text message, <b class="term">vishing</b> by voice call, and <b class="term">quishing</b> by QR code. The fifth type, <b class="term">spear phishing</b>, is named after <b>who</b> it targets. Notice that the word <b class="term">phishing</b> is used in two ways. It is the name of the whole family, and it is also the name of its email type.</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={phishFamilyPic()} /><figcaption>The five types of phishing. All of them use the same trick, which is a fake message, but they reach you in different ways or aim at different people.</figcaption></figure>
       <p>The table below explains each type, with an example:</p>
       <div class="scroll-x"><table class="tbl">
@@ -502,7 +504,7 @@ const final = [
         <p>Bea posts a happy first-day-of-class photo. A week later, an account she does not know comments on all her posts, sends her messages every night, and one day writes, "Nice house. Purok 3, right?" She never told him where she lives.</p>
         <figure class="fig illus-fig illus big story-fig"><Fragment set:html={storyPic('bea')} /><figcaption>Bea's story, step by step.</figcaption></figure>
       </div>
-      <p class="bridge">Parts 1 and 2 were about devices, data, and money. This part is about <b>people</b>: online threats that can hurt someone's feelings, reputation, or physical safety.</p>
+      <p class="bridge">Parts 1 and 2 were about devices, data, and money. This part is about <b>people</b>, and the online threats that can hurt someone's feelings, reputation, or physical safety.</p>
 
       <h3 id="cyberbullying">Cyberbullying</h3>
       <div class="def has-pic"><p class="note-label">Cyberbullying</p><p><b class="term">Cyberbullying</b> is the use of phones, social media, games, or other technology to <b>repeatedly hurt, shame, threaten, or exclude</b> someone, especially among students. Examples are mean posts, edited photos, fake accounts that mock someone, and leaving someone out of group chats on purpose.</p><Fragment set:html={partThreeDef('bully')} /></div>
@@ -585,7 +587,7 @@ const final = [
       </table></div>
       <div class="look">
         <p class="note-label">Take note</p>
-        <p>"I only lent my account" is not a defense. Under AFASA, letting scam money pass through your account is a crime. And a newer law is on the way: as of November 2026, the House of Representatives has passed a National Cybersecurity Act (House Bill 9605), which would create a national cybersecurity agency. The Senate has not passed its version yet, so it is <b>not a law yet</b>.</p>
+        <p>"I only lent my account" is not a defense. Under AFASA, letting scam money pass through your account is a crime. A newer law is also on the way. As of November 2026, the House of Representatives has passed a National Cybersecurity Act (House Bill 9605), which would create a national cybersecurity agency. The Senate has not passed its version yet, so it is <b>not a law yet</b>.</p>
       </div>
 
       <h3 id="report">Where to report</h3>
@@ -650,7 +652,7 @@ const final = [
       <p>No need to submit anything:</p>
       <ol>
         <li>Check that automatic updates are on for your phone and laptop, and install any waiting updates.</li>
-        <li>Back up your important school files using the 3-2-1 rule. At least one copy should be in the cloud or on a drive you keep unplugged.</li>
+        <li>Back up your important school files using the 3-2-1 rule. At least one copy should be on a drive you keep unplugged, or in a cloud backup that keeps older versions of your files.</li>
         <li>Open your social media privacy settings. Who can see your posts, your friends list, and your tagged photos? Remove any posts that show your ID or home.</li>
         <li>Agree on a family code word for emergency calls, and save hotline <b>1326</b> in your phone and your family's phones.</li>
       </ol>

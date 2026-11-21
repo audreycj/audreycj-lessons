@@ -136,13 +136,13 @@ export function threatDef(kind) {
       {
         const site = (x, y, fake) => R(x, y, 58, 38, { r: 5, f: '#fff', s: fake ? B.red : '#b7bfcc', sw: fake ? 2 : 1.6 }) + R(x, y, 58, 12, { r: 5, f: fake ? B.blue : '#a9b8d0', s: 'none', sw: 0 }) + T(x + 29, y + 9.5, 'PeraBank', { size: 7.5, c: '#fff' })
           + L(x + 8, y + 20, x + 50, y + 20, fake ? '#c9d2df' : '#e1e6ed', 3) + L(x + 8, y + 27, x + 40, y + 27, fake ? '#c9d2df' : '#e1e6ed', 3) + R(x + 16, y + 29, 26, 6, { r: 2, f: fake ? B.blue : '#c9d3e3', s: 'none', sw: 0 });
-        b = R(10, 6, 140, 22, { r: 11, f: '#fff', s: '#b7bfcc', sw: 1.6 }) + T(74, 21.5, 'perabank.ph', { size: 10.5, c: B.ink, mono: true }) + L(116, 11, 116, 23, B.blue, 1.6) + check(138, 17, 0.5);
+        b = R(10, 6, 140, 22, { r: 11, f: '#fff', s: '#b7bfcc', sw: 1.6 }) + T(68, 21.5, 'perabank.com.ph', { size: 10, c: B.ink, mono: true }) + L(119, 11, 119, 23, B.blue, 1.6) + check(138, 17, 0.5);
         b += L(80, 28, 80, 44, B.ink, 2.2) + `<path d="M80 44 Q60 48 40 60" fill="none" stroke="#b7bfcc" stroke-width="2" stroke-dasharray="4 3"/>` + cross(56, 50, 0.45) + P('M80 44 Q100 48 118 58', 'none', B.red, 2.4) + ARROW(110, 54, 120, 60, B.red, 2.4);
         b += site(10, 56, false) + site(92, 56, true);
         b += hacker2(80, 62, 0.34) + L(86, 70, 81, 46, '#8a5a3a', 2.4) + C(80.6, 45, 2.6, B.red, B.ink, 1);
         b += label(39, 111, 'real site', B.greyInk, '#fff', 8.5) + label(121, 111, 'fake copy', B.red, '#fdeee9', 8.5);
       }
-      alt = 'The correct address perabank.ph is typed. At the fork, a hidden criminal pulls a switch, so the trip goes to a fake copy of the PeraBank site instead of the real site: pharming.'; break;
+      alt = 'The correct address perabank.com.ph is typed. At the fork, a hidden criminal pulls a switch, so the trip goes to a fake copy of the PeraBank site instead of the real site: pharming.'; break;
     case 'spoofing':
       // redrawn chat 58: the real caller is a hooded stranger, but a fake name tag "PeraBank" is attached on the way, so your phone shows PeraBank calling
       b = blob(80, 62, 74, 50, '#e3ecf8') + ground(34, 94, 24) + hacker2(34, 32, 0.6) + phone2(44, 56, 15, 26, null, '#2f3d55');
@@ -155,9 +155,9 @@ export function threatDef(kind) {
     case 'cert':
       // chat 59: closer to a real certificate viewer
       b = blob(80, 62, 70, 50, '#dcefe2') + ground(70, 112, 56) + R(14, 12, 112, 94, { r: 6, f: '#fff', sw: 2 }) + R(14, 12, 112, 18, { r: 6, f: '#e4e9f1', sw: 2 }) + `<rect x="15" y="22" width="110" height="7" fill="#e4e9f1"/>` + T(70, 25, 'Certificate', { size: 9.5, w: 800, c: B.ink });
-      b += T(22, 44, 'Issued to', { size: 8, w: 600, a: 'start', c: B.greyInk }) + T(22, 56, 'perabank.ph', { size: 9.5, w: 800, a: 'start', c: B.blueInk }) + T(22, 72, 'Issued by', { size: 8, w: 600, a: 'start', c: B.greyInk }) + T(22, 84, 'TrustSeal CA', { size: 9.5, w: 800, a: 'start', c: B.ink }) + T(22, 98, 'Valid until 2027', { size: 8, w: 600, a: 'start', c: B.greyInk });
+      b += T(22, 44, 'Issued to', { size: 8, w: 600, a: 'start', c: B.greyInk }) + T(22, 56, 'perabank.com.ph', { size: 9, w: 800, a: 'start', c: B.blueInk }) + T(22, 72, 'Issued by', { size: 8, w: 600, a: 'start', c: B.greyInk }) + T(22, 84, 'TrustSeal CA', { size: 9.5, w: 800, a: 'start', c: B.ink }) + T(22, 98, 'Valid until 2027', { size: 8, w: 600, a: 'start', c: B.greyInk });
       b += padlock2(128, 40, false, B.green, 0.62) + check(146, 44, 0.62);
-      alt = 'A certificate window: issued to perabank.ph, issued by TrustSeal CA, valid until 2027, beside a green padlock with a check mark.'; break;
+      alt = 'A certificate window: issued to perabank.com.ph, issued by TrustSeal CA, valid until 2027, beside a green padlock with a check mark.'; break;
     case 'signature':
       // chat 59: a signed PDF page as a reader app shows it
       b = blob(80, 62, 70, 50, '#e3ecf8') + ground(80, 112, 54) + R(32, 8, 96, 100, { r: 4, f: '#fff', sw: 2 }) + R(33, 9, 94, 18, { r: 3, f: '#e3f3e9', s: 'none', sw: 0 }) + C(43, 18, 5.5, B.green, 'none', 0) + P('M40.5 18 L42.5 20 L46 16', 'none', '#fff', 1.6) + T(52, 21.5, 'Signed, valid', { size: 8.5, w: 800, a: 'start', c: '#2a6643' });
@@ -861,10 +861,10 @@ export function storyPic(kind) {
     b += girl(66, 56, 0.95, { shirt: B.blue, sad: true }) + phone2(82, 100, 30, 52, (x, y, w, h) => R(x + 2, y + 2, w - 4, 14, { r: 3, f: '#fdeee9', s: 'none', sw: 0 }));
     b += zoomLines(108, 104, 108, 140, 170, 50, 170, 170);
     b += R(170, 48, 288, 124, { r: 12, f: '#fff', sw: 2 }) + C(194, 72, 12, B.blue, 'none', 0) + T(194, 76.5, 'P', { size: 12, c: '#fff' }) + T(214, 70, 'PeraPay', { size: 13, a: 'start', c: B.ink }) + T(214, 84, 'Text message · now', { size: 10.5, w: 600, a: 'start', c: B.greyInk });
-    b += R(182, 94, 264, 70, { r: 10, f: '#eef1f5', s: 'none', sw: 0 }) + T(192, 114, 'ALERT: Your account will be LOCKED', { size: 12, w: 700, a: 'start', c: B.ink }) + T(192, 132, 'in 2 hours. Verify now:', { size: 12, w: 700, a: 'start', c: B.ink }) + T(192, 152, 'perapay-verify.com', { size: 12, w: 700, a: 'start', c: B.blue, mono: true }).replace('<text', '<text text-decoration="underline"');
+    b += R(182, 94, 264, 70, { r: 10, f: '#eef1f5', s: 'none', sw: 0 }) + T(192, 114, 'ALERT: Your account will be LOCKED', { size: 12, w: 700, a: 'start', c: B.ink }) + T(192, 132, 'in 2 hours. Verify now:', { size: 12, w: 700, a: 'start', c: B.ink }) + T(192, 152, 'perapay-verify.co', { size: 12, w: 700, a: 'start', c: B.blue, mono: true }).replace('<text', '<text text-decoration="underline"');
     // 2. the fake page
     b += stPanel(192, 166) + stHead(22, 204, 2, 'She taps the link and types her details');
-    b += phone2(36, 234, 110, 116, (x, y, w, h) => R(x + 4, y, w - 8, 14, { r: 7, f: '#fff', s: '#b7bfcc', sw: 1 }) + T(x + w / 2, y + 10, 'perapay-verify.com', { size: 7, c: B.red, mono: true }) + R(x, y + 18, w, 16, { r: 0, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 30, 'PeraPay', { size: 10, c: '#fff' }) + [['0917 555 1234', 40], ['PIN  ••••', 56], ['Code  482916', 72]].map(([t, yy]) => R(x + 6, y + yy, w - 12, 13, { r: 3, f: '#fff', s: '#b7bfcc', sw: 1 }) + T(x + 10, y + yy + 9.5, t, { size: 7, w: 700, a: 'start', c: B.ink, mono: true })).join(''));
+    b += phone2(36, 234, 110, 116, (x, y, w, h) => R(x + 4, y, w - 8, 14, { r: 7, f: '#fff', s: '#b7bfcc', sw: 1 }) + T(x + w / 2, y + 10, 'perapay-verify.co', { size: 7, c: B.red, mono: true }) + R(x, y + 18, w, 16, { r: 0, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 30, 'PeraPay', { size: 10, c: '#fff' }) + [['0917 555 1234', 40], ['PIN  ••••', 56], ['Code  482916', 72]].map(([t, yy]) => R(x + 6, y + yy, w - 12, 13, { r: 3, f: '#fff', s: '#b7bfcc', sw: 1 }) + T(x + 10, y + yy + 9.5, t, { size: 7, w: 700, a: 'start', c: B.ink, mono: true })).join(''));
     b += label(214, 326, 'fake page', B.red, '#fdeee9', 12);
     b += P('M152 292 Q230 278 296 292', 'none', B.red, 2) + ARROW(286, 289, 298, 293, B.red, 2.2) + T(224, 274, 'copied to the scammer', { size: 11.5, w: 700, c: '#9c2f28' });
     b += laptop2(306, 244, 104, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#1f2a3d', s: 'none', sw: 0 }) + ['0917 555 1234', 'PIN: 4417', 'Code: 482916'].map((t, k) => T(x + 6, y + 14 + k * 14, t, { size: 8.5, a: 'start', c: '#ff9f8f', mono: true })).join('')) + hacker2(440, 254, 0.62);
@@ -875,7 +875,7 @@ export function storyPic(kind) {
     b += T(98, 472, '₱8,450', { size: 17, c: B.soft, mono: true }) + L(64, 467, 132, 467, B.red, 2.4) + ARROW(140, 466, 160, 466, B.ink, 2) + T(198, 473, '₱0.00', { size: 19, c: B.red, mono: true });
     b += T(138, 492, 'Sent ₱8,450 to 0998 *** 1234', { size: 10, w: 700, c: B.soft });
     b += girl(412, 414, 0.95, { shirt: B.blue, sad: true }) + bubble(262, 420, 118, 46, 372, 478, '#fff') + T(321, 439, '"I never', { size: 12.5, w: 700, c: B.ink }) + T(321, 457, 'sent that!"', { size: 12.5, w: 700, c: B.ink });
-    alt = 'Three panels. 1: Mia gets a text that looks like it is from PeraPay: "ALERT: Your account will be LOCKED in 2 hours. Verify now: perapay-verify.com". 2: She taps the link; a fake PeraPay page asks for her number, PIN, and the code just sent to her, and everything she types is copied to a scammer\'s laptop. 3: Ten minutes later, her balance drops from ₱8,450 to ₱0.00, sent to an unknown number.';
+    alt = 'Three panels. 1: Mia gets a text that looks like it is from PeraPay: "ALERT: Your account will be LOCKED in 2 hours. Verify now: perapay-verify.co". 2: She taps the link; a fake PeraPay page asks for her number, PIN, and the code just sent to her, and everything she types is copied to a scammer\'s laptop. 3: Ten minutes later, her balance drops from ₱8,450 to ₱0.00, sent to an unknown number.';
   } else {
     return beaStoryPic(); // chat 59: rebuilt with realistic phone screens
   }
@@ -1131,10 +1131,10 @@ export function malwareStep(kind, i) {
       alt = 'Mia logs in to PeraBank on a computer at a computer shop. Hidden on the computer, a keylogger is running. Someone installed it earlier, or it came with a free app. It has no window and no icon.';
     } else if (i === 1) {
       b += winBox(24, 20, 270, 214, 'log.txt (hidden file)');
-      ['09:41  perabank.ph', '09:41  mia.santos@mail.ph', '09:42  Mia2007!', '09:45  messenger.com', '09:46  "see you later"'].forEach((t, k) => { b += T(40, 70 + k * 30, t, { size: 11, w: 700, a: 'start', c: k === 2 ? B.red : B.ink, mono: true }); });
+      ['09:41  perabank.com.ph', '09:41  mia.santos@mail.ph', '09:42  Mia2007!', '09:45  messenger.com', '09:46  "see you later"'].forEach((t, k) => { b += T(40, 70 + k * 30, t, { size: 11, w: 700, a: 'start', c: k === 2 ? B.red : B.ink, mono: true }); });
       b += R(34, 114, 242, 23, { r: 4, f: 'rgba(178,58,51,0.08)', s: B.red, sw: 1.4 });
       b += tag(386, 100, 'Every key she presses', B.ink, 12.5) + tag(386, 118, 'is saved, with the time.', B.ink, 12.5) + tag(386, 152, 'Some spyware also takes', B.soft, 11.5) + tag(386, 168, 'screenshots and records', B.soft, 11.5) + tag(386, 184, 'the sites she visits.', B.soft, 11.5);
-      alt = 'A hidden file, log.txt, lists what Mia typed with the time: perabank.ph, her email, her password Mia2007!, and messages. Some spyware also takes screenshots and records the sites she visits.';
+      alt = 'A hidden file, log.txt, lists what Mia typed with the time: perabank.com.ph, her email, her password Mia2007!, and messages. Some spyware also takes screenshots and records the sites she visits.';
     } else {
       b += pc2(30, 60, 110, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#e8f0fb', s: 'none', sw: 0 }) + doc(x + 34, y + 8, 30, 38)) + tag(85, 160, 'shop computer', B.soft);
       b += dashArrow(150, 100, 290, 100) + T(220, 90, 'log.txt sent', { size: 11, c: '#9c2f28' });
@@ -1486,7 +1486,7 @@ export function afterScamStep(i) {
     // left column: change password
     const lx = x + 16;
     b += T(lx, y + 76, 'Change password', { size: 12.5, w: 800, a: 'start', c: B.ink }) + T(lx, y + 96, 'New password', { size: 10, w: 700, a: 'start', c: B.greyInk });
-    b += R(lx, y + 102, 190, 26, { r: 6, f: '#fff', s: '#b7bfcc', sw: 1.4 }) + [...Array(12)].map((_, k) => C(lx + 14 + k * 11, y + 115, 3, B.ink, 'none', 0)).join('');
+    b += R(lx, y + 102, 190, 26, { r: 6, f: '#fff', s: '#b7bfcc', sw: 1.4 }) + [...Array(16)].map((_, k) => C(lx + 14 + k * 10.5, y + 115, 3, B.ink, 'none', 0)).join('');
     b += R(lx, y + 136, 190, 6, { r: 3, f: '#e2e6ed', s: 'none', sw: 0 }) + R(lx, y + 136, 160, 6, { r: 3, f: B.green, s: 'none', sw: 0 }) + T(lx, y + 158, 'Strong password', { size: 10, w: 700, a: 'start', c: '#2a6643' });
     b += R(lx, y + 172, 90, 28, { r: 14, f: B.blue, s: 'none', sw: 0 }) + T(lx + 45, y + 190, 'Save', { size: 11, w: 800, c: '#fff' });
     // right column: devices + 2-step verification
@@ -1497,7 +1497,7 @@ export function afterScamStep(i) {
     b += R(rx, y + 126, 196, 26, { r: 13, f: '#fff', s: B.blue, sw: 1.4 }) + T(rx + 98, y + 143, 'Sign out of all other devices', { size: 10, w: 800, c: B.blueInk });
     b += L(rx, y + 166, rx + 196, y + 166, '#e2e6ed', 1.2) + T(rx, y + 188, '2-Step Verification (MFA)', { size: 11, w: 800, a: 'start', c: B.ink }) + T(rx, y + 204, 'On', { size: 10, w: 700, a: 'start', c: '#2a6643' });
     b += R(rx + 160, y + 178, 36, 20, { r: 10, f: B.green, s: 'none', sw: 0 }) + C(rx + 186, y + 188, 7.5, '#fff', 'none', 0);
-    alt = 'An email account\'s security page in a browser. Left: Change password, with a new password of 12 characters, a strength bar marked Strong password, and a Save button. Right: Where you are signed in lists the phone in Mati City (this device) and, in red, a Windows PC in an unknown place, with a button Sign out of all other devices. Below it, 2-Step Verification (MFA) is switched on.';
+    alt = 'An email account\'s security page in a browser. Left: Change password, with a new password of 16 characters, a strength bar marked Strong password, and a Save button. Right: Where you are signed in lists the phone in Mati City (this device) and, in red, a Windows PC in an unknown place, with a button Sign out of all other devices. Below it, 2-Step Verification (MFA) is switched on.';
   } else {
     // left: phone with the scam chat, just after a screenshot (thumbnail at the bottom left, like a real phone); right: a folder of proof
     b += phoneBig(36, 16, (x, y, w, h) => {

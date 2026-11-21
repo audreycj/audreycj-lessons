@@ -4,7 +4,7 @@
 // 10 billion guesses per second. Nothing is sent or saved: the script only reads the box. Styles: global.css "chat 54" block.
 interface Props { id: string; }
 const { id } = Astro.props;
-const examples = ['mia2007', 'P@ssw0rd!', 'Mt9$kQ2x', 'kapepandesalulanhapon'];
+const examples = ['mia2007', 'P@ssw0rd!', 'Mt9$kQ2x', 'kapepandesalulanhapondagat'];
 ---
 <div class="passlab" id={id} data-lvl="none">
   <p class="pl-cap">Try it: how long would it take to guess?</p>
@@ -22,7 +22,7 @@ const examples = ['mia2007', 'P@ssw0rd!', 'Mt9$kQ2x', 'kapepandesalulanhapon'];
     <div><dt>Possible passwords like it</dt><dd class="pl-count">0</dd></div>
     <div><dt>Time to try them all*</dt><dd class="pl-time">0 seconds</dd></div>
   </dl>
-  <p class="pl-note">*If a computer tried 10 billion random guesses per second. Real attackers try common passwords, words, names, and dates first, so passwords made of those fall much faster than this.</p>
+  <p class="pl-note">*If a computer tried 10 billion random guesses per second. Real attackers try common passwords, words, names, and dates first, so passwords made of those fall much faster than this. This also counts each letter of a passphrase separately, so it shows a passphrase as stronger than it really is. A passphrase of four common words can fall in days, which is why you should use at least five random words.</p>
 </div>
 <script is:inline define:vars={{ id }}>
   (function () {
@@ -57,7 +57,7 @@ const examples = ['mia2007', 'P@ssw0rd!', 'Mt9$kQ2x', 'kapepandesalulanhapon'];
       else if (isCommon) { msg = 'This is on lists of the most common passwords. It would be guessed in the first second, whatever the number above says.'; lvl = 0.05; }
       else if (len < 8) { msg = 'Too short. Short passwords can be tried in seconds.'; lvl = 0.15; }
       else if (len < 15) { msg = 'Better, but still short. For a password that is your only lock, aim for 15 or more characters.'; lvl = 0.45; }
-      else { msg = 'Long: good. Length adds strength faster than symbols do. Make it unique to this one account. For even more safety, add a second proof, such as a code sent to your phone (you will learn this next, as multifactor authentication).'; lvl = Math.min(1, 0.7 + (len - 15) / 40); }
+      else { msg = 'This is a good length. Length adds strength faster than symbols do. Make it unique to this one account. If it is made of words, use at least five random, unrelated words. For even more safety, add a second proof, such as a code sent to your phone.'; lvl = Math.min(1, 0.7 + (len - 15) / 40); }
       if (len && /(19|20)\d\d/.test(p)) msg += ' It contains a year, which attackers try early (birth years especially).';
       q('.pl-msg').textContent = msg;
       q('.pl-fill').style.width = (lvl * 100) + '%';
