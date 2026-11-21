@@ -153,14 +153,17 @@ export function threatDef(kind) {
       b += label(38, 111, 'real caller', '#a6461f', '#fbe7da', 8.5) + label(121, 111, 'your screen', B.blueInk, '#e3ecf8', 8.5);
       alt = 'The real caller is a hooded stranger. A fake name, PeraBank, is attached to his call, so your phone screen shows PeraBank calling: spoofing.'; break;
     case 'cert':
-      b = blob(80, 62, 70, 50, '#dcefe2') + ground(80, 112, 58) + R(26, 18, 100, 76, { r: 4, f: '#fffdf4', sw: 2 }) + R(31, 23, 90, 66, { r: 2, f: 'none', s: '#d9ad35', sw: 1.4 });
-      b += T(76, 38, 'CERTIFICATE', { size: 9.5, c: B.ink }) + T(76, 52, 'perabank.ph', { size: 9, w: 700, c: B.blueInk, mono: true }) + L(44, 64, 108, 64, B.line, 2) + L(44, 72, 96, 72, B.line, 2);
-      b += C(116, 88, 13, B.amber, B.ink, 2) + C(116, 88, 8, 'none', '#c98a1c', 1.4) + P('M108 98 L104 112 L112 108 L116 114 L118 100 M122 98 L128 112 L120 108', B.red, B.ink, 1.4) + padlock2(132, 30, false, B.green, 0.55);
-      alt = 'A certificate for perabank.ph with a gold seal and a green padlock: a digital certificate.'; break;
+      // chat 59: closer to a real certificate viewer
+      b = blob(80, 62, 70, 50, '#dcefe2') + ground(70, 112, 56) + R(14, 12, 112, 94, { r: 6, f: '#fff', sw: 2 }) + R(14, 12, 112, 18, { r: 6, f: '#e4e9f1', sw: 2 }) + `<rect x="15" y="22" width="110" height="7" fill="#e4e9f1"/>` + T(70, 25, 'Certificate', { size: 9.5, w: 800, c: B.ink });
+      b += T(22, 44, 'Issued to', { size: 8, w: 600, a: 'start', c: B.greyInk }) + T(22, 56, 'perabank.ph', { size: 9.5, w: 800, a: 'start', c: B.blueInk }) + T(22, 72, 'Issued by', { size: 8, w: 600, a: 'start', c: B.greyInk }) + T(22, 84, 'TrustSeal CA', { size: 9.5, w: 800, a: 'start', c: B.ink }) + T(22, 98, 'Valid until 2027', { size: 8, w: 600, a: 'start', c: B.greyInk });
+      b += padlock2(128, 40, false, B.green, 0.62) + check(146, 44, 0.62);
+      alt = 'A certificate window: issued to perabank.ph, issued by TrustSeal CA, valid until 2027, beside a green padlock with a check mark.'; break;
     case 'signature':
-      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(76, 112, 54) + doc(40, 14, 72, 92, '#fff') + P('M50 84 Q58 70 64 82 T78 78 T92 80', 'none', B.blue, 2.2) + L(48, 90, 100, 90, B.ink, 1.2);
-      b += C(112, 82, 15, '#c2453b', B.ink, 2) + C(112, 82, 9, 'none', '#8f2a24', 1.4) + T(112, 86.5, '✓', { size: 12, c: '#fff' }) + spark(130, 24, 0.9);
-      alt = 'A document signed at the bottom, with a red seal that shows who signed it and that it was not changed: a digital signature.'; break;
+      // chat 59: a signed PDF page as a reader app shows it
+      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(80, 112, 54) + R(32, 8, 96, 100, { r: 4, f: '#fff', sw: 2 }) + R(33, 9, 94, 18, { r: 3, f: '#e3f3e9', s: 'none', sw: 0 }) + C(43, 18, 5.5, B.green, 'none', 0) + P('M40.5 18 L42.5 20 L46 16', 'none', '#fff', 1.6) + T(52, 21.5, 'Signed, valid', { size: 8.5, w: 800, a: 'start', c: '#2a6643' });
+      b += L(42, 38, 118, 38, B.line, 2.4) + L(42, 47, 108, 47, B.line, 2.4) + L(42, 56, 114, 56, B.line, 2.4);
+      b += R(40, 66, 80, 34, { r: 3, f: '#f4f8ff', s: '#8fb0dc', sw: 1.2 }) + P('M44 90 C47 80 50 70 53 72 C55 75 50 88 55 88 C58 88 59 82 61 82 C63 82 62 88 65 88 C68 87 69 81 72 82 C74 84 72 88 75 87 M45 95 Q58 92 74 94', 'none', B.blue, 1.5) + T(78, 79, 'Digitally', { size: 7.5, w: 700, a: 'start', c: B.ink }) + T(78, 88, 'signed by', { size: 7.5, w: 700, a: 'start', c: B.ink }) + T(78, 97, 'Ana Cruz', { size: 7.5, w: 800, a: 'start', c: B.blueInk });
+      alt = 'A PDF page with a green bar at the top that says signed, valid, and a signature box at the bottom that says digitally signed by Ana Cruz.'; break;
     case 'bully':
       b = blob(80, 62, 70, 50, '#fbe7da') + ground(52, 112, 34) + phone2(28, 18, 48, 90, chatLines(['#f8c9c2', '#f8c9c2', '#f8c9c2', '#f8c9c2']));
       b += [[82, 8, 'loser'], [82, 42, 'lol'], [82, 76, 'ew']].map(([x, y, t]) => say(x, y, 46, t, x + 8, y + 30, '#fdeee9', B.red, 11)).join('') + person2(146, 52, 0.52, { shirt: B.blue, sad: true });
@@ -348,16 +351,31 @@ export function phishFamilyPic() {
 
 /** What does this post give away? A social-media post with four numbered clues. 480 x 340. */
 export function oversharePic() {
+  // chat 59: realistic post card and a detailed house
   let b = blob(240, 170, 232, 160, '#f6f8fb');
-  b += R(70, 10, 300, 320, { r: 16, f: '#fff', sw: 2 }) + C(98, 38, 14, '#f2c48a', B.ink, 1.6) + T(120, 36, 'Bea Reyes', { size: 13, a: 'start', c: B.ink }) + T(120, 52, '📍 Home, Purok 3, Dahican', { size: 11, w: 700, a: 'start', c: B.soft });
-  b += R(84, 64, 272, 190, { r: 6, f: '#cfe3f3', s: 'none', sw: 0 }) + P('M84 210 L356 210 L356 254 L84 254 Z', '#d8e6c8', 'none', 0);
-  b += R(232, 120, 104, 90, { r: 2, f: '#f3e6d0', sw: 1.6 }) + P('M224 122 L284 84 L344 122 Z', '#b9583f', B.ink, 1.6) + R(296, 160, 22, 50, { r: 1, f: '#8a5a3a', sw: 1.4 }) + R(246, 142, 30, 24, { r: 1, f: '#cfe3f3', sw: 1.4 });
-  b += R(248, 124, 28, 14, { r: 2, f: '#fff', sw: 1.2 }) + T(262, 135, '27', { size: 10, c: B.ink });
-  b += person2(150, 104, 1.1, { shirt: '#f4f6f9' }) + R(140, 160, 20, 26, { r: 2, f: '#fff', s: B.blue, sw: 1.4 }) + R(140, 160, 20, 7, { r: 2, f: B.blue, s: 'none', sw: 0 }) + L(150, 150, 140, 160, B.blue, 1.4) + L(150, 150, 160, 160, B.blue, 1.4);
+  b += R(70, 10, 300, 320, { r: 16, f: '#fff', sw: 2 }) + avatar(98, 38, 14, B.hair) + T(120, 36, 'Bea Reyes', { size: 13, a: 'start', c: B.ink });
+  b += P('M121 47 C121 43 128 43 128 47 C128 50 124.5 53 124.5 54 C124.5 53 121 50 121 47 Z', B.red, 'none', 0) + T(132, 53, 'Home, Purok 3, Dahican', { size: 11, w: 700, a: 'start', c: B.soft }) + T(352, 40, '···', { size: 14, w: 800, c: B.greyInk });
+  b += R(84, 64, 272, 190, { r: 6, f: '#cfe3f3', s: 'none', sw: 0 }) + P('M84 214 L356 214 L356 254 L84 254 Z', '#d8e6c8', 'none', 0);
+  b += '<ellipse cx="130" cy="86" rx="20" ry="7" fill="#fff" opacity="0.9"/><ellipse cx="148" cy="82" rx="14" ry="7" fill="#fff" opacity="0.9"/>';
+  b += houseD(200, 76, 146);
+  b += girl(150, 104, 1.1, { shirt: '#f4f6f9' });
+  // school ID on a lanyard (chat 59: looks like a real ID card)
+  b += P('M141 146 L148 152 M159 146 L152 152', 'none', '#1f4f8f', 2.6) + R(146, 150, 8, 5, { r: 1.5, f: '#b7bfcc', s: B.ink, sw: 0.9 });
+  const ix = 135, iy = 154, iw = 30, ih = 41;
+  b += R(ix, iy, iw, ih, { r: 3, f: '#fff', s: 'none', sw: 0 });
+  b += `<path d="M${ix} ${iy + 12} L${ix} ${iy + 3} Q${ix} ${iy} ${ix + 3} ${iy} L${ix + iw - 3} ${iy} Q${ix + iw} ${iy} ${ix + iw} ${iy + 3} L${ix + iw} ${iy + 12} Z" fill="#1f4f8f"/>` + R(ix + 11.5, iy + 2, 7, 2.2, { r: 1.1, f: '#fff', s: 'none', sw: 0 }) + T(ix + iw / 2, iy + 10.5, 'DOrSU', { size: 5.8, w: 800, c: '#fff' });
+  // ID photo: a small portrait (hair, face, shoulders)
+  const px = ix + 3, py = iy + 15;
+  b += R(px, py, 11, 13, { r: 1, f: '#dfe9f6', s: 'none', sw: 0 }) + `<path d="M${px + 1.5} ${py + 13} L${px + 1.5} ${py + 6} Q${px + 5.5} ${py + 0.5} ${px + 9.5} ${py + 6} L${px + 9.5} ${py + 13} Z" fill="${B.hair}"/>`;
+  b += `<ellipse cx="${px + 5.5}" cy="${py + 6.6}" rx="2.6" ry="3.1" fill="${B.skin}"/>` + `<path d="M${px + 1.5} ${py + 13} Q${px + 5.5} ${py + 9.2} ${px + 9.5} ${py + 13} Z" fill="#f4f6f9" stroke="#9aa6b8" stroke-width="0.5"/>`;
+  b += R(ix + 16, iy + 16, 11, 2, { r: 1, f: B.ink, s: 'none', sw: 0 }) + R(ix + 16, iy + 21, 9, 1.6, { r: 0.8, f: '#9aa6b8', s: 'none', sw: 0 }) + R(ix + 16, iy + 25, 10, 1.6, { r: 0.8, f: '#9aa6b8', s: 'none', sw: 0 });
+  b += [0, 2, 3, 5, 7, 8, 10, 12, 13, 15, 17, 18, 20, 22].map((k) => `<rect x="${ix + 4 + k}" y="${iy + 30}" width="${k % 3 ? 0.8 : 1.3}" height="4.5" fill="${B.ink}"/>`).join('');
+  b += `<path d="M${ix} ${iy + 36} L${ix + iw} ${iy + 36} L${ix + iw} ${iy + ih - 3} Q${ix + iw} ${iy + ih} ${ix + iw - 3} ${iy + ih} L${ix + 3} ${iy + ih} Q${ix} ${iy + ih} ${ix} ${iy + ih - 3} Z" fill="${B.amber}"/>`;
+  b += R(ix, iy, iw, ih, { r: 3, f: 'none', s: B.ink, sw: 1.4 });
   b += T(84, 276, '"First day of class! So excited 😊"', { size: 12.5, w: 700, a: 'start', c: B.ink }) + T(84, 296, '#BSIT1A #DOrSU', { size: 12, w: 700, a: 'start', c: B.blue });
   const pin = (x, y, n) => C(x, y, 12, B.orange, B.ink, 2) + T(x, y + 5, String(n), { size: 13, c: '#fff' });
-  b += pin(56, 46, 1) + pin(400, 128, 2) + pin(118, 176, 3) + pin(400, 288, 4);
-  b += P('M68 46 L84 48', 'none', B.orange, 2) + P('M388 128 L280 132', 'none', B.orange, 2) + P('M130 176 L140 172', 'none', B.orange, 2) + P('M388 288 L190 294', 'none', B.orange, 2);
+  b += pin(400, 50, 1) + pin(400, 182, 2) + pin(118, 176, 3) + pin(400, 288, 4);
+  b += P('M388 50 L268 50', 'none', B.orange, 2) + P('M388 182 L332 184', 'none', B.orange, 2) + P('M130 176 L135 176', 'none', B.orange, 2) + P('M388 288 L190 294', 'none', B.orange, 2);
   return svgWrap(480, 340, 'A social media post by Bea with four numbered clues: 1, a location tag that says Home and names her purok; 2, her house number behind her; 3, her school ID on a lanyard; 4, a caption and hashtags that name her school and section.', b);
 }
 
@@ -859,30 +877,7 @@ export function storyPic(kind) {
     b += girl(412, 414, 0.95, { shirt: B.blue, sad: true }) + bubble(262, 420, 118, 46, 372, 478, '#fff') + T(321, 439, '"I never', { size: 12.5, w: 700, c: B.ink }) + T(321, 457, 'sent that!"', { size: 12.5, w: 700, c: B.ink });
     alt = 'Three panels. 1: Mia gets a text that looks like it is from PeraPay: "ALERT: Your account will be LOCKED in 2 hours. Verify now: perapay-verify.com". 2: She taps the link; a fake PeraPay page asks for her number, PIN, and the code just sent to her, and everything she types is copied to a scammer\'s laptop. 3: Ten minutes later, her balance drops from ₱8,450 to ₱0.00, sent to an unknown number.';
   } else {
-    // bea
-    const post = (x, y, w) => {
-      let g = R(x, y, w, 120, { r: 10, f: '#fff', sw: 2 }) + C(x + 16, y + 16, 9, '#f2c48a', B.ink, 1.4) + T(x + 30, y + 15, 'Bea Reyes', { size: 10.5, a: 'start', c: B.ink }) + T(x + 30, y + 27, '📍 Purok 3, Dahican', { size: 8.5, w: 700, a: 'start', c: B.soft });
-      g += R(x + 8, y + 34, w - 16, 66, { r: 4, f: '#cfe3f3', s: 'none', sw: 0 }) + R(x + 8, y + 86, w - 16, 14, { r: 0, f: '#d8e6c8', s: 'none', sw: 0 });
-      g += R(x + w - 66, y + 56, 50, 40, { r: 1, f: '#f3e6d0', sw: 1.4 }) + P(`M${x + w - 72} ${y + 58} L${x + w - 41} ${y + 40} L${x + w - 10} ${y + 58} Z`, '#b9583f', B.ink, 1.4) + R(x + w - 34, y + 74, 10, 22, { r: 1, f: '#8a5a3a', sw: 1.2 }) + R(x + w - 60, y + 60, 16, 10, { r: 1, f: '#fff', sw: 1 }) + T(x + w - 52, y + 68, '27', { size: 7.5, c: B.ink });
-      g += girl(x + 40, y + 46, 0.5, { shirt: B.green }) + T(x + 10, y + 113, 'First day of class! 😊', { size: 9, w: 700, a: 'start', c: B.ink });
-      return g;
-    };
-    // 1. she posts
-    b += stPanel(8, 168) + stHead(22, 20, 1, 'Bea posts a first-day-of-class photo');
-    b += girl(66, 64, 0.95, { shirt: B.green }) + phone2(82, 108, 30, 52, chatLines(['#dfe9f6', '#dfe9f6']));
-    b += zoomLines(108, 112, 108, 150, 180, 46, 180, 168) + post(180, 46, 200);
-    b += T(424, 96, '♥ 32', { size: 12, c: '#c2416a' }) + T(424, 116, 'likes', { size: 11, w: 700, c: B.soft });
-    // 2. the stranger
-    b += stPanel(184, 160) + stHead(22, 196, 2, 'A stranger\'s account messages her every night');
-    b += phone2(40, 226, 150, 112, (x, y, w, h) => ['user_x82 liked 9 of your photos', 'user_x82: hi bea', 'user_x82: why don\'t you reply?', 'user_x82: I know you saw this'].map((t, k) => R(x + 4, y + 2 + k * 23, w - 8, 19, { r: 5, f: k ? '#fdeee9' : '#eef1f5', s: 'none', sw: 0 }) + T(x + 9, y + 15 + k * 23, t, { size: 8, w: 700, a: 'start', c: k ? '#9c2f28' : B.soft })).join(''));
-    b += ['11:02 PM', '11:40 PM', '12:15 AM', '1:03 AM'].map((t, k) => T(206, 254 + k * 23, t, { size: 11, w: 700, a: 'start', c: B.greyInk })).join('');
-    b += moonWin(290, 230) + hacker2(400, 236, 0.9) + T(400, 336, 'unknown account', { size: 11.5, w: 700, c: B.soft });
-    // 3. the comment
-    b += stPanel(360, 140) + stHead(22, 372, 3, 'Then he comments on her photo');
-    b += R(40, 402, 300, 52, { r: 12, f: '#fff', s: B.red, sw: 1.8 }) + C(64, 428, 13, '#4a5266', B.ink, 1.6) + `<ellipse cx="64" cy="431" rx="6" ry="7" fill="${B.skin}"/>` + R(58, 427, 12, 3.4, { r: 1.5, f: '#111827', s: 'none', sw: 0 }) + T(86, 422, 'user_x82 commented:', { size: 11, w: 700, a: 'start', c: B.soft }) + T(86, 442, '"Nice house. Purok 3, right?"', { size: 13.5, a: 'start', c: B.red });
-    b += result(40, 482, 'She never told him where she lives.');
-    b += girl(390, 392, 0.95, { shirt: B.green, sad: true }) + phone2(406, 436, 30, 52, chatLines(['#f8c9c2', '#f8c9c2']));
-    alt = 'Three panels. 1: Bea posts a first-day-of-class photo with a location tag, Purok 3, Dahican, and her house number 27 behind her. 2: An unknown account, user_x82, likes 9 of her photos and sends her messages late every night. 3: He comments "Nice house. Purok 3, right?" She never told him where she lives.';
+    return beaStoryPic(); // chat 59: rebuilt with realistic phone screens
   }
   return svgWrap(480, H, alt, b);
 }
@@ -1371,4 +1366,436 @@ export function colonialPic() {
     b += car2(360, gy - 23, 0.36, '#9fb4d3') + car2(414, gy - 23, 0.36, '#e8c07a'); }
   b += capC(y2 + 224, 'The company stopped the whole pipeline for about six days.') + capC(y2 + 241, 'Many gas stations ran out of fuel, and people lined up.', '#9c2f28');
   return svgWrap(480, 520, 'Two parts. 1, how the criminals got in: a text file of leaked passwords includes the password of vpn.user01, an old account; the company VPN sign-in page asks only for the username and password, with no MFA. 2, what happened next: the pipeline status screen shows the route from Texas through Atlanta to New Jersey marked STOPPED, and at a gas station the pumps show 0.00 with paper signs saying no fuel while cars wait in line.', b);
+}
+
+/* =====================================================================
+   chat 59 (her feedback): digital certificate and digital signature shown as they REALLY look on screen
+   (Chrome's certificate viewer, a PDF reader's signature bar and panel), and "If you were scammed" as a
+   StepShow with realistic screens (afterScamStep 0-3). Made-up names only: PeraBank, PeraPay, TrustSeal CA, ShopMati.
+   ===================================================================== */
+const gchk = (x, y, s = 1) => C(x, y, 7 * s, B.green, 'none', 0) + P(`M${x - 3.2 * s} ${y} L${x - 0.8 * s} ${y + 2.6 * s} L${x + 3.6 * s} ${y - 2.8 * s}`, 'none', '#fff', 1.8 * s);
+const rcross = (x, y, s = 1) => C(x, y, 7 * s, B.red, 'none', 0) + L(x - 2.8 * s, y - 2.8 * s, x + 2.8 * s, y + 2.8 * s, '#fff', 1.8 * s) + L(x + 2.8 * s, y - 2.8 * s, x - 2.8 * s, y + 2.8 * s, '#fff', 1.8 * s);
+const callout = (x1, y1, x2, y2) => L(x1, y1, x2, y2, '#9aa6b8', 1.4) + C(x1, y1, 3, '#9aa6b8', 'none', 0);
+const note2 = (x, y, a, b2, c = B.blueInk) => T(x, y, a, { size: 12, w: 800, a: 'start', c }) + (b2 ? T(x, y + 16, b2, { size: 11.5, w: 600, a: 'start', c: B.soft }) : '');
+
+/** Chrome's Certificate Viewer for a made-up bank site, with callouts for its three main parts. 480 x 318. */
+export function certViewPic() {
+  let b = R(4, 4, 472, 310, { r: 14, f: SOFT, s: 'none', sw: 0 });
+  const x = 18, y = 18, w = 292, h = 282;
+  b += R(x, y, w, h, { r: 10, f: '#fff', sw: 2 });
+  b += T(x + 16, y + 26, 'Certificate Viewer: perabank.com.ph', { size: 12, w: 800, a: 'start', c: B.ink }) + T(x + w - 16, y + 26, '×', { size: 15, w: 700, c: B.soft });
+  b += T(x + 40, y + 54, 'General', { size: 11.5, w: 800, c: B.blue }) + R(x + 14, y + 60, 52, 3, { r: 1.5, f: B.blue, s: 'none', sw: 0 }) + T(x + 100, y + 54, 'Details', { size: 11.5, w: 700, c: B.greyInk }) + L(x + 1, y + 62, x + w - 1, y + 62, '#e2e6ed', 1.4);
+  const sec = (yy, title, rows) => {
+    let g = T(x + 16, yy, title, { size: 12, w: 800, a: 'start', c: B.ink });
+    rows.forEach(([k, v], i) => { g += T(x + 24, yy + 20 + i * 18, k, { size: 10.5, w: 600, a: 'start', c: B.greyInk }) + T(x + 146, yy + 20 + i * 18, v, { size: 10.5, w: 700, a: 'start', c: B.ink }); });
+    return g;
+  };
+  b += sec(y + 88, 'Issued To', [['Common Name (CN)', 'perabank.com.ph'], ['Organization (O)', 'PeraBank Inc.']]);
+  b += sec(y + 160, 'Issued By', [['Common Name (CN)', 'TrustSeal CA'], ['Organization (O)', 'TrustSeal Inc.']]);
+  b += sec(y + 232, 'Validity Period', [['Issued On', 'Mon, March 2, 2026'], ['Expires On', 'Wed, March 3, 2027']]);
+  // highlight the address the certificate belongs to
+  b += R(x + 140, y + 95, 108, 18, { r: 4, f: 'none', s: B.green, sw: 1.6 });
+  // callouts on the right, each on the same line as its section
+  b += callout(x + 252, y + 104, 326, y + 92) + note2(332, y + 88, 'The website\'s own', 'address');
+  b += callout(x + 230, y + 176, 326, y + 164) + note2(332, y + 160, 'The certificate', 'authority that')+T(332, y + 192, 'checked the site', { size: 11.5, w: 600, a: 'start', c: B.soft });
+  b += callout(x + 256, y + 252, 326, y + 236) + note2(332, y + 232, 'The dates when', 'it can be used');
+  return svgWrap(480, 318, 'Chrome\'s Certificate Viewer for perabank.com.ph, General tab. Issued To: common name perabank.com.ph, organization PeraBank Inc. (labeled: the website\'s own address). Issued By: common name TrustSeal CA, organization TrustSeal Inc. (labeled: the certificate authority that checked it). Validity Period: issued on Monday, March 2, 2026, expires on Wednesday, March 3, 2027 (labeled: the dates when it can be used).', b);
+}
+
+/** A signed PDF in a PDF reader: green "signed and valid" bar, signature panel, and the signature box on the page.
+ *  Below, the warning you get when someone changes the file after signing. 480 x 432. */
+export function sigViewPic() {
+  let b = R(4, 4, 472, 336, { r: 14, f: SOFT, s: 'none', sw: 0 });
+  const x = 16, y = 16, w = 448, h = 312;
+  b += winBox(x, y, w, h, 'Internship_Agreement.pdf');
+  // the signature bar at the top
+  b += R(x + 2, y + 25, w - 4, 30, { r: 0, f: '#e3f3e9', s: 'none', sw: 0 }) + gchk(x + 20, y + 40) + T(x + 34, y + 44.5, 'Signed and all signatures are valid.', { size: 11.5, w: 700, a: 'start', c: '#2a6643' });
+  b += R(x + w - 118, y + 30, 104, 20, { r: 4, f: '#fff', s: '#9ccab0', sw: 1.2 }) + T(x + w - 66, y + 44, 'Signature Panel', { size: 10, w: 700, c: '#2a6643' });
+  b += L(x + 2, y + 55, x + w - 2, y + 55, '#cfe5d7', 1.2);
+  // left: the signature panel
+  const px = x + 2, pw = 170;
+  b += R(px, y + 56, pw, h - 58, { r: 0, f: '#f6f8fb', s: 'none', sw: 0 }) + L(px + pw, y + 56, px + pw, y + h - 2, '#e2e6ed', 1.4);
+  b += T(px + 12, y + 78, 'Signatures', { size: 12, w: 800, a: 'start', c: B.ink });
+  b += gchk(px + 18, y + 100) + T(px + 30, y + 104, 'Signed by Ana Cruz', { size: 10.5, w: 800, a: 'start', c: B.ink }) + T(px + 30, y + 119, 'Nov 21, 2026, 10:15 AM', { size: 9.5, w: 600, a: 'start', c: B.greyInk });
+  const ok = (yy, lines) => gchk(px + 30, yy - 4, 0.75) + lines.map((t, k) => T(px + 40, yy + k * 13, t, { size: 9.5, w: 600, a: 'start', c: B.soft })).join('');
+  b += ok(y + 144, ['The signature is valid.']);
+  b += ok(y + 168, ['The signer\'s identity', 'is valid.']);
+  b += R(px + 20, y + 196, 142, 50, { r: 8, f: '#e3f3e9', s: B.green, sw: 1.4 }) + ok(y + 212, ['The file has not been', 'changed since it was', 'signed.']);
+  // right: the page
+  const gx = px + pw + 20, gw = w - pw - 40, gy = y + 68;
+  b += R(gx, gy, gw, 236, { r: 2, f: '#fff', s: '#cfd6e0', sw: 1.4 });
+  b += T(gx + gw / 2, gy + 24, 'INTERNSHIP AGREEMENT', { size: 11.5, w: 800, c: B.ink });
+  [44, 56, 68, 84, 96].forEach((dy, k) => { b += L(gx + 16, gy + dy, gx + gw - 16 - (k % 3) * 22, gy + dy, '#d5dbe4', 3); });
+  // signature appearance (how e-signatures look on the page)
+  const sx = gx + 16, sy = gy + 134, sw2 = gw - 32;
+  b += R(sx, sy, sw2, 74, { r: 4, f: '#f4f8ff', s: '#8fb0dc', sw: 1.4 });
+  b += P(`M${sx + 10} ${sy + 50} C${sx + 16} ${sy + 30} ${sx + 22} ${sy + 14} ${sx + 26} ${sy + 18} C${sx + 30} ${sy + 24} ${sx + 22} ${sy + 46} ${sx + 30} ${sy + 46} C${sx + 36} ${sy + 46} ${sx + 38} ${sy + 34} ${sx + 42} ${sy + 34} C${sx + 46} ${sy + 34} ${sx + 44} ${sy + 46} ${sx + 50} ${sy + 45} C${sx + 56} ${sy + 44} ${sx + 58} ${sy + 32} ${sx + 64} ${sy + 33} C${sx + 70} ${sy + 34} ${sx + 64} ${sy + 46} ${sx + 72} ${sy + 45} C${sx + 78} ${sy + 44} ${sx + 82} ${sy + 38} ${sx + 86} ${sy + 36} M${sx + 12} ${sy + 58} Q${sx + 50} ${sy + 52} ${sx + 90} ${sy + 56}`, 'none', B.blue, 2);
+  b += T(sx + 104, sy + 22, 'Digitally signed', { size: 9.5, w: 700, a: 'start', c: B.ink }) + T(sx + 104, sy + 35, 'by Ana Cruz', { size: 9.5, w: 700, a: 'start', c: B.ink }) + T(sx + 104, sy + 52, 'Date 2026.11.21', { size: 9, w: 600, a: 'start', c: B.greyInk }) + T(sx + 104, sy + 64, '10:15 +08\'00\'', { size: 9, w: 600, a: 'start', c: B.greyInk });
+  b += T(sx + 6, sy + 90, 'Ana Cruz, Supervisor', { size: 9.5, w: 600, a: 'start', c: B.soft });
+  // labels
+  b += label(sx + sw2 - 44, sy - 8, 'who signed', B.blueInk, '#e3ecf8', 11);
+  b += L(px + 91, y + 246, px + 91, y + 262, B.green, 1.4) + label(px + 91, y + 278, 'not changed', '#2a6643', '#e3f3e9', 11);
+  // the warning when the file was changed after signing
+  b += R(4, 350, 472, 78, { r: 14, f: '#fdf1ee', s: 'none', sw: 0 }) + T(20, 374, 'If someone changes the file after it was signed, the app warns you.', { size: 12, w: 800, a: 'start', c: '#9c2f28' });
+  b += R(20, 386, 440, 30, { r: 6, f: '#fbe0db', s: '#e3a59c', sw: 1.2 }) + rcross(38, 401) + T(52, 405.5, 'At least one signature is invalid.', { size: 11.5, w: 700, a: 'start', c: '#9c2f28' });
+  return svgWrap(480, 432, 'A signed PDF file, Internship_Agreement.pdf, open in a PDF reader. A green bar at the top says: Signed and all signatures are valid. The signature panel on the left says the file was signed by Ana Cruz, the signature is valid, the file has not been changed since it was signed, and the signer\'s identity is valid (labeled: not changed). On the page, a signature box shows a handwritten-style signature and the words Digitally signed by Ana Cruz, with the date (labeled: who signed). Below: if someone changes the file after it was signed, the app shows a red bar that says: At least one signature is invalid.', b);
+}
+
+/** If you were scammed, step by step (StepShow). i = 0 call the bank/e-wallet, 1 report to 1326, 2 change passwords, 3 keep proof. 480 x 260. */
+export function afterScamStep(i) {
+  let b = stage(), alt = '';
+  const phoneBig = (x, y, content, scr = '#fff') => phoneUI(x, y, 116, 228, content, { screen: scr, dark: scr !== '#fff' });
+  if (i === 0) {
+    // left: PeraPay app help screen; right: the call with the hotline
+    b += phoneBig(44, 16, (x, y, w, h) => {
+      let g = R(x, y, w, 30, { r: 0, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 20, 'PeraPay', { size: 12, w: 800, c: '#fff' });
+      g += T(x + 10, y + 50, 'Help Center', { size: 11.5, w: 800, a: 'start', c: B.ink });
+      [['Report a scam', false], ['Freeze account', false], ['Call hotline', true]].forEach(([t, hot], k) => {
+        const yy = y + 62 + k * 34;
+        g += R(x + 6, yy, w - 12, 28, { r: 6, f: hot ? '#e3ecf8' : '#f3f5f8', s: hot ? B.blue : 'none', sw: hot ? 1.4 : 0 }) + T(x + 14, yy + 18, t, { size: 9.5, w: 700, a: 'start', c: hot ? B.blueInk : B.ink }) + T(x + w - 14, yy + 18.5, '›', { size: 12, w: 700, c: B.greyInk });
+      });
+      return g;
+    });
+    b += tapRing(141, 187, 10, B.blue);
+    b += ARROW(176, 130, 214, 130, B.soft, 2.2);
+    b += phoneBig(226, 16, (x, y, w, h) => R(x, y, w, h, { r: 8, f: '#2f3d55', s: 'none', sw: 0 }) + C(x + w / 2, y + 40, 18, B.blue, 'none', 0) + T(x + w / 2, y + 45, 'P', { size: 15, w: 800, c: '#fff' })
+      + T(x + w / 2, y + 82, 'PeraPay Hotline', { size: 11, w: 800, c: '#fff' }) + T(x + w / 2, y + 98, '01:24', { size: 10.5, w: 600, c: '#c9d3e3', mono: true })
+      + C(x + w / 2, y + h - 24, 13, '#d4422f', 'none', 0) + R(x + w / 2 - 7, y + h - 26, 14, 4, { r: 2, f: '#fff', s: 'none', sw: 0 }), '#2f3d55');
+    b += sayL(356, 54, 108, ['Please freeze', 'my account.'], B.ink, '#fff', 11.5) + sayL(356, 128, 108, ['Done. We froze', 'it for now.'], '#2a6643', '#e3f3e9', 11.5);
+    alt = 'Left: the official PeraPay app open to its Help Center, with the options Report a scam, Freeze account, and Call hotline; Call hotline is tapped. Right: the phone is in a call with the PeraPay Hotline. The caller says, Please freeze my account. The hotline answers, Done. We froze it for now.';
+  } else if (i === 1) {
+    // left: dialer with 1326; right: what the hotline is
+    b += phoneBig(44, 16, (x, y, w, h) => {
+      let g = T(x + w / 2, y + 26, '1326', { size: 20, w: 800, c: B.ink, mono: true });
+      const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
+      keys.forEach((k, n) => { const cx = x + w / 2 + ((n % 3) - 1) * 30, cy = y + 50 + Math.floor(n / 3) * 27; g += C(cx, cy, 11, '#eef1f5', 'none', 0) + T(cx, cy + 4.5, k, { size: 12, w: 700, c: B.ink }); });
+      g += C(x + w / 2, y + h - 26, 13, B.green, 'none', 0) + P(`M${x + w / 2 - 5} ${y + h - 30} Q${x + w / 2 - 6} ${y + h - 21} ${x + w / 2 + 5} ${y + h - 21}`, 'none', '#fff', 3);
+      return g;
+    });
+    b += tapRing(102, 213, 14, B.green);
+    b += R(214, 36, 246, 188, { r: 12, f: '#fff', sw: 2 });
+    b += T(337, 80, '1326', { size: 34, w: 800, c: B.blue, mono: true }) + T(337, 108, 'National anti-scam hotline', { size: 13, w: 800, c: B.ink });
+    const row = (yy, txt) => gchk(242, yy - 4) + T(256, yy, txt, { size: 12, w: 700, a: 'start', c: B.soft });
+    b += L(232, 124, 442, 124, '#e2e6ed', 1.4) + row(148, 'The call is free.') + row(172, 'Open 24 hours, 7 days a week') + row(196, 'Run by the CICC');
+    alt = 'Left: a phone dialer with the number 1326 typed in and the green call button tapped. Right: a card that says 1326, National anti-scam hotline. The call is free. Open 24 hours, 7 days a week. Run by the CICC.';
+  } else if (i === 2) {
+    // a realistic account security page in a browser window
+    const x = 16, y = 14, w = 448, h = 232;
+    b += winBox(x, y, w, h, 'Account security');
+    b += R(x + 2, y + 25, w - 4, 26, { r: 0, f: '#f4f6f9', s: 'none', sw: 0 }) + T(x + 16, y + 42, 'mail.perapost.ph/settings/security', { size: 10.5, w: 600, a: 'start', c: B.greyInk, mono: true }) + lockMini(x + w - 22, y + 43, B.green);
+    // left column: change password
+    const lx = x + 16;
+    b += T(lx, y + 76, 'Change password', { size: 12.5, w: 800, a: 'start', c: B.ink }) + T(lx, y + 96, 'New password', { size: 10, w: 700, a: 'start', c: B.greyInk });
+    b += R(lx, y + 102, 190, 26, { r: 6, f: '#fff', s: '#b7bfcc', sw: 1.4 }) + [...Array(12)].map((_, k) => C(lx + 14 + k * 11, y + 115, 3, B.ink, 'none', 0)).join('');
+    b += R(lx, y + 136, 190, 6, { r: 3, f: '#e2e6ed', s: 'none', sw: 0 }) + R(lx, y + 136, 160, 6, { r: 3, f: B.green, s: 'none', sw: 0 }) + T(lx, y + 158, 'Strong password', { size: 10, w: 700, a: 'start', c: '#2a6643' });
+    b += R(lx, y + 172, 90, 28, { r: 14, f: B.blue, s: 'none', sw: 0 }) + T(lx + 45, y + 190, 'Save', { size: 11, w: 800, c: '#fff' });
+    // right column: devices + 2-step verification
+    const rx = x + 236;
+    b += L(rx - 14, y + 62, rx - 14, y + h - 14, '#e2e6ed', 1.4);
+    b += T(rx, y + 76, 'Where you are signed in', { size: 12.5, w: 800, a: 'start', c: B.ink });
+    b += T(rx, y + 98, 'Phone, Mati City (this device)', { size: 10, w: 600, a: 'start', c: B.soft }) + T(rx, y + 116, 'Windows PC, unknown place', { size: 10, w: 700, a: 'start', c: '#9c2f28' });
+    b += R(rx, y + 126, 196, 26, { r: 13, f: '#fff', s: B.blue, sw: 1.4 }) + T(rx + 98, y + 143, 'Sign out of all other devices', { size: 10, w: 800, c: B.blueInk });
+    b += L(rx, y + 166, rx + 196, y + 166, '#e2e6ed', 1.2) + T(rx, y + 188, '2-Step Verification (MFA)', { size: 11, w: 800, a: 'start', c: B.ink }) + T(rx, y + 204, 'On', { size: 10, w: 700, a: 'start', c: '#2a6643' });
+    b += R(rx + 160, y + 178, 36, 20, { r: 10, f: B.green, s: 'none', sw: 0 }) + C(rx + 186, y + 188, 7.5, '#fff', 'none', 0);
+    alt = 'An email account\'s security page in a browser. Left: Change password, with a new password of 12 characters, a strength bar marked Strong password, and a Save button. Right: Where you are signed in lists the phone in Mati City (this device) and, in red, a Windows PC in an unknown place, with a button Sign out of all other devices. Below it, 2-Step Verification (MFA) is switched on.';
+  } else {
+    // left: phone with the scam chat, just after a screenshot (thumbnail at the bottom left, like a real phone); right: a folder of proof
+    b += phoneBig(36, 16, (x, y, w, h) => {
+      let g = appHead(x, y, w, 'ShopMati Seller', 'Active now');
+      g += timeSep(x + w / 2, y + 42, 'Today 10:42 AM');
+      g += bubbleL(x + 6, y + 47, 'Pay ₱2,500 now') + bubbleR(x + w - 6, y + 69, 'Sent via PeraPay') + bubbleL(x + 6, y + 91, 'Pay the fee here');
+      g += R(x + 6, y + 113, 84, 18, { r: 9, f: '#eef1f5', s: 'none', sw: 0 }) + T(x + 13, y + 125.5, 'shopmati-pay.co', { size: 8, w: 700, a: 'start', c: B.red }) + L(x + 13, y + 127.5, x + 82, y + 127.5, B.red, 0.8);
+      // screenshot thumbnail
+      const tx = x + 7, ty = y + h - 60;
+      g += R(tx + 2, ty + 2, 34, 50, { r: 5, f: 'rgba(17,24,39,0.18)', s: 'none', sw: 0 }) + R(tx, ty, 34, 50, { r: 5, f: '#fff', s: B.ink, sw: 1.6 });
+      g += R(tx + 4, ty + 4, 26, 6, { r: 1.5, f: '#e6e9ef', s: 'none', sw: 0 }) + R(tx + 4, ty + 14, 15, 5, { r: 2.5, f: '#eef1f5', s: 'none', sw: 0 }) + R(tx + 14, ty + 22, 16, 5, { r: 2.5, f: '#2f6fd1', s: 'none', sw: 0 }) + R(tx + 4, ty + 30, 15, 5, { r: 2.5, f: '#eef1f5', s: 'none', sw: 0 }) + R(tx + 4, ty + 38, 17, 5, { r: 2.5, f: '#fdeee9', s: 'none', sw: 0 });
+      return g;
+    });
+    b += lead(84, 214, 160, 214, '#9aa6b8') + label(198, 218, 'screenshot', B.blueInk, '#e3ecf8', 10.5);
+    b += ARROW(170, 130, 236, 130, B.soft, 2.2);
+    // the folder
+    const x = 248, y = 30, w = 218;
+    b += winBox(x, y, w, 200, 'Scam proof');
+    const files = [['chat-1.png', 'img'], ['chat-2.png', 'img'], ['payment-receipt.png', 'img'], ['seller-profile.png', 'img'], ['scam-link.txt', 'txt']];
+    files.forEach(([n, k], j) => { const yy = y + 38 + j * 31;
+      b += R(x + 14, yy, 18, 22, { r: 3, f: k === 'img' ? '#dfe9f6' : '#fff', s: '#9aa6b8', sw: 1.2 }) + (k === 'img' ? P(`M${x + 17} ${yy + 18} L${x + 22} ${yy + 11} L${x + 26} ${yy + 15} L${x + 29} ${yy + 12}`, 'none', B.blue, 1.4) : L(x + 18, yy + 8, x + 28, yy + 8, '#9aa6b8', 1.2) + L(x + 18, yy + 13, x + 26, yy + 13, '#9aa6b8', 1.2));
+      b += T(x + 42, yy + 15.5, n, { size: 11, w: 700, a: 'start', c: B.ink, mono: true }); });
+    alt = 'Left: a phone shows the chat with a fake ShopMati seller: Pay 2,500 pesos now; Sent via PeraPay; Pay here, with the link shopmati-pay.co. A screenshot of the chat appears in the corner. Right: a folder named Scam proof holds chat-1.png, chat-2.png, payment-receipt.png, seller-profile.png, and scam-link.txt.';
+  }
+  return svgWrap(480, 260, alt, b);
+}
+
+/* ---------- chat 59: a cleaner, realistic phone (screen clipped to its rounded corners, status bar, Dynamic Island) ---------- */
+let _clipN = 0;
+const phoneUI = (x, y, w, h, content, o = {}) => {
+  const id = 'phc' + (++_clipN), bz = 5, sx = x + bz, sy = y + bz, sw = w - 2 * bz, sh = h - 2 * bz, dark = !!o.dark;
+  const scr = o.screen ?? (dark ? '#26324a' : '#fff'), ink = dark ? '#fff' : B.ink;
+  let g = R(x + w - 0.5, y + 62, 3, 28, { r: 1.5, f: '#1f2633', s: 'none', sw: 0 }) + R(x, y, w, h, { r: 22, f: '#1f2633', sw: 2 });
+  g += `<clipPath id="${id}"><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="17"/></clipPath><g clip-path="url(#${id})">`;
+  g += R(sx, sy, sw, sh, { r: 0, f: scr, s: 'none', sw: 0 });
+  g += T(sx + 16, sy + 15, '9:41', { size: 8.5, w: 800, c: ink });
+  g += [0, 1, 2].map((k) => R(sx + sw - 37 + k * 3.6, sy + 12 - k * 2, 2.6, 4 + k * 2, { r: 0.8, f: ink, s: 'none', sw: 0 })).join('');
+  g += R(sx + sw - 25, sy + 8, 14, 7.5, { r: 2, f: 'none', s: ink, sw: 1 }) + R(sx + sw - 23.5, sy + 9.5, 9, 4.5, { r: 1, f: ink, s: 'none', sw: 0 }) + R(sx + sw - 10.5, sy + 10.5, 1.5, 2.5, { r: 0.5, f: ink, s: 'none', sw: 0 });
+  g += R(sx + sw / 2 - 12, sy + 6, 24, 10, { r: 5, f: '#0d1117', s: 'none', sw: 0 });
+  if (content) g += content(sx, sy + 22, sw, sh - 22);
+  g += R(sx + sw / 2 - 20, sy + sh - 6, 40, 3, { r: 1.5, f: dark ? 'rgba(255,255,255,0.7)' : 'rgba(17,24,39,0.75)', s: 'none', sw: 0 });
+  return g + '</g>';
+};
+// app header row inside a phone screen
+const appHead = (x, y, w, title, sub = '', back = true) => R(x, y, w, 30, { r: 0, f: '#fff', s: 'none', sw: 0 }) + (back ? P(`M${x + 14} ${y + 10} L${x + 9} ${y + 15} L${x + 14} ${y + 20}`, 'none', B.ink, 1.6) : '')
+  + T(x + (back ? 22 : 10), y + (sub ? 13 : 19), title, { size: 9.5, w: 800, a: 'start', c: B.ink }) + (sub ? T(x + (back ? 22 : 10), y + 24, sub, { size: 7.5, w: 600, a: 'start', c: B.greyInk }) : '') + L(x, y + 30, x + w, y + 30, '#e6e9ef', 1);
+const avatar = (x, y, r, f) => C(x, y, r, f, 'none', 0) + `<ellipse cx="${x}" cy="${y + r * 0.15}" rx="${r * 0.42}" ry="${r * 0.48}" fill="${B.skin}"/>`;
+const strangerAv = (x, y, r) => C(x, y, r, '#4a5266', 'none', 0) + `<ellipse cx="${x}" cy="${y + r * 0.2}" rx="${r * 0.45}" ry="${r * 0.5}" fill="${B.skin}"/>` + R(x - r * 0.45, y + r * 0.02, r * 0.9, r * 0.26, { r: 1, f: '#111827', s: 'none', sw: 0 });
+const bubbleL = (x, y, t, f = '#eef1f5', c = B.ink, size = 8.5) => { const w = t.length * size * 0.52 + 14; return R(x, y, w, 18, { r: 9, f, s: 'none', sw: 0 }) + T(x + 7, y + 12.5, t, { size, w: 600, a: 'start', c }); };
+const bubbleR = (xr, y, t, f = '#2f6fd1', c = '#fff', size = 8.5) => { const w = t.length * size * 0.52 + 14; return R(xr - w, y, w, 18, { r: 9, f, s: 'none', sw: 0 }) + T(xr - w + 7, y + 12.5, t, { size, w: 600, a: 'start', c }); };
+const timeSep = (cx, y, t) => T(cx, y, t, { size: 7.5, w: 700, c: B.greyInk });
+const lead = (x1, y1, x2, y2, c = B.red) => L(x1, y1, x2, y2, c, 1.4) + C(x1, y1, 2.6, c, 'none', 0);
+
+/** Bea's story (chat 59, rebuilt): three stages with realistic phone screens. 480 x 826. */
+function beaStoryPic() {
+  let b = '';
+  const P1 = 8, P2 = 280, P3 = 552, PH = 262;
+  // ---- 1. the public post ----
+  b += stPanel(P1, PH) + stHead(22, P1 + 12, 1, 'Bea posts a first-day-of-class photo');
+  b += phoneUI(40, P1 + 46, 140, 206, (x, y, w, h) => {
+    let g = avatar(x + 16, y + 14, 9, B.hair) + T(x + 30, y + 12, 'Bea Reyes', { size: 9, w: 800, a: 'start', c: B.ink });
+    g += P(`M${x + 32} ${y + 18} C${x + 32} ${y + 15} ${x + 37} ${y + 15} ${x + 37} ${y + 18} C${x + 37} ${y + 20} ${x + 34.5} ${y + 22} ${x + 34.5} ${y + 23} C${x + 34.5} ${y + 22} ${x + 32} ${y + 20} ${x + 32} ${y + 18} Z`, B.red, 'none', 0);
+    g += T(x + 40, y + 23, 'Purok 3, Dahican', { size: 7.5, w: 700, a: 'start', c: B.soft }) + T(x + w - 10, y + 14, '🌐', { size: 8, c: B.greyInk });
+    // the photo: sky, ground, house with number 27, Bea in front
+    const py = y + 30, ph = 84;
+    g += R(x, py, w, ph, { r: 0, f: '#cfe3f3', s: 'none', sw: 0 }) + R(x, py + ph - 18, w, 18, { r: 0, f: '#cfe0bd', s: 'none', sw: 0 });
+    g += `<ellipse cx="${x + 30}" cy="${py + 14}" rx="12" ry="5" fill="#fff" opacity="0.9"/><ellipse cx="${x + 40}" cy="${py + 12}" rx="9" ry="5" fill="#fff" opacity="0.9"/>`;
+    g += houseD(x + 52, py + 8, 66);
+    g += girl(x + 30, py + 34, 0.5, { shirt: B.green });
+    g += P(`M${x + 12} ${py + ph + 10} C${x + 12} ${py + ph + 6} ${x + 17} ${py + ph + 5} ${x + 18} ${py + ph + 9} C${x + 19} ${py + ph + 5} ${x + 24} ${py + ph + 6} ${x + 24} ${py + ph + 10} C${x + 24} ${py + ph + 14} ${x + 18} ${py + ph + 17} ${x + 18} ${py + ph + 18} C${x + 18} ${py + ph + 17} ${x + 12} ${py + ph + 14} ${x + 12} ${py + ph + 10} Z`, '#e0245e', 'none', 0);
+    g += R(x + 32, py + ph + 5, 12, 9, { r: 3, f: 'none', s: B.ink, sw: 1.2 }) + P(`M${x + 54} ${py + ph + 13} L${x + 64} ${py + ph + 6} L${x + 60} ${py + ph + 15} Z`, 'none', B.ink, 1.1);
+    g += T(x + 10, py + ph + 30, '32 likes', { size: 8, w: 800, a: 'start', c: B.ink }) + T(x + 10, py + ph + 43, 'First day of class!', { size: 8, w: 600, a: 'start', c: B.ink });
+    return g;
+  });
+  // what the post gives away
+  b += lead(152, P1 + 94, 222, P1 + 94) + label(282, P1 + 98, 'location tag', B.red, '#fdeee9', 12);
+  b += lead(162, P1 + 162, 222, P1 + 152) + label(290, P1 + 152, 'house number', B.red, '#fdeee9', 12);
+  b += T(214, P1 + 196, 'The post is public, so anyone', { size: 12, w: 700, a: 'start', c: B.soft }) + T(214, P1 + 214, 'can see where she lives.', { size: 12, w: 700, a: 'start', c: B.soft });
+  // ---- 2. the stranger ----
+  b += stPanel(P2, PH) + stHead(22, P2 + 12, 2, 'An unknown account messages her every night');
+  b += phoneUI(30, P2 + 46, 132, 206, (x, y, w, h) => {
+    let g = appHead(x, y, w, 'Activity', '', false);
+    ['liked your photo.', 'liked your photo.', 'liked your photo.', 'started following you.'].forEach((t, k) => {
+      const yy = y + 42 + k * 34;
+      g += strangerAv(x + 16, yy + 6, 9) + T(x + 30, yy + 4, 'user_x82', { size: 8, w: 800, a: 'start', c: B.ink }) + T(x + 30, yy + 15, t, { size: 7.5, w: 600, a: 'start', c: B.soft }) + T(x + w - 8, yy + 4, (k + 1) + 'h', { size: 7, w: 600, a: 'end', c: B.greyInk });
+    });
+    return g;
+  });
+  b += phoneUI(176, P2 + 46, 132, 206, (x, y, w, h) => {
+    let g = appHead(x, y, w, 'user_x82', 'Message request');
+    g += timeSep(x + w / 2, y + 44, 'Mon 11:02 PM') + bubbleL(x + 8, y + 49, 'hi bea');
+    g += timeSep(x + w / 2, y + 80, 'Tue 12:15 AM') + bubbleL(x + 8, y + 85, 'why don\'t you reply?');
+    g += timeSep(x + w / 2, y + 116, 'Wed 1:03 AM') + bubbleL(x + 8, y + 121, 'I know you saw this', '#fdeee9', '#9c2f28');
+    g += R(x + 8, y + h - 26, w - 16, 16, { r: 8, f: '#f3f5f8', s: 'none', sw: 0 }) + T(x + 16, y + h - 15, 'Message...', { size: 7.5, w: 600, a: 'start', c: B.greyInk });
+    return g;
+  });
+  b += moonWin(352, P2 + 66) + hacker2(410, P2 + 150, 0.82) + T(410, P2 + 236, 'an account she', { size: 11.5, w: 700, c: B.soft }) + T(410, P2 + 251, 'does not know', { size: 11.5, w: 700, c: B.soft });
+  // ---- 3. the comment ----
+  b += stPanel(P3, PH) + stHead(22, P3 + 12, 3, 'Then he comments on her photo');
+  b += phoneUI(40, P3 + 46, 150, 206, (x, y, w, h) => {
+    let g = appHead(x, y, w, 'Comments');
+    const cm = (yy, name, txt, hot) => (hot ? R(x + 4, yy - 10, w - 8, 44, { r: 8, f: '#fdeee9', s: B.red, sw: 1.2 }) : '') + (hot ? strangerAv(x + 16, yy, 8) : avatar(x + 16, yy, 8, hot ? '#4a5266' : (name === 'maria.s' ? '#e8a1b5' : '#8fb0dc')))
+      + T(x + 29, yy - 1, name, { size: 8, w: 800, a: 'start', c: hot ? '#9c2f28' : B.ink }) + txt.map((t, k) => T(x + 29, yy + 10 + k * 11, t, { size: 8, w: 600, a: 'start', c: hot ? '#9c2f28' : B.soft })).join('');
+    g += cm(y + 46, 'maria.s', ['Congrats, Bea!']) + cm(y + 78, 'jun_d', ['Good luck this sem!']) + cm(y + 116, 'user_x82', ['Nice house.', 'Purok 3, right?'], true);
+    return g;
+  });
+  b += girl(414, P3 + 84, 0.95, { shirt: B.green, sad: true });
+  b += result(214, P3 + 110, 'She never told him') + result(214, P3 + 128, 'where she lives.');
+  b += T(214, P3 + 152, 'He found it in her photo.', { size: 12, w: 700, a: 'start', c: B.soft });
+  return svgWrap(480, 822, 'Three parts. 1: Bea posts a public photo for her first day of class. The post shows a location tag, Purok 3, Dahican, and her house with the number 27 behind her (labeled: location tag, house number). Anyone can see where she lives. 2: An account she does not know, user_x82, likes her photos and follows her, then sends her messages late at night: hi bea at 11:02 PM on Monday, why don\'t you reply at 12:15 AM on Tuesday, I know you saw this at 1:03 AM on Wednesday. 3: Under her photo, he comments: Nice house. Purok 3, right? She never told him where she lives. He found it in her photo.', b);
+}
+
+/* =====================================================================
+   chat 59 round 3 (her feedback): more detailed Part 3 pictures, a detailed house, grooming pictures.
+   ===================================================================== */
+/** A detailed two-storey Filipino house: GI-sheet hip roof, painted upper floor with sliding windows and a small balcony,
+ *  concrete ground floor with a grilled window, panel door, lamp, house-number plate, steps and potted plants.
+ *  (x, y) = top-left of the roof line, w = width; height is about 1.0 * w. */
+const houseD = (x, y, w, o = {}) => {
+  const u = w / 100, X = (v) => (x + v * u).toFixed(1), Y = (v) => (y + v * u).toFixed(1), sw = Math.max(0.9, 1.6 * u);
+  const wall = o.wall ?? '#f4dfb8', roof = o.roof ?? '#a9493a';
+  let g = '';
+  // roof (hip) with corrugation lines, fascia and gutter
+  g += `<path d="M${X(-5)} ${Y(30)} L${X(18)} ${Y(6)} L${X(82)} ${Y(6)} L${X(105)} ${Y(30)} Z" fill="${roof}" stroke="${B.ink}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+  for (let k = 0; k <= 12; k++) { const t = k / 12, xt = 18 + 64 * t, xb = -5 + 110 * t; g += `<line x1="${X(xt)}" y1="${Y(6.5)}" x2="${X(xb)}" y2="${Y(29.5)}" stroke="rgba(0,0,0,0.18)" stroke-width="${(0.7 * u).toFixed(2)}"/>`; }
+  g += `<line x1="${X(18)}" y1="${Y(6)}" x2="${X(82)}" y2="${Y(6)}" stroke="#7d3328" stroke-width="${(2.2 * u).toFixed(1)}" stroke-linecap="round"/>`;
+  g += `<rect x="${X(-6)}" y="${Y(30)}" width="${(112 * u).toFixed(1)}" height="${(4 * u).toFixed(1)}" rx="${u.toFixed(1)}" fill="#fff" stroke="${B.ink}" stroke-width="${sw * 0.8}"/>`;
+  // upper floor
+  g += `<rect x="${X(4)}" y="${Y(34)}" width="${(92 * u).toFixed(1)}" height="${(27 * u).toFixed(1)}" fill="${wall}" stroke="${B.ink}" stroke-width="${sw}"/>`;
+  const win = (wx, wy, ww, wh) => `<rect x="${X(wx)}" y="${Y(wy)}" width="${(ww * u).toFixed(1)}" height="${(wh * u).toFixed(1)}" fill="#bcd6ee" stroke="${B.ink}" stroke-width="${sw * 0.8}"/>`
+    + `<line x1="${X(wx + ww / 2)}" y1="${Y(wy)}" x2="${X(wx + ww / 2)}" y2="${Y(wy + wh)}" stroke="${B.ink}" stroke-width="${sw * 0.6}"/>`
+    + `<path d="M${X(wx + 1.5)} ${Y(wy + wh - 2)} L${X(wx + ww / 2 - 3)} ${Y(wy + 2)}" stroke="rgba(255,255,255,0.8)" stroke-width="${(1.2 * u).toFixed(1)}"/>`
+    + `<rect x="${X(wx + ww - 5)}" y="${Y(wy + 0.5)}" width="${(4 * u).toFixed(1)}" height="${((wh - 1) * u).toFixed(1)}" fill="#e8a1b5" opacity="0.85"/>`
+    + `<rect x="${X(wx - 1.5)}" y="${Y(wy + wh)}" width="${((ww + 3) * u).toFixed(1)}" height="${(2 * u).toFixed(1)}" fill="#fff" stroke="${B.ink}" stroke-width="${sw * 0.6}"/>`;
+  g += win(10, 38, 24, 15) + win(66, 38, 24, 15);
+  // balcony door + railing
+  g += `<rect x="${X(41)}" y="${Y(37)}" width="${(18 * u).toFixed(1)}" height="${(24 * u).toFixed(1)}" fill="#cfe0f2" stroke="${B.ink}" stroke-width="${sw * 0.8}"/><line x1="${X(50)}" y1="${Y(37)}" x2="${X(50)}" y2="${Y(61)}" stroke="${B.ink}" stroke-width="${sw * 0.6}"/>`;
+  g += `<line x1="${X(37)}" y1="${Y(50)}" x2="${X(63)}" y2="${Y(50)}" stroke="${B.ink}" stroke-width="${sw}"/>`;
+  for (let k = 0; k <= 8; k++) g += `<line x1="${X(37 + k * 3.25)}" y1="${Y(50)}" x2="${X(37 + k * 3.25)}" y2="${Y(61)}" stroke="${B.ink}" stroke-width="${sw * 0.55}"/>`;
+  // floor slab
+  g += `<rect x="${X(2)}" y="${Y(61)}" width="${(96 * u).toFixed(1)}" height="${(3.5 * u).toFixed(1)}" fill="#b9bdc4" stroke="${B.ink}" stroke-width="${sw * 0.8}"/>`;
+  // ground floor (concrete)
+  g += `<rect x="${X(4)}" y="${Y(64.5)}" width="${(92 * u).toFixed(1)}" height="${(29.5 * u).toFixed(1)}" fill="#e6e3dc" stroke="${B.ink}" stroke-width="${sw}"/>`;
+  // grilled window
+  g += `<rect x="${X(11)}" y="${Y(70)}" width="${(30 * u).toFixed(1)}" height="${(15 * u).toFixed(1)}" fill="#bcd6ee" stroke="${B.ink}" stroke-width="${sw * 0.8}"/>`;
+  for (let k = 1; k < 6; k++) g += `<line x1="${X(11 + k * 5)}" y1="${Y(70)}" x2="${X(11 + k * 5)}" y2="${Y(85)}" stroke="#3b4659" stroke-width="${sw * 0.55}"/>`;
+  g += `<line x1="${X(11)}" y1="${Y(77.5)}" x2="${X(41)}" y2="${Y(77.5)}" stroke="#3b4659" stroke-width="${sw * 0.55}"/><rect x="${X(9.5)}" y="${Y(85)}" width="${(33 * u).toFixed(1)}" height="${(2 * u).toFixed(1)}" fill="#fff" stroke="${B.ink}" stroke-width="${sw * 0.6}"/>`;
+  // door with panels, knob, lamp
+  g += `<rect x="${X(58)}" y="${Y(68)}" width="${(18 * u).toFixed(1)}" height="${(26 * u).toFixed(1)}" fill="#8a5a3a" stroke="${B.ink}" stroke-width="${sw * 0.9}"/>`;
+  g += `<rect x="${X(60.5)}" y="${Y(70.5)}" width="${(13 * u).toFixed(1)}" height="${(9 * u).toFixed(1)}" fill="none" stroke="#6a4229" stroke-width="${sw * 0.6}"/><rect x="${X(60.5)}" y="${Y(82)}" width="${(13 * u).toFixed(1)}" height="${(9 * u).toFixed(1)}" fill="none" stroke="#6a4229" stroke-width="${sw * 0.6}"/>`;
+  g += `<circle cx="${X(73)}" cy="${Y(81)}" r="${(1.1 * u).toFixed(1)}" fill="${B.amber}"/><rect x="${X(65.5)}" y="${Y(65)}" width="${(3 * u).toFixed(1)}" height="${(2.5 * u).toFixed(1)}" fill="#fff4c7" stroke="${B.ink}" stroke-width="${sw * 0.5}"/>`;
+  // house-number plate
+  const pw = Math.max(12, 10 * u), ph = Math.max(9, 7 * u), px = x + 79 * u, py = y + 70 * u;
+  if (o.num !== false) g += R(px, py, pw, ph, { r: 1.5, f: '#fff', s: B.ink, sw: Math.max(0.9, sw * 0.7) }) + T(px + pw / 2, py + ph * 0.78, o.num ?? '27', { size: Math.max(6.5, ph * 0.78), w: 800, c: B.ink });
+  // steps and plants
+  g += `<rect x="${X(55)}" y="${Y(94)}" width="${(24 * u).toFixed(1)}" height="${(3 * u).toFixed(1)}" fill="#cfd3d9" stroke="${B.ink}" stroke-width="${sw * 0.7}"/><rect x="${X(53)}" y="${Y(97)}" width="${(28 * u).toFixed(1)}" height="${(3 * u).toFixed(1)}" fill="#cfd3d9" stroke="${B.ink}" stroke-width="${sw * 0.7}"/>`;
+  const pot = (cx) => `<path d="M${X(cx - 4)} ${Y(93)} L${X(cx + 4)} ${Y(93)} L${X(cx + 3)} ${Y(100)} L${X(cx - 3)} ${Y(100)} Z" fill="#c8693e" stroke="${B.ink}" stroke-width="${sw * 0.6}"/>`
+    + `<path d="M${X(cx)} ${Y(93)} Q${X(cx - 7)} ${Y(88)} ${X(cx - 5)} ${Y(83)} M${X(cx)} ${Y(93)} Q${X(cx + 1)} ${Y(86)} ${X(cx)} ${Y(81)} M${X(cx)} ${Y(93)} Q${X(cx + 7)} ${Y(88)} ${X(cx + 5)} ${Y(84)}" fill="none" stroke="#3f8a5a" stroke-width="${(1.6 * u).toFixed(1)}" stroke-linecap="round"/>`;
+  g += pot(7) + pot(91);
+  return g;
+};
+
+/* ----- definition doodles for Part 3 (160 x 120, detailed) ----- */
+// a small TALL phone for 160 x 120 doodles (real phone shape, about 1 : 2): drawn at full size and scaled by s.
+// content(x, y, w, h) draws in doodle units inside a 51 x 99 screen area.
+const phoneS = (x, y, content, s = 0.45) => `<g transform="translate(${x} ${y}) scale(${s})">` + phoneUI(0, 0, 124, 252, (X, Y, w, h) => `<g transform="translate(${X} ${Y}) scale(${(1 / s).toFixed(4)})">` + content(0, 0, w * s, h * s) + '</g>') + '</g>';
+// a small app header for doodle phones
+const miniHead = (x, y, w, title, sub = '') => R(x, y, w, 21, { r: 0, f: '#fff', s: 'none', sw: 0 }) + T(x + 5, y + (sub ? 9 : 13), title, { size: 7, w: 800, a: 'start', c: B.ink }) + (sub ? T(x + 5, y + 17, sub, { size: 5.5, w: 600, a: 'start', c: B.greyInk }) : '') + L(x, y + 21, x + w, y + 21, '#e6e9ef', 0.8);
+// a round profile picture with a real head and shoulders inside (person2 or girl, clipped to a circle)
+const avatarP = (cx, cy, r, o = {}) => {
+  const id = 'avp' + (++_clipN), sc = r / 26, fig = o.girl ? girl : person2;
+  return `<clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath>` + C(cx, cy, r, o.bg ?? '#dfe9f6', 'none', 0) + `<g clip-path="url(#${id})">` + fig(cx, cy - r * 0.15 - 19 * sc, sc, { shirt: o.shirt ?? B.blue, hair: o.hair, sad: o.sad }) + '</g>' + C(cx, cy, r, 'none', o.ring ?? 'none', o.ring ? 1 : 0);
+};
+// a laughing-with-tears emoji
+const laughFace = (x, y, r = 5) => C(x, y, r, '#f7c948', '#c99a1c', 0.7) + P(`M${x - r * 0.62} ${y - r * 0.15} Q${x - r * 0.38} ${y - r * 0.5} ${x - r * 0.14} ${y - r * 0.15} M${x + r * 0.14} ${y - r * 0.15} Q${x + r * 0.38} ${y - r * 0.5} ${x + r * 0.62} ${y - r * 0.15}`, 'none', '#6b3a10', 0.8)
+  + P(`M${x - r * 0.55} ${y + r * 0.12} L${x + r * 0.55} ${y + r * 0.12} Q${x} ${y + r * 0.95} ${x - r * 0.55} ${y + r * 0.12} Z`, '#7a2f12', 'none', 0) + C(x - r * 0.85, y + r * 0.1, r * 0.25, '#6fb3e8', 'none', 0) + C(x + r * 0.85, y + r * 0.1, r * 0.25, '#6fb3e8', 'none', 0);
+const tinyPhone = (x, y, w, h, scr = '#cfdcf0', content = '') => R(x, y, w, h, { r: 3.5, f: '#1f2633', sw: 1.2 }) + R(x + 1.6, y + 2.2, w - 3.2, h - 4.4, { r: 2.2, f: scr, s: 'none', sw: 0 }) + content;
+const mini = (x, y, t, o = {}) => T(x, y, t, { size: o.size ?? 6.5, w: o.w ?? 700, a: o.a ?? 'start', c: o.c ?? B.ink, mono: o.mono });
+const chip = (x, y, w, t, f, c, size = 6) => R(x, y, w, 11, { r: 5.5, f, s: 'none', sw: 0 }) + T(x + 5, y + 8, t, { size, w: 700, a: 'start', c });
+const chipR = (xr, y, w, t, f, c, size = 6) => chip(xr - w, y, w, t, f, c, size);
+const banner = (x, y, w, t1, t2) => R(x, y, w, 15, { r: 5, f: '#fff', s: '#d3dbe6', sw: 0.9 }) + R(x + 4, y + 4, 7, 7, { r: 2, f: '#2f6fd1', s: 'none', sw: 0 }) + T(x + 15, y + 10.5, t1, { size: 6, w: 800, a: 'start', c: B.ink }) + T(x + w - 5, y + 10.5, t2, { size: 6.5, w: 800, a: 'end', c: B.red });
+
+export function partThreeDef(kind) {
+  let b = '', alt = '';
+  if (kind === 'bully') {
+    b = blob(84, 62, 72, 52, '#fbe7da') + ground(36, 116, 26) + ground(116, 116, 28);
+    b += phoneS(10, 3, (x, y, w, h) => {
+      let g = miniHead(x, y, w, 'BSIT 1A', '24 members');
+      g += R(x + 4, y + 25, w - 8, 32, { r: 4, f: '#dfe9f6', s: 'none', sw: 0 }) + avatarP(x + w / 2, y + 42, 12, { shirt: B.green, bg: '#c9dbef' });
+      g += P(`M${x + w / 2 - 8} ${y + 34} L${x + w / 2 - 11} ${y + 26.5} L${x + w / 2 - 4} ${y + 32} M${x + w / 2 + 8} ${y + 34} L${x + w / 2 + 11} ${y + 26.5} L${x + w / 2 + 4} ${y + 32}`, '#d4422f', '#d4422f', 0.8);
+      g += R(x + w - 27, y + 48, 22, 8, { r: 2, f: '#d4422f', s: 'none', sw: 0 }) + mini(x + w - 25, y + 54.5, 'LOSER', { size: 5.5, c: '#fff' });
+      g += laughFace(x + 9, y + 64, 4) + laughFace(x + 18, y + 64, 4) + mini(x + 25, y + 66.5, '12', { size: 6, c: B.soft });
+      g += chipR(x + w - 4, y + 72, 32, 'hahaha', '#2f6fd1', '#fff');
+      return g;
+    });
+    b += banner(76, 4, 80, 'BSIT 1A', 'lol') + banner(76, 21, 80, 'BSIT 1A', 'loser');
+    b += girl(116, 42, 0.62, { shirt: B.blue, sad: true }) + tinyPhone(121, 74, 13, 22) + P('M120 56 Q121 60 119.5 62', 'none', '#6fa8dc', 1.4);
+    alt = 'A class group chat on a phone shows an edited photo of a classmate with drawn horns and a LOSER sticker, with laughing reactions, hahaha, and ew. New notifications say lol and loser. The classmate holds her phone and looks sad: cyberbullying.';
+  } else if (kind === 'stalk') {
+    b = blob(84, 62, 72, 52, '#e3ecf8') + ground(36, 116, 26) + ground(126, 116, 30);
+    b += phoneS(10, 3, (x, y, w, h) => {
+      let g = R(x, y, w, h, { r: 0, f: '#eaf1e4', s: 'none', sw: 0 });
+      g += R(x + 28, y + 6, 20, 18, { r: 2, f: '#cfe8c4', s: 'none', sw: 0 }) + `<path d="M${x} ${y + 64} Q${x + 26} ${y + 56} ${x + w} ${y + 70}" fill="none" stroke="#9cc6ea" stroke-width="6"/>`;
+      g += `<path d="M${x} ${y + 30} L${x + w} ${y + 27} M${x + 18} ${y} L${x + 23} ${y + h} M${x} ${y + 84} L${x + w} ${y + 80} M${x + 42} ${y} L${x + 45} ${y + h}" stroke="#fff" stroke-width="3.5"/>`;
+      [[9, 88], [15, 78], [20, 66], [22, 54], [22, 42]].forEach(([dx, dy]) => { g += C(x + dx, y + dy, 1.5, B.red, 'none', 0); });
+      g += C(x + 22, y + 32, 6, 'rgba(47,111,209,0.25)', 'none', 0) + C(x + 22, y + 32, 3.2, '#2f6fd1', '#fff', 1);
+      g += R(x + 27, y + 35, 20, 10, { r: 3, f: '#fff', s: B.line, sw: 0.7 }) + mini(x + 30, y + 42.5, 'Bea', { size: 6, c: B.blueInk });
+      g += R(x + 3, y + 3, w - 6, 13, { r: 4, f: '#fff', s: B.line, sw: 0.7 }) + C(x + 9, y + 9.5, 2, B.red, 'none', 0) + mini(x + 14, y + 12, 'Live location', { size: 5.5, c: B.red });
+      return g;
+    });
+    b += hacker2(126, 8, 0.56) + laptop2(102, 72, 48, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#eaf1e4', s: 'none', sw: 0 }) + L(x, y + h * 0.5, x + w, y + h * 0.4, '#fff', 2) + L(x + w * 0.4, y, x + w * 0.45, y + h, '#fff', 2) + C(x + w * 0.44, y + h * 0.46, 2.6, '#2f6fd1', '#fff', 1));
+    alt = 'A phone map shares Bea\'s live location, with a trail of red dots showing where she went. A hooded stranger watches the same map on his laptop: cyberstalking.';
+  } else if (kind === 'sextortion') {
+    b = blob(84, 62, 72, 52, '#fbe7da') + ground(36, 116, 26) + ground(122, 116, 28);
+    b += phoneS(10, 3, (x, y, w, h) => {
+      let g = miniHead(x, y, w, 'x_99', 'Request');
+      g += R(x + 4, y + 27, w - 8, 30, { r: 4, f: '#c9d3e3', s: 'none', sw: 0 }) + [0, 1, 2].map((k) => R(x + 7, y + 31 + k * 8, w - 14, 4, { r: 2, f: '#b4c0d3', s: 'none', sw: 0 })).join('');
+      const ex = x + 15, ey = y + 47;
+      g += C(ex, ey, 6, '#fff', 'none', 0) + P(`M${ex - 4.5} ${ey} Q${ex} ${ey - 4} ${ex + 4.5} ${ey} Q${ex} ${ey + 4} ${ex - 4.5} ${ey} Z`, 'none', B.soft, 0.8) + L(ex - 4, ey + 4, ex + 4, ey - 4, B.soft, 0.9);
+      g += chip(x + 4, y + 62, 43, 'Pay ₱5,000 or', '#fdeee9', '#9c2f28', 5.8) + chip(x + 4, y + 75, 40, 'I share this.', '#fdeee9', '#9c2f28', 5.8);
+      g += R(x + w - 30, y + 29, 24, 9, { r: 4.5, f: '#d4422f', s: 'none', sw: 0 }) + T(x + w - 18, y + 35.5, '24 hours', { size: 5.2, w: 800, c: '#fff' });
+      return g;
+    });
+    b += hacker2(122, 18, 0.62) + tinyPhone(128, 60, 13, 22, '#2f3d55');
+    alt = 'A message request from an unknown account shows a hidden private photo and says: Pay 5,000 pesos or I share this, within 24 hours. A hooded stranger holds his phone and waits: sextortion.';
+  } else if (kind === 'doxx') {
+    b = blob(84, 62, 72, 52, '#e3ecf8') + ground(54, 116, 48);
+    b += R(6, 8, 102, 104, { r: 8, f: '#fff', sw: 1.8 }) + avatarP(18, 20, 6, { shirt: '#6b7a94', bg: '#d6dce6' }) + mini(28, 18, 'anon_user', { size: 6.5, w: 800 }) + mini(28, 26, 'Public · 2h', { size: 5.5, c: B.greyInk });
+    b += avatarP(26, 48, 14, { girl: true, shirt: B.green, bg: '#cfe3f3' }) + mini(46, 40, 'Bea Reyes', { size: 8, w: 800 });
+    const row = (y, icon, t) => icon + mini(54, y, t, { size: 6, c: B.red });
+    b += row(52, P('M46 47 C46 44 51 44 51 47 C51 49 48.5 51 48.5 52 C48.5 51 46 49 46 47 Z', B.red, 'none', 0), 'Purok 3, Dahican');
+    b += row(63, R(46, 56.5, 5, 8, { r: 1.2, f: 'none', s: B.red, sw: 0.9 }), '0917 123 ••••');
+    b += row(74, P('M44.5 70.5 L48.5 68 L52.5 70.5 L48.5 73 Z', B.red, 'none', 0), 'DOrSU, BSIT 1A');
+    b += L(12, 84, 102, 84, '#e6e9ef', 0.8) + mini(12, 96, '↗ 1.2K shares', { size: 6, c: B.soft }) + mini(60, 96, '342 likes', { size: 6, c: B.soft }) + R(12, 101, 56, 6, { r: 3, f: '#f3f5f8', s: 'none', sw: 0 });
+    // the post spreads to many other phones
+    [10, 45, 80].forEach((py) => {
+      b += ARROW(110, 60, 125, py + 15, '#9aa6b8', 1.3);
+      const sx = 132, sw = 20;
+      b += tinyPhone(sx, py, sw, 32, '#fff', C(sx + 6, py + 8, 2.4, B.green, 'none', 0) + R(sx + 10, py + 6.8, 7, 2.4, { r: 1, f: B.ink, s: 'none', sw: 0 }) + [13, 18, 23].map((dy) => R(sx + 4, py + dy, sw - 8, 2.4, { r: 1.2, f: '#e79b93', s: 'none', sw: 0 })).join(''));
+    });
+    alt = 'An anonymous public post shares Bea\'s photo, her home in Purok 3, Dahican, her phone number, and her school and section. It has 1.2K shares, and the same post spreads to many other phones: doxxing.';
+  } else if (kind === 'groom') {
+    b = blob(84, 62, 72, 52, '#fbe7da') + ground(36, 116, 26) + ground(124, 116, 30);
+    b += phoneS(10, 3, (x, y, w, h) => {
+      let g = avatarP(x + w / 2, y + 20, 13, { shirt: B.orange, bg: '#cfe3f3', hair: '#5a3b22' });
+      g += T(x + w / 2, y + 43, 'jay_16', { size: 7.5, w: 800, c: B.ink }) + T(x + w / 2, y + 52, '16, Grade 10', { size: 5.8, w: 600, c: B.greyInk });
+      g += [60, 66].map((dy, k) => R(x + 8, y + dy, w - 16 - k * 8, 3, { r: 1.5, f: '#dfe3ea', s: 'none', sw: 0 })).join('');
+      g += R(x + 5, y + 75, w - 10, 11, { r: 5.5, f: '#2f6fd1', s: 'none', sw: 0 }) + T(x + w / 2, y + 82.5, 'Message', { size: 6, w: 800, c: '#fff' });
+      return g;
+    });
+    b += '<g transform="rotate(-12 50 64)">' + R(34, 57, 32, 13, { r: 2, f: 'rgba(255,255,255,0.85)', s: B.red, sw: 1.5 }) + T(50, 67, 'FAKE', { size: 8.5, w: 800, c: B.red }) + '</g>';
+    b += `<path d="M66 50 L98 50" stroke="${B.red}" stroke-width="1.5" stroke-dasharray="3 2"/>` + ARROW(90, 50, 100, 50, B.red, 1.5);
+    b += person2(126, 24, 0.52, { shirt: '#6b7a94', hair: '#7a7a7a' }) + R(118.5, 31, 5.5, 4.5, { r: 1.5, f: 'none', s: B.ink, sw: 0.9 }) + R(128.5, 31, 5.5, 4.5, { r: 1.5, f: 'none', s: B.ink, sw: 0.9 }) + L(124, 33, 128.5, 33, B.ink, 0.9);
+    b += laptop2(106, 76, 40, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#dfe9f6', s: 'none', sw: 0 }) + C(x + w / 2, y + h / 2, 4, '#8fb0dc', 'none', 0)) + label(126, 12, 'real person', B.soft, '#fff', 6.5);
+    alt = 'A friendly profile on a phone, jay_16, 16 years old, Grade 10, is stamped FAKE. The real person behind it is an adult at a laptop: an online predator using a fake identity.';
+  }
+  return svgWrap(160, 120, alt, b).replace('class="clean"', 'class="clean def-pic"');
+}
+
+/** Warning signs of grooming (pattern level only), four soft cards in the backupPic style. 480 x 360. */
+export function groomSignsPic() {
+  let b = '';
+  const cw = 228, ch = 168, xs = [8, 244], ys = [8, 184];
+  const card = (i, title, l1, l2) => { const x = xs[i % 2], y = ys[Math.floor(i / 2)]; return R(x, y, cw, ch, { r: 16, f: '#f3f6fa', s: 'none', sw: 0 }) + T(x + cw / 2, y + 26, title, { size: 13.5, w: 800, c: B.ink }) + T(x + cw / 2, y + ch - 30, l1, { size: 11, w: 700, c: B.soft }) + T(x + cw / 2, y + ch - 15, l2, { size: 11, w: 700, c: B.soft }); };
+  b += card(0, 'Lots of attention and gifts', 'Sends gifts, load, or money', 'to make you feel special.');
+  b += card(1, 'Asks you to keep it secret', 'Wants your chats hidden', 'from parents and friends.');
+  b += card(2, 'Moves to a private app', 'Pulls you away from public', 'chats to private ones.');
+  b += card(3, 'Asks for photos or a meeting', 'Asks for private photos,', 'or to meet you alone.');
+  // 1 gifts: phone notification + gift
+  b += R(36, 48, 172, 40, { r: 10, f: '#fff', s: B.line, sw: 1.2 }) + C(56, 68, 9, '#8fb0dc', 'none', 0) + T(72, 64, 'jay_16 sent you', { size: 10.5, w: 700, a: 'start', c: B.ink }) + T(72, 79, '₱200 load', { size: 10.5, w: 800, a: 'start', c: B.green });
+  b += gift(100, 94, 40, 24) + heart(160, 104, 0.8) + heart(176, 96, 0.6);
+  // 2 secret: chat bubble + shushing
+  b += R(272, 52, 172, 34, { r: 12, f: '#fff', s: B.line, sw: 1.2 }) + T(358, 74, '"This is just between us."', { size: 10.5, w: 700, c: B.ink });
+  b += '<g transform="translate(0 -8)">' + P('M330 100 L386 100 Q392 100 392 106 L392 126 Q392 132 386 132 L348 132 L338 140 L340 132 L330 132 Q324 132 324 126 L324 106 Q324 100 330 100 Z', '#fff', B.ink, 1.6) + [0, 1, 2].map((k) => C(344 + k * 14, 116, 3, B.greyInk, 'none', 0)).join('') + padlock2(384, 116, false, B.amber, 0.6) + '</g>';
+  // 3 private app: public game chat -> lock chat
+  b += R(30, 222, 78, 58, { r: 8, f: '#fff', s: B.line, sw: 1.2 }) + T(69, 238, 'Game chat', { size: 9.5, w: 800, c: B.ink }) + [0, 1, 2].map((k) => R(38, 246 + k * 10, 50 - k * 8, 6, { r: 3, f: '#dfe9f6', s: 'none', sw: 0 })).join('') + T(69, 296, 'public', { size: 9.5, w: 700, c: B.soft });
+  b += ARROW(114, 251, 148, 251, B.red, 2.2);
+  b += R(156, 222, 58, 58, { r: 14, f: '#2b3446', s: 'none', sw: 0 }) + padlock2(173, 258, false, B.amber, 0.7) + T(185, 296, 'private', { size: 9.5, w: 700, c: '#9c2f28' });
+  // 4 photos or meeting: camera + lone pin
+  b += R(272, 222, 70, 50, { r: 8, f: '#3b4659', sw: 1.6 }) + R(290, 214, 22, 10, { r: 3, f: '#3b4659', sw: 1.4 }) + C(307, 247, 15, '#8fb0dc', B.ink, 1.6) + C(307, 247, 7, '#2b3446', 'none', 0) + C(303, 243, 2.4, '#fff', 'none', 0);
+  b += P('M400 232 C400 220 420 220 420 232 C420 242 410 250 410 258 C410 250 400 242 400 232 Z', B.red, B.ink, 1.6) + C(410, 232, 4, '#fff', 'none', 0) + T(410, 278, 'alone', { size: 10, w: 700, c: '#9c2f28' });
+  return svgWrap(480, 360, 'Four warning signs of grooming. 1, lots of attention and gifts, such as a message that says jay_16 sent you 200 pesos load. 2, asks you to keep it secret, such as "This is just between us." 3, moves the chat from a public game chat to a private app. 4, asks for private photos, or asks to meet you alone.', b);
+}
+
+/** About 1 in 100 Filipino children (IJM Scale of Harm, 2023), redrawn chat 59: a clean 10 x 10 grid of dots with one dot
+ *  highlighted and labeled, the number, and a one-line key. 480 x 236. */
+export function oneInHundredPic() {
+  let b = R(4, 4, 472, 214, { r: 16, f: SOFT, s: 'none', sw: 0 });
+  const gx = 34, gy = 34, st = 17;
+  b += R(gx - 16, gy - 16, st * 9 + 32, st * 9 + 32, { r: 14, f: '#fff', s: 'none', sw: 0 });
+  for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) {
+    const hot = r === 4 && c === 6;
+    b += C(gx + c * st, gy + r * st, hot ? 6.2 : 5.2, hot ? B.orange : '#c9d2df', 'none', 0);
+  }
+  b += C(gx + 6 * st, gy + 4 * st, 10.5, 'none', B.orange, 1.6);
+  b += T(232, 74, '1 in 100', { size: 38, w: 800, a: 'start', c: B.orangeInk });
+  b += T(232, 104, 'Filipino children were sexually', { size: 13, w: 600, a: 'start', c: B.ink }) + T(232, 122, 'exploited online for money in', { size: 13, w: 600, a: 'start', c: B.ink }) + T(232, 140, '2022. That is nearly half a', { size: 13, w: 600, a: 'start', c: B.ink }) + T(232, 158, 'million children.', { size: 13, w: 600, a: 'start', c: B.ink });
+  b += L(232, 178, 456, 178, '#dfe3ea', 1.2);
+  b += T(232, 202, 'Source: IJM and University of Nottingham, 2023', { size: 10, w: 600, a: 'start', c: B.greyInk });
+  return svgWrap(480, 222, 'A grid of 100 dots, each standing for one child. One dot is orange. 1 in 100 Filipino children were sexually exploited online for money in 2022, which is nearly half a million children. Source: International Justice Mission and the University of Nottingham, 2023.', b);
 }

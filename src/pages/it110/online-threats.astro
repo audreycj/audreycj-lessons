@@ -8,7 +8,7 @@ import ZoomPics from '../../components/ZoomPics.astro';
 import StepShow from '../../components/StepShow.astro';
 import { course } from '../../data/it110.js';
 import { ciaPic, mfaPic, firewallPic, httpsPic, defPic } from '../../lib/it110-sec-pics.js';
-import { storyPic, malwareStep, iloveyouPic, philhealthPic, colonialPic, defacePic, antivirusPic, threatDef, malwarePic, scamPic, botnetPic, ddosPic, backupPic, phishFamilyPic, oversharePic, reportPic } from '../../lib/it110-threat-pics.js';
+import { storyPic, malwareStep, iloveyouPic, philhealthPic, colonialPic, defacePic, antivirusPic, threatDef, malwarePic, scamPic, botnetPic, ddosPic, backupPic, phishFamilyPic, oversharePic, certViewPic, sigViewPic, afterScamStep, partThreeDef, groomSignsPic, oneInHundredPic } from '../../lib/it110-threat-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const L1 = base + '/it110/net-security/';
 
@@ -46,6 +46,12 @@ const mobileSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('mobile', i), say: 
   'Android warns Ben twice. First, it asks if he will allow apps from unknown sources. Then the app asks for permission to read his text messages and to control his screen. Ben taps Allow both times. These permissions give the <b class="term">mobile malware</b> what it needs.',
   'The app hides its icon, so Ben forgets about it. When PeraPay texts him a one-time PIN (OTP), the app copies it to the criminal, who uses it to send money out of Ben\'s account. Install apps only from the official store, and say no when an app asks for your texts or screen without a clear reason. A real example is FluBot. From 2021, it spread by text messages about a waiting package. It stole banking details from phones that installed it and used those phones to text more people, until police in Europe shut it down in 2022.',
 ][i] }));
+const afterScamSteps = [0, 1, 2, 3].map((i) => ({ pic: afterScamStep(i), say: [
+  '<b>Step 1. Call your bank or e-wallet right away.</b> Use the hotline inside its official app or on the back of your card, not a number from the scam message. Ask them to <b>freeze</b> (block) your account or the transaction. The sooner you call, the better the chance to stop the money.',
+  '<b>Step 2. Report to hotline 1326.</b> It is the national anti-scam hotline of the Cybercrime Investigation and Coordinating Center (CICC). The call is free, and the hotline is open 24 hours a day, 7 days a week. The CICC can coordinate with banks, e-wallets, and the police.',
+  '<b>Step 3. Change your passwords</b>, starting with your email, because your email can reset all your other accounts. Use a new, long password. Then sign out of all other devices, so the scammer is logged out too. Finally, turn on multifactor authentication (MFA), which many apps call 2-Step Verification.',
+  '<b>Step 4. Keep proof.</b> Take screenshots of the messages, the links, the scammer\'s account name and number, and your receipts, and keep them in one folder. Do not delete the chat, because the bank and the police need it. If the scammer used your account to message other people, warn your friends.',
+][i] }));
 const ciaPeek = '<p>From <b>Lesson 1</b>, Part 1: the <b>CIA triad</b> names the three things security protects. <b>Confidentiality</b>: only the right people can see the data. <b>Integrity</b>: no one changes it without permission. <b>Availability</b>: it works when you need it.</p>' + ciaPic('a');
 const integrityPeek = '<p>From <b>Lesson 1</b>, Part 1: <b>integrity</b> means the data is correct and is not changed without permission.</p>' + ciaPic('i');
 const firewallPeek = '<p>From <b>Lesson 1</b>, Part 4: a <b>firewall</b> checks the traffic going in and out of a network against rules and blocks what is not allowed, like a guard at a checkpoint.</p>' + firewallPic();
@@ -55,6 +61,7 @@ const httpsPeek = '<p>From <b>Lesson 1</b>, Part 4: <b>HTTPS</b> (Hypertext Tran
 const paoloPeek = '<p>From <b>Lesson 1</b>, Part 1: late at night, Jessa got a message from her classmate Paolo asking to borrow ₱500. But Paolo\'s account had been taken over. The stranger was sending the same message to everyone on Paolo\'s friends list.</p>';
 const philPeek = '<p>From Part 1: in September 2023, the Medusa <b>ransomware</b> group attacked PhilHealth, demanded US$300,000, and posted the stolen files online when PhilHealth refused to pay.</p>' + malwarePic('ransom');
 const lovePeek = '<p>From Part 2: in a <b>love scam</b>, someone builds an online relationship using stolen photos (<b>catfishing</b>), then asks for money.</p>' + scamPic('love');
+const deepPeek = '<p>From Part 2 of this lesson: a <b>deepfake</b> is a video, photo, or voice made with AI (artificial intelligence) to copy a real person.</p>' + scamPic('deep');
 const socialPeek = '<p>From Part 2 of this lesson: <b>social engineering</b> means tricking people, instead of computers, into giving away information, money, or access.</p>';
 const vpnPeek = '<p>From Lesson 1: a <b>VPN</b> (virtual private network) makes an encrypted tunnel over the Internet, so a worker at home can use the office network safely.</p>';
 const malwarePeek = '<p>From Part 1 of this lesson: <b>malware</b>, short for malicious software, is any program written to harm a computer or its user, for example to steal information, spy, or take control.</p>';
@@ -407,16 +414,16 @@ const final = [
       <div class="remember">
         <p class="note-label">The red flags to remember</p>
         <ul>
-          <li><b>Rush or threat:</b> "locked in 2 hours", "last chance", "reply today".</li>
-          <li><b>Asks for secrets:</b> your password, PIN, or <Peek label="OTP" title="From Lesson 1" html={otpPeek} />. No real company asks.</li>
-          <li><b>Strange link or sender:</b> a look-alike address, or a regular number pretending to be a company.</li>
-          <li><b>Too good to be true:</b> big prizes, easy money, very cheap items.</li>
-          <li><b>Money to a different name</b>, or a request to keep it secret or move to another app.</li>
+          <li><b>A rush or a threat</b>, such as "locked in 2 hours", "last chance", or "reply today".</li>
+          <li><b>A request for secrets</b>, such as your password, PIN, or <Peek label="OTP" title="From Lesson 1" html={otpPeek} />. No real company asks for these.</li>
+          <li><b>A strange link or sender</b>, such as a look-alike address, or a regular phone number that pretends to be a company.</li>
+          <li><b>An offer that is too good to be true</b>, such as a big prize, easy money, or a very cheap item.</li>
+          <li><b>Money sent to a different name</b>, or a request to keep it secret or to move the chat to another app.</li>
         </ul>
       </div>
 
       <h3 id="dot-cons">Other online scams</h3>
-      <p class="bridge">Phishing steals your login. These other scams, often called <b class="term">dot cons</b> (cons done online), trick you into <b>sending money or help</b> yourself. They are other kinds of <Peek label="social engineering" title="From Part 2" html={socialPeek} />.</p>
+      <p class="bridge">Scammers use many tricks besides phishing. These other online scams are often called <b class="term">dot cons</b> (cons done online). In a dot con, the scammer tricks you into <b>sending the money yourself</b>, or into lending your account. Dot cons are other kinds of <Peek label="social engineering" title="From Part 2" html={socialPeek} />, just like phishing.</p>
       <p>Each card shows a scam common in the Philippines and the trick behind it:</p>
       <div class="fn-grid">
         <div class="fn-card" id="shopping-scam" data-toc="Online shopping scams"><Fragment set:html={scamPic('shop')} /><p class="fn-t">Online shopping scams</p><p>A seller offers something very cheap, asks for a deposit or full payment first, and then disappears. Some scammers act as <b>buyers</b> and send fake "proof of payment" screenshots.</p></div>
@@ -429,34 +436,43 @@ const final = [
       <p>Account takeovers like the <Peek label="Paolo story in Lesson 1" title="From Lesson 1" html={paoloPeek} /> combine these: the scammer first steals an account by phishing, then uses it to ask the owner's friends for money.</p>
 
       <h3 id="protect-theft">Protecting against online theft and scams</h3>
-      <p class="bridge">Two tools help you check that a website or file is real. Then come the habits that stop most scams.</p>
-      <div class="two-col">
-        <div class="def has-pic" id="certificates" data-toc="Digital certificates"><p class="note-label">Digital certificate</p><p>An electronic ID card for a website, issued by a trusted company called a <b class="term">certificate authority</b>. It proves the site really owns its address and lets your browser make an encrypted <Peek label="HTTPS" title="From Lesson 1" html={httpsPeek} /> connection.</p><Fragment set:html={threatDef('cert')} /></div>
-        <div class="def has-pic" id="signatures" data-toc="Digital signatures"><p class="note-label">Digital signature</p><p>An electronic seal added to a file or message that proves <b>who sent it</b> and that it was <b>not changed</b> after signing. It is used for e-signed documents and for software updates.</p><Fragment set:html={threatDef('signature')} /></div>
-      </div>
-      <div class="look">
-        <p class="note-label">Take note</p>
-        <p>A certificate proves a site owns <b>its own address</b>, such as <code>perapay-verify.co</code>. It does <b>not</b> prove that the address belongs to the real PeraPay. Scam sites can get certificates too. So always check the <b>address itself</b>, not just the lock.</p>
-      </div>
+      <p class="bridge">You can protect yourself from online theft and scams in three ways. First, build <b>habits</b> that stop most scams. Second, use two tools that show whether a website or a file is real, called <b class="term">digital certificates</b> and <b class="term">digital signatures</b>. Third, if you were scammed, <b>act fast</b>.</p>
       <p>These habits stop most online theft and scams:</p>
       <ul>
         <li><b>Go to the source yourself.</b> Open the official app, or type the address you know, instead of tapping links in messages. Call the person or company back using a number you already have.</li>
-        <li><b>Never share your PIN, password, or OTP</b>, and turn on <Peek label="MFA" title="From Lesson 1" html={mfaPeek} /> for your email, e-wallets, and social media.</li>
+        <li><b>Never share your PIN, password, or <Peek label="OTP" title="From Lesson 1" html={otpPeek} /></b>, and turn on <Peek label="MFA" title="From Lesson 1" html={mfaPeek} /> (multifactor authentication) for your email, e-wallets, and social media.</li>
         <li><b>Pause when you feel rushed.</b> Scammers want you to act before you think. Ask someone you trust.</li>
         <li><b>Protect your ID.</b> Do not post photos of IDs, and never send a "selfie with ID" to strangers. When you must send a copy, write on it what it is for, such as "For PeraPay verification only, Nov 2026".</li>
-        <li><b>Buy safely.</b> Use the shopping platform's own checkout, meet in public places, or choose cash on delivery. Be wary of deals that are far below the usual price.</li>
+        <li><b>Buy safely.</b> Use the shopping platform's own checkout, meet in public places, or choose cash on delivery. Be careful with deals that are far below the usual price.</li>
         <li><b>Check before you invest.</b> The Securities and Exchange Commission (SEC) posts warnings about investment scams on its website.</li>
-        <li><b>Agree on a family code word</b> to check emergency calls, since deepfakes can copy voices and faces.</li>
+        <li><b>Agree on a family code word</b> to check emergency calls, since <Peek label="deepfakes" title="From Part 2" html={deepPeek} /> can copy voices and faces.</li>
         <li><b>Check your accounts often</b>, so you notice strange transactions early.</li>
       </ul>
-      <p>If you were scammed, act fast. Every minute counts, because scammers move money quickly. Here are the four steps:</p>
-      <figure class="fig illus-fig illus big"><Fragment set:html={reportPic()} /><figcaption>What to do right after a scam, in order.</figcaption></figure>
-      <ol class="steps-big">
-        <li><b>Call your bank or e-wallet right away</b>, using the hotline in its official app or on your card. Ask them to freeze or block the transaction.</li>
-        <li><b>Report to hotline 1326</b>, the 24/7 national anti-scam hotline of the Cybercrime Investigation and Coordinating Center (CICC). It is free, and it can coordinate with banks, e-wallets, and the police.</li>
-        <li><b>Change your passwords</b> and log out of other devices, starting with your email, and turn on MFA (multifactor authentication).</li>
-        <li><b>Keep proof:</b> screenshots of messages, links, account names and numbers, and receipts. Do not delete the chat. Warn your friends if your account was used.</li>
-      </ol>
+
+      <h3 id="cert-sig">Digital certificates and digital signatures</h3>
+      <p class="bridge">Digital certificates and digital signatures are two kinds of <b>electronic proof</b>. They are tools for protecting yourself, because they show whether a website or a file is real. Your browser and your apps check them for you, but you can also look at them yourself.</p>
+
+      <div class="concept" id="certificates" data-toc="Digital certificates">
+        <div class="def has-pic"><p class="note-label">Digital certificate</p><p>A <b class="term">digital certificate</b> is an electronic ID card for a website. It is issued by a trusted company called a <b class="term">certificate authority</b> (CA). It proves that the site really owns its address, and it lets your browser make an encrypted <Peek label="HTTPS" title="From Lesson 1" html={httpsPeek} /> connection.</p><Fragment set:html={threatDef('cert')} /></div>
+        <p>Your browser checks the <b class="term">digital certificate</b> every time you open a website with <Peek label="HTTPS" title="From Lesson 1" html={httpsPeek} />. To see it yourself in Chrome on a computer, click the icon at the left of the address, then click <b>Connection is secure</b>, then <b>Certificate is valid</b>. A window like this one opens.</p>
+        <figure class="fig illus-fig illus big"><Fragment set:html={certViewPic()} /><figcaption>A digital certificate in Chrome's Certificate Viewer (made-up bank).</figcaption></figure>
+        <p>The certificate shows three main things. <b>Issued To</b> is the website address that the certificate belongs to. <b>Issued By</b> is the <b class="term">certificate authority</b> that checked the site. <b>Validity Period</b> shows the dates when the certificate can be used. When a certificate has expired, or belongs to a different address, the browser shows a warning page instead, such as "Your connection is not private". Do not continue to a site that shows this warning.</p>
+        <div class="look">
+          <p class="note-label">Take note</p>
+          <p>A <b class="term">digital certificate</b> proves that a site owns <b>its own address</b>, such as <code>perapay-verify.co</code>. It does <b>not</b> prove that the address belongs to the real PeraPay. Scam sites can get certificates too. So always check the <b>address itself</b>, not just the lock.</p>
+        </div>
+      </div>
+
+      <div class="concept" id="signatures" data-toc="Digital signatures">
+        <div class="def has-pic"><p class="note-label">Digital signature</p><p>A <b class="term">digital signature</b> is an electronic seal added to a file or a message. It proves <b>who signed it</b>, and that it was <b>not changed</b> after it was signed. It is used for e-signed documents and for software updates.</p><Fragment set:html={threatDef('signature')} /></div>
+        <p>You can see a <b class="term">digital signature</b> when you open an e-signed PDF (Portable Document Format) file in a PDF reader app, such as Adobe Acrobat Reader. The app checks the signature for you and shows the result in a bar at the top.</p>
+        <figure class="fig illus-fig illus big"><Fragment set:html={sigViewPic()} /><figcaption>A digitally signed PDF file in a PDF reader app (made-up names).</figcaption></figure>
+        <p>How can the app tell that nothing was changed? When a person signs the file, the signing program makes the seal from the <b>exact content</b> of the file and from a secret key that only the signer has. If even one letter of the file changes later, the seal no longer matches, and the app shows a warning such as "At least one signature is invalid". Software makers sign their updates in the same way. Your computer checks the <b class="term">digital signature</b> before it installs an update, so a criminal cannot slip <Peek label="malware" title="From Part 1" html={malwarePeek} /> into a fake update.</p>
+      </div>
+
+      <h3 id="after-scam">What to do if you were scammed</h3>
+      <p class="bridge">If you were scammed, act fast, because scammers move money quickly. Follow these four steps in order.</p>
+      <StepShow id="after-scam-steps" steps={afterScamSteps} cap="What to do right after a scam, step by step" hint="Tap Next to see each step." />
 
       <div class="sub">
         <h3>Quick check: Part 2</h3>
@@ -480,27 +496,38 @@ const final = [
       <p class="bridge">Parts 1 and 2 were about devices, data, and money. This part is about <b>people</b>: online threats that can hurt someone's feelings, reputation, or physical safety.</p>
 
       <h3 id="cyberbullying">Cyberbullying</h3>
-      <div class="def has-pic"><p class="note-label">Cyberbullying</p><p>Using phones, social media, games, or other technology to <b>repeatedly hurt, shame, threaten, or exclude</b> someone, especially among students. Examples are mean posts, edited photos, fake accounts that mock someone, and leaving someone out of group chats on purpose.</p><Fragment set:html={threatDef('bully')} /></div>
+      <div class="def has-pic"><p class="note-label">Cyberbullying</p><p><b class="term">Cyberbullying</b> is the use of phones, social media, games, or other technology to <b>repeatedly hurt, shame, threaten, or exclude</b> someone, especially among students. Examples are mean posts, edited photos, fake accounts that mock someone, and leaving someone out of group chats on purpose.</p><Fragment set:html={partThreeDef('bully')} /></div>
       <p>Cyberbullying follows a person home, can be seen by many people, and can stay online for years. Under the <b>Anti-Bullying Act of 2013</b>, schools must have policies against bullying, including cyberbullying, and must act on reports.</p>
 
       <h3 id="cyberstalking">Cyberstalking and online harassment</h3>
-      <div class="def has-pic"><p class="note-label">Cyberstalking</p><p>Using the Internet to <b>repeatedly follow, watch, contact, or threaten</b> a person, so that they feel afraid. It can include tracking someone's location and showing up where they are.</p><Fragment set:html={threatDef('stalk')} /></div>
+      <div class="def has-pic"><p class="note-label">Cyberstalking</p><p><b class="term">Cyberstalking</b> is the use of the Internet to <b>repeatedly follow, watch, contact, or threaten</b> a person, so that they feel afraid. It can include tracking someone's location and showing up where they are.</p><Fragment set:html={partThreeDef('stalk')} /></div>
       <p><b class="term">Online harassment</b> is the broader name for unwanted, threatening, or insulting messages and posts. Sexual remarks, threats, and unwanted sexual messages online are a crime called gender-based online sexual harassment under the <b>Safe Spaces Act</b> (Part 4). Cyberstalking can lead to real danger offline, so take it seriously and report it early.</p>
 
       <h3 id="sextortion">Sextortion</h3>
-      <div class="def has-pic"><p class="note-label">Sextortion</p><p>Threatening to share someone's <b>private or intimate photos or videos</b> unless they pay money or send more. The photos may be real, stolen, or even faked with AI.</p><Fragment set:html={threatDef('sextortion')} /></div>
+      <div class="def has-pic"><p class="note-label">Sextortion</p><p><b class="term">Sextortion</b> is threatening to share someone's <b>private or intimate photos or videos</b> unless they pay money or send more. The photos may be real, stolen, or even faked with AI (artificial intelligence).</p><Fragment set:html={partThreeDef('sextortion')} /></div>
       <div class="look">
         <p class="note-label">If it happens to you or a friend</p>
-        <p>It is <b>not your fault</b>, and you are not alone. <b>Do not pay and do not send more</b>: it almost always leads to more demands. Stop replying, save the evidence (screenshots, usernames, links), block the account, report it to the platform, and <b>tell an adult you trust</b>. Report it to the Philippine National Police (PNP) Anti-Cybercrime Group, the National Bureau of Investigation (NBI), or hotline 1326. Free tools such as <b>Take It Down</b> (for photos taken when you were under 18) and <b>StopNCII.org</b> (for adults) help get images removed from many platforms.</p>
+        <p>It is <b>not your fault</b>, and you are not alone. <b>Do not pay and do not send more</b>, because it almost always leads to more demands. Stop replying, save the evidence, such as screenshots, usernames, and links, block the account, report it to the platform, and <b>tell an adult you trust</b>. Report it to the Philippine National Police (PNP) Anti-Cybercrime Group, the National Bureau of Investigation (NBI), or hotline 1326. Free tools such as <b>Take It Down</b> (for photos taken when you were under 18) and <b>StopNCII.org</b> (for adults) help get images removed from many platforms.</p>
       </div>
 
       <h3 id="doxxing">Doxxing</h3>
-      <div class="def has-pic"><p class="note-label">Doxxing</p><p>Publishing someone's <b>private information</b>, such as their home address, phone number, school, or family members, online without permission, usually so that others will harass or scare them.</p><Fragment set:html={threatDef('doxx')} /></div>
+      <div class="def has-pic"><p class="note-label">Doxxing</p><p><b class="term">Doxxing</b> is publishing someone's <b>private information</b>, such as their home address, phone number, school, or family members, online without permission, usually so that others will harass or scare them.</p><Fragment set:html={partThreeDef('doxx')} /></div>
       <p>Doxxers often collect the pieces from the victim's own posts. Misusing someone's personal information this way can break the <b>Data Privacy Act</b> (Part 4).</p>
 
       <h3 id="predators">Online predators and fake identities</h3>
-      <p class="bridge">The last risk is about who is really on the other side of the screen.</p>
-      <p>Some adults pretend to be young people online to build trust with children and teens, so they can exploit them. This is called <b class="term">grooming</b>. Warning signs include someone you know only online who gives you lots of attention or gifts, asks you to keep your chats secret, asks for private photos, or wants to meet alone. Fake identities are also used in <Peek label="love scams" title="From Part 2" html={lovePeek} />. A rule that protects you from both: <b>someone you know only online is still a stranger</b>.</p>
+      <p class="bridge">This risk is about who is really on the other side of the screen. It is one of the most serious threats to personal safety online, especially for children and teens.</p>
+      <div class="def has-pic"><p class="note-label">Online predator</p><p>An <b class="term">online predator</b> is an adult who uses the Internet to find children and teens and to gain their trust, so that he or she can sexually abuse or exploit them. Many online predators use a <b class="term">fake identity</b>, such as a profile that pretends to be another teen.</p><Fragment set:html={partThreeDef('groom')} /></div>
+      <p>The way an <b class="term">online predator</b> builds this trust is called <b class="term">grooming</b>. Grooming is slow. It can take weeks or months, and at first the predator often seems kind, friendly, and understanding. These are the main warning signs of <b class="term">grooming</b>.</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={groomSignsPic()} /><figcaption>Four warning signs of grooming.</figcaption></figure>
+      <p>If someone shows these signs, stop replying, save the chats, block and report the account, and tell an adult you trust. <b class="term">Fake identities</b> are also used in <Peek label="love scams" title="From Part 2" html={lovePeek} />, where they are called catfishing. One rule protects you from both. <b>Someone you know only online is still a stranger.</b></p>
+      <aside class="dyk" id="osaec" data-toc="OSAEC in the Philippines">
+        <p class="dyk-label">Close to home</p>
+        <p class="dyk-lead">Online sexual abuse of children in the Philippines</p>
+        <p><b class="term">Online sexual abuse and exploitation of children (OSAEC)</b> is a serious and widespread crime in the Philippines.</p>
+        <figure class="fig illus-fig illus big"><Fragment set:html={oneInHundredPic()} /><figcaption>Each dot stands for one Filipino child (Scale of Harm study, 2023).</figcaption></figure>
+        <p>A 2023 study called <b>Scale of Harm</b>, by International Justice Mission (IJM) and the University of Nottingham, estimated that in 2022, nearly half a million Filipino children, or about 1 in 100, were trafficked to produce child sexual abuse material for money. Often the abuser was a relative or someone the child knew, and foreign offenders paid to watch the abuse in live video calls. Most cases are never reported.</p>
+        <p>The <b>Anti-OSAEC and Anti-CSAEM Act</b> (RA 11930, 2022) punishes these crimes (Part 4). It also requires social media platforms, Internet service providers, banks, and e-wallets to block such material, keep the evidence, and help the police. Never share or forward such material, because sharing it is also a crime. If you know a child who may be in danger, report it to the Philippine National Police (PNP) Women and Children Protection Center, the National Bureau of Investigation (NBI), or hotline 1326.</p>
+      </aside>
 
       <h3 id="protect-safety">Protecting your personal safety</h3>
       <p class="bridge">Many of these risks start with information we share ourselves. So protection starts with what you post.</p>
@@ -656,6 +683,8 @@ const final = [
           <li>Inquirer Technology, "Report cybercrimes to IARC hotline 1326, not on social media – CICC," November 2024; Philstar, "PCO, CICC launch Hotline 1326 vs scams, deepfakes," March 2025.</li>
           <li>Digital Policy Alert, "House of Representatives approved National Cybersecurity and Critical Information Infrastructure Protection Act of 2026 (HB9605)," August 12, 2026; Philstar, "Swift passage of national cyber law urged," November 14, 2026.</li>
           <li>National Center for Missing &amp; Exploited Children, "Take It Down"; StopNCII.org.</li>
+          <li>International Justice Mission and University of Nottingham Rights Lab, <i>Scale of Harm: Estimating the Prevalence of Trafficking to Produce Child Sexual Exploitation Material in the Philippines</i>, Summary Report, September 2023.</li>
+          <li>Senate of the Philippines, "Hontiveros lauds passage of Anti-OSAEC Law," press release, August 3, 2022.</li>
         </ol>
         <p>The drawings were made for this lesson. PeraBank, PeraPay, ShopMati, and the people and phone numbers in the examples are made up.</p>
       </div>

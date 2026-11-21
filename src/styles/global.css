@@ -1682,7 +1682,8 @@ body.nb .ss .cw-pic { padding: 0.6rem 0; }
 body.nb .ss .cw-pic svg { max-height: none; width: 100%; max-width: 40rem; }
 body.nb .ss .cw-say { font-size: var(--step-0); line-height: 1.6; }
 /* Round 9: picture labels in the rounded display font, so drawings read apart from the paragraph text */
-body.nb svg.clean text:not([font-family*="Mono"]) { font-family: var(--font-display); }
+/* chat 59 (her feedback: the rounded display font made pictures look unserious): pictures on notebook pages use Inter */
+body.nb svg.clean text:not([font-family*="Mono"]) { font-family: "Inter", "Nunito", system-ui, sans-serif; }
 /* Step-by-step pictures sit on their own soft "stage", clearly separate from the explanation below */
 body.nb .ss .cw-pic { background: #f4f7fb; border: 1.5px solid #d6dfeb; border-radius: 14px; padding: 1rem 0.8rem; }
 body.nb .ss .cw-say { margin-top: 1rem; padding: 0 0.3rem; }
@@ -1836,3 +1837,8 @@ body.nb .case-facts > div { display: flex; flex-direction: column; }
 body.nb .case-facts dt { font-family: var(--font-display); font-size: 0.82rem; color: #8a5a05; }
 body.nb .case-facts dd { margin: 0; font-weight: 600; }
 @media (max-width: 40rem) { body.nb .case-facts { grid-template-columns: 1fr; } }
+
+/* IT 110 chat 59: key-concept blocks (a def box + its pictures and text) inside a section; each starts with clear space */
+.concept > * + * { margin-top: 1.15rem; }
+body.nb .concept > * + * { margin-top: 1.8rem; }
+body.nb .flow > .concept { margin-top: 2.6rem; }
