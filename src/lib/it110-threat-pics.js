@@ -298,45 +298,52 @@ const sayL = (x, y, w, lines, c = B.red, f = '#fdeee9', size = 12, ty = null) =>
   return `<path d="${d}" fill="${f}" stroke="${B.ink}" stroke-width="1.8" stroke-linejoin="round"/>` + lines.map((ln, k) => T(x + w / 2, y + 7 + (k + 1) * (size + 5) - 4, ln, { size, c })).join('');
 };
 
-/** The phishing family (rebuilt chat 58 on a clean grid): four types named after how the bait arrives, plus spear phishing (named after who it targets). 480 x 578. */
+/** The phishing family (restyled chat 58, round 6, to match backupPic): equal soft cards; in every card the name, the channel, the device
+ *  (same size, same centre line, soft shadow) and one caption sit on the same baselines. 480 x 632. */
 export function phishFamilyPic() {
   let b = '';
-  // every panel: subtitle at top (y + 24), drawing inside y + 38 ... y + 126, name pill at the bottom
-  const panel = (x, y, w, h, name, sub) => R(x, y, w, h, { r: 14, f: SOFT, s: 'none', sw: 0 }) + T(x + w / 2, y + 24, sub, { size: 12, w: 700, c: B.soft }) + label(x + w / 2, y + h - 14, name, B.blueInk, '#e3ecf8', 13);
-  b += T(240, 20, 'Four types named after HOW the fake message reaches you', { size: 12.5, c: B.ink });
-  const y1 = 32, y2 = 206, ph = 164;
-  b += panel(6, y1, 228, ph, 'phishing', 'by email') + panel(246, y1, 228, ph, 'smishing', 'by text message (SMS)') + panel(6, y2, 228, ph, 'vishing', 'by voice call') + panel(246, y2, 228, ph, 'quishing', 'by QR code');
-  // 1 email on a laptop
-  b += laptop2(68, y1 + 42, 104, (x, y, w, h) => R(x, y, w, 11, { r: 0, f: '#dfe3ea', s: 'none', sw: 0 }) + T(x + 5, y + 8.5, 'Inbox', { size: 7.5, a: 'start', c: B.soft })
-    + T(x + 5, y + 22, 'From: PeraBank', { size: 8, a: 'start', c: B.ink }) + T(x + 5, y + 31, 'Confirm your account.', { size: 7, w: 700, a: 'start', c: B.soft })
-    + R(x + w / 2 - 26, y + h - 17, 52, 13, { r: 3, f: B.red, s: 'none', sw: 0 }) + T(x + w / 2, y + h - 7.5, 'Verify now', { size: 8, c: '#fff' }));
-  // 2 text message: phone + bubble pointing at the phone
+  const CW = 228, CH = 180, X = [6, 246];
+  const card = (x, y, w, name, sub, cap) => R(x, y, w, CH, { r: 16, f: '#f3f6fa', s: 'none', sw: 0 })
+    + T(x + w / 2, y + 30, name, { size: 15, c: B.blueInk }) + T(x + w / 2, y + 48, sub, { size: 11.5, w: 700, c: B.soft })
+    + T(x + w / 2, y + 166, cap, { size: 11, w: 700, c: '#9c2f28' });
+  const head = (y, t) => T(240, y, t, { size: 12.5, c: B.ink });
+  // screens
+  const mailScr = (x, y, w, h) => R(x, y, w, 11, { r: 0, f: '#dfe3ea', s: 'none', sw: 0 }) + T(x + 5, y + 8.5, 'Inbox', { size: 7.5, a: 'start', c: B.soft })
+    + T(x + 5, y + 22, 'From: PeraBank', { size: 8, a: 'start', c: B.ink }) + L(x + 5, y + 28, x + w - 18, y + 28, '#c9d2df', 2.4)
+    + R(x + w / 2 - 25, y + h - 16, 50, 12, { r: 3, f: B.red, s: 'none', sw: 0 }) + T(x + w / 2, y + h - 7.2, 'Verify now', { size: 7.5, c: '#fff' });
   const smsScr = (x, y, w, h) => T(x + w / 2, y + 8, 'PeraBank', { size: 7.5, c: B.ink }) + L(x + 3, y + 13, x + w - 3, y + 13, '#c9d2df', 1)
-    + R(x + 4, y + 19, w - 12, 40, { r: 6, f: '#dfe3ea', s: 'none', sw: 0 }) + L(x + 9, y + 28, x + w - 15, y + 28, '#9aa6b8', 2) + L(x + 9, y + 35, x + w - 20, y + 35, '#9aa6b8', 2)
-    + T(x + 9, y + 50, 'tap link', { size: 7, a: 'start', c: B.blue }) + L(x + 9, y + 52, x + 36, y + 52, B.blue, 1);
-  b += phone2(282, y1 + 36, 54, 90, smsScr) + sayL(352, y1 + 58, 112, ['Account locked!'], B.red, '#fdeee9', 12, y1 + 73);
-  // 3 voice call: dark call screen, sound waves, bubble pointing at the phone
-  const callScr = (x, y, w, h) => C(x + w / 2, y + 16, 10, '#5d6b85', 'none', 0) + C(x + w / 2, y + 13, 3.6, '#8a97b0', 'none', 0) + P(`M${x + w / 2 - 6} ${y + 24} Q${x + w / 2} ${y + 17} ${x + w / 2 + 6} ${y + 24}`, '#8a97b0', 'none', 0)
-    + T(x + w / 2, y + 38, 'PeraBank', { size: 8, c: '#fff' }) + T(x + w / 2, y + 48, 'calling…', { size: 6.5, w: 600, c: '#c9d3e3' })
+    + R(x + 4, y + 19, w - 12, 36, { r: 6, f: '#dfe3ea', s: 'none', sw: 0 }) + L(x + 9, y + 27, x + w - 15, y + 27, '#9aa6b8', 2) + L(x + 9, y + 34, x + w - 19, y + 34, '#9aa6b8', 2)
+    + T(x + 9, y + 48, 'tap link', { size: 7, a: 'start', c: B.blue }) + L(x + 9, y + 50, x + 34, y + 50, B.blue, 1);
+  const callScr = (x, y, w, h) => C(x + w / 2, y + 15, 10, '#5d6b85', 'none', 0) + C(x + w / 2, y + 12, 3.6, '#8a97b0', 'none', 0) + P(`M${x + w / 2 - 6} ${y + 23} Q${x + w / 2} ${y + 16} ${x + w / 2 + 6} ${y + 23}`, '#8a97b0', 'none', 0)
+    + T(x + w / 2, y + 37, 'PeraBank', { size: 8, c: '#fff' }) + T(x + w / 2, y + 47, 'calling…', { size: 6.5, w: 600, c: '#c9d3e3' })
     + C(x + 11, y + h - 9, 6, '#d4422f', 'none', 0) + C(x + w - 11, y + h - 9, 6, '#3f9a5f', 'none', 0);
-  b += phone2(46, y2 + 36, 54, 90, callScr, '#2f3d55') + P(`M108 ${y2 + 72} q5 6 0 12 M115 ${y2 + 67} q9 11 0 22`, 'none', B.blueMid, 2);
-  b += sayL(134, y2 + 54, 92, ['Read me', 'the OTP'], B.red, '#fdeee9', 12, y2 + 78);
-  // 4 QR sticker on a parking sign (dashed box clear of the words)
-  b += R(266, y2 + 36, 84, 90, { r: 5, f: '#fff4c7', sw: 1.8 }) + T(308, y2 + 52, 'PARKING', { size: 9.5, c: B.ink }) + qr(288, y2 + 64, 40) + R(281, y2 + 57, 54, 54, { r: 3, f: 'none', s: B.red, sw: 2, dash: '4 3' }) + T(308, y2 + 120, 'Pay here', { size: 8, w: 700, c: B.soft });
-  b += ARROW(362, y2 + 84, 342, y2 + 84, B.red, 2) + [['A fake sticker', 66], ['is pasted over', 82], ['the real code.', 98]].map(([t, dy]) => T(370, y2 + dy, t, { size: 11.5, a: 'start', c: B.red })).join('');
+  const y1 = 32, y2 = 222, band = 142; // band = the shared ground line (device bottoms) inside each card
+  b += head(20, 'Four types named after HOW the fake message reaches you');
+  b += card(X[0], y1, CW, 'phishing', 'by email', '“Verify your account now.”') + card(X[1], y1, CW, 'smishing', 'by text message (SMS)', '“Account locked! Tap the link.”');
+  b += card(X[0], y2, CW, 'vishing', 'by voice call', '“Please read me the OTP.”') + card(X[1], y2, CW, 'quishing', 'by QR code', 'A fake sticker covers the real code.');
+  const cx = (k) => X[k] + CW / 2;
+  // 1 laptop
+  b += ground(cx(0), y1 + band, 60) + laptop2(cx(0) - 50, y1 + 62, 100, mailScr);
+  // 2 phone
+  b += ground(cx(1), y1 + band, 36) + phone2(cx(1) - 25, y1 + 58, 50, 84, smsScr);
+  // 3 phone (call), with two small sound waves
+  b += ground(cx(0), y2 + band, 36) + phone2(cx(0) - 25, y2 + 58, 50, 84, callScr, '#2f3d55') + P(`M${cx(0) + 34} ${y2 + 90} q5 6 0 12 M${cx(0) + 41} ${y2 + 85} q9 11 0 22`, 'none', B.blueMid, 2);
+  // 4 parking sign with a sticker stuck over the code (peeling corner)
+  { const sx = cx(1) - 40, sy = y2 + 58;
+    b += ground(cx(1), y2 + band, 46) + R(sx, sy, 80, 84, { r: 5, f: '#fff4c7', sw: 1.8 }) + T(cx(1), sy + 15, 'PARKING', { size: 9.5, c: B.ink }) + T(cx(1), sy + 77, 'Pay here', { size: 8, w: 700, c: B.soft });
+    b += `<g transform="rotate(-4 ${cx(1)} ${sy + 43})">` + R(cx(1) - 25, sy + 21, 50, 46, { r: 2, f: '#fff', s: '#c9b98f', sw: 1.2 }) + qr(cx(1) - 18, sy + 25, 36) + P(`M${cx(1) + 25} ${sy + 55} L${cx(1) + 13} ${sy + 67} L${cx(1) + 25} ${sy + 67} Z`, '#e8dcc0', '#c9b98f', 1) + '</g>'; }
   // spear phishing
-  const y3 = 406;
-  b += T(240, y3 - 12, 'One type named after WHO it targets', { size: 12.5, c: B.ink });
-  b += panel(6, y3, 468, 166, 'spear phishing', 'a message made for one person or group');
-  b += T(88, y3 + 46, 'Her public profile', { size: 9.5, w: 700, c: B.soft }) + R(20, y3 + 52, 136, 74, { r: 8, f: '#fff', sw: 1.8 });
-  b += C(46, y3 + 80, 13, B.blueWash, B.ink, 1.6) + `<clipPath id="spAva"><circle cx="46" cy="${y3 + 80}" r="12"/></clipPath><g clip-path="url(#spAva)">` + girl(46, y3 + 69, 0.44, { shirt: B.green }) + '</g>';
-  b += C(46, y3 + 80, 17, 'none', B.red, 1.6) + [[0, -1], [0, 1], [-1, 0], [1, 0]].map(([dx, dy]) => L(46 + dx * 14, y3 + 80 + dy * 14, 46 + dx * 21, y3 + 80 + dy * 21, B.red, 1.8)).join('');
-  b += T(74, y3 + 76, 'Ana Cruz', { size: 10.5, a: 'start', c: B.ink }) + T(74, y3 + 89, 'Cashier,', { size: 8.5, w: 700, a: 'start', c: B.soft }) + T(74, y3 + 100, 'Mati School', { size: 8.5, w: 700, a: 'start', c: B.soft }) + T(30, y3 + 118, 'Boss: Dir. Reyes', { size: 8.5, w: 700, a: 'start', c: B.soft });
-  b += ARROW(164, y3 + 89, 188, y3 + 89, B.ink, 2.2);
-  b += laptop2(198, y3 + 44, 100, (x, y, w, h) => T(x + 5, y + 11, 'From: Dir. Reyes', { size: 8, a: 'start', c: B.ink }) + L(x + 4, y + 15, x + w - 4, y + 15, '#c9d2df', 1) + T(x + 5, y + 27, 'Hi Ana, please pay', { size: 7.5, w: 700, a: 'start', c: B.ink }) + T(x + 5, y + 37, 'this supplier today.', { size: 7.5, w: 700, a: 'start', c: B.ink }) + T(x + 5, y + 47, 'Thanks!', { size: 7.5, w: 700, a: 'start', c: B.soft }));
-  b += ARROW(316, y3 + 89, 340, y3 + 89, B.ink, 2.2);
-  b += girl(378, y3 + 48, 0.86, { shirt: B.green }) + sayL(408, y3 + 50, 52, ['OK!'], B.ink, '#fff', 12, y3 + 64);
-  return svgWrap(480, 578, 'The phishing family. Four types are named after how the fake message reaches you: phishing by email ("Verify now"), smishing by text message ("Account locked!"), vishing by voice call ("Read me the OTP"), and quishing by a fake QR code sticker pasted over the real one on a parking sign. Spear phishing is named after who it targets: the scammer studies Ana\'s public profile, then sends her an email that seems to come from her boss and uses her real name.', b);
+  const y3 = 446, W3 = 468;
+  b += head(y3 - 12, 'One type named after WHO it targets');
+  b += card(6, y3, W3, 'spear phishing', 'a message made for one person or group', 'The email uses her real name, her job, and her boss’s name.');
+  b += ground(92, y3 + band, 62) + R(30, y3 + 66, 124, 72, { r: 8, f: '#fff', sw: 1.8 }) + T(92, y3 + 80, 'public profile', { size: 8.5, w: 700, c: B.soft }) + L(36, y3 + 85, 148, y3 + 85, '#e4e8ee', 1);
+  b += C(54, y3 + 109, 13, B.blueWash, B.ink, 1.6) + `<clipPath id="spAva"><circle cx="54" cy="${y3 + 109}" r="12"/></clipPath><g clip-path="url(#spAva)">` + girl(54, y3 + 98, 0.44, { shirt: B.green }) + '</g>';
+  b += T(74, y3 + 104, 'Ana Cruz', { size: 10, a: 'start', c: B.ink }) + T(74, y3 + 116, 'Cashier, Mati School', { size: 7.5, w: 700, a: 'start', c: B.soft }) + T(74, y3 + 127, 'Boss: Dir. Reyes', { size: 7.5, w: 700, a: 'start', c: B.soft });
+  b += ARROW(164, y3 + 102, 186, y3 + 102, '#8a94a6', 2);
+  b += ground(240, y3 + band, 60) + laptop2(190, y3 + 62, 100, (x, y, w, h) => T(x + 5, y + 11, 'From: Dir. Reyes', { size: 8, a: 'start', c: B.ink }) + L(x + 4, y + 15, x + w - 4, y + 15, '#c9d2df', 1) + T(x + 5, y + 27, 'Hi Ana, please pay', { size: 7.5, w: 700, a: 'start', c: B.ink }) + T(x + 5, y + 37, 'this supplier today.', { size: 7.5, w: 700, a: 'start', c: B.ink }));
+  b += ARROW(298, y3 + 102, 320, y3 + 102, '#8a94a6', 2);
+  b += ground(372, y3 + band, 32) + girl(372, y3 + 66, 0.9, { shirt: B.green });
+  return svgWrap(480, 632, 'The phishing family. Four types are named after how the fake message reaches you: phishing by email ("Verify your account now"), smishing by text message ("Account locked! Tap the link"), vishing by voice call ("Please read me the OTP"), and quishing by a fake QR code sticker that covers the real code on a parking sign. Spear phishing is named after who it targets: the scammer reads Ana\'s public profile, then sends her an email that seems to come from her boss and uses her real name.', b);
 }
 
 /** What does this post give away? A social-media post with four numbered clues. 480 x 340. */
@@ -1321,26 +1328,47 @@ export function philhealthPic() {
   return svgWrap(480, 260, 'Left: an office computer shows a ransom note that says your files are locked, pay US$300,000 or we will post your data online, with a countdown timer. This is what PhilHealth staff saw on September 22, 2023. Right: three steps. 1, computers are locked and online services stop. 2, US$300,000 is asked, and PhilHealth refuses to pay. 3, the data is posted online, and about 13 million members are affected.', b);
 }
 
-/** Featured case: the Colonial Pipeline ransomware attack (May 2021). 480 x 270. */
+/** Featured case: the Colonial Pipeline ransomware attack (May 2021). Rebuilt chat 58 round 7 in the realistic-window style of malwareStep
+ *  (her feedback: the simple boxes looked amateur). Two stacked stages: 1 how they got in, 2 what happened next. 480 x 520. */
 export function colonialPic() {
   let b = '';
-  const panel = (x, w, n, title) => R(x, 6, w, 258, { r: 14, f: SOFT, s: 'none', sw: 0 }) + caseNum(x + 22, 28, n) + T(x + 40, 33, title, { size: 12.5, a: 'start', c: B.ink });
-  b += panel(6, 230, 1, 'How the criminals got in') + panel(244, 230, 2, 'What happened next');
-  // panel 1: leaked password list -> old VPN login with no MFA
-  b += R(20, 52, 92, 104, { r: 6, f: '#fff', sw: 1.8 }) + R(20, 52, 92, 18, { r: 6, f: '#dfe3ea', sw: 1.8 }) + T(66, 65, 'leaked list', { size: 9.5, c: B.soft });
-  [0, 1, 2, 3, 4].forEach((k) => { const y = 82 + k * 15; b += (k === 2 ? R(24, y - 9, 84, 13, { r: 2, f: '#fff4c7', s: 'none', sw: 0 }) : '') + L(28, y - 3, 62, y - 3, '#b7c7e0', 2.4) + L(68, y - 3, 102, y - 3, k === 2 ? B.red : '#d3dbe6', 2.4); });
-  b += ARROW(116, 104, 132, 104, B.red, 2.2);
-  b += R(136, 52, 92, 104, { r: 6, f: '#fff', sw: 1.8 }) + R(136, 52, 92, 18, { r: 6, f: '#dfe3ea', sw: 1.8 }) + T(182, 65, 'old VPN login', { size: 9.5, c: B.soft });
-  b += R(144, 80, 76, 14, { r: 3, f: '#f7f9fc', s: '#c9d2df', sw: 1 }) + T(148, 90.5, 'user01', { size: 8.5, a: 'start', c: B.ink, mono: true }) + R(144, 100, 76, 14, { r: 3, f: '#f7f9fc', s: '#c9d2df', sw: 1 }) + T(148, 111, '••••••••', { size: 9, a: 'start', c: B.ink, mono: true });
-  b += R(158, 124, 48, 16, { r: 4, f: B.blue, s: 'none', sw: 0 }) + T(182, 135.5, 'Log in', { size: 9, c: '#fff' }) + check(218, 146, 0.6);
-  b += R(146, 164, 72, 22, { r: 11, f: '#fdeee9', s: B.red, sw: 1.6 }) + T(182, 179, 'No MFA', { size: 11, c: B.red });
-  b += T(121, 214, 'A password leaked from another', { size: 10.5, w: 700, c: B.soft }) + T(121, 229, 'site opened an old account that', { size: 10.5, w: 700, c: B.soft }) + T(121, 244, 'asked for no second proof.', { size: 10.5, w: 700, c: B.soft });
-  // panel 2: pipeline stopped -> gas station with no fuel and a queue
-  b += R(258, 66, 200, 14, { r: 4, f: '#c8ced8', sw: 1.8 }) + R(300, 61, 10, 24, { r: 2, f: '#9aa6b8', sw: 1.6 }) + R(406, 61, 10, 24, { r: 2, f: '#9aa6b8', sw: 1.6 });
-  b += C(358, 73, 13, '#fff', B.red, 2.4) + L(350, 65, 366, 81, B.red, 2.6) + L(366, 65, 350, 81, B.red, 2.6) + T(358, 54, 'pipeline stopped', { size: 10.5, c: B.red });
-  b += R(262, 104, 30, 56, { r: 4, f: '#e86f5a', sw: 1.8 }) + R(267, 110, 20, 14, { r: 2, f: '#fff', sw: 1.2 }) + T(277, 120.5, '0.00', { size: 7, c: B.ink, mono: true }) + P('M292 120 Q304 122 302 136', 'none', B.ink, 2) + R(256, 158, 42, 6, { r: 2, f: '#c8ced8', sw: 1.4 });
-  b += R(304, 98, 52, 30, { r: 4, f: '#fff4c7', sw: 1.8 }) + T(330, 111, 'SORRY,', { size: 8.5, c: B.red }) + T(330, 123, 'NO FUEL', { size: 8.5, c: B.red }) + L(312, 128, 312, 160, B.ink, 2) + L(348, 128, 348, 160, B.ink, 2);
-  b += car2(360, 138, 0.42, '#9fb4d3') + car2(406, 138, 0.42, '#e8c07a') + L(256, 164, 462, 164, '#c9d2df', 2);
-  b += T(359, 199, 'The pipeline stopped for about', { size: 10.5, w: 700, c: B.soft }) + T(359, 214, 'six days. Many gas stations', { size: 10.5, w: 700, c: B.soft }) + T(359, 229, 'ran out of fuel, and people', { size: 10.5, w: 700, c: B.soft }) + T(359, 244, 'lined up to buy it.', { size: 10.5, w: 700, c: B.soft });
-  return svgWrap(480, 270, 'Two panels. 1, how the criminals got in: a password from a leaked list opened an old VPN account that had no multi-factor authentication. 2, what happened next: the company stopped the fuel pipeline for about six days, and gas stations showed signs saying sorry, no fuel, while cars lined up.', b);
+  const stg = (y, h) => R(4, y, 472, h, { r: 14, f: SOFT, s: 'none', sw: 0 });
+  const headRow = (y, n, t) => caseNum(28, y + 24, n, B.blue) + T(48, y + 29, t, { size: 14, a: 'start', c: B.ink });
+  const capC = (y, t, c = B.soft) => T(240, y, t, { size: 12, w: 700, c });
+  // ---- stage 1: a leaked password list, then the old VPN sign-in that asks for nothing else
+  b += stg(4, 254) + headRow(4, 1, 'How the criminals got in');
+  b += winBox(18, 48, 206, 160, 'leaked-passwords.txt', '#e4e9f1');
+  const rows = [['maria.c', 'ilovecats'], ['ben.t', 'Ben12345'], ['vpn.user01', 'K7#river'], ['liza.m', 'summer19']];
+  rows.forEach(([u, pw], k) => { const y = 96 + k * 26, hot = k === 2;
+    if (hot) b += R(26, y - 15, 190, 22, { r: 4, f: '#fdeee9', s: B.red, sw: 1.4 });
+    b += T(34, y, u, { size: 10.5, a: 'start', c: hot ? B.red : B.ink, mono: true }) + T(208, y, pw, { size: 10.5, a: 'end', c: hot ? B.red : B.soft, mono: true }); });
+  b += ARROW(230, 128, 250, 128, '#8a94a6', 2.4);
+  b += winBox(256, 48, 206, 160, 'Company VPN', '#e4e9f1');
+  b += T(359, 92, 'Sign in to the office network', { size: 10.5, w: 700, c: B.soft });
+  b += T(272, 110, 'Username', { size: 9, w: 700, a: 'start', c: B.soft }) + R(272, 114, 174, 22, { r: 4, f: '#fff', s: '#b7bfcc', sw: 1.4 }) + T(280, 129, 'vpn.user01', { size: 10.5, a: 'start', c: B.ink, mono: true });
+  b += T(272, 150, 'Password', { size: 9, w: 700, a: 'start', c: B.soft }) + R(272, 154, 174, 22, { r: 4, f: '#fff', s: '#b7bfcc', sw: 1.4 }) + T(280, 169, '••••••••', { size: 11, a: 'start', c: B.ink, mono: true });
+  b += R(272, 182, 174, 20, { r: 4, f: B.blue, s: 'none', sw: 0 }) + T(359, 196, 'Sign in', { size: 10.5, c: '#fff' });
+  b += capC(232, 'The old account’s password was on a leaked list.') + capC(249, 'The account had no MFA, so the password alone was enough.', '#9c2f28');
+  // ---- stage 2: the pipeline status screen, and a gas station with no fuel
+  const y2 = 266;
+  b += stg(y2, 250) + headRow(y2, 2, 'What happened next');
+  b += winBox(18, y2 + 44, 206, 156, 'Pipeline status', '#e4e9f1');
+  { const pts = [[44, y2 + 170], [96, y2 + 160], [140, y2 + 132], [198, y2 + 92]];
+    const d = `M${pts[0][0]} ${pts[0][1]} Q${pts[1][0]} ${pts[1][1] + 6} ${pts[2][0]} ${pts[2][1]} T${pts[3][0]} ${pts[3][1]}`;
+    b += `<path d="${d}" fill="none" stroke="#c8ced8" stroke-width="9" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${B.red}" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 5"/>`;
+    b += C(pts[0][0], pts[0][1], 5, '#fff', B.ink, 1.8) + C(pts[2][0], pts[2][1], 4, '#fff', B.ink, 1.6) + C(pts[3][0], pts[3][1], 5, '#fff', B.ink, 1.8);
+    b += T(pts[0][0] - 6, pts[0][1] + 18, 'Texas', { size: 9, w: 700, a: 'start', c: B.soft }) + T(pts[2][0] + 8, pts[2][1] + 14, 'Atlanta', { size: 9, w: 700, a: 'start', c: B.soft }) + T(pts[3][0] - 10, pts[3][1] - 6, 'New Jersey', { size: 9, w: 700, a: 'end', c: B.soft });
+    b += R(34, y2 + 76, 98, 20, { r: 10, f: '#fdeee9', s: B.red, sw: 1.4 }) + C(46, y2 + 86, 3.6, B.red, 'none', 0) + T(88, y2 + 90.5, 'STOPPED', { size: 10.5, c: B.red }); }
+  // gas station: canopy, two pumps with paper signs, a line of cars
+  { const gy = y2 + 186; // ground line
+    b += ground(352, gy + 2, 110);
+    b += R(244, y2 + 50, 112, 16, { r: 3, f: '#f4f6f9', sw: 1.8 }) + R(245, y2 + 60, 110, 6, { r: 0, f: '#d4422f', s: 'none', sw: 0 }) + L(244, y2 + 66, 356, y2 + 66, B.ink, 1.8);
+    b += R(250, y2 + 66, 6, gy - y2 - 66, { r: 1, f: '#c8ced8', sw: 1.4 }) + R(344, y2 + 66, 6, gy - y2 - 66, { r: 1, f: '#c8ced8', sw: 1.4 });
+    const pump = (x) => R(x, gy - 64, 30, 64, { r: 4, f: '#e86f5a', sw: 1.8 }) + R(x + 5, gy - 58, 22, 13, { r: 2, f: '#1f2a3d', s: 'none', sw: 0 }) + T(x + 16, gy - 48.5, '0.00', { size: 7.5, c: '#7fd1a0', mono: true })
+      + R(x + 3, gy - 38, 26, 22, { r: 2, f: '#fff4c7', sw: 1.2 }) + T(x + 16, gy - 29, 'NO', { size: 8, c: B.red }) + T(x + 16, gy - 20, 'FUEL', { size: 8, c: B.red })
+      + P(`M${x + 32} ${gy - 44} Q${x + 42} ${gy - 42} ${x + 40} ${gy - 26}`, 'none', B.ink, 2) + R(x - 3, gy - 4, 38, 5, { r: 2, f: '#9aa6b8', sw: 1.2 });
+    b += pump(264) + pump(306);
+    b += car2(360, gy - 23, 0.36, '#9fb4d3') + car2(414, gy - 23, 0.36, '#e8c07a'); }
+  b += capC(y2 + 224, 'The company stopped the whole pipeline for about six days.') + capC(y2 + 241, 'Many gas stations ran out of fuel, and people lined up.', '#9c2f28');
+  return svgWrap(480, 520, 'Two parts. 1, how the criminals got in: a text file of leaked passwords includes the password of vpn.user01, an old account; the company VPN sign-in page asks only for the username and password, with no MFA. 2, what happened next: the pipeline status screen shows the route from Texas through Atlanta to New Jersey marked STOPPED, and at a gas station the pumps show 0.00 with paper signs saying no fuel while cars wait in line.', b);
 }
