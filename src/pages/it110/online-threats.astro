@@ -8,7 +8,7 @@ import ZoomPics from '../../components/ZoomPics.astro';
 import StepShow from '../../components/StepShow.astro';
 import { course } from '../../data/it110.js';
 import { ciaPic, mfaPic, firewallPic, httpsPic, defPic } from '../../lib/it110-sec-pics.js';
-import { storyPic, malwareStep, iloveyouPic, defacePic, antivirusPic, threatDef, malwarePic, scamPic, botnetPic, ddosPic, backupPic, phishFamilyPic, oversharePic, reportPic } from '../../lib/it110-threat-pics.js';
+import { storyPic, malwareStep, iloveyouPic, philhealthPic, colonialPic, defacePic, antivirusPic, threatDef, malwarePic, scamPic, botnetPic, ddosPic, backupPic, phishFamilyPic, oversharePic, reportPic } from '../../lib/it110-threat-pics.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const L1 = base + '/it110/net-security/';
 
@@ -34,7 +34,7 @@ const trojanSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('trojan', i), say: 
 const ransomSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('ransom', i), say: [
   'An office clerk gets an urgent email that says, "Unpaid invoice, pay today." The attachment, Invoice_Nov.zip, hides <b class="term">ransomware</b>. The clerk opens it. Some ransomware gangs get in another way, through old servers that were never updated.',
   'At first, nothing seems wrong. Quietly, the ransomware copies the office files to the gang\'s server. Then it locks the files one by one by scrambling them, including the shared folders that other workers use. It also deletes the backup copies kept on the same computer.',
-  'Finally, a ransom note appears. It says to pay in bitcoin before the timer ends, or the files stay locked and the stolen copies will be posted online. <b>Do not pay.</b> Unplug the computer from the network, tell the IT staff or the owner, and restore the files from a backup kept somewhere else. Paying does not promise that you get your files back. In May 2021, ransomware hit Colonial Pipeline, a large fuel company in the United States. The company had to stop its pipeline for several days, which caused fuel shortages, and it paid the criminals about US$4.4 million.',
+  'Finally, a ransom note appears. It says to pay in bitcoin before the timer ends, or the files stay locked and the stolen copies will be posted online. <b>Do not pay.</b> Unplug the computer from the network, tell the IT staff or the owner, and restore the files from a backup kept somewhere else. Paying does not promise that you get your files back.',
 ][i] }));
 const spywareSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('spyware', i), say: [
   'Mia uses a computer at a computer shop to check her PeraBank account. She does not know that a <b class="term">keylogger</b> is running on it. Someone installed it earlier, or it came hidden inside a free app. It has no window and no icon.',
@@ -56,6 +56,8 @@ const paoloPeek = '<p>From <b>Lesson 1</b>, Part 1: late at night, Jessa got a m
 const philPeek = '<p>From Part 1: in September 2023, the Medusa <b>ransomware</b> group attacked PhilHealth, demanded US$300,000, and posted the stolen files online when PhilHealth refused to pay.</p>' + malwarePic('ransom');
 const lovePeek = '<p>From Part 2: in a <b>love scam</b>, someone builds an online relationship using stolen photos (<b>catfishing</b>), then asks for money.</p>' + scamPic('love');
 const socialPeek = '<p>From Part 2 of this lesson: <b>social engineering</b> means tricking people, instead of computers, into giving away information, money, or access.</p>';
+const vpnPeek = '<p>From Lesson 1: a <b>VPN</b> (virtual private network) makes an encrypted tunnel over the Internet, so a worker at home can use the office network safely.</p>';
+const malwarePeek = '<p>From Part 1 of this lesson: <b>malware</b>, short for malicious software, is any program written to harm a computer or its user, for example to steal information, spy, or take control.</p>';
 
 // Practice: which kind of malware?
 const malwareSort = [
@@ -239,6 +241,39 @@ const final = [
       <div class="def has-pic" id="ransomware" data-toc="Ransomware"><p class="note-label">Ransomware</p><p><b class="term">Ransomware</b> scrambles (encrypts) your files so you cannot open them, then asks for payment, often in cryptocurrency. Many gangs also steal the files first and threaten to post them online.</p><Fragment set:html={mpic('ransom')} /></div>
       <StepShow id="ransom-steps" steps={ransomSteps} cap="How a ransomware attack happens, step by step" hint="Tap Next to see what happens." />
 
+      <aside class="case" aria-label="Featured case: the PhilHealth ransomware attack">
+        <p class="case-tag">Featured case</p>
+        <h4 class="case-title">The PhilHealth ransomware attack (2023)</h4>
+        <p class="case-sub">Ransomware locked the computers of the Philippines' national health insurer, and the data of millions of members was posted online.</p>
+        <figure class="fig illus-fig illus case-fig"><Fragment set:html={philhealthPic()} /><figcaption>What happened in the PhilHealth attack, step by step. The ransom note is a drawing, not the real one.</figcaption></figure>
+        <p>On September 22, 2023, workers at the Philippine Health Insurance Corporation (PhilHealth) could not open many of their computers. A message on the screens said that the files were locked. The <b class="term">ransomware</b> group called Medusa said it had also copied PhilHealth's data. PhilHealth's website and online services stopped working, so members had to go to the offices in person.</p>
+        <p>The group asked for <b>US$300,000</b> (about ₱17 million). PhilHealth is a government corporation, and the government does not pay ransoms, so it refused. In early October 2023, the group posted the stolen files online. The National Privacy Commission (NPC) found about <b>734 gigabytes</b> of personal information in them, such as names, addresses, phone numbers, and PhilHealth ID numbers. PhilHealth later said that at least <b>13 million</b> members were affected.</p>
+        <dl class="case-facts">
+          <div><dt>When it happened</dt><dd>September 22, 2023</dd></div>
+          <div><dt>Who attacked</dt><dd>A ransomware group called Medusa</dd></div>
+          <div><dt>Ransom asked</dt><dd>US$300,000, which PhilHealth did not pay</dd></div>
+          <div><dt>Data posted online</dt><dd>About 734 gigabytes, affecting at least 13 million members</dd></div>
+        </dl>
+        <p>Reports later said that the affected computers had <b>no antivirus protection</b> at the time of the attack. The case shows why an organization needs several layers of protection, such as updates, antivirus, and backups, which are explained later in this part. Members whose data leaked are now at greater risk of scams, because criminals can use their real details to sound believable.</p>
+      </aside>
+
+      <aside class="case" aria-label="Featured case: the Colonial Pipeline ransomware attack">
+        <p class="case-tag">Featured case</p>
+        <h4 class="case-title">The Colonial Pipeline ransomware attack (2021)</h4>
+        <p class="case-sub">One old password with no second proof led to fuel shortages in a large part of the United States.</p>
+        <figure class="fig illus-fig illus case-fig"><Fragment set:html={colonialPic()} /><figcaption>How the criminals got in, and what the attack did to daily life.</figcaption></figure>
+        <p>Colonial Pipeline is a company that moves gasoline and jet fuel through a pipeline about 8,850 kilometers (5,500 miles) long, from Texas to the east coast of the United States. On May 7, 2021, a <b class="term">ransomware</b> group called DarkSide locked the company's office computers after copying about 100 gigabytes of its data.</p>
+        <p>The criminals got in through an old <Peek label="VPN" title="From Lesson 1" html={vpnPeek} /> account that workers no longer used but that still worked. Its password had appeared in a list of passwords stolen from another website, and the account did not use <Peek label="multi-factor authentication (MFA)" title="From Lesson 1" html={mfaPeek} />. So the password alone was enough to log in.</p>
+        <p>The ransomware did not reach the computers that control the pipeline itself. But the company stopped the whole pipeline to be safe. For about six days, fuel could not flow. Many gas stations ran out of fuel, and people lined up to buy it.</p>
+        <dl class="case-facts">
+          <div><dt>When it happened</dt><dd>May 7, 2021</dd></div>
+          <div><dt>Who attacked</dt><dd>A ransomware group called DarkSide</dd></div>
+          <div><dt>How they got in</dt><dd>A leaked password for an old VPN account with no MFA</dd></div>
+          <div><dt>Ransom paid</dt><dd>75 bitcoin, worth about US$4.4 million at the time</dd></div>
+        </dl>
+        <p>The company paid the ransom, but it still took days to restart the pipeline. In June 2021, the United States government traced the bitcoin and took back 63.7 of the 75 bitcoin, worth about US$2.3 million by then because the price of bitcoin had dropped. The case shows that a single password is not enough protection. A second proof, such as a code from an app, would most likely have stopped the attack.</p>
+      </aside>
+
       <p class="bridge">Spyware does not lock or break anything. It watches you in secret.</p>
       <div class="def has-pic" id="spyware" data-toc="Spyware and keyloggers"><p class="note-label">Spyware and keyloggers</p><p><b class="term">Spyware</b> secretly collects information about you, such as the sites you visit, your messages, or your passwords. A <b class="term">keylogger</b> is spyware that records every key you press.</p><Fragment set:html={mpic('spyware')} /></div>
       <StepShow id="spyware-steps" steps={spywareSteps} cap="How a keylogger steals a password, step by step" hint="Tap Next to see what happens." />
@@ -259,11 +294,6 @@ const final = [
         <li><b>Fake pop-ups</b> such as "Your phone has 5 viruses! Install this now."</li>
         <li><b>Old software</b> with security holes that were never fixed by an update.</li>
       </ul>
-      <aside class="dyk" aria-label="Did you know: the PhilHealth ransomware attack">
-        <p class="dyk-label">Did you know?</p>
-        <p class="dyk-lead">Ransomware hit PhilHealth in 2023.</p>
-        <p>On September 22, 2023, the Medusa ransomware group attacked the Philippine Health Insurance Corporation (PhilHealth). Its online services went down, and the group demanded <b>US$300,000</b> (about ₱17 million). PhilHealth refused to pay, so the group posted the stolen files online. The data of at least <b>13 million</b> members was affected. Reports later said the affected computers had <b>no antivirus protection</b> at the time.</p>
-      </aside>
 
       <h3>Practice: which kind of malware?</h3>
       <p>Tap the right kind for each case.</p>
@@ -345,28 +375,30 @@ const final = [
       <div class="def has-pic"><p class="note-label">Social engineering</p><p>Tricking <b>people</b>, instead of computers, into giving away information, money, or access. The trickster usually pretends to be someone you trust, such as your bank, a friend, a teacher, or a government office.</p><Fragment set:html={threatDef('social')} /></div>
       <p>Social engineering works on feelings. It makes you <b>afraid</b> ("your account will be locked"), <b>excited</b> ("you won!"), <b>rushed</b> ("reply in 10 minutes"), or <b>kind</b> ("I need help"). Phishing is its most common form.</p>
 
-      <h3 id="phishing">Phishing and its relatives</h3>
+      <h3 id="phishing">Phishing and its types</h3>
       <p class="bridge">Phishing is a kind of social engineering that uses <b>fake messages</b>.</p>
-      <div class="def has-pic"><p class="note-label">Phishing</p><p>Sending <b>fake messages</b> that pretend to come from a trusted company or person, to trick people into giving away passwords, PINs, codes, or money, often on a <b>fake website</b>. The name comes from "fishing": the message is the bait.</p><Fragment set:html={threatDef('phishing')} /></div>
-      <p>Phishing has relatives named after how the bait arrives. Here are the four ways it reaches you:</p>
-      <figure class="fig illus-fig illus big"><Fragment set:html={phishFamilyPic()} /><figcaption>Same trick, four channels: email, text, voice call, and QR code.</figcaption></figure>
-      <p>The table below lists every member of the family, with an example of each:</p>
+      <div class="def has-pic"><p class="note-label">Phishing</p><p>Sending <b>fake messages</b> that pretend to come from a trusted company or person, to trick people into giving away passwords, PINs, codes, or money, often on a <b>fake website</b>. The name comes from the word "fishing", because the fake message works like <b>bait</b> on a fishing hook.</p><Fragment set:html={threatDef('phishing')} /></div>
+      <p>Phishing has <b>five main types</b>. Four of them are named after <b>how</b> the fake message reaches you: <b class="term">phishing</b> by email, <b class="term">smishing</b> by text message, <b class="term">vishing</b> by voice call, and <b class="term">quishing</b> by QR code. The fifth type, <b class="term">spear phishing</b>, is named after <b>who</b> it targets. Notice that the word <b class="term">phishing</b> is used in two ways. It is the name of the whole family, and it is also the name of its email type.</p>
+      <figure class="fig illus-fig illus big"><Fragment set:html={phishFamilyPic()} /><figcaption>The five types of phishing. All of them use the same trick, which is a fake message, but they reach you in different ways or aim at different people.</figcaption></figure>
+      <p>The table below explains each type, with an example:</p>
       <div class="scroll-x"><table class="tbl">
-        <colgroup><col style="width: 24%" /><col style="width: 38%" /><col style="width: 38%" /></colgroup>
-        <thead><tr><th>Name</th><th>How it works</th><th>Example</th></tr></thead>
+        <colgroup><col style="width: 22%" /><col style="width: 40%" /><col style="width: 38%" /></colgroup>
+        <thead><tr><th>Type</th><th>How it works</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><b class="term">Phishing</b></td><td>fake emails sent to many people at once</td><td>"Your school email will be deleted. Log in here to keep it."</td></tr>
-          <tr><td><b class="term">Spear phishing</b></td><td>a phishing message made for <b>one person or group</b>, using their real name, school, or boss</td><td>An email to the cashier that seems to come from the school director: "Pay this supplier today."</td></tr>
-          <tr><td><b class="term">Smishing</b></td><td>phishing by <b>SMS</b> (text message)</td><td>"Your parcel is on hold. Pay ₱45 at this link."</td></tr>
-          <tr><td><b class="term">Vishing</b></td><td>phishing by <b>voice</b> call</td><td>A "bank agent" calls and asks you to read the OTP sent to your phone.</td></tr>
-          <tr><td><b class="term">Quishing</b></td><td>phishing by <b>QR code</b>. A fake QR code leads to a fake site or payment.</td><td>A sticker with a new QR code is pasted over the real one on a parking or payment sign.</td></tr>
-          <tr><td><b class="term">Pharming</b></td><td>you are <b>sent to a fake site</b> even when you type the right address, because of malware or a hacked address system</td><td>You type your bank's address, but a look-alike page opens.</td></tr>
+          <tr><td><b class="term">Phishing</b> (by email)</td><td>Fake emails are sent to many people at once.</td><td>An email says, "Your school email will be deleted. Log in here to keep it."</td></tr>
+          <tr><td><b class="term">Smishing</b></td><td>The fake message comes by <b>SMS</b> (Short Message Service), which means a text message.</td><td>A text says, "Your parcel is on hold. Pay ₱45 at this link."</td></tr>
+          <tr><td><b class="term">Vishing</b></td><td>The fake message comes by <b>voice</b> call.</td><td>A "bank agent" calls and asks you to read the <Peek label="OTP" title="From Lesson 1" html={otpPeek} /> (one-time password) sent to your phone.</td></tr>
+          <tr><td><b class="term">Quishing</b></td><td>The fake message comes as a <b>QR code</b>. Scanning it opens a fake website or a fake payment page.</td><td>A sticker with a new QR code is pasted over the real one on a parking or payment sign.</td></tr>
+          <tr><td><b class="term">Spear phishing</b></td><td>A phishing message is made for <b>one person or group</b>. It uses their real name, school, job, or boss, which the scammer often finds on their public profile.</td><td>An email to the school cashier seems to come from the school director. It says, "Pay this supplier today."</td></tr>
         </tbody>
       </table></div>
+
+      <h3 id="pharming-spoofing">Pharming and spoofing</h3>
       <div class="two-col">
-        <div class="def has-pic" id="pharming"><p class="note-label">Pharming</p><p>Secretly <b>redirecting</b> people to a fake website, even when they type the correct address, so they enter their passwords there.</p><Fragment set:html={threatDef('pharming')} /></div>
-        <div class="def has-pic" id="spoofing" data-toc="Spoofing"><p class="note-label">Spoofing</p><p><b>Faking</b> the sender of a message or call, such as a phone number, an email address, or a sender name, so it looks like it comes from someone you trust.</p><Fragment set:html={threatDef('spoofing')} /></div>
+        <div class="def has-pic" id="pharming"><p class="note-label">Pharming</p><p>Secretly <b>redirecting</b> people to a fake website, even when they type the correct address, so they enter their passwords there. It can happen when <Peek label="malware" title="From Part 1" html={malwarePeek} /> changes settings on your device, or when the system that finds websites by their address is hacked.</p><Fragment set:html={threatDef('pharming')} /></div>
+        <div class="def has-pic" id="spoofing"><p class="note-label">Spoofing</p><p><b>Faking</b> the sender of a message or call, such as a phone number, an email address, or a sender name, so it looks like it comes from someone you trust.</p><Fragment set:html={threatDef('spoofing')} /></div>
       </div>
+      <p>Scammers often use these two tricks together with phishing. <b class="term">Pharming</b> takes you to a fake website, like phishing does, but it needs no bait message. You can be sent there even when you type the correct address yourself. <b class="term">Spoofing</b> makes a phishing message or call seem to come from someone you trust.</p>
       <p>Spoofing is why a scam text can appear in the <b>same thread</b> as real messages from your bank, and why a caller's screen can say "PeraBank". So a familiar name on your screen is <b>not proof</b>. The SIM Registration Act (Part 4) makes spoofing a crime.</p>
 
       <h3 id="red-flags">Practice: spot the red flags</h3>
@@ -617,6 +649,8 @@ const final = [
           <li>Cybersecurity and Infrastructure Security Agency (CISA), "#StopRansomware Guide" and "Data Backup Options" (3-2-1 rule).</li>
           <li>GMA News, "PhilHealth hit by Medusa ransomware, aims for site restoration by Monday," September 2023; Manila Bulletin, "Ransomware group releases data of thousands of PhilHealth members," October 2023.</li>
           <li>Philstar, "PhilHealth: 13 million members affected by data breach," October 19, 2023; ThreatDown by Malwarebytes, "Giant health insurer struck by ransomware didn't have antivirus protection," 2023.</li>
+          <li>National Privacy Commission, statement on the PhilHealth data breach (734 GB of personal information), October 2023.</li>
+          <li>Testimony of Joseph Blount, CEO of Colonial Pipeline, before the United States Senate, June 8, 2021 (legacy VPN account without multi-factor authentication); United States Department of Justice, recovery of 63.7 bitcoin from the Colonial Pipeline ransom, June 7, 2021.</li>
           <li>Republic Acts No. 8792 (2000), 9995 (2009), 10175 (2012), 10173 (2012), 10627 (2013), 11313 (2019), 11930 (2022), 11934 (2022), and 12010 (2024). Lawphil.</li>
           <li>Manila Bulletin, "Economic sabotage, swindling of seniors punished harshly under AFASA," July 20, 2024; BusinessWorld, BSP statement on AFASA economic sabotage.</li>
           <li>Inquirer Technology, "Report cybercrimes to IARC hotline 1326, not on social media – CICC," November 2024; Philstar, "PCO, CICC launch Hotline 1326 vs scams, deepfakes," March 2025.</li>

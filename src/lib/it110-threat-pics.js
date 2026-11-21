@@ -103,29 +103,55 @@ export function threatDef(kind) {
       b += P('M94 66 L104 60 L100 70 Z', B.red, B.ink, 1.4) + [[112, 46], [126, 62], [112, 80]].map(([x, y], k) => R(x, y, 26, 14, { r: 2, f: '#fff', sw: 1.4 }) + L(x + 4, y + 5, x + 20, y + 5, '#b7c7e0', 2) + L(x + 4, y + 9, x + 15, y + 9, '#b7c7e0', 2)).join('') + spark(140, 26, 0.9, B.red);
       alt = 'A database leaking records out through a crack in its side: a data breach.'; break;
     case 'idtheft':
-      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(80, 112, 62) + R(22, 26, 96, 62, { r: 7, f: '#fff', sw: 2 }) + R(22, 26, 96, 15, { r: 7, f: B.blue, sw: 2 }) + T(70, 37.5, 'ID CARD', { size: 9, c: '#fff' });
-      b += R(30, 48, 28, 32, { r: 3, f: B.blueWash, sw: 1.4 }) + L(64, 54, 108, 54, B.line, 3) + L(64, 64, 100, 64, B.line, 3) + T(86, 80, 'Mia Santos', { size: 9.5, w: 700, c: B.ink });
-      b += hacker2(44, 44, 0.42) + R(30, 48, 28, 32, { r: 3, f: 'none', s: B.red, sw: 2 }) + person2(138, 40, 0.6, { shirt: B.green, sad: true }) + T(152, 30, '?', { size: 18, c: B.red });
-      alt = 'Mia\'s ID card with a stranger\'s face on it, while the real Mia looks on, confused.'; break;
+      // redrawn chat 58: a hooded thief holds up Mia's ID card and says he is Mia; the real Mia is shocked
+      b = blob(80, 64, 72, 50, '#e3ecf8') + ground(80, 113, 66) + hacker2(48, 40, 0.86);
+      b += R(20, 74, 64, 40, { r: 5, f: '#fff', sw: 2 }) + R(20, 74, 64, 11, { r: 5, f: B.blue, sw: 2 }) + T(52, 82.5, 'ID CARD', { size: 7.5, c: '#fff' });
+      b += R(25, 89, 19, 21, { r: 2, f: B.blueWash, sw: 1.2 }) + `<clipPath id="idtPh"><rect x="25" y="89" width="19" height="21"/></clipPath><g clip-path="url(#idtPh)">` + girl(34.5, 90.5, 0.42, { shirt: B.green }) + '</g>';
+      b += T(64, 98, 'Mia', { size: 9.5, c: B.ink }) + T(64, 107, 'Santos', { size: 7.5, w: 700, c: B.soft }) + C(19, 96, 4.5, B.skin, B.ink, 1.4) + C(85, 96, 4.5, B.skin, B.ink, 1.4);
+      b += say(6, 8, 70, "I'm Mia!", 44, 40, '#fdeee9', B.red, 12);
+      b += girl(130, 42, 0.8, { shirt: B.green, sad: true }) + T(104, 66, '?', { size: 18, c: B.red }) + label(124, 22, 'real Mia', '#2f7a4b', '#e6f4ea', 9.5);
+      alt = 'A hooded thief holds up Mia\'s ID card and says "I\'m Mia!", while the real Mia looks on, shocked: identity theft.'; break;
     case 'social':
-      b = blob(80, 62, 70, 50, '#fbe7da') + ground(78, 112, 64) + hacker2(54, 26, 0.84);
-      b += C(84, 50, 15, '#fff4c7', B.ink, 2) + C(79, 47, 1.8, B.ink, 'none', 0) + C(89, 47, 1.8, B.ink, 'none', 0) + P('M77 55 Q84 61 91 55', 'none', B.ink, 1.8) + L(84, 65, 84, 82, B.ink, 2.4);
-      b += person2(132, 30, 0.72, { shirt: B.blue }) + say(98, 4, 58, 'Bank?', 130, 26, '#fff', B.blueInk, 12);
-      alt = 'A stranger hides his face behind a friendly smiling mask to fool a person into trusting him.'; break;
+      // redrawn chat 58: a stranger holds a smiling face mask over his face (pretends to be a friendly bank worker); the person trusts him and hands over a key
+      b = blob(80, 64, 72, 50, '#fbe7da') + ground(80, 113, 66) + hacker2(50, 28, 0.88);
+      b += L(38, 64, 27, 90, '#8a5a3a', 3) + C(26, 91, 4.8, B.skin, B.ink, 1.4);
+      b += `<ellipse cx="50" cy="51" rx="15" ry="17" fill="#fff4c7" stroke="${B.ink}" stroke-width="2"/>` + P('M36 46 Q36 31 50 32 Q64 31 64 46 Q57 40 50 41 Q43 40 36 46 Z', B.hair, B.ink, 1.6);
+      b += C(44.5, 51, 1.9, B.ink, 'none', 0) + C(55.5, 51, 1.9, B.ink, 'none', 0) + P('M43 57 Q50 64 57 57', 'none', B.ink, 1.8) + C(40, 57, 2.4, '#f2a8a0', 'none', 0) + C(60, 57, 2.4, '#f2a8a0', 'none', 0);
+      b += R(34, 86, 32, 11, { r: 3, f: '#fff', s: B.blue, sw: 1.4 }) + T(50, 94.5, 'PeraBank', { size: 6.5, c: B.blueInk });
+      b += girl(132, 42, 0.78, { shirt: B.blue }) + key2R(86, 96, 0.6) + say(92, 6, 66, 'Sure!', 120, 38, '#fff', B.blueInk, 12);
+      b += label(50, 20, 'stranger', '#a6461f', '#fbe7da', 9.5);
+      alt = 'A stranger holds a friendly smiling face mask over his own face and wears a fake PeraBank badge. A trusting person says "Sure!" and hands him a key: social engineering.'; break;
     case 'phishing':
-      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(84, 112, 50) + P('M34 6 L34 46', 'none', B.ink, 1.6) + P('M34 46 L34 58 Q34 70 46 70 Q56 70 56 60', 'none', '#8a94a6', 3) + P('M56 60 L52 62', 'none', '#8a94a6', 3);
-      b += envelope2(60, 54, 70, 46) + R(84, 70, 34, 13, { r: 3, f: '#fff', s: B.red, sw: 1.6 }) + T(101, 80, '****', { size: 10, c: B.red, mono: true });
-      b += P('M10 102 Q30 94 50 102 T90 102 T130 102 T160 102', 'none', '#8fb0dc', 2.4) + spark(140, 28, 1, B.blueMid) + T(130, 20, 'bait', { size: 11, c: B.soft });
-      alt = 'A fishing hook with an email on it, holding a password as bait: phishing.'; break;
+      // redrawn chat 58: a fishing line comes down into the water; on its hook hangs a fake email (the bait); a fish (the victim) swims toward it
+      b = R(0, 34, 160, 86, { r: 0, f: '#e3ecf8', s: 'none', sw: 0 }) + P('M0 34 Q20 28 40 34 T80 34 T120 34 T160 34', 'none', '#8fb0dc', 2.4);
+      b += L(64, 0, 64, 40, B.ink, 1.4) + P('M64 40 L64 50 Q64 60 56 60 Q49 60 49 53', 'none', '#7d8799', 2.6) + P('M49 53 L52 56', 'none', '#7d8799', 2.6);
+      b += L(64, 46, 64, 50, B.ink, 1.2) + envelope2(40, 50, 50, 34) + R(44, 72, 42, 12, { r: 3, f: '#fff', s: B.red, sw: 1.4 }) + T(65, 81, 'Verify now', { size: 7, c: B.red });
+      b += P('M140 82 L152 72 L152 92 Z', B.orange, B.ink, 1.6) + `<ellipse cx="118" cy="82" rx="24" ry="14" fill="${B.orange}" stroke="${B.ink}" stroke-width="2"/>`;
+      b += P('M110 70 Q118 64 126 70', 'none', B.ink, 1.4) + P('M118 96 Q124 102 128 96', B.orange, B.ink, 1.4) + C(102, 78, 3, '#fff', B.ink, 1.2) + C(101.5, 78, 1.4, B.ink, 'none', 0) + P('M94 84 Q98 86 96 88', 'none', B.ink, 1.6) + P('M108 88 Q114 92 120 90', 'none', 'rgba(255,255,255,0.5)', 1.6);
+      b += C(88, 70, 2.4, 'none', '#8fb0dc', 1.4) + C(85, 62, 1.6, 'none', '#8fb0dc', 1.2) + label(118, 109, 'you', '#a6461f', '#fff', 9.5);
+      b += label(22, 58, 'bait', B.red, '#fdeee9', 9.5) + T(120, 20, 'scammer’s line', { size: 9.5, w: 700, c: B.soft });
+      alt = 'A fishing line from a scammer goes down into the water. On its hook hangs a fake email that says Verify now, which is the bait. A fish labeled you swims toward it: phishing.'; break;
     case 'pharming':
-      b = blob(80, 62, 72, 50, '#fbe7da') + ground(80, 112, 64) + R(10, 14, 140, 24, { r: 12, f: '#f1f3f6', s: '#b7bfcc', sw: 1.6 }) + T(80, 31, 'perabank.ph', { size: 11, c: B.ink, mono: true });
-      b += `<path d="M52 40 L38 66" fill="none" stroke="#9aa6b8" stroke-width="2" stroke-dasharray="4 3"/>` + R(10, 68, 56, 34, { r: 5, f: '#f1f3f6', s: '#9aa6b8', sw: 1.6 }) + T(38, 82, 'real site', { size: 9.5, c: B.greyInk }) + T(38, 95, 'not reached', { size: 8, w: 700, c: B.greyInk }) + cross(46, 52, 0.5);
-      b += P('M104 40 Q120 52 116 66', 'none', B.red, 2.2) + ARROW(118, 58, 116, 68, B.red, 2.2) + R(86, 70, 60, 34, { r: 5, f: '#fff', s: B.red, sw: 2 }) + T(116, 84, 'FAKE', { size: 10, c: B.red }) + T(116, 98, 'look-alike', { size: 9, w: 700, c: B.soft });
-      alt = 'The right web address is typed, but the trip is secretly sent to a fake look-alike site instead of the real one.'; break;
+      // redrawn chat 58: the right address is typed, but at the fork a hidden criminal pulls a switch, so the trip goes to a fake site that looks the same
+      {
+        const site = (x, y, fake) => R(x, y, 58, 38, { r: 5, f: '#fff', s: fake ? B.red : '#b7bfcc', sw: fake ? 2 : 1.6 }) + R(x, y, 58, 12, { r: 5, f: fake ? B.blue : '#a9b8d0', s: 'none', sw: 0 }) + T(x + 29, y + 9.5, 'PeraBank', { size: 7.5, c: '#fff' })
+          + L(x + 8, y + 20, x + 50, y + 20, fake ? '#c9d2df' : '#e1e6ed', 3) + L(x + 8, y + 27, x + 40, y + 27, fake ? '#c9d2df' : '#e1e6ed', 3) + R(x + 16, y + 29, 26, 6, { r: 2, f: fake ? B.blue : '#c9d3e3', s: 'none', sw: 0 });
+        b = R(10, 6, 140, 22, { r: 11, f: '#fff', s: '#b7bfcc', sw: 1.6 }) + T(74, 21.5, 'perabank.ph', { size: 10.5, c: B.ink, mono: true }) + L(116, 11, 116, 23, B.blue, 1.6) + check(138, 17, 0.5);
+        b += L(80, 28, 80, 44, B.ink, 2.2) + `<path d="M80 44 Q60 48 40 60" fill="none" stroke="#b7bfcc" stroke-width="2" stroke-dasharray="4 3"/>` + cross(56, 50, 0.45) + P('M80 44 Q100 48 118 58', 'none', B.red, 2.4) + ARROW(110, 54, 120, 60, B.red, 2.4);
+        b += site(10, 56, false) + site(92, 56, true);
+        b += hacker2(80, 62, 0.34) + L(86, 70, 81, 46, '#8a5a3a', 2.4) + C(80.6, 45, 2.6, B.red, B.ink, 1);
+        b += label(39, 111, 'real site', B.greyInk, '#fff', 8.5) + label(121, 111, 'fake copy', B.red, '#fdeee9', 8.5);
+      }
+      alt = 'The correct address perabank.ph is typed. At the fork, a hidden criminal pulls a switch, so the trip goes to a fake copy of the PeraBank site instead of the real site: pharming.'; break;
     case 'spoofing':
-      b = blob(80, 62, 70, 50, '#e3ecf8') + ground(64, 112, 34) + phone2(42, 14, 46, 90, (x, y, w, h) => R(x, y, w, h, { r: 6, f: '#2f3d55', s: 'none', sw: 0 }) + T(x + w / 2, y + 16, 'PeraBank', { size: 8.5, c: '#fff' }) + T(x + w / 2, y + 27, 'calling…', { size: 7, w: 600, c: '#c9d3e3' }) + C(x + 10, y + h - 12, 6, '#d4422f', 'none', 0) + C(x + w - 10, y + h - 12, 6, '#3f9a5f', 'none', 0));
-      b += hacker2(124, 30, 0.62) + P('M106 70 Q96 64 92 60', 'none', '#4a5266', 3) + say(100, 4, 56, 'fake ID', 124, 28, '#fdeee9', B.red, 11);
-      alt = 'A phone shows PeraBank calling, but the real caller is a hooded stranger: spoofing.'; break;
+      // redrawn chat 58: the real caller is a hooded stranger, but a fake name tag "PeraBank" is attached on the way, so your phone shows PeraBank calling
+      b = blob(80, 62, 74, 50, '#e3ecf8') + ground(34, 94, 24) + hacker2(34, 32, 0.6) + phone2(44, 56, 15, 26, null, '#2f3d55');
+      b += P('M62 66 Q82 72 100 60', 'none', B.ink, 2) + ARROW(92, 64, 102, 59, B.ink, 2);
+      b += `<g transform="rotate(-6 78 44)">` + R(56, 36, 46, 16, { r: 4, f: '#fff', s: B.red, sw: 1.6, dash: '3 2' }) + T(79, 47.5, 'PeraBank', { size: 8.5, c: B.blueInk }) + '</g>' + T(79, 30, 'fake name', { size: 8, c: B.red });
+      b += phone2(106, 12, 46, 82, (x, y, w, h) => C(x + w / 2, y + 12, 7, '#5d6b85', 'none', 0) + T(x + w / 2, y + 30, 'PeraBank', { size: 8, c: '#fff' }) + T(x + w / 2, y + 40, 'calling…', { size: 6.5, w: 600, c: '#c9d3e3' })
+        + C(x + 10, y + h - 8, 5.5, '#d4422f', 'none', 0) + C(x + w - 10, y + h - 8, 5.5, '#3f9a5f', 'none', 0), '#2f3d55');
+      b += label(38, 111, 'real caller', '#a6461f', '#fbe7da', 8.5) + label(121, 111, 'your screen', B.blueInk, '#e3ecf8', 8.5);
+      alt = 'The real caller is a hooded stranger. A fake name, PeraBank, is attached to his call, so your phone screen shows PeraBank calling: spoofing.'; break;
     case 'cert':
       b = blob(80, 62, 70, 50, '#dcefe2') + ground(80, 112, 58) + R(26, 18, 100, 76, { r: 4, f: '#fffdf4', sw: 2 }) + R(31, 23, 90, 66, { r: 2, f: 'none', s: '#d9ad35', sw: 1.4 });
       b += T(76, 38, 'CERTIFICATE', { size: 9.5, c: B.ink }) + T(76, 52, 'perabank.ph', { size: 9, w: 700, c: B.blueInk, mono: true }) + L(44, 64, 108, 64, B.line, 2) + L(44, 72, 96, 72, B.line, 2);
@@ -265,19 +291,52 @@ export function ddosPic() {
 /** The 3-2-1 backup rule. 480 x 250. */
 // backupPic: redrawn in chat 57, see the end of this file.
 
-/** The phishing family: email, text, call, and QR code. 480 x 330. */
+/** A clean speech bubble drawn as ONE path, so the tail always joins the body (chat 58). Tail on the left side, pointing left at (x - 11, ty). */
+const sayL = (x, y, w, lines, c = B.red, f = '#fdeee9', size = 12, ty = null) => {
+  const h = 14 + lines.length * (size + 5), r = 10, t = ty ?? y + h / 2;
+  const d = `M${x + r} ${y} H${x + w - r} Q${x + w} ${y} ${x + w} ${y + r} V${y + h - r} Q${x + w} ${y + h} ${x + w - r} ${y + h} H${x + r} Q${x} ${y + h} ${x} ${y + h - r} V${t + 7} L${x - 11} ${t} L${x} ${t - 7} V${y + r} Q${x} ${y} ${x + r} ${y} Z`;
+  return `<path d="${d}" fill="${f}" stroke="${B.ink}" stroke-width="1.8" stroke-linejoin="round"/>` + lines.map((ln, k) => T(x + w / 2, y + 7 + (k + 1) * (size + 5) - 4, ln, { size, c })).join('');
+};
+
+/** The phishing family (rebuilt chat 58 on a clean grid): four types named after how the bait arrives, plus spear phishing (named after who it targets). 480 x 578. */
 export function phishFamilyPic() {
   let b = '';
-  const panel = (x, y, name, sub) => R(x, y, 226, 156, { r: 14, f: SOFT, s: 'none', sw: 0 }) + label(x + 113, y + 140, name, B.blueInk, '#e3ecf8', 13) + T(x + 113, y + 24, sub, { size: 12, w: 700, c: B.soft });
-  b += panel(8, 6, 'phishing', 'by email') + panel(246, 6, 'smishing', 'by text (SMS)') + panel(8, 172, 'vishing', 'by voice call') + panel(246, 172, 'quishing', 'by QR code');
-  b += envelope2(58, 44, 84, 56) + R(106, 70, 84, 24, { r: 4, f: '#fff', s: B.red, sw: 1.6 }) + T(148, 86.5, 'Verify now', { size: 12, c: B.red }) + alertBadge(150, 46);
-  b += phone2(310, 36, 44, 84, (x, y, w, h) => R(x + 3, y + 4, w - 8, h * 0.6, { r: 5, f: '#fff', s: '#c9d2df', sw: 1 }) + L(x + 7, y + 14, x + w - 10, y + 14, '#b7c7e0', 2.4) + L(x + 7, y + 22, x + w - 14, y + 22, '#b7c7e0', 2.4) + T(x + w / 2 - 2, y + 36, 'link', { size: 7.5, c: B.red }));
-  b += say(358, 44, 108, 'Account locked!', 366, 82, '#fdeee9', B.red, 12);
-  b += phone2(56, 204, 44, 84, (x, y, w, h) => R(x, y, w, h, { r: 6, f: '#2f3d55', s: 'none', sw: 0 }) + T(x + w / 2, y + 16, 'Bank?', { size: 8, c: '#fff' }) + C(x + w / 2, y + h - 12, 6, '#3f9a5f', 'none', 0));
-  b += say(108, 206, 120, 'Read me the OTP', 116, 246, '#fdeee9', B.red, 12) + P('M110 262 q8 -6 0 -12 M118 266 q12 -10 0 -20', 'none', B.blueMid, 2);
-  b += R(292, 204, 70, 84, { r: 4, f: '#fff4c7', sw: 1.8 }) + T(327, 218, 'PARKING', { size: 8.5, c: B.ink }) + qr(307, 226, 40) + R(302, 221, 50, 50, { r: 2, f: 'rgba(255,255,255,0)', s: B.red, sw: 1.8, dash: '4 3' });
-  b += T(416, 224, 'fake sticker', { size: 12, c: B.red }) + T(416, 240, 'over the', { size: 12, c: B.red }) + T(416, 256, 'real code', { size: 12, c: B.red }) + ARROW(392, 244, 364, 254, B.red, 2);
-  return svgWrap(480, 334, 'Four kinds of phishing: phishing by email ("Verify now"), smishing by text message ("Account locked!"), vishing by phone call ("Read me the OTP"), and quishing by a fake QR code sticker placed over the real one on a parking sign.', b);
+  // every panel: subtitle at top (y + 24), drawing inside y + 38 ... y + 126, name pill at the bottom
+  const panel = (x, y, w, h, name, sub) => R(x, y, w, h, { r: 14, f: SOFT, s: 'none', sw: 0 }) + T(x + w / 2, y + 24, sub, { size: 12, w: 700, c: B.soft }) + label(x + w / 2, y + h - 14, name, B.blueInk, '#e3ecf8', 13);
+  b += T(240, 20, 'Four types named after HOW the fake message reaches you', { size: 12.5, c: B.ink });
+  const y1 = 32, y2 = 206, ph = 164;
+  b += panel(6, y1, 228, ph, 'phishing', 'by email') + panel(246, y1, 228, ph, 'smishing', 'by text message (SMS)') + panel(6, y2, 228, ph, 'vishing', 'by voice call') + panel(246, y2, 228, ph, 'quishing', 'by QR code');
+  // 1 email on a laptop
+  b += laptop2(68, y1 + 42, 104, (x, y, w, h) => R(x, y, w, 11, { r: 0, f: '#dfe3ea', s: 'none', sw: 0 }) + T(x + 5, y + 8.5, 'Inbox', { size: 7.5, a: 'start', c: B.soft })
+    + T(x + 5, y + 22, 'From: PeraBank', { size: 8, a: 'start', c: B.ink }) + T(x + 5, y + 31, 'Confirm your account.', { size: 7, w: 700, a: 'start', c: B.soft })
+    + R(x + w / 2 - 26, y + h - 17, 52, 13, { r: 3, f: B.red, s: 'none', sw: 0 }) + T(x + w / 2, y + h - 7.5, 'Verify now', { size: 8, c: '#fff' }));
+  // 2 text message: phone + bubble pointing at the phone
+  const smsScr = (x, y, w, h) => T(x + w / 2, y + 8, 'PeraBank', { size: 7.5, c: B.ink }) + L(x + 3, y + 13, x + w - 3, y + 13, '#c9d2df', 1)
+    + R(x + 4, y + 19, w - 12, 40, { r: 6, f: '#dfe3ea', s: 'none', sw: 0 }) + L(x + 9, y + 28, x + w - 15, y + 28, '#9aa6b8', 2) + L(x + 9, y + 35, x + w - 20, y + 35, '#9aa6b8', 2)
+    + T(x + 9, y + 50, 'tap link', { size: 7, a: 'start', c: B.blue }) + L(x + 9, y + 52, x + 36, y + 52, B.blue, 1);
+  b += phone2(282, y1 + 36, 54, 90, smsScr) + sayL(352, y1 + 58, 112, ['Account locked!'], B.red, '#fdeee9', 12, y1 + 73);
+  // 3 voice call: dark call screen, sound waves, bubble pointing at the phone
+  const callScr = (x, y, w, h) => C(x + w / 2, y + 16, 10, '#5d6b85', 'none', 0) + C(x + w / 2, y + 13, 3.6, '#8a97b0', 'none', 0) + P(`M${x + w / 2 - 6} ${y + 24} Q${x + w / 2} ${y + 17} ${x + w / 2 + 6} ${y + 24}`, '#8a97b0', 'none', 0)
+    + T(x + w / 2, y + 38, 'PeraBank', { size: 8, c: '#fff' }) + T(x + w / 2, y + 48, 'calling…', { size: 6.5, w: 600, c: '#c9d3e3' })
+    + C(x + 11, y + h - 9, 6, '#d4422f', 'none', 0) + C(x + w - 11, y + h - 9, 6, '#3f9a5f', 'none', 0);
+  b += phone2(46, y2 + 36, 54, 90, callScr, '#2f3d55') + P(`M108 ${y2 + 72} q5 6 0 12 M115 ${y2 + 67} q9 11 0 22`, 'none', B.blueMid, 2);
+  b += sayL(134, y2 + 54, 92, ['Read me', 'the OTP'], B.red, '#fdeee9', 12, y2 + 78);
+  // 4 QR sticker on a parking sign (dashed box clear of the words)
+  b += R(266, y2 + 36, 84, 90, { r: 5, f: '#fff4c7', sw: 1.8 }) + T(308, y2 + 52, 'PARKING', { size: 9.5, c: B.ink }) + qr(288, y2 + 64, 40) + R(281, y2 + 57, 54, 54, { r: 3, f: 'none', s: B.red, sw: 2, dash: '4 3' }) + T(308, y2 + 120, 'Pay here', { size: 8, w: 700, c: B.soft });
+  b += ARROW(362, y2 + 84, 342, y2 + 84, B.red, 2) + [['A fake sticker', 66], ['is pasted over', 82], ['the real code.', 98]].map(([t, dy]) => T(370, y2 + dy, t, { size: 11.5, a: 'start', c: B.red })).join('');
+  // spear phishing
+  const y3 = 406;
+  b += T(240, y3 - 12, 'One type named after WHO it targets', { size: 12.5, c: B.ink });
+  b += panel(6, y3, 468, 166, 'spear phishing', 'a message made for one person or group');
+  b += T(88, y3 + 46, 'Her public profile', { size: 9.5, w: 700, c: B.soft }) + R(20, y3 + 52, 136, 74, { r: 8, f: '#fff', sw: 1.8 });
+  b += C(46, y3 + 80, 13, B.blueWash, B.ink, 1.6) + `<clipPath id="spAva"><circle cx="46" cy="${y3 + 80}" r="12"/></clipPath><g clip-path="url(#spAva)">` + girl(46, y3 + 69, 0.44, { shirt: B.green }) + '</g>';
+  b += C(46, y3 + 80, 17, 'none', B.red, 1.6) + [[0, -1], [0, 1], [-1, 0], [1, 0]].map(([dx, dy]) => L(46 + dx * 14, y3 + 80 + dy * 14, 46 + dx * 21, y3 + 80 + dy * 21, B.red, 1.8)).join('');
+  b += T(74, y3 + 76, 'Ana Cruz', { size: 10.5, a: 'start', c: B.ink }) + T(74, y3 + 89, 'Cashier,', { size: 8.5, w: 700, a: 'start', c: B.soft }) + T(74, y3 + 100, 'Mati School', { size: 8.5, w: 700, a: 'start', c: B.soft }) + T(30, y3 + 118, 'Boss: Dir. Reyes', { size: 8.5, w: 700, a: 'start', c: B.soft });
+  b += ARROW(164, y3 + 89, 188, y3 + 89, B.ink, 2.2);
+  b += laptop2(198, y3 + 44, 100, (x, y, w, h) => T(x + 5, y + 11, 'From: Dir. Reyes', { size: 8, a: 'start', c: B.ink }) + L(x + 4, y + 15, x + w - 4, y + 15, '#c9d2df', 1) + T(x + 5, y + 27, 'Hi Ana, please pay', { size: 7.5, w: 700, a: 'start', c: B.ink }) + T(x + 5, y + 37, 'this supplier today.', { size: 7.5, w: 700, a: 'start', c: B.ink }) + T(x + 5, y + 47, 'Thanks!', { size: 7.5, w: 700, a: 'start', c: B.soft }));
+  b += ARROW(316, y3 + 89, 340, y3 + 89, B.ink, 2.2);
+  b += girl(378, y3 + 48, 0.86, { shirt: B.green }) + sayL(408, y3 + 50, 52, ['OK!'], B.ink, '#fff', 12, y3 + 64);
+  return svgWrap(480, 578, 'The phishing family. Four types are named after how the fake message reaches you: phishing by email ("Verify now"), smishing by text message ("Account locked!"), vishing by voice call ("Read me the OTP"), and quishing by a fake QR code sticker pasted over the real one on a parking sign. Spear phishing is named after who it targets: the scammer studies Ana\'s public profile, then sends her an email that seems to come from her boss and uses her real name.', b);
 }
 
 /** What does this post give away? A social-media post with four numbered clues. 480 x 340. */
@@ -347,7 +406,7 @@ export function scenePic(kind) {
    Lesson 1 "What it really is" pictures (chat 56): what each safeguard looks like in real life.
    One detailed drawing per safeguard, 480 wide. Panels: soft tinted cards with a small caption.
    ===================================================================== */
-import { key2 as key2R, fingerprint2 as fpR, server2 as serverR } from './it110-sec-pics.js';
+import { key2 as key2R, fingerprint2 as fpR, server2 as serverR, car2 } from './it110-sec-pics.js';
 // soft blocks, no outline (the card around the picture is the only frame). tone: n = neutral, hw = hardware blue, sw = software green (same as the tag chips)
 const TONE = { n: '#f1f4f8', hw: '#e6eef9', sw: '#e3f1e8' };
 const panel = (x, y, w, h, tone = 'n') => R(x, y, w, h, { r: 14, f: TONE[tone] ?? TONE.n, s: 'none', sw: 0 });
@@ -1232,4 +1291,56 @@ export function antivirusPic() {
   b += T(392, 168, 'FreeGame.exe', { size: 9, w: 600, c: B.greyInk, mono: true });
   b += T(392, 206, 'Your other files stay safe.', { size: 11, w: 700, c: '#2f6b45' });
   return svgWrap(480, 232, 'An antivirus app called Security scans a list of files. photo.jpg and notes.docx are marked safe with green checks. FreeGame.exe is marked as a threat in red. The antivirus moves that file to a locked Quarantine box, away from the other files, so the rest stay safe.', b);
+}
+
+/* =====================================================================
+   chat 58 (her choice): two more Featured-case pictures, PhilHealth (ransomware, 2023) and Colonial Pipeline (ransomware, 2021).
+   480 x 260, soft panels, numbered steps, labels apart from the drawing. Real event names (factual), no logos.
+   ===================================================================== */
+const caseNum = (x, y, n, c = B.orange) => C(x, y, 12, c, B.ink, 2) + T(x, y + 5, String(n), { size: 13, c: '#fff' });
+
+/** Featured case: the PhilHealth ransomware attack (September 2023). 480 x 260. */
+export function philhealthPic() {
+  let b = R(4, 4, 472, 252, { r: 14, f: SOFT, s: 'none', sw: 0 });
+  // left: an office computer showing the ransom note
+  b += R(18, 22, 214, 150, { r: 6, f: '#2b3446', sw: 2 }) + R(25, 29, 200, 136, { r: 3, f: '#2a1416', s: 'none', sw: 0 });
+  b += R(25, 29, 200, 22, { r: 3, f: '#b3261e', s: 'none', sw: 0 }) + T(125, 44.5, 'YOUR FILES ARE LOCKED', { size: 11, c: '#fff' });
+  b += padlock2(110, 68, false, B.red, 0.62);
+  b += T(125, 108, 'Pay US$300,000, or we will', { size: 10, w: 700, c: '#f4d6d2' }) + T(125, 122, 'post your data online.', { size: 10, w: 700, c: '#f4d6d2' });
+  b += R(66, 132, 118, 20, { r: 4, f: '#3c1d20', s: '#e06c5a', sw: 1.2 }) + T(125, 146, 'Time left  2d 23:59', { size: 9.5, c: '#ffb4a8', mono: true });
+  b += L(125, 172, 125, 182, B.ink, 3) + R(95, 181, 60, 6, { r: 2, f: '#c8ced8', sw: 1.6 });
+  b += T(125, 210, 'What PhilHealth staff saw', { size: 11, w: 700, c: B.soft }) + T(125, 226, 'on September 22, 2023', { size: 11, w: 700, c: B.soft });
+  // right: three numbered steps
+  const row = (y, n, l1, l2, icon) => caseNum(262, y + 18, n) + icon(286, y) + T(338, y + 14, l1, { size: 11.5, a: 'start', c: B.ink }) + T(338, y + 30, l2, { size: 10.5, w: 700, a: 'start', c: B.soft });
+  b += row(20, 1, 'Computers locked', 'Online services stop.', (x, y) => server2(x + 6, y, 30, 40) + padlock2(x + 26, y + 22, false, B.red, 0.42));
+  b += L(262, 62, 262, 92, '#c9d2df', 2);
+  b += row(96, 2, 'US$300,000 asked', 'PhilHealth refuses to pay.', (x, y) => R(x, y + 6, 44, 26, { r: 3, f: '#cfe8d4', s: B.ink, sw: 1.8 }) + R(x + 4, y + 10, 36, 18, { r: 2, f: 'none', s: '#5fae6b', sw: 1.2 }) + C(x + 22, y + 19, 7, '#e6f4ea', '#5fae6b', 1.2) + T(x + 22, y + 23, '$', { size: 10, c: '#2f7a4b' }) + cross(x + 42, y + 34, 0.55));
+  b += L(262, 138, 262, 168, '#c9d2df', 2);
+  b += row(172, 3, 'Data posted online', 'About 13 million members', (x, y) => doc(x, y, 24, 32) + doc(x + 10, y + 6, 24, 32) + ARROW(x + 34, y + 4, x + 44, y - 4, B.red, 1.8));
+  b += T(338, 218, 'are affected.', { size: 10.5, w: 700, a: 'start', c: B.soft });
+  return svgWrap(480, 260, 'Left: an office computer shows a ransom note that says your files are locked, pay US$300,000 or we will post your data online, with a countdown timer. This is what PhilHealth staff saw on September 22, 2023. Right: three steps. 1, computers are locked and online services stop. 2, US$300,000 is asked, and PhilHealth refuses to pay. 3, the data is posted online, and about 13 million members are affected.', b);
+}
+
+/** Featured case: the Colonial Pipeline ransomware attack (May 2021). 480 x 270. */
+export function colonialPic() {
+  let b = '';
+  const panel = (x, w, n, title) => R(x, 6, w, 258, { r: 14, f: SOFT, s: 'none', sw: 0 }) + caseNum(x + 22, 28, n) + T(x + 40, 33, title, { size: 12.5, a: 'start', c: B.ink });
+  b += panel(6, 230, 1, 'How the criminals got in') + panel(244, 230, 2, 'What happened next');
+  // panel 1: leaked password list -> old VPN login with no MFA
+  b += R(20, 52, 92, 104, { r: 6, f: '#fff', sw: 1.8 }) + R(20, 52, 92, 18, { r: 6, f: '#dfe3ea', sw: 1.8 }) + T(66, 65, 'leaked list', { size: 9.5, c: B.soft });
+  [0, 1, 2, 3, 4].forEach((k) => { const y = 82 + k * 15; b += (k === 2 ? R(24, y - 9, 84, 13, { r: 2, f: '#fff4c7', s: 'none', sw: 0 }) : '') + L(28, y - 3, 62, y - 3, '#b7c7e0', 2.4) + L(68, y - 3, 102, y - 3, k === 2 ? B.red : '#d3dbe6', 2.4); });
+  b += ARROW(116, 104, 132, 104, B.red, 2.2);
+  b += R(136, 52, 92, 104, { r: 6, f: '#fff', sw: 1.8 }) + R(136, 52, 92, 18, { r: 6, f: '#dfe3ea', sw: 1.8 }) + T(182, 65, 'old VPN login', { size: 9.5, c: B.soft });
+  b += R(144, 80, 76, 14, { r: 3, f: '#f7f9fc', s: '#c9d2df', sw: 1 }) + T(148, 90.5, 'user01', { size: 8.5, a: 'start', c: B.ink, mono: true }) + R(144, 100, 76, 14, { r: 3, f: '#f7f9fc', s: '#c9d2df', sw: 1 }) + T(148, 111, '••••••••', { size: 9, a: 'start', c: B.ink, mono: true });
+  b += R(158, 124, 48, 16, { r: 4, f: B.blue, s: 'none', sw: 0 }) + T(182, 135.5, 'Log in', { size: 9, c: '#fff' }) + check(218, 146, 0.6);
+  b += R(146, 164, 72, 22, { r: 11, f: '#fdeee9', s: B.red, sw: 1.6 }) + T(182, 179, 'No MFA', { size: 11, c: B.red });
+  b += T(121, 214, 'A password leaked from another', { size: 10.5, w: 700, c: B.soft }) + T(121, 229, 'site opened an old account that', { size: 10.5, w: 700, c: B.soft }) + T(121, 244, 'asked for no second proof.', { size: 10.5, w: 700, c: B.soft });
+  // panel 2: pipeline stopped -> gas station with no fuel and a queue
+  b += R(258, 66, 200, 14, { r: 4, f: '#c8ced8', sw: 1.8 }) + R(300, 61, 10, 24, { r: 2, f: '#9aa6b8', sw: 1.6 }) + R(406, 61, 10, 24, { r: 2, f: '#9aa6b8', sw: 1.6 });
+  b += C(358, 73, 13, '#fff', B.red, 2.4) + L(350, 65, 366, 81, B.red, 2.6) + L(366, 65, 350, 81, B.red, 2.6) + T(358, 54, 'pipeline stopped', { size: 10.5, c: B.red });
+  b += R(262, 104, 30, 56, { r: 4, f: '#e86f5a', sw: 1.8 }) + R(267, 110, 20, 14, { r: 2, f: '#fff', sw: 1.2 }) + T(277, 120.5, '0.00', { size: 7, c: B.ink, mono: true }) + P('M292 120 Q304 122 302 136', 'none', B.ink, 2) + R(256, 158, 42, 6, { r: 2, f: '#c8ced8', sw: 1.4 });
+  b += R(304, 98, 52, 30, { r: 4, f: '#fff4c7', sw: 1.8 }) + T(330, 111, 'SORRY,', { size: 8.5, c: B.red }) + T(330, 123, 'NO FUEL', { size: 8.5, c: B.red }) + L(312, 128, 312, 160, B.ink, 2) + L(348, 128, 348, 160, B.ink, 2);
+  b += car2(360, 138, 0.42, '#9fb4d3') + car2(406, 138, 0.42, '#e8c07a') + L(256, 164, 462, 164, '#c9d2df', 2);
+  b += T(359, 199, 'The pipeline stopped for about', { size: 10.5, w: 700, c: B.soft }) + T(359, 214, 'six days. Many gas stations', { size: 10.5, w: 700, c: B.soft }) + T(359, 229, 'ran out of fuel, and people', { size: 10.5, w: 700, c: B.soft }) + T(359, 244, 'lined up to buy it.', { size: 10.5, w: 700, c: B.soft });
+  return svgWrap(480, 270, 'Two panels. 1, how the criminals got in: a password from a leaked list opened an old VPN account that had no multi-factor authentication. 2, what happened next: the company stopped the fuel pipeline for about six days, and gas stations showed signs saying sorry, no fuel, while cars lined up.', b);
 }
