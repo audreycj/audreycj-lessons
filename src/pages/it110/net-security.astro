@@ -47,10 +47,10 @@ const realFirewall = real('firewall', 'either', [
 const realIps = real('ips', 'sw', [
   [['All in one box', 'The IPS software runs inside the firewall device itself. A firewall that also does the IPS job is called a <b class="term">next-generation firewall</b>.'], ['Two separate boxes', 'The IPS software runs on its own device, placed right behind the firewall (see the cable drawing below the card).']],
   'In companies, schools, banks, and Internet service providers. Homes usually do not have a separate one, but some home routers include a basic version.',
-  'The IT or security team sets it up and keeps an eye on it through a <b class="term">dashboard</b>: a screen that shows how many attacks were blocked, how attacks rose or fell over the day, and a list of every event with what the IPS did about it. Its list of known attack patterns updates itself automatically, like the apps on your phone.',
+  'The IT or security team sets it up and keeps an eye on it through a <b class="term">dashboard</b>, which is a screen that shows how many attacks were blocked, how attacks rose or fell over the day, and a list of every event with what the IPS did about it. Its list of known attack patterns updates itself automatically, like the apps on your phone.',
 ], 'Two common setups, and the dashboard the IT team watches.', 'An IPS is mostly <b>software</b>. It has to run on a device that the network\'s traffic passes through, and it compares that traffic with a list of known attack patterns.');
 const realEncrypt = real('encrypt', 'method', [
-  'Not a device and not an app you install. It is a <b>method</b>: math that scrambles data. It is built into other things.',
+  'Not a device and not an app you install. It is a <b>method</b>, which means math that scrambles data. It is built into other things.',
   'Inside HTTPS websites, Wi-Fi with WPA2 or WPA3, chat apps with end-to-end encryption, and modern phones once you set a screen lock.',
   'App makers and website owners build it in. Your part: keep your screen lock on, use WPA2 or WPA3, and look for HTTPS.',
 ], 'Encryption is already working in the apps, websites, and Wi-Fi you use. You only see a small note or icon.');
@@ -72,7 +72,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 // Peeks back (her rule: every back-reference comes with its meaning right there)
 const vpnPeek = '<p>From <b>Computer networks</b>, Part 2: a <b>virtual private network (VPN)</b> is a private, encrypted connection to a network over the public Internet, like a private tunnel through a crowded road.</p>' + vpnPeekPic();
 const httpsPeek = '<p>From <b>Computer networks</b>, Part 5: <b>HTTP</b> (Hypertext Transfer Protocol) sends web pages. <b>HTTPS</b> is HTTP with encryption: the S stands for <b>Secure</b>.</p>';
-const bioPeek = '<p>From <b>Input devices</b>: a <b>biometric reader</b> reads a unique body feature, such as a fingerprint, face, iris, voice, or hand shape, and turns it into data the computer can compare.</p>' + photo('fpReader', 'A fingerprint reader.');
+const bioPeek = '<p>In <b>Input devices</b>, you learned that a <b>biometric reader</b> reads a unique body feature, such as a fingerprint, face, iris, voice, or hand shape, and turns it into data the computer can compare.</p>' + photo('fpReader', 'A fingerprint reader.');
 const twinPeek = '<p>From Part 2 of this lesson: an <b>evil twin</b> is a fake Wi-Fi hotspot with a name that looks like the real one.</p>' + evilTwin();
 const part2Peek = '<p>From Part 2: intruders get <b>unauthorized access</b> by hacking, by war driving and Wi-Fi piggybacking, and by intercepting data while it travels.</p>';
 const wifiPeek = '<p>From Part 2: <b>war driving</b> is going around to find Wi-Fi networks to use without permission; <b>Wi-Fi piggybacking</b> is using someone\'s Wi-Fi from where you are without permission.</p>' + wifiSteal();
@@ -86,22 +86,22 @@ const insiderPeek = '<p>From Part 1: <b>insiders</b> are people who already have
 const ciaPeek = '<p>From Part 1: <b>confidentiality</b> (only the right people can see it), <b>integrity</b> (no one changes it without permission), and <b>availability</b> (it works when you need it).</p>';
 
 const accessSort = [
-  { t: 'Your seatmate opens your Facebook on your phone, which you left unlocked, and reads your chats.', a: 0, why: 'She got into your account without your permission: unauthorized access.' },
-  { t: 'An office clerk is allowed to use the office computer, but runs her own online shop on it all day, against company rules.', a: 1, why: 'She was allowed in, but used the computer for something not approved: unauthorized use.' },
-  { t: 'A neighbor guesses your Wi-Fi password and connects every night.', a: 0, why: 'He got onto your network without permission: unauthorized access (Wi-Fi piggybacking).' },
+  { t: 'Your seatmate opens your Facebook on your phone, which you left unlocked, and reads your chats.', a: 0, why: 'She got into your account without your permission, so this is unauthorized access.' },
+  { t: 'An office clerk is allowed to use the office computer, but runs her own online shop on it all day, against company rules.', a: 1, why: 'She was allowed in, but used the computer for something not approved, so this is unauthorized use.' },
+  { t: 'A neighbor guesses your Wi-Fi password and connects every night.', a: 0, why: 'He got onto your network without permission, so this is unauthorized access. It is called Wi-Fi piggybacking.' },
   { t: 'You log in to the school portal with your own student account to check your grades.', a: 2, why: 'Your account, your permission, an approved purpose. Nothing wrong here.' },
-  { t: 'A lab assistant who may log in only to fix computers opens students\' files to read them.', a: 1, why: 'He had permission to get in, but not to read the files: unauthorized use.' },
+  { t: 'A lab assistant who may log in only to fix computers opens students\' files to read them.', a: 1, why: 'He had permission to get in, but not to read the files, so this is unauthorized use.' },
   { t: 'A stranger in a café copies the data other customers send over the free Wi-Fi.', a: 0, why: 'Capturing other people\'s data in transit without permission is interception, a kind of unauthorized access.' },
 ];
 const factorSort = [
-  { t: 'The 4-digit PIN of your ATM card', a: 0, why: 'You keep it in your head: possessed knowledge.' },
-  { t: 'Unlocking your phone with your face', a: 2, why: 'Your face is part of you: biometric.' },
-  { t: 'Tapping your school ID card on a door reader', a: 1, why: 'You carry the card: possessed object.' },
-  { t: 'A one-time code that appears in an app on your phone', a: 1, why: 'The code proves you have your phone with you: possessed object. (You read it, but the thing being checked is the phone.)' },
-  { t: 'The pattern you draw to unlock your phone', a: 0, why: 'A pattern is a password made of lines: possessed knowledge.' },
-  { t: 'A USB security key you plug in when you log in', a: 1, why: 'A physical object you carry: possessed object.' },
+  { t: 'The 4-digit PIN of your ATM card', a: 0, why: 'You keep it in your head, so it is possessed knowledge.' },
+  { t: 'Unlocking your phone with your face', a: 2, why: 'Your face is part of you, so it is a biometric.' },
+  { t: 'Tapping your school ID card on a door reader', a: 1, why: 'You carry the card, so it is a possessed object.' },
+  { t: 'A one-time code that appears in an app on your phone', a: 1, why: 'The code proves you have your phone with you, so it is a possessed object. (You read it, but the thing being checked is the phone.)' },
+  { t: 'The pattern you draw to unlock your phone', a: 0, why: 'A pattern is a password made of lines, so it is possessed knowledge.' },
+  { t: 'A USB security key you plug in when you log in', a: 1, why: 'A security key is a physical object you carry, so it is a possessed object.' },
   { t: 'Your answer to "What is the name of your first pet?"', a: 0, why: 'A security question is still something you know.' },
-  { t: 'Clocking in at work with your fingerprint', a: 2, why: 'Your fingerprint is part of your body: biometric.' },
+  { t: 'Clocking in at work with your fingerprint', a: 2, why: 'Your fingerprint is part of your body, so it is a biometric.' },
 ];
 const kindsPeek = '<p>From earlier in Part 3: a system can ask for three kinds of proof. <b>Something you know</b> (possessed knowledge): a password, PIN, or pattern. <b>Something you have</b> (possessed object): an ID card, a security key, or your phone. <b>Something you are</b> (biometric): your fingerprint, face, iris, or voice.</p>' + factorPic('know') + factorPic('have') + factorPic('are');
 const mfaSteps = [0, 1, 2, 3].map((i) => ({ pic: mfaPic(i), say: [
@@ -124,7 +124,7 @@ const keySteps = [0, 1, 2, 3, 4].map((i) => ({ pic: keyShareStepPic(i), say: [
   'Ben and Ana <b>both have the same secret key</b>. From now on, they use it for fast <b class="term">private key encryption</b>.',
 ][i] }));
 const padSteps = [0, 1, 2, 3].map((i) => ({ pic: padlockPic(i), say: [
-  'Ana wants people to be able to send her secret messages. So Ana\'s computer makes a <b>matching pair of keys</b>: a <b class="term">public key</b> and a <b class="term">private key</b>. Her public key is like an <b>open padlock</b>. She can make as many copies of it as she likes, so that <b>anyone</b> who wants to send her a secret message can have one, even strangers. Her private key is <b>never given to anyone</b>. Ana keeps it to herself, to unlock the messages that other people lock with her padlocks. (In computer terminology, both are called "keys", even though the public one works like a padlock.)',
+  'Ana wants people to be able to send her secret messages. So Ana\'s computer makes a <b>matching pair of keys</b>, called a <b class="term">public key</b> and a <b class="term">private key</b>. Her public key is like an <b>open padlock</b>. She can make as many copies of it as she likes, so that <b>anyone</b> who wants to send her a secret message can have one, even strangers. Her private key is <b>never given to anyone</b>. Ana keeps it to herself, to unlock the messages that other people lock with her padlocks. (In computer terminology, both are called "keys", even though the public one works like a padlock.)',
   'Ben wants to send Ana a secret message. He puts his message in a box and locks it with one of Ana\'s padlocks (her <b class="term">public key</b>). Now <b>only Ana\'s private key</b> can open the box.',
   'The locked box travels across the Internet. A stranger can see it and even copy it, but he <b>cannot open it</b>, because he does not have Ana\'s <b class="term">private key</b>.',
   'Ana opens the box with her <b class="term">private key</b>. So in <b class="term">public key encryption</b>, the <b class="term">public key</b> locks, and only the matching <b class="term">private key</b> unlocks.',
@@ -138,17 +138,17 @@ const part1 = [
   { q: 'An insider is...', opts: ['someone inside the organization, such as an employee, who already has some access', 'a hacker in another country', 'a virus inside the computer'], a: 0, why: 'Insiders already have some access, which makes them hard to spot.' },
 ];
 const part2 = [
-  { q: 'Gaining access to a computer, network, or file without permission is called...', opts: ['unauthorized access', 'unauthorized use', 'encryption'], a: 0, why: 'Access = getting in without permission.' },
+  { q: 'Gaining access to a computer, network, or file without permission is called...', opts: ['unauthorized access', 'unauthorized use', 'encryption'], a: 0, why: 'Unauthorized access means getting in without permission.' },
   { q: 'An employee uses the company\'s computer to run his own online selling business, against company rules. This is...', opts: ['unauthorized use', 'unauthorized access', 'war driving'], a: 0, why: 'He was allowed to use the computer, but not for this.' },
   { q: 'Driving around a city to look for Wi-Fi networks to use without permission is called...', opts: ['war driving', 'Wi-Fi piggybacking', 'packet switching'], a: 0, why: 'War driving is hunting for networks while moving, usually by car.' },
-  { q: 'Using your neighbor\'s Wi-Fi from your own house without asking is called...', opts: ['Wi-Fi piggybacking', 'war driving', 'a firewall'], a: 0, why: 'Piggybacking = using someone\'s Wi-Fi without permission from where you are.' },
+  { q: 'Using your neighbor\'s Wi-Fi from your own house without asking is called...', opts: ['Wi-Fi piggybacking', 'war driving', 'a firewall'], a: 0, why: 'Piggybacking means using someone\'s Wi-Fi without permission from where you are.' },
   { q: 'What makes an ethical (white-hat) hacker different from a criminal hacker?', opts: ['Permission from the owner', 'Better computers', 'They only hack at night'], a: 0, why: 'Ethical hackers are hired to find weak spots, with the owner\'s written permission.' },
   { q: 'At a café you see two networks: KapeMati_Guest and KapeMati_Guest_FREE (open, strongest signal). What should you do?', opts: ['Ask the staff which one is theirs', 'Pick the one with the strongest signal', 'Pick the one without a password'], a: 0, why: 'The open one may be an evil twin. Only the café can tell you its real network name.' },
 ];
 const part3 = [
-  { q: 'Typing your username tells the system who you claim to be. Typing your password proves it. The second step is called...', opts: ['authentication', 'identification', 'encryption'], a: 0, why: 'Identification = who you claim to be. Authentication = proving it.' },
+  { q: 'Typing your username tells the system who you claim to be. Typing your password proves it. The second step is called...', opts: ['authentication', 'identification', 'encryption'], a: 0, why: 'Identification is saying who you claim to be. Authentication is proving it.' },
   { q: 'A fingerprint scanner is which kind of access control?', opts: ['Biometric (something you are)', 'Possessed knowledge (something you know)', 'Possessed object (something you have)'], a: 0, why: 'Biometrics read a part of your body.' },
-  { q: 'Which is TRUE two-factor authentication?', opts: ['An ATM card plus its PIN', 'A password plus a security question', 'Two different passwords'], a: 0, why: 'Card (something you have) + PIN (something you know) = two different kinds. The others use only "something you know".' },
+  { q: 'Which is TRUE two-factor authentication?', opts: ['An ATM card plus its PIN', 'A password plus a security question', 'Two different passwords'], a: 0, why: 'A card (something you have) and a PIN (something you know) are two different kinds of proof. The others use only "something you know".' },
   { q: 'Under current guidance (NIST, 2025), which password habit is best?', opts: ['A long passphrase, different for each account', 'A short password with symbols, changed every 90 days', 'One strong password for all your accounts'], a: 0, why: 'Length and uniqueness matter most. Change it only if it may have leaked.' },
   { q: 'A biometric is hard to replace if it is stolen because...', opts: ['you cannot get a new fingerprint or face', 'it is too expensive', 'it is written on paper'], a: 0, why: 'You can change a password, but not your fingerprint.' },
   { q: 'Someone who says he is from your bank asks for the OTP sent to your phone. You should...', opts: ['refuse and hang up', 'give it if he knows your name', 'give only the first 3 digits'], a: 0, why: 'Banks never ask for your OTP. Anyone who asks is trying to get into your account.' },
@@ -179,7 +179,7 @@ const final = [
   { q: 'A system that watches network traffic for attacks and blocks them automatically is a(n)...', opts: ['intrusion prevention system (IPS)', 'virtual private network (VPN)', 'Internet service provider (ISP)'], a: 0, why: 'IPS.' },
   { q: 'Private key (symmetric) encryption uses...', opts: ['the same secret key to lock and unlock', 'a public key to lock and a private key to unlock', 'no key at all'], a: 0, why: 'One shared secret key. Public key encryption uses a key pair.' },
   { q: 'What does a VPN NOT protect you from?', opts: ['A fake website that tricks you into typing your password', 'Strangers reading your data on public Wi-Fi', 'Your Wi-Fi\'s owner seeing which sites you visit'], a: 0, why: 'A VPN hides your traffic on the way, but if you type your password into a scam site yourself, it cannot help.' },
-  { q: 'Both lessons: HTTPS uses which idea from this lesson to protect web pages on the way?', opts: ['Encryption', 'Biometrics', 'War driving'], a: 0, why: 'HTTPS = HTTP + encryption (Computer networks, Part 5, and Part 4 of this lesson).' },
+  { q: 'Both lessons: HTTPS uses which idea from this lesson to protect web pages on the way?', opts: ['Encryption', 'Biometrics', 'War driving'], a: 0, why: 'HTTPS is HTTP with encryption added (Computer networks, Part 5, and Part 4 of this lesson).' },
 ];
 ---
 <Base title="Network and Internet security: keeping intruders out · IT 110" description="Why network and Internet security matters, unauthorized access and use (hacking, war driving, Wi-Fi piggybacking, interception), and the safeguards that keep intruders out: access control, strong passwords, MFA and passkeys, biometrics, firewalls, encryption, VPNs, and precautions for public Wi-Fi and organizations." course={{ code: course.code, href: base + course.href }} theme="it110 nb" toc>
@@ -225,7 +225,7 @@ const final = [
         <p class="dyk-lead">Most cybercrime reported in the Philippines is about money.</p>
         <p>The Cybercrime Investigation and Coordinating Center (CICC) is the government office that coordinates the fight against cybercrime. Here is what it reported:</p>
         <ul class="dyk-facts">
-          <li><b>More people are reporting scams.</b> The CICC received 10,004 online scam complaints in 2024, more than 3 times the 3,317 it received in 2023.</li>
+          <li><b>More people are reporting cybercrime.</b> The CICC received 10,004 cybercrime complaints in 2024, more than 3 times the 3,317 it received in 2023. In 2025, the number grew again, to 18,633.</li>
           <li><b>Fraud is the top complaint.</b> In 2025, consumer fraud made up 35% of all cybercrime complaints.</li>
           <li><b>The losses are big.</b> Reported losses from consumer fraud, online fraud, hacking, and <b class="term">phishing</b> (tricking people into giving away passwords or codes, often with fake websites) reached about <b>₱418 million</b> in 2025. These are only the cases people reported.</li>
         </ul>
@@ -297,7 +297,7 @@ const final = [
       <h3 id="wifi-misuse">War driving and Wi-Fi piggybacking</h3>
       <p class="bridge"><b>Way 2 of unauthorized access.</b> The intruder gets onto <b>someone's Wi-Fi from nearby</b>, without permission.</p>
       <p>Wi-Fi signals do not stop at the walls of a house. Anyone nearby can see a network, and if it has no password or a weak one, they can join it. Here are the two names for doing that without permission:</p>
-      <figure class="fig illus-fig illus big"><Fragment set:html={wifiSteal()} /><figcaption>1. Wi-Fi piggybacking: using someone's Wi-Fi from where you are, without asking. 2. War driving: going around to find Wi-Fi networks to use.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={wifiSteal()} /><figcaption>1. Wi-Fi piggybacking means using someone's Wi-Fi from where you are, without asking. 2. War driving means going around to find Wi-Fi networks to use.</figcaption></figure>
       <div class="two-col">
         <div class="def has-pic"><p class="note-label">War driving</p><p>Driving (or walking) around an area to <b>find</b> Wi-Fi networks to use without permission.</p><Fragment set:html={defPic('wardrive')} /></div>
         <div class="def has-pic"><p class="note-label">Wi-Fi piggybacking</p><p>Using someone else's Wi-Fi network <b>from where you are</b>, such as your house, without permission.</p><Fragment set:html={defPic('piggyback')} /></div>
@@ -309,7 +309,7 @@ const final = [
       <div class="def has-pic" data-toc="Packet sniffers and skimmers" id="sniffers"><p class="note-label">Interception</p><p>Secretly <b>capturing data while it travels</b> over a network, so someone can read or use it. Programs that capture the packets passing through a network are called <b class="term">packet sniffers</b>.</p><Fragment set:html={defPic('intercept')} /></div>
       <p>Interception is easiest on shared networks, such as free Wi-Fi in a café or mall, where strangers are on the same network as you. Whether they can read what they capture depends on one thing, <b class="term">encryption</b> (Part 4):</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={sniffPic()} /><figcaption>The same message, copied by the same stranger. Without encryption he can read it. With encryption, his copy is only scrambled letters.</figcaption></figure>
-      <p>Interception also happens offline. Criminals hide small devices called <b class="term">skimmers</b> on ATMs or card readers to copy card details as people swipe or insert their cards.</p>
+      <p>A similar kind of theft happens at ATMs and card readers. Here the data is not captured while it travels over a network. It is copied right at the machine. Criminals hide small devices called <b class="term">skimmers</b> on ATMs or card readers to copy card details as people swipe or insert their cards.</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={skimPic()} /><figcaption>The skimmer copies the card. A hidden camera or a fake keypad records the PIN.</figcaption></figure>
       <Fragment set:html={photo('skimmer', 'A real skimmer, found on a train-ticket machine in the Netherlands in 2008. It was fitted onto the card slot, so every card put in was copied.')} />
       <p>To protect yourself, <b>cover the keypad with your other hand</b> when you type your PIN, so a hidden camera cannot see it. Before you insert your card, look at the card slot: if it looks bulky, loose, or different from the machine next to it, use another ATM and tell the bank. ATMs inside bank branches are safer than ones in quiet places.</p>
@@ -366,7 +366,7 @@ const final = [
         <colgroup><col style="width: 27%" /><col style="width: 40%" /><col style="width: 33%" /></colgroup>
         <thead><tr><th>Old habit</th><th>Today's advice</th><th>Why</th></tr></thead>
         <tbody>
-          <tr><td>Short, with symbols mixed in, like <span class="mono">P@ss1</span></td><td><b>Long</b>: at least 15 characters when the password is your only lock (<Peek label="NIST" title="What NIST stands for" html={nistPeek} />). The U.S. Cybersecurity and Infrastructure Security Agency (CISA) says at least 16.</td><td>Every extra character multiplies the number of guesses needed. Length beats symbols.</td></tr>
+          <tr><td>Short, with symbols mixed in, like <span class="mono">P@ss1</span></td><td>Make it <b>long</b>, with at least 15 characters when the password is your only lock (<Peek label="NIST" title="What NIST stands for" html={nistPeek} />). The U.S. Cybersecurity and Infrastructure Security Agency (CISA) says at least 16.</td><td>Every extra character multiplies the number of guesses needed. Length beats symbols.</td></tr>
           <tr><td>The same password for every account</td><td>A <b>different</b> password for every account</td><td>When one site leaks its passwords, criminals try them on other sites.</td></tr>
           <tr><td>Change it every 90 days</td><td>Change it only when it <b>may have leaked</b> or been seen</td><td>Forced changes make people pick weaker passwords, like adding a 1, then a 2.</td></tr>
           <tr><td>Remember all of them, or write them on paper</td><td>Use a <b class="term">password manager</b></td><td>It creates and stores long passwords for you. You only remember one strong main password.</td></tr>
@@ -468,7 +468,7 @@ const final = [
           <tr><td class="th-cell"><Fragment set:html={thumb('routerPh')} /><b>Security mode</b></td><td>Choose <b>WPA3</b>, or WPA2 if some devices are old. Never WEP, and never "open".</td><td>They are the newest standards (see the table above). WEP is old and easy to break, and "open" means anyone can join.</td></tr>
           <tr><td><b>Wi-Fi password</b></td><td>Make it long, and share it only with people you know</td><td>Anyone with the password is inside your network.</td></tr>
           <tr><td><b>Router admin password</b></td><td>Change it to your own long password when you first set up the router. Many routers come from the factory with a <b>default password</b> that is the same for every router of that model, such as "admin" or "password". Many owners never change it.</td><td>This is <b>not</b> the Wi-Fi password. It opens the router's <b>settings page</b>, where someone can change everything: the Wi-Fi password, who can connect, and even which websites you are sent to. The default passwords of every router brand are listed on the Internet, so a stranger can simply look yours up and try it.</td></tr>
-          <tr><td><b>Updates</b></td><td>A router runs on <b class="term">firmware</b>: a small program built into the router that makes it work, like the operating system of a phone. Router makers release new versions of it. On the settings page, turn on <b>automatic updates</b>, or check for new firmware every few months.</td><td>Old firmware has security holes that attackers already know about. Their programs search the Internet for routers that still have them. An update closes the hole.</td></tr>
+          <tr><td><b>Updates</b></td><td>A router runs on <b class="term">firmware</b>, which is a small program built into the router that makes it work, like the operating system of a phone. Router makers release new versions of it. On the settings page, turn on <b>automatic updates</b>, or check for new firmware every few months.</td><td>Old firmware has security holes that attackers already know about. Their programs search the Internet for routers that still have them. An update closes the hole.</td></tr>
           <tr><td><b>Guest network</b></td><td>A <b class="term">guest network</b> is a second, separate Wi-Fi network made by the same router, with its own name and password. Turn it on in the settings page and give visitors that one instead of your main Wi-Fi.</td><td>Guests still get Internet, but they are kept apart from your own phones, laptops, printers, and shared files. If a visitor's phone has a harmful app, it cannot reach your devices.</td></tr>
         </tbody>
       </table></div>
@@ -482,7 +482,7 @@ const final = [
         <p>What really keeps strangers out: <b>WPA2 or WPA3, plus a long Wi-Fi password</b>.</p>
       </div>
 
-      <h3 id="firewalls">Firewalls</h3>
+      <h3 id="firewalls">Firewalls and intrusion prevention</h3>
       <p class="bridge">Secure Wi-Fi protects the network from people <b>nearby</b>. A firewall protects it from intruders coming in <b>from the Internet</b>, such as hackers.</p>
       <div class="def has-pic"><p class="note-label">Firewall</p><p>Hardware or software that sits between a computer or network and the Internet. It checks the traffic going in and out against a set of rules and <b>blocks</b> what is not allowed.</p><Fragment set:html={defPic('firewall')} /></div>
       <figure class="fig illus-fig illus big"><Fragment set:html={firewallPic()} /><figcaption>Traffic you asked for comes in. A stranger trying to get in from outside is stopped at the wall.</figcaption></figure>
@@ -492,7 +492,7 @@ const final = [
       </div>
       <p>Firewalls come in two kinds:</p>
       <ul>
-        <li><b class="term">Software firewalls</b> are built into Windows and macOS. They protect one computer, and they can also stop programs on it from connecting to the Internet without your permission.</li>
+        <li><b class="term">Software firewalls</b> are built into Windows and macOS. They protect one computer by blocking unwanted connections that come in from the network. The Windows firewall can also be set to stop programs on the computer from connecting out to the Internet.</li>
         <li><b class="term">Hardware firewalls</b> protect a whole network. Home routers have a simple one built in. Schools and companies use stronger firewall devices.</li>
       </ul>
       <Fragment set:html={realFirewall} />
@@ -670,10 +670,10 @@ const final = [
       <div class="remember">
         <p class="note-label">Key takeaways</p>
         <ol>
-          <li><b>Why care:</b> almost everything is online, accounts are worth money, and one weak spot can hurt many people. Security protects <b class="term">confidentiality, integrity, and availability</b> (the CIA triad). Intruders can be outsiders or insiders.</li>
-          <li><b>Unauthorized access</b> is getting in without permission; <b class="term">unauthorized use</b> is doing something not approved. Examples: hacking, war driving, Wi-Fi piggybacking, interception (packet sniffing, skimmers, evil twins).</li>
-          <li><b>Access control:</b> identification, then authentication, using something you <b>know</b>, <b>have</b>, or <b>are</b>. Use long, unique passwords (15+ characters), a password manager, and <b>MFA</b> or passkeys. Never share your OTP.</li>
-          <li><b>Other safeguards:</b> WPA2/WPA3 Wi-Fi, firewalls and intrusion prevention, encryption (private key and public key; HTTPS is encrypted but not proof of honesty), VPNs, careful use of public Wi-Fi, least privilege for employees, and layers of protection.</li>
+          <li><b>Security matters</b> because almost everything is online, accounts are worth money, and one weak spot can hurt many people. Security protects <b class="term">confidentiality, integrity, and availability</b> (the CIA triad). Intruders can be outsiders or insiders.</li>
+          <li><b class="term">Unauthorized access</b> is getting in without permission. <b class="term">Unauthorized use</b> is doing something not approved. Ways to get in include hacking, war driving, Wi-Fi piggybacking, and interception (packet sniffing and evil twins). Skimmers copy card data at ATMs.</li>
+          <li><b>Access control</b> means identification, then authentication, using something you <b>know</b>, <b>have</b>, or <b>are</b>. Use long, unique passwords (15+ characters), a password manager, and <b>MFA</b> or passkeys. Never share your OTP.</li>
+          <li><b>Other safeguards</b> include WPA2/WPA3 Wi-Fi, firewalls and intrusion prevention, encryption (private key and public key; HTTPS is encrypted but not proof of honesty), VPNs, careful use of public Wi-Fi, least privilege for employees, and layers of protection.</li>
         </ol>
       </div>
       <p><b>Next:</b> <a href={base + '/it110/online-threats/'}>Lesson 2: malware, scams, and staying safe</a>, on malware, online scams, personal safety, and the laws. <a href={base + course.href}>Back to the IT 110 lessons</a>.</p>
@@ -694,9 +694,9 @@ const final = [
           <li>National Institute of Standards and Technology (NIST), <i>SP 800-63B-4: Digital Identity Guidelines, Authentication and Authenticator Management</i>, July 2025 (Section 3.1.1.2, Password verifiers).</li>
           <li>Cybersecurity and Infrastructure Security Agency (CISA), "Secure Our World: Four easy ways to stay safe online," and "Use strong passwords."</li>
           <li>Inquirer Technology, "CICC handled triple the scam complaints in 2024," January 2025.</li>
-          <li>GMA News, "Consumer fraud topped cybercrime complaints in 2025 — CICC," January 2026.</li>
+          <li>GMA News, "Consumer fraud topped cybercrime complaints in 2025 — CICC," January 2026; GMA News, "Consumer fraud topped complaints logged among senior citizens in 2025 — CICC," 2026 (18,633 complaints in 2025, CICC Cybercrime Complaint Center).</li>
           <li>Republic Act No. 10175 (2012), Cybercrime Prevention Act of 2012, Section 4(a). Lawphil.</li>
-          <li>Wi-Fi Alliance, "Wi-Fi CERTIFIED WPA3," 2018; Microsoft Learn, "Non-broadcast wireless networks with Microsoft Windows."</li>
+          <li>Wi-Fi Alliance, "Wi-Fi CERTIFIED WPA3," 2018; Microsoft TechNet, "Non-broadcast Wireless Networks with Microsoft Windows," 2005, updated 2007.</li>
           <li>Chromium Blog, "An update on the lock icon," May 2023.</li>
           <li>Meta Newsroom, "Launching default end-to-end encryption on Messenger," December 2023.</li>
           <li>FIDO Alliance, "Passkeys."</li>
