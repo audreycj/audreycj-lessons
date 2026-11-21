@@ -277,12 +277,12 @@ export function ddosPic() {
       g += person2(100, y + 52, 0.78, { shirt: B.blue }) + phone2(126, y + 86, 24, 42, screenLines());
       g += person2(220, y + 52, 0.78, { shirt: B.orange }) + phone2(246, y + 86, 24, 42, screenLines());
       g += P(`M152 ${y + 104} Q200 ${y + 152} 300 ${y + 132} Q350 ${y + 120} 384 ${y + 100}`, 'none', B.green, 2.4) + ARROW(374, y + 106, 386, y + 99, B.green, 2.4) + ARROW(272, y + 100, 386, y + 82, B.green, 2.4) + check(444, y + 40, 0.9);
-      g += T(270, y + 30, 'real requests: pages load', { size: 12.5, w: 700, c: '#2f6b45' });
+      g += T(270, y + 30, 'Real requests, so pages load', { size: 12.5, w: 700, c: '#2f6b45' });
     } else {
       for (let i = 0; i < 12; i++) { const x = 24 + (i % 6) * 36, yy = y + 46 + Math.floor(i / 6) * 38; g += L(x + 26, yy + 12, 386, y + 46 + (i % 6) * 7, 'rgba(194,69,59,0.45)', 1.4); }
       for (let i = 0; i < 12; i++) { const x = 24 + (i % 6) * 36, yy = y + 46 + Math.floor(i / 6) * 38; g += R(x, yy, 26, 24, { r: 5, f: '#fff', s: '#c2453b', sw: 1.4 }) + bug(x + 13, yy + 12, 0.4); }
       g += person2(316, y + 84, 0.6, { shirt: B.blue, sad: true }) + C(352, y + 96, 8, 'none', '#c9d2df', 3) + P(`M352 ${y + 88} A8 8 0 0 1 360 ${y + 96}`, 'none', B.blue, 3);
-      g += T(316, y + 151, 'real user: still loading…', { size: 12, w: 700, c: B.soft });
+      g += T(316, y + 151, 'The real user still waits…', { size: 12, w: 700, c: B.soft });
       g += alertBadge(444, y + 40, 1.1) + T(118, y + 140, 'thousands of fake requests', { size: 12.5, w: 700, c: '#9c2f28' });
     }
     return g;
@@ -486,7 +486,7 @@ export function realPic(kind) {
       + R(x + 16, y + 24, w - 32, 16, { r: 4, f: '#fff', s: B.line, sw: 1.2 }) + T(x + 22, y + 35.5, '2025-01234', { size: 9.5, w: 700, a: 'start', c: B.ink, mono: true })
       + R(x + 16, y + 46, w - 32, 16, { r: 4, f: '#fff', s: B.line, sw: 1.2 }) + [0, 1, 2, 3, 4, 5, 6, 7].map((k) => C(x + 25 + k * 9, y + 54, 2.4, B.ink, 'none', 0)).join('')
       + R(x + w / 2 - 26, y + 68, 52, 15, { r: 7.5, f: B.blue, s: 'none', sw: 0 }) + T(x + w / 2, y + 78.5, 'Log in', { size: 9.5, w: 800, c: '#fff' }));
-    b += cap(359, 212, 'Login screen:', B.ink) + cap(359, 230, 'username + password');
+    b += cap(359, 212, 'A login screen asks for a', B.ink) + cap(359, 230, 'username and password');
     b += C(240, 150, 15, '#fff', B.ink, 1.8) + T(240, 154.5, 'OR', { size: 11.5, w: 800, c: B.ink });
     alt = 'Two real access control systems: an ID card reader on a staff-only office door, where you tap your card, and a school portal login screen asking for a username and password.';
   } else if (kind === 'bio') {
@@ -535,7 +535,7 @@ export function realPic(kind) {
     b += T(82, 214, 'a box in a', { size: 12.5, w: 700, c: B.soft }) + T(82, 230, 'company server room', { size: 12.5, w: 700, c: B.soft });
     // 2 home: router
     b += router2(196, 104, 88) + R(214, 136, 52, 8, { r: 3, f: '#c8ced8', sw: 1.4 }) + wifi2(240, 86, AIR, 0.95) + shield2(270, 44, 0.42, '#fbe2d2');
-    b += T(240, 214, 'built into every', { size: 12.5, w: 700, c: B.soft }) + T(240, 230, 'home router', { size: 12.5, w: 700, c: B.soft });
+    b += T(240, 214, 'built into most', { size: 12.5, w: 700, c: B.soft }) + T(240, 230, 'home routers', { size: 12.5, w: 700, c: B.soft });
     // 3 software: a settings window
     b += R(338, 30, 120, 132, { r: 8, f: '#fff', sw: 2 }) + winBar(338, 30, 120, '') + T(398, 70, 'Firewall', { size: 13, w: 800, c: B.ink });
     b += shield2(398, 78, 0.38, B.greenWash) + R(368, 118, 60, 22, { r: 11, f: B.green, s: B.ink, sw: 1.6 }) + C(416, 129, 8, '#fff', B.ink, 1.4) + T(386, 133, 'ON', { size: 11, w: 800, c: '#fff' });
@@ -1034,7 +1034,7 @@ export function malwareStep(kind, i) {
       b += R(176, 104, 12, 26, { r: 3, f: B.blue, sw: 1.6 }) + R(178.5, 96, 7, 9, { r: 1.5, f: '#c8ced8', sw: 1.2 }) + P('M146 118 L170 118', 'none', B.ink, 2) + ARROW(194, 118, 238, 118, B.red, 2.2) + tag(182, 150, 'USB or chat', B.soft);
       b += laptop2(250, 70, 110, (x, y, w, h) => R(x + 6, y + 8, w - 12, 26, { r: 4, f: '#fff', s: '#c9d2df', sw: 1 }) + T(x + w / 2, y + 25, 'Paint.exe', { size: 9, c: B.ink, mono: true }) + R(x + w - 18, y + 10, 5, 22, { r: 2, f: B.red, s: 'none', sw: 0 }));
       b += person2(410, 70, 0.9, { shirt: B.orange }) + tag(305, 178, "friend's laptop", B.soft);
-      b += redTag(305, 52, 'opens it: infected');
+      b += redTag(305, 52, 'opens it and is infected');
       b += tag(240, 220, 'A virus spreads only when a person opens an infected file.', '#9c2f28', 12.5);
       alt = 'Jessa shares Paint.exe with a friend by USB or chat. The file has the virus code. When the friend opens it, the friend\'s laptop is infected too. A virus spreads only when a person opens an infected file.';
     }
@@ -1717,7 +1717,7 @@ export function partThreeDef(kind) {
       g += R(x + 4, y + 27, w - 8, 30, { r: 4, f: '#c9d3e3', s: 'none', sw: 0 }) + [0, 1, 2].map((k) => R(x + 7, y + 31 + k * 8, w - 14, 4, { r: 2, f: '#b4c0d3', s: 'none', sw: 0 })).join('');
       const ex = x + 15, ey = y + 47;
       g += C(ex, ey, 6, '#fff', 'none', 0) + P(`M${ex - 4.5} ${ey} Q${ex} ${ey - 4} ${ex + 4.5} ${ey} Q${ex} ${ey + 4} ${ex - 4.5} ${ey} Z`, 'none', B.soft, 0.8) + L(ex - 4, ey + 4, ex + 4, ey - 4, B.soft, 0.9);
-      g += chip(x + 4, y + 62, 43, 'Pay ₱5,000 or', '#fdeee9', '#9c2f28', 5.8) + chip(x + 4, y + 75, 40, 'I share this.', '#fdeee9', '#9c2f28', 5.8);
+      g += chip(x + 4, y + 62, 46, 'Pay ₱5,000 or', '#fdeee9', '#9c2f28', 5.4) + chip(x + 4, y + 75, 40, 'I share this.', '#fdeee9', '#9c2f28', 5.4);
       g += R(x + w - 30, y + 29, 24, 9, { r: 4.5, f: '#d4422f', s: 'none', sw: 0 }) + T(x + w - 18, y + 35.5, '24 hours', { size: 5.2, w: 800, c: '#fff' });
       return g;
     });
@@ -1748,7 +1748,7 @@ export function partThreeDef(kind) {
       g += R(x + 5, y + 75, w - 10, 11, { r: 5.5, f: '#2f6fd1', s: 'none', sw: 0 }) + T(x + w / 2, y + 82.5, 'Message', { size: 6, w: 800, c: '#fff' });
       return g;
     });
-    b += '<g transform="rotate(-12 50 64)">' + R(34, 57, 32, 13, { r: 2, f: 'rgba(255,255,255,0.85)', s: B.red, sw: 1.5 }) + T(50, 67, 'FAKE', { size: 8.5, w: 800, c: B.red }) + '</g>';
+    b += '<g transform="rotate(-12 50 75.5)">' + R(34, 69, 32, 13, { r: 2, f: 'rgba(255,255,255,0.85)', s: B.red, sw: 1.5 }) + T(50, 79, 'FAKE', { size: 8.5, w: 800, c: B.red }) + '</g>';
     b += `<path d="M66 50 L98 50" stroke="${B.red}" stroke-width="1.5" stroke-dasharray="3 2"/>` + ARROW(90, 50, 100, 50, B.red, 1.5);
     b += person2(126, 24, 0.52, { shirt: '#6b7a94', hair: '#7a7a7a' }) + R(118.5, 31, 5.5, 4.5, { r: 1.5, f: 'none', s: B.ink, sw: 0.9 }) + R(128.5, 31, 5.5, 4.5, { r: 1.5, f: 'none', s: B.ink, sw: 0.9 }) + L(124, 33, 128.5, 33, B.ink, 0.9);
     b += laptop2(106, 76, 40, (x, y, w, h) => R(x, y, w, h, { r: 0, f: '#dfe9f6', s: 'none', sw: 0 }) + C(x + w / 2, y + h / 2, 4, '#8fb0dc', 'none', 0)) + label(126, 12, 'real person', B.soft, '#fff', 6.5);

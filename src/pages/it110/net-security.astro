@@ -83,7 +83,7 @@ const caPeek = '<p>A <b>certificate authority</b> is a trusted company that chec
 const codePeek = '<p>From Part 2: a <b>code of conduct</b>, also called an <b>acceptable use policy</b>, is a written list of rules that says what a school\'s or company\'s computers and networks may and may not be used for. Your school\'s computer lab rules are one example.</p>';
 const nistPeek = '<p><b>NIST</b> stands for the <b>National Institute of Standards and Technology</b>, a U.S. government agency. Its security guidelines, including its password rules, are used by organizations around the world.</p>';
 const insiderPeek = '<p>From Part 1: <b>insiders</b> are people who already have some access, such as employees, students, family members, or former employees whose accounts were not removed.</p>';
-const ciaPeek = '<p>From Part 1: <b>confidentiality</b> (only the right people can see it), <b>integrity</b> (no one changes it without permission), and <b>availability</b> (it works when you need it).</p>';
+const ciaPeek = '<p>From Part 1: the <b>CIA triad</b> names the three things security protects. <b>Confidentiality</b> means only the right people can see the data. <b>Integrity</b> means no one changes it without permission. <b>Availability</b> means it works when you need it.</p>';
 
 const accessSort = [
   { t: 'Your seatmate opens your Facebook on your phone, which you left unlocked, and reads your chats.', a: 0, why: 'She got into your account without your permission, so this is unauthorized access.' },
@@ -302,7 +302,7 @@ const final = [
         <div class="def has-pic"><p class="note-label">War driving</p><p>Driving (or walking) around an area to <b>find</b> Wi-Fi networks to use without permission.</p><Fragment set:html={defPic('wardrive')} /></div>
         <div class="def has-pic"><p class="note-label">Wi-Fi piggybacking</p><p>Using someone else's Wi-Fi network <b>from where you are</b>, such as your house, without permission.</p><Fragment set:html={defPic('piggyback')} /></div>
       </div>
-      <p>Is it okay to use a network just because it has no password? No. It is still unauthorized access, and it can slow down the owner's Internet and expose their devices. Under RA 10175, accessing a computer system "without right" is the crime called <b class="term">illegal access</b>. The right way is to ask first, or use Wi-Fi that is offered to the public, such as the free Wi-Fi in many public places.</p>
+      <p>Is it okay to use a network just because it has no password? No. It is still unauthorized access, and it can slow down the owner's Internet and expose their devices. Under RA 10175, accessing a computer system "without right" is the crime called <b class="term">illegal access</b>, and using a network without the owner's permission can count as that crime. The right way is to ask first, or use Wi-Fi that is offered to the public, such as the free Wi-Fi in many public places.</p>
 
       <h3 id="interception">Interception of communications</h3>
       <p class="bridge"><b>Way 3 of unauthorized access.</b> Ways 1 and 2 get into a computer or a network. Interception goes after something else, which is the <b>data traveling between them</b>.</p>
@@ -357,7 +357,7 @@ const final = [
         <div class="fn-card"><Fragment set:html={factorPic('are')} /><p class="fn-t">Biometric</p><p class="fn-sub fn-nick">“something you are”</p><p>Your fingerprint, face, iris, voice, or hand. Its weakness is that if it is copied, you cannot change it.</p></div>
       </div>
       <p>Here are real examples of possessed objects:</p>
-      <Fragment set:html={photoRow([['rfidTags', 'ID cards and key fobs with RFID chips, tapped on a door reader.'], ['secKey', 'A USB security key: plug it in and touch it to log in.'], ['otpToken', 'An older code generator (token) that shows a new one-time code every few seconds.']])} />
+      <Fragment set:html={photoRow([['rfidTags', 'ID cards and key fobs with RFID chips, tapped on a door reader.'], ['secKey', 'A USB security key: plug it in and touch it to log in.'], ['otpToken', 'An older code generator (token) that shows a new one-time code every 30 or 60 seconds, or each time you press its button.']])} />
 
       <h3 id="passwords">Passwords: what makes one strong today</h3>
       <p class="bridge">Passwords are the most common example of <b class="term">possessed knowledge</b>, the first kind of proof, and still the most common way to log in.</p>
@@ -493,7 +493,7 @@ const final = [
       <p>Firewalls come in two kinds:</p>
       <ul>
         <li><b class="term">Software firewalls</b> are built into Windows and macOS. They protect one computer by blocking unwanted connections that come in from the network. The Windows firewall can also be set to stop programs on the computer from connecting out to the Internet.</li>
-        <li><b class="term">Hardware firewalls</b> protect a whole network. Home routers have a simple one built in. Schools and companies use stronger firewall devices.</li>
+        <li><b class="term">Hardware firewalls</b> protect a whole network. Most home routers have a simple one built in. Schools and companies use stronger firewall devices.</li>
       </ul>
       <Fragment set:html={realFirewall} />
       <Fragment set:html={photo('fwBox', 'A hardware firewall for a small office. The cables from the Internet and from the office network both plug into it.')} />
@@ -544,7 +544,7 @@ const final = [
         <tbody>
           <tr><td class="nowrap"><span class="ico-l"><Fragment set:html={ico('http')} /><b class="term">HTTPS</b></span></td><td>Web pages and logins traveling between your browser and a website. When the address starts with https://, everything you type on that page, such as a password, is scrambled on the way (see <Peek label="HTTPS" title="From Computer networks" html={httpsPeek} />).</td></tr>
           <tr><td class="nowrap"><span class="ico-l"><Fragment set:html={ico('wifi')} /><b class="term">WPA2 / WPA3</b></span></td><td>Everything sent through the air between your phone or laptop and your Wi-Fi router. A neighbor who catches your Wi-Fi signal cannot read it without the Wi-Fi password. (WPA stands for Wi-Fi Protected Access.)</td></tr>
-          <tr><td class="nowrap"><span class="ico-l"><Fragment set:html={ico('chat')} /><b class="term">End-to-end encryption</b></span></td><td>Your chat messages. A message is scrambled on your phone and unscrambled only on your friend's phone, so no one in between can read it, not even the app company. Viber, WhatsApp, Signal, and Messenger (since late 2023) do this for personal chats.</td></tr>
+          <tr><td class="nowrap"><span class="ico-l"><Fragment set:html={ico('chat')} /><b class="term">End-to-end encryption</b></span></td><td>Your chat messages. A message is scrambled on your phone and unscrambled only on your friend's phone, so no one in between can read it, not even the app company. Viber, WhatsApp, and Signal do this for personal and group chats. Messenger has done it by default for one-on-one chats since late 2023.</td></tr>
           <tr><td class="nowrap"><span class="ico-l"><Fragment set:html={ico('phone')} /><b class="term">Device encryption</b></span></td><td>The files saved on your phone or laptop. While the device is locked, the files stay scrambled, so a thief who takes it cannot read your photos or messages. On most phones today, it turns on when you set a screen lock or PIN.</td></tr>
         </tbody>
       </table></div>
@@ -664,7 +664,7 @@ const final = [
       </ol>
 
       <h3>Final quiz</h3>
-      <p>Twelve questions: eleven from this lesson and one that mixes lessons.</p>
+      <p>There are twelve questions. Eleven are from this lesson, and one mixes lessons.</p>
       <Quiz id="quiz-final" questions={final} />
 
       <div class="remember">

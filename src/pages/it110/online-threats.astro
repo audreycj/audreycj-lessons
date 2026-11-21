@@ -19,7 +19,7 @@ const mpic = (k) => malwarePic(k).replace('class="clean"', 'class="clean def-pic
 const virusSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('virus', i), say: [
   'Carlo, a classmate, emails Jessa a "reviewer game" named ReviewerGame.exe. The file really has two parts. One part is the game. The other part is hidden <b class="term">virus</b> code. When Jessa opens the file, the game starts, and the virus code runs too. The box on the right shows, in plain words, what the hidden part is told to do. It is not real virus code.',
   'While the game runs, the virus quietly copies its code into other programs on her computer, such as Paint.exe and Notes.exe. The programs still work, so Jessa notices nothing. Some viruses also damage or delete files, right away or on a set date.',
-  'Later, Jessa shares Paint.exe with a friend by USB drive or chat. When the friend opens it, the virus runs on the friend\'s laptop, and everything starts again. A virus spreads <b>only when a person opens</b> an infected file. One real virus, called CIH, worked this way in the late 1990s. Each time someone opened an infected program, it copied itself into more programs, and it damaged millions of computers around the world before it was stopped.',
+  'Later, Jessa shares Paint.exe with a friend by USB drive or chat. When the friend opens it, the virus runs on the friend\'s laptop, and everything starts again. A virus spreads <b>only when a person opens</b> an infected file. One real virus, called CIH, worked this way in the late 1990s. Each time someone opened an infected program, it copied itself into more programs. It infected millions of computers around the world, and on April 26, 1999, it erased the data on hundreds of thousands of them.',
 ][i] }));
 const wormSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('worm', i), say: [
   'An office has five computers on one network. A <b class="term">worm</b> gets into one of them, for example through an email attachment or straight from the Internet. Two of the other computers are missing a security update. The other two have it.',
@@ -44,7 +44,7 @@ const spywareSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('spyware', i), say
 const mobileSteps = [0, 1, 2].map((i) => ({ pic: malwareStep('mobile', i), say: [
   'Ben gets a text that says, "FREE ₱500 LOAD! Get the PeraBonus app here." The link downloads perabonus.apk. An <b>APK</b> (Android Package Kit) file is an Android app file. This one comes from a link, not from Google Play, where apps are checked before people can install them.',
   'Android warns Ben twice. First, it asks if he will allow apps from unknown sources. Then the app asks for permission to read his text messages and to control his screen. Ben taps Allow both times. These permissions give the <b class="term">mobile malware</b> what it needs.',
-  'The app hides its icon, so Ben forgets about it. When PeraPay texts him a one-time PIN (OTP), the app copies it to the criminal, who uses it to send money out of Ben\'s account. Install apps only from the official store, and say no when an app asks for your texts or screen without a clear reason. A real example is FluBot. From 2021, it spread by text messages about a waiting package. It stole banking details from phones that installed it and used those phones to text more people, until police in Europe shut it down in 2022.',
+  'The app hides its icon, so Ben forgets about it. When PeraPay texts him a one-time PIN (OTP), the app copies it to the criminal, who uses it to send money out of Ben\'s account. Install apps only from the official store, and say no when an app asks for your texts or screen without a clear reason. A real example is FluBot. From late 2020, it spread by text messages about a waiting package. It stole banking details from phones that installed it and used those phones to text more people, until police in Europe shut it down in 2022.',
 ][i] }));
 const afterScamSteps = [0, 1, 2, 3].map((i) => ({ pic: afterScamStep(i), say: [
   '<b>Step 1. Call your bank or e-wallet right away.</b> Use the hotline inside its official app or on the back of your card, not a number from the scam message. Ask them to <b>freeze</b> (block) your account or the transaction. The sooner you call, the better the chance to stop the money.',
@@ -231,14 +231,14 @@ const final = [
         <p class="case-sub">A worm made by a Filipino student that reached the whole world in about one day.</p>
         <figure class="fig illus-fig illus case-fig"><Fragment set:html={iloveyouPic()} /><figcaption>The ILOVEYOU email and how it mailed itself around the world.</figcaption></figure>
         <p>In May 2000, people all over the world received an email with the subject <b>ILOVEYOU</b> and an attachment that looked like a love letter, named <code>LOVE-LETTER-FOR-YOU.TXT.vbs</code>. When they opened the attachment, the worm mailed a copy of itself to everyone in their address book, and it overwrote files such as photos and documents.</p>
-        <p>ILOVEYOU spread by mailing itself, which is why it is called a worm. But it still needed each person to open the attachment, so it also used a trick, the words "I love you", to make people curious. Within one day, it had reached tens of millions of computers.</p>
+        <p>ILOVEYOU spread by mailing itself, which is why it is called a worm. But it still needed each person to open the attachment, so it also used a trick, the words "I love you", to make people curious. Within days, it had reached tens of millions of computers.</p>
         <dl class="case-facts">
           <div><dt>Where it started</dt><dd>Manila, Philippines</dd></div>
           <div><dt>Who made it</dt><dd>Onel de Guzman, a 24-year-old computer student</dd></div>
-          <div><dt>How far it spread</dt><dd>Tens of millions of computers in about one day</dd></div>
+          <div><dt>How far it spread</dt><dd>Tens of millions of computers within days</dd></div>
           <div><dt>Damage</dt><dd>Billions of dollars worldwide</dd></div>
         </dl>
-        <p>At the time, the Philippines had no law against making malware, so de Guzman was not punished. This pushed the country to pass its first law on electronic crimes, the Electronic Commerce Act (Republic Act 8792), in 2000.</p>
+        <p>At the time, the Philippines had no law against making malware, so de Guzman was not punished. This pushed the country to pass its first law against hacking and spreading viruses, the Electronic Commerce Act (Republic Act 8792), in 2000.</p>
       </aside>
 
       <p class="bridge">The third type does not spread by itself. It is named after how it gets in, by tricking you into installing it.</p>
@@ -271,7 +271,7 @@ const final = [
         <p class="case-sub">One old password with no second proof led to fuel shortages in a large part of the United States.</p>
         <figure class="fig illus-fig illus case-fig"><Fragment set:html={colonialPic()} /><figcaption>How the criminals got in, and what the attack did to daily life.</figcaption></figure>
         <p>Colonial Pipeline is a company that moves gasoline and jet fuel through a pipeline about 8,850 kilometers (5,500 miles) long, from Texas to the east coast of the United States. On May 7, 2021, a <b class="term">ransomware</b> group called DarkSide locked the company's office computers after copying about 100 gigabytes of its data.</p>
-        <p>The criminals got in through an old <Peek label="VPN" title="From Lesson 1" html={vpnPeek} /> account that workers no longer used but that still worked. Its password had appeared in a list of passwords stolen from another website, and the account did not use <Peek label="multi-factor authentication (MFA)" title="From Lesson 1" html={mfaPeek} />. So the password alone was enough to log in.</p>
+        <p>The criminals got in through an old <Peek label="VPN" title="From Lesson 1" html={vpnPeek} /> account that workers no longer used but that still worked. Investigators later found its password in a list of leaked passwords on the dark web, and the account did not use <Peek label="multi-factor authentication (MFA)" title="From Lesson 1" html={mfaPeek} />. So the password alone was enough to log in.</p>
         <p>The ransomware did not reach the computers that control the pipeline itself. But the company stopped the whole pipeline to be safe. For about six days, fuel could not flow. Many gas stations ran out of fuel, and people lined up to buy it.</p>
         <dl class="case-facts">
           <div><dt>When it happened</dt><dd>May 7, 2021</dd></div>
@@ -338,7 +338,7 @@ const final = [
       <p>Here is how antivirus does its job. It scans your files, compares each one with a list of known malware, and moves any match into a safe, locked area called <b class="term">quarantine</b>, so the file cannot run or spread. You can then delete it.</p>
       <figure class="fig illus-fig illus big"><Fragment set:html={antivirusPic()} /><figcaption>Antivirus scans your files, flags a known threat, and moves it to quarantine, away from the safe files.</figcaption></figure>
       <p>Backups are the best protection against ransomware, because you can get your files back without paying. Security experts recommend this simple rule:</p>
-      <figure class="fig illus-fig illus big"><Fragment set:html={backupPic()} /><figcaption>The 3-2-1 backup rule. Keep at least one copy where ransomware on your computer cannot reach it, such as a drive you unplug after each backup, or a cloud backup that keeps older versions of your files. A cloud folder that syncs with your computer, such as Google Drive or OneDrive, is not enough by itself, because the locked files are copied into it too. Turn on its version history, so you can get the older, unlocked files back.</figcaption></figure>
+      <figure class="fig illus-fig illus big"><Fragment set:html={backupPic()} /><figcaption>The 3-2-1 backup rule. Keep at least one copy where ransomware on your computer cannot reach it, such as a drive you unplug after each backup, or a cloud backup that keeps older versions of your files. A cloud folder that syncs with your computer, such as Google Drive or OneDrive, is not enough by itself, because the locked files are copied into it too. Its version history keeps older copies of your files for about 30 days, so act fast to get the unlocked files back.</figcaption></figure>
       <div class="look">
         <p class="note-label">Take note</p>
         <p>Antivirus cannot catch everything, especially brand-new malware. That is why security uses <b>layers</b>, which means using updates, antivirus, careful habits, firewalls, and backups together. If ransomware strikes, government agencies advise <b>not paying</b>. Payment does not guarantee you get your files back, and it pays for more attacks.</p>
@@ -405,7 +405,7 @@ const final = [
         <tbody>
           <tr><td><b class="term">Phishing</b> (by email)</td><td>Fake emails are sent to many people at once.</td><td>An email says, "Your school email will be deleted. Log in here to keep it."</td></tr>
           <tr><td><b class="term">Smishing</b></td><td>The fake message comes by <b>SMS</b> (Short Message Service), which means a text message.</td><td>A text says, "Your parcel is on hold. Pay ₱45 at this link."</td></tr>
-          <tr><td><b class="term">Vishing</b></td><td>The fake message comes by <b>voice</b> call.</td><td>A "bank agent" calls and asks you to read the <Peek label="OTP" title="From Lesson 1" html={otpPeek} /> (one-time password) sent to your phone.</td></tr>
+          <tr><td><b class="term">Vishing</b></td><td>The fake message comes by <b>voice</b> call.</td><td>A "bank agent" calls and asks you to read the <Peek label="OTP" title="From Lesson 1" html={otpPeek} /> (one-time PIN) sent to your phone.</td></tr>
           <tr><td><b class="term">Quishing</b></td><td>The fake message comes as a <b>QR code</b>. Scanning it opens a fake website or a fake payment page.</td><td>A sticker with a new QR code is pasted over the real one on a parking or payment sign.</td></tr>
           <tr><td><b class="term">Spear phishing</b></td><td>A phishing message is made for <b>one person or group</b>. It uses their real name, school, job, or boss, which the scammer often finds on their public profile.</td><td>An email to the school cashier seems to come from the school director. It says, "Pay this supplier today."</td></tr>
         </tbody>
@@ -417,7 +417,7 @@ const final = [
         <div class="def has-pic" id="spoofing"><p class="note-label">Spoofing</p><p><b>Faking</b> the sender of a message or call, such as a phone number, an email address, or a sender name, so it looks like it comes from someone you trust.</p><Fragment set:html={threatDef('spoofing')} /></div>
       </div>
       <p>Scammers often use these two tricks together with phishing. <b class="term">Pharming</b> takes you to a fake website, like phishing does, but it needs no bait message. You can be sent there even when you type the correct address yourself. <b class="term">Spoofing</b> makes a phishing message or call seem to come from someone you trust.</p>
-      <p>Spoofing is why a scam text can appear in the <b>same thread</b> as real messages from your bank, and why a caller's screen can say "PeraBank". So a familiar name on your screen is <b>not proof</b>. The SIM Registration Act (Part 4) makes spoofing a crime.</p>
+      <p>Spoofing is why a scam text can appear in the <b>same thread</b> as real messages from your bank, and why a caller's screen can say "PeraBank". So a familiar name on your screen is <b>not proof</b>. The SIM Registration Act (Part 4) makes faking the sender of a call or text a crime.</p>
 
       <h3 id="red-flags">Practice: spot the red flags</h3>
       <p>Scam messages share the same warning signs, called <b>red flags</b>. Tap every suspicious part of each message. Switch messages with the tabs.</p>
@@ -581,7 +581,7 @@ const final = [
           <tr><td><b>Anti-Bullying Act of 2013</b><br />RA 10627</td><td>Requires elementary and high schools to prevent and act on bullying, <b>including cyberbullying</b>. It does not cover colleges.</td></tr>
           <tr><td><b>Safe Spaces Act</b> (2019)<br />RA 11313</td><td>Punishes <b>gender-based online sexual harassment</b>, such as threats, unwanted sexual remarks and messages, and sharing someone's photos to shame them. It covers streets, workplaces, schools, and online spaces.</td></tr>
           <tr><td><b>Anti-OSAEC and Anti-CSAEM Act</b> (2022)<br />RA 11930</td><td>Strengthens protection of <b>children</b> against online sexual abuse and exploitation, and requires platforms and Internet providers to help block and report it.</td></tr>
-          <tr><td><b>SIM Registration Act</b> (2022)<br />RA 11934</td><td>Requires every SIM card to be registered to a real person, and punishes registering with false or stolen IDs, selling registered SIMs, and <b>spoofing</b>.</td></tr>
+          <tr><td><b>SIM Registration Act</b> (2022)<br />RA 11934</td><td>Requires every SIM card to be registered to a real person, and punishes registering with false or stolen IDs, selling registered SIMs, and <b>spoofing</b> the sender of a call or text.</td></tr>
           <tr><td><b>Anti-Financial Account Scamming Act (AFASA)</b> (2024)<br />RA 12010</td><td>Punishes <b>money muling</b> (6 to 8 years in prison) and <b>social engineering schemes</b> such as phishing to take over bank or e-wallet accounts (10 to 12 years). Done on a large scale, for example by three or more people or against three or more victims, they count as <b>economic sabotage</b>, with even heavier penalties.</td></tr>
         </tbody>
       </table></div>
@@ -658,7 +658,7 @@ const final = [
       </ol>
 
       <h3>Final quiz</h3>
-      <p>Twelve questions: eleven from this lesson and one that mixes both lessons.</p>
+      <p>There are twelve questions. Eleven are from this lesson, and one mixes both lessons.</p>
       <Quiz id="quiz-final" questions={final} />
 
       <div class="remember">

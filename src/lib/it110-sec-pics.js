@@ -544,7 +544,7 @@ export function evilTwin() {
     const net = (yy, name, bars, locked, hi) => R(x + 8, yy, w - 16, 52, { r: 10, f: hi ? '#fdeee9' : '#fff', s: hi ? '#b23a33' : '#d6dfeb', sw: hi ? 2 : 1.4 })
       + T(x + 18, yy + 22, name, { size: 11.5, w: 700, a: 'start', c: B.ink }) + T(x + 18, yy + 39, locked ? 'secured' : 'open, no password', { size: 10, w: 600, a: 'start', c: hi ? '#b23a33' : B.soft })
       + [0, 1, 2, 3].map((k) => R(x + w - 44 + k * 6, yy + 34 - k * 5, 4, 6 + k * 5, { r: 1, f: k < bars ? B.green : '#d3d9e2', s: 'none', sw: 0 })).join('') + (locked ? padlock2(x + w - 22, yy + 15, false, '#8a94a6', 0.38) : '');
-    o += net(y + 58, 'KapeMati_Guest', 2, true, false) + net(y + 118, 'KapeMati_Guest_FREE', 4, false, true) + net(y + 178, 'PLDT-HOME-4F2A', 1, true, false);
+    o += net(y + 58, 'KapeMati_Guest', 2, true, false) + net(y + 118, 'KapeMati_Guest_FREE', 4, false, true) + net(y + 178, 'Cruz_Home_5G', 1, true, false);
     return o;
   }, '#f4f6f9');
   b += P('M224 112 Q250 106 262 100', 'none', '#3f8a5a', 2) + label(340, 104, 'the café\'s real network', '#2f6b45', '#e3f3e9', 12.5);
@@ -594,8 +594,8 @@ export function httpsPic() {
     o += (ok ? check : cross)(432, y + 78, 1.15);
     return o;
   };
-  b += win(10, 'https://www.perabank.com.ph', true) + label(330, 150, 'real bank: encrypted AND honest', '#2f6b45', '#e3f3e9', 12.5);
-  b += win(182, 'https://perabank-ph-verify.co', false) + label(320, 324, 'fake site: encrypted, but still a scam', '#9c2f28', '#fdeee9', 12.5);
+  b += win(10, 'https://www.perabank.com.ph', true) + label(330, 150, 'The real bank, encrypted AND honest', '#2f6b45', '#e3f3e9', 12.5);
+  b += win(182, 'https://perabank-ph-verify.co', false) + label(320, 324, 'A fake site, encrypted but still a scam', '#9c2f28', '#fdeee9', 12.5);
   return svgWrap(480, 336, 'Two browser windows, both with HTTPS and a lock icon. The real bank\'s address is perabank.com.ph. The fake one, perabank-ph-verify.co, is also encrypted but is a scam.', b);
 }
 
@@ -660,7 +660,7 @@ export function orgPic() {
     b += row(cx, 176, door, 'Staff room', i !== 2);
     b += row(cx, 210, folder, 'Payroll files', pay);
   });
-  b += R(8, 254, 464, 34, { r: 12, f: '#e3ecf8', s: 'none', sw: 0 }) + T(240, 276, 'Each person can open only what their job needs: least privilege', { size: 12, w: 800, c: B.blueInk });
+  b += R(8, 254, 464, 34, { r: 12, f: '#e3ecf8', s: 'none', sw: 0 }) + T(240, 276, 'Least privilege means each person opens only what the job needs.', { size: 11.5, w: 800, c: B.blueInk });
   return svgWrap(480, 296, 'Least privilege in an office. The clerk can enter the lobby and the staff room, but cannot open the payroll files. The payroll officer can open all three. A visitor can enter only the lobby.', b);
 }
 
@@ -715,7 +715,7 @@ export function keyShareStepPic(step) {
     b += card(112, 70, false) + padlock2(188, 78, true, HOT, 0.75) + check(214, 60, 0.9) + T(200, 44, 'Ana opens it with her private key', { size: 12, w: 700, c: B.soft });
   } else {
     b += key2(96, 150, 0.7, SK) + key2(352, 150, 0.7, SK) + label(240, 40, 'both have the same secret key', B.blueInk, '#e3ecf8', 12);
-    b += R(186, 66, 108, 28, { r: 7, f: '#e3f1e8', s: '#2f6b45', sw: 1.8 }) + T(240, 84.5, 'Nlwd wdbr 3sp', { size: 11.5, w: 700, c: '#2f6b45', mono: true }) + ARROW(184, 80, 130, 80, B.ink, 2) + ARROW(296, 80, 350, 80, B.ink, 2) + T(240, 112, 'now: fast private key encryption', { size: 11.5, w: 700, c: B.soft });
+    b += R(186, 66, 108, 28, { r: 7, f: '#e3f1e8', s: '#2f6b45', sw: 1.8 }) + T(240, 84.5, 'Nlwd wdbr 3sp', { size: 11.5, w: 700, c: '#2f6b45', mono: true }) + ARROW(184, 80, 130, 80, B.ink, 2) + ARROW(296, 80, 350, 80, B.ink, 2) + T(240, 112, 'Now they use fast private key encryption.', { size: 11.5, w: 700, c: B.soft });
   }
   return svgWrap(480, 230, ['Ben\'s computer makes a new secret key.', 'Ben keeps his secret key and locks a copy of it with Ana\'s public key, her open padlock.', 'The locked secret key travels across the Internet to Ana. A stranger copies it but cannot unlock it.', 'Ana unlocks it with her private key and gets the secret key.', 'Now Ana and Ben both have the same secret key, and they use fast private key encryption for their messages.'][step], b);
 }
