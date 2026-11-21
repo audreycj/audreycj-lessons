@@ -1154,13 +1154,13 @@ export function malwareStep(kind, i) {
         g += R(x + w - 26, y - 4, 13, 7, { r: 1.5, f: 'none', s: '#6b7a94', sw: 1 }) + R(x + w - 12, y - 2, 1.4, 3, { r: 0.6, f: '#6b7a94', s: 'none', sw: 0 }) + R(x + w - 24.5, y - 2.5, 9, 4, { r: 0.6, f: B.green, s: 'none', sw: 0 });
         // conversation header: back chevron, sender number, "Text Message"
         g += P(`M${x + 12} ${y + 22} l6 -5 M${x + 12} ${y + 22} l6 5`, 'none', B.blue, 2);
-        g += T(x + w / 2, y + 20, '+63 905 712 3348', { size: 8, c: B.ink }) + T(x + w / 2, y + 31, 'Text Message', { size: 7, w: 600, c: B.greyInk });
+        g += T(x + w / 2 + 5, y + 20, '+63 905 712 3348', { size: 7.5, c: B.ink }) + T(x + w / 2, y + 31, 'Text Message', { size: 7, w: 600, c: B.greyInk });
         g += L(x, y + 38, x + w, y + 38, '#dbe1ea', 1);
         g += T(x + w / 2, y + 56, 'Today 9:41 AM', { size: 7, w: 600, c: B.greyInk });
-        const bx = x + 8, bw = w - 26;
-        g += R(bx, y + 64, bw, 72, { r: 12, f: '#e6ebf2', s: 'none', sw: 0 }) + P(`M${bx} ${y + 80} l-5 4 l5 4 Z`, '#e6ebf2', 'none', 0);
-        g += T(bx + 10, y + 80, 'FREE ₱500 LOAD!', { size: 8.5, a: 'start', c: B.ink }) + T(bx + 10, y + 94, 'Claim your PeraBonus', { size: 7.5, w: 600, a: 'start', c: B.ink }) + T(bx + 10, y + 105, 'now. Get the app:', { size: 7.5, w: 600, a: 'start', c: B.ink });
-        g += T(bx + 10, y + 122, 'perabonus.apk', { size: 8, a: 'start', c: '#2563c9', mono: true }) + L(bx + 10, y + 125, bx + 62, y + 125, '#2563c9', 0.9);
+        const bx = x + 8, bw = w - 16;
+        g += R(bx, y + 64, bw, 84, { r: 12, f: '#e6ebf2', s: 'none', sw: 0 }) + P(`M${bx} ${y + 80} l-5 4 l5 4 Z`, '#e6ebf2', 'none', 0);
+        g += T(bx + 9, y + 80, 'FREE ₱500 LOAD!', { size: 8, a: 'start', c: B.ink }) + T(bx + 9, y + 94, 'Claim your', { size: 7.5, w: 600, a: 'start', c: B.ink }) + T(bx + 9, y + 105, 'PeraBonus now.', { size: 7.5, w: 600, a: 'start', c: B.ink }) + T(bx + 9, y + 116, 'Get the app:', { size: 7.5, w: 600, a: 'start', c: B.ink });
+        g += T(bx + 9, y + 134, 'perabonus.apk', { size: 8, a: 'start', c: '#2563c9', mono: true }) + L(bx + 9, y + 137, bx + 72, y + 137, '#2563c9', 0.9);
         return g;
       });
       b += tag(94, 246, 'a text from an unknown number', B.soft, 11);

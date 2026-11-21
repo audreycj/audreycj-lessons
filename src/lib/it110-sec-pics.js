@@ -517,7 +517,7 @@ export function sniffPic() {
     let o = R(8, y, 464, 204, { r: 14, f: enc ? '#eef6f0' : '#fbf0ed', s: 'none', sw: 0 });
     o += C(26, y + 22, 12, enc ? B.green : B.red, B.ink, 1.8) + T(26, y + 27, enc ? '2' : '1', { size: 13, c: '#fff' }) + T(46, y + 27.5, enc ? 'With encryption (HTTPS)' : 'Without encryption', { size: 15, w: 800, a: 'start', c: B.ink });
     // Mia's phone -> café router
-    o += phone2(26, y + 44, 30, 54, screenLines()) + T(41, y + 114, "Mia's phone", { size: 11.5, w: 700, c: B.soft });
+    o += phone2(26, y + 44, 30, 54, screenLines()) + T(47, y + 114, "Mia's phone", { size: 11, w: 700, c: B.soft });
     o += router2(392, y + 70, 64) + wifi2(424, y + 58, AIR, 0.7) + T(424, y + 114, 'café Wi-Fi', { size: 11.5, w: 700, c: B.soft });
     o += L(64, y + 70, 384, y + 70, '#9dbbe3', 2.4, DASH) + ARROW(370, y + 70, 384, y + 70, '#7fa3d6', 2.4);
     o += R(150, y + 56, 150, 28, { r: 6, f: enc ? '#dcefe2' : '#fff', s: B.ink, sw: 1.8 }) + T(225, y + 75, enc ? 'x8#Qp!2v@7' : 'pass: mia2007', { size: 13, w: 700, c: B.ink, mono: true });
