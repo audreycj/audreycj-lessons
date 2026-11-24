@@ -6,6 +6,11 @@ export const course = {
   href: '/itc120/',
 };
 
+// Final topics are hidden on the LIVE site while Ma'am Audrey edits them (Nov 24, 2026).
+// They still work in npm run dev. To publish them, set HIDE_FINALS = false and deploy.
+export const HIDE_FINALS = true;
+const FIN = HIDE_FINALS && import.meta.env?.PROD ? 'soon' : 'live';
+
 export const terms = [
   {
     id: 'prelim',
@@ -50,23 +55,23 @@ export const terms = [
     note: 'After the midterm: graphs, sets, maps, searching, sorting, hashing, and algorithm complexity.',
     units: [
       { name: 'Graphs', icon: 'graph', lessons: [
-        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: 'live', kind: ['ds'], blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
-        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: 'live', kind: ['algo'], blurb: 'Visit a graph level by level with a queue. Find levels, shortest paths, and what can be reached.' },
-        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: 'live', kind: ['algo'], blurb: 'Go deep with a stack, backtrack at dead ends. Find what is reachable, find a path, and compare with BFS.' },
+        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: FIN, kind: ['ds'], blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
+        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: FIN, kind: ['algo'], blurb: 'Visit a graph level by level with a queue. Find levels, shortest paths, and what can be reached.' },
+        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: FIN, kind: ['algo'], blurb: 'Go deep with a stack, backtrack at dead ends. Find what is reachable, find a path, and compare with BFS.' },
       ] },
       { name: 'Sets and maps', icon: 'venn', lessons: [
-        { title: 'Sets in Java', href: '/itc120/sets/', status: 'live', kind: ['adt'], blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },
-        { title: 'Maps and hashing in Java', href: '/itc120/maps/', status: 'live', kind: ['adt', 'tech'], blurb: 'Key-value pairs with put, get, remove. Compute a hashCode and bucket index by hand, and look inside a HashMap.' },
+        { title: 'Sets in Java', href: '/itc120/sets/', status: FIN, kind: ['adt'], blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },
+        { title: 'Maps and hashing in Java', href: '/itc120/maps/', status: FIN, kind: ['adt', 'tech'], blurb: 'Key-value pairs with put, get, remove. Compute a hashCode and bucket index by hand, and look inside a HashMap.' },
       ] },
       { name: 'Searching algorithms', icon: 'list', lessons: [
-        { title: 'Linear and binary search', href: '/itc120/searching/', status: 'live', kind: ['algo'], blurb: 'Check one by one, or halve the search each time. Both in Java, and how many checks each one needs.' },
+        { title: 'Linear and binary search', href: '/itc120/searching/', status: FIN, kind: ['algo'], blurb: 'Check one by one, or halve the search each time. Both in Java, and how many checks each one needs.' },
       ] },
       { name: 'Sorting algorithms', icon: 'list', lessons: [
-        { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: 'live', kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
-        { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: 'live', kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
+        { title: 'Basic sorting', href: '/itc120/sorting-basic/', status: FIN, kind: ['algo'], blurb: 'Bubble sort, selection sort, and insertion sort, step by step, and how much work each one does.' },
+        { title: 'Advanced sorting', href: '/itc120/sorting-advanced/', status: FIN, kind: ['algo'], blurb: 'Merge sort, quick sort, and heap sort, and when each one is the best choice.' },
       ] },
       { name: 'Hashing', icon: 'venn', lessons: [
-        { title: 'Hashing and hash tables', href: '/itc120/hashing/', status: 'live', kind: ['tech', 'ds'], blurb: 'Hash functions, collisions, chaining and open addressing, and how fast a hash table really is.' },
+        { title: 'Hashing and hash tables', href: '/itc120/hashing/', status: FIN, kind: ['tech', 'ds'], blurb: 'Hash functions, collisions, chaining and open addressing, and how fast a hash table really is.' },
       ] },
       { name: 'Algorithm complexity analysis', icon: 'list', lessons: [
         { title: 'Algorithm complexity analysis', href: '/itc120/complexity/', status: 'soon', blurb: 'Time and space complexity, best, worst, and average cases, Big-O, Big-Omega, and Big-Theta, and counting operations by hand.' },
@@ -83,4 +88,6 @@ export function kindOf(path) {
   const l = allLessons.find((x) => trim(path).endsWith(trim(x.href)));
   return (l && l.kind) || [];
 }
+/** Lesson info for a page path (used by Base.astro to hide lessons that are not published yet). */
+export function lessonAt(path) { return allLessons.find((x) => trim(path).endsWith(trim(x.href))); }
 export function kindLessons() { return allLessons.filter((l) => l.status === 'live' && l.kind); }
