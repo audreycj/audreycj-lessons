@@ -2251,3 +2251,11 @@ table.lvl-tbl tr:nth-child(2) td { background: #fff; color: var(--orange); font-
 table.lvl-tbl { width: auto; min-width: 0; } /* chat 65: hug the content instead of the full width */
 table.lvl-tbl th, table.lvl-tbl td { min-width: 3rem; padding: 0.45rem 0.7rem; }
 table.lvl-tbl th[scope="row"] { min-width: 0; padding-right: 1rem; }
+/* chat 65: do / don't lines in the re-sort warning */
+.do-dont { list-style: none; padding: 0; margin: 0.4rem 0 0; display: grid; gap: 0.55rem; }
+.do-dont li { display: grid; grid-template-columns: 1.7rem 1fr; gap: 0.5rem; align-items: start; }
+.do-dont .dd-mark { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; color: #fff; font-weight: 900; }
+.do-dont .do .dd-mark { background: var(--teal); }
+.do-dont .dont .dd-mark { background: #b23a33; }
+.cw-say .ck, .alpha-rule .ck { color: var(--teal); font-weight: 900; }
+.cw-say .vc-done { background: var(--teal); color: #fff; border-color: var(--teal-ink); border-radius: 5px; } /* checked letters, dark teal like the picture */

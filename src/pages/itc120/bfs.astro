@@ -49,6 +49,13 @@ const pathShow = [
 const ex4 = bfsRow(W.bfsEx4, 'C');
 const ex4Wrong = bfsSorted(W.bfsEx4, 'C');
 const ex4Moment = stepPic(W.bfsEx4, ex4.steps[3], 'bfs', { label: 'BFS from C after checking F' });
+// Re-sort trap stepper (chat 65): the moment after F, then wrong vs right
+const tO = { noRowLevels: true, title: 'The queue' };
+const tc = (v, k) => `<span class="vchip ${k}">${v}</span>`;
+const tr = bfsRow(W.pathEg, 'F'), trWrong = bfsSorted(W.pathEg, 'F');
+const trapShow = [
+  { pic: stepPic(W.pathEg, { ...tr.steps[3], fresh: [] }, 'bfs', { ...tO, label: 'BFS from F after checking E' }), say: `<ol class="say-steps"><li>This is the graph from "Finding a shortest path", but this time we start at ${tc('F', 'vc-done')}. F, C, and E are already checked.</li><li>${tc('B', 'vc-wait')} and ${tc('A', 'vc-wait')} are waiting in the queue. Both are <span class="lv">L2</span> on the graph.</li><li>Which one is checked next?</li></ol>` },
+  { pic: stepPic(W.pathEg, tr.steps[4], 'bfs', { ...tO, label: 'BFS from F, checking B' }), say: `<ol class="say-steps"><li><b class="mk-right">✓ The answer is B.</b> Check the <b>first letter without a <span class="ck">✓</span></b>. That is ${tc('B', 'vc-now')}, because B was written first (while checking C).</li><li>B's neighbors, A and C, are already in the queue, so write nothing. Then A is checked last.</li><li>Do <b>not</b> check A first just because A comes before B in the alphabet. B was written before A, so B goes first.</li><li>The BFS order is <span class="bfs-ans">${tr.order.join(', ')}</span>.</li></ol>` }];
 // Part 6: directed walkthrough (deck slides 49-54)
 const dirRun = bfsRow(W.bfsDirWalk, 'A');
 const dirShow = rowShow(W.bfsDirWalk, dirRun, 'bfs', { noRowLevels: true, title: 'The queue' });
@@ -73,7 +80,7 @@ const ex = [
     note: 'When you check E, D is already written (by C), so write nothing. For the path, step back from F (L3) to B or D (L2), then to an L1 neighbor, then to A. That gives three correct paths.',
   }),
   mk('bfs-ex4', 'BFS Example 4', W.bfsEx4, 'C', {
-    note: 'The graph from <a href="#no-sort">Part 5</a>. G is ahead of D, so G (which writes E) is checked before D (which writes A).',
+    note: 'See the <a href="#no-sort">re-sort warning in Part 4</a>. G is ahead of D, so G (which writes E) is checked before D (which writes A).',
   }),
   mk('bfs-ex5', 'BFS Example 5', W.bfsEx5, 'D', {
     pathTo: 'F',
@@ -356,47 +363,24 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
         <p class="note-label">Careful</p>
         <p>"Shortest" here means <b>fewest edges</b>. In a <Peek label="weighted graph" title="From the Graphs lesson" html={travelPeek} />, fewest edges is not always fastest. Map apps use other algorithms, such as Dijkstra's.</p>
       </div>
+      <div class="trap" id="no-sort" data-toc="Never re-sort the queue">
+        <p class="note-label">Never re-sort the queue</p>
+        <ul class="do-dont">
+          <li class="do"><span class="dd-mark">✓</span><span><span class="hl-mark">Use alphabetical order</span> when you <span class="hl-mark">write one vertex's new neighbors</span> at the end of the queue.</span></li>
+          <li class="dont"><span class="dd-mark">✗</span><span><span class="warn-txt">Don't move letters</span> that are <span class="warn-txt">already in the queue</span>.</span></li>
+        </ul>
+        <p class="alpha-rule">Always check the <b>first letter without a <span class="ck">✓</span></b>, in the order the letters were written.</p>
+        <StepShow id="bfs-trap" cap="The re-sort trap" legend="bfs" steps={trapShow} />
+        <p class="small">This trap returns in BFS Examples 4, 5, 7 and Real-life Example 1.</p>
+      </div>
     </div>
   </section>
 
   <!-- 5 -->
-  <section class="chapter wrap" id="no-sort">
-    <div class="chapter-head">
-      <p class="chapter-num">Part 5 · The most important rule</p>
-      <h2>Never re-sort the row</h2>
-    </div>
-    <div class="flow">
-      <h3>The real rule</h3>
-      <p>"Level by level, alphabetical within each level" is <b>not</b> the BFS rule, and it gives wrong answers in some graphs. The real rule:</p>
-      <ul>
-        <li>The row is a line. Letters are checked in the order they were <b>written</b>. Never re-sort it.</li>
-        <li>Alphabetical order only decides the order of <b>one</b> letter's new neighbors.</li>
-      </ul>
-      <h3>An example of the trap</h3>
-      <p>In BFS Example 4 (from C), here is the row right after F is checked:</p>
-      <figure class="fig illus-fig"><Fragment set:html={ex4Moment} /><figcaption>G and D are both L2, but <b>G is ahead of D</b>. G was written while checking B, which came before F.</figcaption></figure>
-      <p>So G is checked next, not D. G writes E, and D later writes A.</p>
-      <div class="rw-compare">
-        <figure class="fig">
-          <p class="mk-wrong"><b>✗ Re-sorted by level (wrong)</b></p>
-          <Fragment set:html={doneRow(ex4Wrong, ex4.level, 'Wrong order: ' + ex4Wrong.join(' '))} />
-        </figure>
-        <figure class="fig">
-          <p class="mk-right"><b>✓ The real queue order (right)</b></p>
-          <Fragment set:html={doneRow(ex4.order, ex4.level, 'Right order: ' + ex4.order.join(' '))} />
-        </figure>
-      </div>
-      <div class="remember">
-        <p class="note-label">Remember</p>
-        <p>Always check the <b>first letter without a ✓</b>. This trap returns in BFS Examples 4, 5, 7 and Real-life Example 1.</p>
-      </div>
-    </div>
-  </section>
-
   <!-- 6 -->
   <section class="chapter wrap" id="directed">
     <div class="chapter-head">
-      <p class="chapter-num">Part 6 · Directed graphs</p>
+      <p class="chapter-num">Part 5 · Directed graphs</p>
       <h2>BFS on a directed graph</h2>
     </div>
     <div class="flow">
@@ -411,7 +395,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
   <!-- 7 -->
   <section class="chapter wrap" id="examples">
     <div class="chapter-head">
-      <p class="chapter-num">Part 7 · Examples</p>
+      <p class="chapter-num">Part 6 · Examples</p>
       <h2>BFS examples</h2>
     </div>
     <div class="flow">
@@ -482,7 +466,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
   <!-- 8 -->
   <section class="chapter wrap" id="java">
     <div class="chapter-head">
-      <p class="chapter-num">Part 8 · In code</p>
+      <p class="chapter-num">Part 7 · In code</p>
       <h2>BFS in Java</h2>
     </div>
     <div class="flow">
@@ -531,7 +515,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
   <!-- 9 -->
   <section class="chapter wrap" id="check">
     <div class="chapter-head">
-      <p class="chapter-num">Part 9 · Check yourself</p>
+      <p class="chapter-num">Part 8 · Check yourself</p>
       <h2>Self-check</h2>
     </div>
     <div class="flow">
