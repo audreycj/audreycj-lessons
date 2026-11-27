@@ -100,6 +100,35 @@ export function dfsSteps(g, start) {
 const NR = 17;
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
+// Level/name labels (chat 65): try top-right first, then other spots around the vertex; pick the first spot that
+// stays clear of every edge, every vertex, and labels already placed (else the clearest one).
+function segDist(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy;
+  let t = L2 ? ((px - x1) * dx + (py - y1) * dy) / L2 : 0; t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+function labelSpot(g, P, n, text, placed, box, at) {
+  const W = text.length * 8.2 + 2, H = 14, x = n.x, y = n.y;
+  const C = [[x + NR + 3, y - NR + 2], [x + NR + 3, y + NR - 2], [x - NR - 3 - W, y - NR + 2], [x - NR - 3 - W, y + NR - 2],
+    [x - W / 2, y - NR - 11], [x - W / 2, y + NR + 11], [x + NR + 6, y], [x - NR - 6 - W, y]];
+  const named = { tr: 0, br: 1, tl: 2, bl: 3, t: 4, b: 5, r: 6, l: 7 };
+  if (at && named[at] != null) { const sp = C[named[at]]; placed.push([sp[0], sp[1], W]); return sp; }
+  let best = C[0], bestC = -1e9;
+  for (const [lx, ly] of C) {
+    const pts = [];
+    for (let i = 0; i <= 4; i++) for (const yy of [ly - H / 2, ly, ly + H / 2]) pts.push([lx + (W * i) / 4, yy]);
+    let c = 1e9;
+    if (box && (lx < box[0] + 2 || lx + W > box[0] + box[2] - 2 || ly - H / 2 < box[1] + 2 || ly + H / 2 > box[1] + box[3] - 2)) continue;
+    for (const e of g.edges) { if (e.a === e.b) continue; const a = P[e.a], b = P[e.b]; for (const [px, py] of pts) c = Math.min(c, segDist(px, py, a.x, a.y, b.x, b.y) - 2); }
+    for (const m of g.nodes) for (const [px, py] of pts) c = Math.min(c, Math.hypot(px - m.x, py - m.y) - NR);
+    for (const q of placed) { const ox = Math.max(0, Math.max(q[0] - (lx + W), lx - (q[0] + q[2]))), oy = Math.max(0, Math.max(q[1] - H / 2 - (ly + H / 2), ly - H / 2 - (q[1] + H / 2))); c = Math.min(c, Math.hypot(ox, oy)); }
+    if (c >= 3) { best = [lx, ly]; bestC = c; break; }
+    if (c > bestC) { bestC = c; best = [lx, ly]; }
+  }
+  placed.push([best[0], best[1], W]);
+  return best;
+}
+
 /**
  * opts: { nodeMarks: {id: class}, edgeMarks: {'A-B': class}, labels: {id: text}, label, w, h }
  * Edge mark keys use 'a-b' in the edge's own direction.
@@ -113,7 +142,7 @@ export function svgGraph(g, opts = {}) {
   let vb = `0 0 ${w} ${h}`, mw = Math.round(w * 1.35);
   if (opts.fit) {
     const xs = g.nodes.map((n) => n.x), ys = g.nodes.map((n) => n.y), pad = 30;
-    const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, fw = Math.max(...xs) - Math.min(...xs) + 2 * pad, fh = Math.max(...ys) - Math.min(...ys) + 2 * pad;
+    const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, fw = Math.max(...xs) - Math.min(...xs) + 2 * pad + (opts.padR || 0), fh = Math.max(...ys) - Math.min(...ys) + 2 * pad;
     vb = `${x0} ${y0} ${fw} ${fh}`; mw = Math.round(fw * 1.6);
   }
   let s = `<svg class="graph-svg" viewBox="${vb}" style="max-width:${mw}px" role="img" aria-label="${esc(opts.label || 'Graph diagram')}">`;
@@ -148,10 +177,11 @@ export function svgGraph(g, opts = {}) {
       s += `<g class="g-wbox"><rect x="${mx - 11}" y="${my - 9}" width="22" height="18" rx="4"/><text class="g-w" x="${mx}" y="${my}">${e.w}</text></g>`;
     }
   }
+  const placed = [];
   for (const n of g.nodes) {
     const m = nm[n.id] || '';
     s += `<g class="g-node ${m ? 'n-' + m : ''}" data-id="${n.id}" data-v="${n.id}"><circle cx="${n.x}" cy="${n.y}" r="${NR}"/><text x="${n.x}" y="${n.y}">${n.id}</text>`;
-    if (lab[n.id] != null) s += `<text class="g-lab" x="${n.x + NR + 3}" y="${n.y - NR + 2}">${lab[n.id]}</text>`;
+    if (lab[n.id] != null) { const [lx, ly] = labelSpot(g, P, n, String(lab[n.id]), placed, vb.split(' ').map(Number), (opts.labelAt || {})[n.id]); s += `<text class="g-lab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}">${lab[n.id]}</text>`; }
     s += '</g>';
   }
   return s + '</svg>';

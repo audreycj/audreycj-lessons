@@ -12,7 +12,7 @@ import { city } from '../../data/graphs.js';
 import * as W from '../../data/graphs-w16.js';
 import { bfsSteps, svgGraph } from '../../lib/graph.js';
 import { bfsRow, bfsSorted, rowShow, rowSvg, stepPic, levelTable, allShortest, and } from '../../lib/onerow.js';
-import { treeVsGraph, newsWaves, canteenLine } from '../../lib/illus.js';
+import { treeVsGraph, bfsUsesIT, searchThenNow, knownTraversals, newsWaves, canteenQueue } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
@@ -24,16 +24,34 @@ const doneRow = (order, level, label) => `<div class="row-fig">${rowSvg({ row: o
 // Part 2: waves (deck slide 27, same graph as the walkthrough)
 const walk = bfsRow(W.bfsWalk, 'A');
 // Part 3: walkthrough (deck slides 31-36)
-const walkShow = rowShow(W.bfsWalk, walk, 'bfs');
+const walkSay = [
+  '<ol class="say-steps"><li>First, we identify which vertex to start at. The problem says we start at <span class="vchip vc-now">A</span>, so let\'s go with that.</li><li>We <b class="act">put <span class="vchip vc-new">A</span> in our queue</b>.</li><li>Then label its level in the drawn graph as <span class="lv">L0</span> for level 0.</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above <span class="vchip vc-now">A</span> to remind us where we currently are in the graph, which is at node A.</li><li>From node A, who are its <b>neighbors</b> or adjacent nodes? B and C, right?</li><li><b class="act">Put them in the queue alphabetically</b>, so <span class="vchip vc-new">B</span> first, then <span class="vchip vc-new">C</span>.</li><li>Then put their levels on the graph as <span class="lv">L1</span> (L1 because we came from A, which is L0).</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s move to the next element in our queue, which is <span class="vchip vc-now">B</span>. Let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above it to remind ourselves where we currently are in the graph, which is B.</li><li>Its <b>neighbors</b> are A and E, right? <span class="vchip vc-wait">A</span> is already in the queue, <span class="skip">so there is no need to write it again</span>.</li><li>So we just <b class="act">put <span class="vchip vc-new">E</span> in the queue</b>.</li><li>Then label its level in the drawn graph, which is <span class="lv">L2</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now we move to the next vertex in the queue, which is <span class="vchip vc-now">C</span>. Let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above C to remind us where we are.</li><li>Its <b>neighbors</b> are <span class="vchip vc-wait">A</span> and <span class="vchip vc-wait">E</span>, both of which are already in the queue, <span class="skip">so there is no need to write anything in the queue</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s move to the next vertex in the queue, which is <span class="vchip vc-now">E</span>. Let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above E to show where we are currently in the graph.</li><li>Its <b>neighbors</b> are B, C, and D. <span class="vchip vc-wait">B</span> and <span class="vchip vc-wait">C</span> are already in the queue, so we only need to <b class="act">write <span class="vchip vc-new">D</span></b>.</li><li>Then label D\'s level in the drawn graph as <span class="lv">L3</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s move to the next vertex in the queue, which is <span class="vchip vc-now">D</span>.</li><li>Its only <b>neighbor</b> is <span class="vchip vc-wait">E</span>, which is already in the queue, <span class="skip">so there is no need to write it again</span>.</li></ol>',
+  '<p>Double-check these three things.</p>' + '<ol class="say-steps"><li>Every vertex in the queue has a check mark <span class="ck">✓</span>, meaning all vertices have been checked for neighbors.</li><li>The neighbors were written in the queue in the correct order.</li><li>The levels in the graph are correct.</li></ol>' + '<p>The queue is the <b>BFS traversal order</b>: <span class="bfs-ans">A, B, C, E, D</span></p>'];
+const walkBase = rowShow(W.bfsWalk, walk, 'bfs', { noRowLevels: true, title: 'The queue', labelAt: { D: 'r' }, padR: 24 });
+const walkEnd = { ...walk.steps[walk.steps.length - 1], now: null, fresh: [], look: [] };
+const walkShow = [...walkBase, { pic: stepPic(W.bfsWalk, walkEnd, 'bfs', { label: 'BFS finished', noRowLevels: true, title: 'The queue', labelAt: { D: 'r' }, padR: 24 }), say: '' }].map((st, i) => ({ ...st, say: walkSay[i] ?? st.say }));
 // Part 4: shortest path picture (deck slide 42)
 const pathRun = bfsRow(W.pathEg, 'A');
+// Shortest-path stepper (chat 65): follow the levels back from F
+const pPic = (nodeMarks, edgeMarks, label) => `<div class="row-pic"><div class="rp-g">${svgGraph(W.pathEg, { labels: lvLabels(pathRun), nodeMarks, edgeMarks, label, fit: true })}</div></div>`;
+const V = (v, k = '') => `<span class="vchip ${k}">${v}</span>`, LV = (l) => `<span class="lv">${l}</span>`;
+const pathShow = [
+  { pic: pPic({}, {}, 'The graph with its levels: A L0, B L1, E L1, C L2, F L2'), say: `<ol class="say-steps"><li>Do BFS from ${V('A', 'vc-now')} and write the levels on the graph.</li><li>The target ${V('F', 'vc-now')} is ${LV('L2')}, so the shortest path has <b>2 edges</b>.</li></ol>` },
+  { pic: pPic({ F: 'current', E: 'hl' }, { 'E-F': 'path' }, 'From F, step to E, which is one level lower'), say: `<ol class="say-steps"><li>From ${V('F', 'vc-now')}, step to a neighbor <b>one level lower</b>.</li><li>F's neighbors are C (${LV('L2')}) and E (${LV('L1')}). Step to ${V('E', 'vc-new')}, not C.</li></ol>` },
+  { pic: pPic({ F: 'hl', E: 'current', A: 'hl' }, { 'E-F': 'path', 'A-E': 'path' }, 'From E, step to A, which is one level lower'), say: `<ol class="say-steps"><li>From ${V('E', 'vc-now')}, step one level lower again, to ${V('A', 'vc-new')} (${LV('L0')}).</li><li>A is the start, so stop.</li></ol>` },
+  { pic: pPic({ A: 'hl', E: 'hl', F: 'hl' }, { 'A-E': 'path', 'E-F': 'path' }, 'The shortest path A, E, F is highlighted'), say: `<ol class="say-steps"><li>Read it backwards: <span class="bfs-ans">A → E → F</span> (2 edges).</li><li>The top route through B and C takes 3 edges, so it is longer.</li></ol>` }];
 // Part 5: never re-sort (BFS Example 4 graph)
 const ex4 = bfsRow(W.bfsEx4, 'C');
 const ex4Wrong = bfsSorted(W.bfsEx4, 'C');
 const ex4Moment = stepPic(W.bfsEx4, ex4.steps[3], 'bfs', { label: 'BFS from C after checking F' });
 // Part 6: directed walkthrough (deck slides 49-54)
 const dirRun = bfsRow(W.bfsDirWalk, 'A');
-const dirShow = rowShow(W.bfsDirWalk, dirRun, 'bfs');
+const dirShow = rowShow(W.bfsDirWalk, dirRun, 'bfs', { noRowLevels: true, title: 'The queue' });
 
 // Part 7: examples. Graphs and answers come from the Week 16 deck; the engine re-checks every answer.
 const townNames = { H: 'Home', M: 'Market', F: 'Fire station', P: 'Plaza', T: 'Terminal', C: 'Church', S: 'School', L: 'Library' };
@@ -41,7 +59,7 @@ const pathsText = (ps) => ps.map((p) => p.join(' → ')).join(', or ');
 const mk = (id, title, g, start, extra = {}) => {
   const run = bfsRow(g, start);
   const wrong = bfsSorted(g, start);
-  return { id, title, g, start, run, show: rowShow(g, run, 'bfs'), verts: vertsOf(g), wrongDiffers: wrong.join() !== run.order.join(), wrong, ...extra };
+  return { id, title, g, start, run, show: rowShow(g, run, 'bfs', { noRowLevels: true, title: 'The queue' }), verts: vertsOf(g), wrongDiffers: wrong.join() !== run.order.join(), wrong, ...extra };
 };
 const ex = [
   mk('bfs-ex1', 'BFS Example 1', W.bfsEx1, 'A', {
@@ -206,7 +224,7 @@ const quiz = [
 const cyclePeek = `<div class="illus">${treeVsGraph()}</div><p class="small">A tree has no cycles, so every path down ends. A graph can have cycles, so a search could go around one forever.</p>`;
 const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minutes on the edges' })}<p class="small">A weighted graph from the Graphs lesson. The numbers are made-up travel minutes.</p>`;
 ---
-<Base title="Breadth-First Search · ITC 120" description="Breadth-first search (BFS): visiting a graph level by level with a queue written as one row, levels, shortest paths, and directed graphs." course={{ code: course.code, href: base + course.href }} theme="tocall" toc>
+<Base title="Breadth-First Search · ITC 120" description="Breadth-first search (BFS): visiting a graph level by level with a queue written as one row, levels, shortest paths, and directed graphs." course={{ code: course.code, href: base + course.href }} theme="tocall subgap" toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Final › Graphs</p>
     <p class="kicker">Graphs · Lesson 2 of 3</p>
@@ -232,27 +250,27 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>Algorithms and graph traversal</h2>
     </div>
     <div class="flow">
+      <h3>What is an algorithm?</h3>
       <div class="def">
         <p class="note-label">Algorithm</p>
         <p>An <b>algorithm</b> is a set of steps that does a task. Computer scientists keep looking for better ones.</p>
       </div>
-      <p>Search engines show this. Years ago, they mostly matched your words with the words on web pages, so people typed only keywords (<i>cat severe coughing possible causes</i>). Since 2019, Google Search uses a language model called <b>BERT</b>, which reads each word together with the words around it. So now you can ask naturally: <i>my cat keeps coughing and it sounds bad, what could it be?</i></p>
+      <p>Search engines show this. Years ago, they mostly matched your words with the words on web pages, so people typed only keywords (<i>cat severe coughing possible causes</i>). Since 2019, Google Search uses a language model called <b>BERT</b>, which reads each word together with the words around it. So now you can ask a question the way you would say it, such as <i>my cat keeps coughing and it sounds bad, what could it be?</i></p>
+      <figure class="fig illus-fig"><Fragment set:html={searchThenNow()} /></figure>
+      <h3>What is graph traversal?</h3>
       <div class="def">
         <p class="note-label">Graph traversal</p>
         <p>A <b>graph traversal</b> visits every vertex that can be reached from a starting vertex, each one <b>exactly once</b>.</p>
       </div>
       <p>Traversal is the <b>job</b>. <b>Breadth-first search (BFS)</b> and <b>depth-first search (DFS)</b> are two <b>algorithms</b> that do it. They visit the same vertices in a different order: BFS goes <b>wide</b> first (breadth means width), and DFS goes <b>deep</b> first.</p>
-      <p class="small">You already know three traversals. Pre-order, in-order, and post-order go down one branch before coming back, so they are depth-first. Visiting a tree level by level is called <b>level-order traversal</b>, which is BFS on a tree.</p>
+      <div class="known-box">
+        <p class="note-label">You already know this from trees</p>
+        <p>You already know three <a href={base + '/itc120/traversals/'}>tree traversals</a>. Pre-order, in-order, and post-order go down one branch before coming back, so they are <b>depth-first</b>. Visiting a tree level by level is called <b>level-order traversal</b>, which is BFS on a tree.</p>
+        <Fragment set:html={knownTraversals()} />
+      </div>
+      <h3>Why a traversal remembers what it has seen</h3>
       <p>Unlike trees, graphs can have <b>cycles</b>, so a traversal must remember which vertices it has already <b>seen</b>. Otherwise it could go around forever.</p>
       <figure class="fig illus-fig"><Fragment set:html={treeVsGraph()} /><figcaption>A tree's paths always end. A graph can loop A, B, C, D, A… unless A is remembered as seen.</figcaption></figure>
-      <div class="remember">
-        <p class="note-label">Where graphs are traversed in IT</p>
-        <ul>
-          <li><b>Social media.</b> Your friends are 1 edge away. Their friends are 2 edges away.</li>
-          <li><b>Networks.</b> Devices are vertices, and cables or Wi-Fi links are edges, whatever the layout (topology).</li>
-          <li><b>The web.</b> Pages linked from your page are 1 level away. Pages linked from those are 2 levels away.</li>
-        </ul>
-      </div>
     </div>
   </section>
 
@@ -263,21 +281,31 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>BFS: the nearest vertices first</h2>
     </div>
     <div class="flow">
+      <h3>What is BFS?</h3>
       <div class="def">
         <p class="note-label">Breadth-first search (BFS)</p>
-        <p><b>BFS</b> visits the graph in waves: the start, then every vertex 1 edge away, then 2 edges away, and so on. It uses a <b>queue</b>.</p>
-        <p>A vertex's <b>level</b> is its fewest number of edges from the start. The start is <b>level 0</b>. (Some books start at 1. In this course, the start is level 0.)</p>
+        <p><b>BFS</b> <span class="hl-mark">visits the graph in waves</span>. It starts at one vertex. Next, it visits every vertex that is 1 edge away. Then it visits every vertex that is 2 edges away, and so on. BFS uses a <b>queue</b>.</p>
+        <p>The <b>level</b> of a vertex tells how far it is from the start. The start itself is <b>level 0</b>, its neighbors are <b>level 1</b>, and so on. (Some books start at 1. In this course, the start is level 0.)</p>
       </div>
       <figure class="fig">
-        <GraphFig g={W.bfsWalk} labels={lvLabels(walk)} nodeMarks={{ A: 'current' }} label="Graph with A at level 0, B and C at level 1, E at level 2, D at level 3" />
+        <GraphFig g={W.bfsWalk} labels={lvLabels(walk)} labelAt={{ D: 'r' }} w={364} nodeMarks={{ A: 'current' }} label="Graph with A at level 0, B and C at level 1, E at level 2, D at level 3" />
         <p class="small">From A: wave 1 is B and C, wave 2 is E, wave 3 is D. Like ripples from a stone in water, BFS finishes one wave before the next.</p>
       </figure>
+      <h3>BFS in real life</h3>
       <div class="sticky">
         <p class="note-label">Think of news spreading in a barangay</p>
         <p>You tell your next-door neighbors first, and they tell theirs. Everyone 1 house away hears it before anyone 2 houses away.</p>
       </div>
       <figure class="fig illus-fig illus"><Fragment set:html={newsWaves()} /><figcaption>Each number is the house's level.</figcaption></figure>
-      <p>BFS is used when what matters is what is <b>near</b>, or the <b>fewest steps</b>: friend suggestions (level 2), the network route with the fewest devices (hops), and web crawlers that collect pages link by link.</p>
+      <h3>When BFS is used</h3>
+      <p>BFS is used when what matters is what is <b>near</b>, or the <b>fewest steps</b>. Here are three examples.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={bfsUsesIT()} /><figcaption class="gi-cap">
+      <ul>
+        <li><b>Friend suggestions.</b> The app suggests people at level 2. They are friends of your friends.</li>
+        <li><b>Network routes.</b> Data can be sent along the route that passes through the fewest devices. Each step from one device to the next is called a <b>hop</b>.</li>
+        <li><b>Web crawlers.</b> A web crawler is a program that search engines use to find pages. It collects pages link by link, starting with the pages nearest to where it began.</li>
+      </ul>
+      </figcaption></figure>
     </div>
   </section>
 
@@ -285,34 +313,21 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
   <section class="chapter wrap" id="queue">
     <div class="chapter-head">
       <p class="chapter-num">Part 3 · The method</p>
-      <h2>The queue, written as one row</h2>
+      <h2>How to write the BFS traversal order</h2>
     </div>
     <div class="flow">
-      <p>Recall the <b>queue</b>: enqueue at the rear, dequeue from the front, like the canteen line. First in, first out (<b>FIFO</b>). A queue is a <b>behavior</b>, so it can be built with an array or a linked list.</p>
-      <figure class="fig illus-fig illus"><Fragment set:html={canteenLine()} /><figcaption>Student 1 came first, so student 1 leaves first (<b>dequeue</b>). New students join at the rear (<b>enqueue</b>).</figcaption></figure>
-      <p>BFS adds new vertices at the rear. Level-1 vertices are found before level-2 ones, so <span class="hl">closer vertices are always visited first</span>.</p>
-      <div class="def">
-        <p class="note-label">Seen and visited</p>
-        <p>A vertex is <b>seen</b> when it joins the queue, and it is never added again (<Peek label="this stops cycles" title="From Part 1" html={cyclePeek} />). It is <b>visited</b> later, when it leaves the front.</p>
-      </div>
-      <div class="sub">
-        <h3>The one-row method</h3>
-        <p>On paper, write the queue as <b>one row of letters</b>. We mark letters with a ✓ instead of crossing them out, so they stay readable.</p>
-        <ol class="procedure">
-          <li>Write the start vertex. (Read the problem: it is not always A.)</li>
-          <li>Find the <b>first</b> (leftmost) letter without a ✓, and write a ✓ above it. This is where you are now: the vertex being visited.</li>
-          <li>At the end of the row, write its neighbors that are <b>not written yet</b>, in alphabetical order.</li>
-          <li>Repeat until every letter has a ✓. The row is the <b>BFS order</b>.</li>
-        </ol>
-        <p>"Written" means anywhere in the row, with or without a ✓. The letters without a ✓ are the queue, and all the letters are the seen list, so one row does both jobs.</p>
-        <p class="small muted">"The row" is our classroom shortcut. On exams, still use the words "queue" and "visited".</p>
-      </div>
+      <h3>Recall the queue</h3>
+      <p>Remember that a <b>queue</b> is a behavior that can be built using an array or a linked list. This behavior is that whatever gets in it first is the first one to get out, or the <b>FIFO</b> rule (first in, first out). Like when you are lining up in a queue at a canteen, whoever is in line first gets served first.</p>
+      <figure class="fig illus-fig illus"><Fragment set:html={canteenQueue()} /><figcaption>Student 1 came first, so student 1 leaves first (<b>dequeue</b>). New students join at the rear (<b>enqueue</b>).</figcaption></figure>
+      <h3>The one-row method</h3>
+      <p>When trying to determine the BFS traversal of a graph by hand, we write the vertices (in BFS order) in a queue as one row of the vertices. Go through the steps below.</p>
+      <StepShow id="bfs-walk" cap="Finding the BFS traversal order" legend="bfs" steps={walkShow} />
+      <p>Notice that the BFS order, <b>{walk.order.join(', ')}</b>, is not alphabetical. The order comes from the graph.</p>
       <div class="plain">
         <p class="note-label">Why alphabetical order?</p>
-        <p>A graph has no real first or last vertex, so any order of new neighbors is a correct BFS. In this course, use <b>alphabetical order</b> (smallest number first for numbers) so everyone gets the same answer. Quizzes and exams mark other orders wrong.</p>
+        <p>A graph has no real first or last vertex, so technically speaking, any order of new neighbors is a correct BFS.</p>
+        <p class="alpha-rule">But <b>in this course</b>, <span class="hl-mark">use alphabetical order</span> (smallest number first for numbers) so everyone gets the same answer. <span class="warn-txt">Quizzes and exams mark other orders wrong.</span></p>
       </div>
-      <StepShow id="bfs-walk" cap="BFS from A, one row" hint="Orange = being checked. Light teal = still in the queue. Dark teal = checked. Orange outline = just written." steps={walkShow} />
-      <p>The BFS order is <b>{walk.order.join(', ')}</b>, not alphabetical. When B is checked, D is not written, because D is not B's neighbor. The order comes from the graph.</p>
     </div>
   </section>
 
@@ -323,23 +338,18 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>Levels and shortest paths</h2>
     </div>
     <div class="flow">
-      <p>Write each letter's level under it as you write it: <span class="hl">1 more than the level of the letter you are checking</span>. A is L0, so B and C (written while checking A) are L1, E is L2, and D is L3. It also helps to write the level beside each vertex on the drawing, as in the pictures.</p>
+      <h3>Writing the levels</h3>
+      <p class="lvl-text">While you do BFS, write each vertex's level beside it on the drawn graph. A new vertex's level is <span class="hl">1 more than the level of the vertex you are checking</span>. <span class="vchip">A</span> is <span class="lv">L0</span>, so <span class="vchip">B</span> and <span class="vchip">C</span> (written while checking A) are <span class="lv">L1</span>, <span class="vchip">E</span> is <span class="lv">L2</span>, and <span class="vchip">D</span> is <span class="lv">L3</span>.</p>
+      <p class="lvl-text">When BFS is done, copy the levels from the graph into a <b>level table</b>, with the vertices in <b>alphabetical order</b>.</p>
       <figure class="fig">
-        <Fragment set:html={doneRow(walk.order, walk.level, 'Finished BFS row from A with levels: A L0, B L1, C L1, E L2, D L3')} />
-        <p class="small">The L keeps levels apart from array indexes. Indexes always go up by one, but levels can repeat (L1, L1).</p>
+        <GraphFig g={W.bfsWalk} labels={lvLabels(walk)} labelAt={{ D: 'r' }} w={364} label="The graph with its levels: A L0, B L1, C L1, E L2, D L3" />
+        <Fragment set:html={levelTable(vertsOf(W.bfsWalk), walk.level)} />
+        <p class="small">The levels on the graph, copied into the level table.</p>
       </figure>
-      <p>Because BFS finishes each wave before the next, the first time it writes a vertex is by the fewest edges. So the level is the fewest edges from the start.</p>
       <div class="sub">
         <h3>Finding a shortest path</h3>
-        <p>To find the path with the fewest edges, work <b>backwards</b> from the target, one level down at a time.</p>
-        <figure class="fig">
-          <GraphFig g={W.pathEg} labels={lvLabels(pathRun)} edgeMarks={{ 'A-E': 'path', 'E-F': 'path' }} nodeMarks={{ A: 'hl', E: 'hl', F: 'hl' }} label="Graph with levels: A L0, B L1, E L1, C L2, F L2. The path A, E, F is highlighted." />
-        </figure>
-        <ol class="procedure">
-          <li>Do BFS from A. F is L2, so the shortest path has 2 edges.</li>
-          <li>From F, step to a neighbor <b>one level lower</b>: E (L1), not C (L2). Then step to A (L0).</li>
-          <li>Read it backwards: <b>A → E → F</b>. (The top route through B and C takes 3.)</li>
-        </ol>
+        <p>A vertex's level is also the <b>fewest number of edges</b> from the start to it. So to find the path with the fewest edges, work <b>backwards</b> from the target, one level down at a time.</p>
+        <StepShow id="bfs-path" cap="Finding a shortest path from A to F" steps={pathShow} />
         <p>If two neighbors are both one level lower, either gives a shortest path.</p>
       </div>
       <div class="trap">
@@ -356,11 +366,13 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>Never re-sort the row</h2>
     </div>
     <div class="flow">
+      <h3>The real rule</h3>
       <p>"Level by level, alphabetical within each level" is <b>not</b> the BFS rule, and it gives wrong answers in some graphs. The real rule:</p>
       <ul>
         <li>The row is a line. Letters are checked in the order they were <b>written</b>. Never re-sort it.</li>
         <li>Alphabetical order only decides the order of <b>one</b> letter's new neighbors.</li>
       </ul>
+      <h3>An example of the trap</h3>
       <p>In BFS Example 4 (from C), here is the row right after F is checked:</p>
       <figure class="fig illus-fig"><Fragment set:html={ex4Moment} /><figcaption>G and D are both L2, but <b>G is ahead of D</b>. G was written while checking B, which came before F.</figcaption></figure>
       <p>So G is checked next, not D. G writes E, and D later writes A.</p>
@@ -388,8 +400,10 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>BFS on a directed graph</h2>
     </div>
     <div class="flow">
+      <h3>Follow the arrows</h3>
       <p>Same steps, one new rule: <b>follow the arrows</b>. A vertex's neighbors are only the vertices its arrows point <b>to</b>.</p>
-      <StepShow id="bfs-dir" cap="BFS from A on a directed graph" hint="Orange = being checked. Light teal = still in the queue. Dark teal = checked." steps={dirShow} />
+      <StepShow id="bfs-dir" cap="BFS from A on a directed graph" legend="bfs" steps={dirShow} />
+      <h3>Vertices that BFS never reaches</h3>
       <p>BFS order: <b>{dirRun.order.join(', ')}</b>. No arrow leads to F, so F is <b>never visited</b>. A vertex that is never visited has no level, so it gets a <b>dash (–)</b> in the level table.</p>
     </div>
   </section>
@@ -401,7 +415,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>BFS examples</h2>
     </div>
     <div class="flow">
-      <div class="remember">
+      <div class="remember" data-toc="How your answers are checked">
         <p class="note-label">How your answers are checked</p>
         <p>The row with ✓ and levels is scratch work and is not graded. You hand in:</p>
         <ul>
@@ -425,7 +439,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
           <details class="reveal">
             <summary>Show the solution, step by step</summary>
             <div class="flow">
-              <StepShow id={`${e.id}-steps`} cap={`BFS from ${e.start}`} hint="Same colors as in Part 3." steps={e.show} />
+              <StepShow id={`${e.id}-steps`} cap={`BFS from ${e.start}`} legend="bfs" steps={e.show} />
               <div class="ex-ans">
                 <p class="ex-a-line"><b class="lbl">a.</b> <span class="ans">{e.run.order.join(', ')}</span></p>
                 <div class="ex-a-line"><b class="lbl">b.</b><Fragment set:html={levelTable(e.verts, e.run.level)} /></div>
@@ -451,7 +465,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
         <details class="reveal">
           <summary>Show the solution, step by step</summary>
           <div class="flow">
-            <StepShow id="real-ex1-steps" cap="BFS from H (Home)" hint="Same colors as in Part 3." steps={town.show} />
+            <StepShow id="real-ex1-steps" cap="BFS from H (Home)" legend="bfs" steps={town.show} />
             <div class="ex-ans">
               <p class="ex-a-line"><b class="lbl">a.</b> <span class="ans">{town.run.order.join(', ')}</span></p>
               <p class="ex-a-line"><b class="lbl">b.</b> <span class="ans">{town.run.level.T} roads: {named(townPath[0])}</span></p>
@@ -472,9 +486,11 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>BFS in Java</h2>
     </div>
     <div class="flow">
+      <h3>The BFS program</h3>
       <p>This program builds the 7-vertex graph of <a href="#bfs-ex2">BFS Example 2</a> as an adjacency matrix, then runs BFS from A. Java's <code>Queue</code> works like the queue you learned: <code>offer</code> means enqueue at the rear, and <code>poll</code> means dequeue from the front. <code>LinkedList</code> is one of Java's built-in queue types.</p>
       <pre class="code"><code set:html={hi(code)} /></pre>
       <TryIt cls="BFS" />
+      <h3>Reading the code aloud</h3>
       <p>Here is how to read the new lines aloud. The matrix lines (<code>names</code>, <code>adj</code>, <code>addEdge</code>) are the same as in the <a href={base + '/itc120/graphs/#java'}>Graphs lesson, Part 8</a>.</p>
       <div class="tbl-wrap"><table class="tbl ra">
         <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
@@ -492,7 +508,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
         <p class="note-label">Match the code to the one-row method</p>
         <p>The Java queue holds exactly the letters <b>without a ✓</b>. <code>seen[v] = true</code> means "v is now written in the row". <code>queue.poll()</code> is step 2, writing the ✓ on the first letter without one. The <code>for</code> loop is step 3: it checks row <code>u</code> of the matrix from A to Z and writes (enqueues) every neighbor that is not written yet.</p>
       </div>
-      <div class="paper flow" id="task">
+      <div class="paper flow" id="task" data-toc="Your coding task">
         <p class="note-label">Your coding task: BFS with levels</p>
         <p>In <Peek label="this picture" title="Levels from A" html={levelPeek} />, every vertex has a level, the fewest edges from the start. Now make the BFS program find the levels too. Instead of <code>seen</code>, it keeps one <code>int</code> array named <code>level</code>. A level of <code>-1</code> means "not seen yet". Any other number is the vertex's level.</p>
         <p>Write the <code>for</code> loop in about 6 lines where it says YOUR CODE. It is the neighbor loop from the program above, with two changes: check <code>level[v] == -1</code> instead of <code>!seen[v]</code>, and set <code>v</code>'s level instead of <code>seen[v] = true</code>. The graph is the Example 2 graph plus H, a vertex with no edges, which BFS can never reach from the others. Run it: each printed line must match its expected comment.</p>
@@ -519,9 +535,10 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>Self-check</h2>
     </div>
     <div class="flow">
+      <h3>Quiz</h3>
       <p>Not graded. Tap an answer to see if you got it, and read why.</p>
       <Quiz id="quiz-bfs" questions={quiz} />
-      <div class="remember">
+      <div class="remember" data-toc="Key takeaways">
         <p class="note-label">Key takeaways</p>
         <ol>
           <li>Graph traversal is the job of visiting every reachable vertex once. BFS and DFS are two algorithms that do it.</li>

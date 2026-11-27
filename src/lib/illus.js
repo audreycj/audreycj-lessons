@@ -891,44 +891,322 @@ export function graphsInIT() {
 
 /* ---------------- BFS lesson, Part 1 (chat 10) ---------------- */
 
-/** Clean: a tree (one root, no cycles) vs a graph with a cycle, and the "seen" fix. */
+/* ---- Graphs-lesson picture kit (chat 65): the helpers of graphsInIT, shared with the BFS Part 1 pictures ---- */
+function giKit() {
+  const TEAL = '#0e6b63', ORANGE = '#e8662e', BROWN = '#a8650f', BLUE = '#2f6fa8', INK = '#1b2a2e', SOFT = '#55605f';
+  const SKY = '#cfe3f3', BUT = '#f8dc95', TW = '#d7ece9', OW = '#fbdccc', SKIN = '#f3cfa6', W = '#ffffff';
+  const F = "font-family='Nunito, sans-serif'";
+  const PW = 260, PH = 276, GAP = 22, VW = 2 * PW + GAP + 8;
+  const o = `stroke="${INK}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"`;
+  const t = (x, y, s, q = {}) => `<text x="${x}" y="${y}" text-anchor="middle" ${F} font-size="${q.size || 12}" font-weight="${q.w || 700}" fill="${q.c || INK}">${s}</text>`;
+  const trim = (a, b, ta, tb) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L; return [a[0] + ux * ta, a[1] + uy * ta, b[0] - ux * tb, b[1] - uy * tb].map((v) => v.toFixed(1)); };
+  const edge = (a, b, c, q = {}) => { const [x1, y1, x2, y2] = trim(a, b, q.ta || 26, q.tb || 26); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${q.dash ? '#9aa3a1' : c}" stroke-width="${q.sw || 2.6}" stroke-linecap="round"${q.dash ? ' stroke-dasharray="5 5"' : ''}${q.arrow ? ' marker-end="url(#giArrow)"' : ''}/>`; };
+  const D = {
+    laptop: (x, y) => `<rect x="${x - 17}" y="${y - 15}" width="34" height="22" rx="2.5" fill="${INK}" ${o}/><rect x="${x - 14}" y="${y - 12}" width="28" height="16" rx="1" fill="${SKY}"/><path d="M${x - 22} ${y + 7} H${x + 22} L${x + 19} ${y + 13} H${x - 19} Z" fill="${BUT}" ${o}/>`,
+    phone: (x, y) => `<rect x="${x - 10}" y="${y - 18}" width="20" height="36" rx="4" fill="${INK}" ${o}/><rect x="${x - 7.5}" y="${y - 13}" width="15" height="24" rx="1" fill="${SKY}"/><circle cx="${x}" cy="${y + 14.5}" r="1.6" fill="${W}"/>`,
+    printer: (x, y) => `<rect x="${x - 10}" y="${y - 18}" width="20" height="12" fill="${W}" ${o}/><rect x="${x - 19}" y="${y - 8}" width="38" height="17" rx="4" fill="${BUT}" ${o}/><circle cx="${x + 12}" cy="${y - 2}" r="1.8" fill="${TEAL}"/><rect x="${x - 10}" y="${y + 4}" width="20" height="13" fill="${W}" ${o}/><line x1="${x - 6}" y1="${y + 9}" x2="${x + 6}" y2="${y + 9}" stroke="${SOFT}" stroke-width="1.2"/><line x1="${x - 6}" y1="${y + 13}" x2="${x + 3}" y2="${y + 13}" stroke="${SOFT}" stroke-width="1.2"/>`,
+    tablet: (x, y) => `<rect x="${x - 18}" y="${y - 14}" width="36" height="28" rx="4" fill="${INK}" ${o}/><rect x="${x - 14}" y="${y - 10.5}" width="28" height="21" rx="1" fill="${SKY}"/>`,
+    router: (x, y) => `<path d="M${x - 10} ${y - 20} a14 14 0 0 1 20 0" fill="none" stroke="${TEAL}" stroke-width="1.8" stroke-linecap="round"/><path d="M${x - 5} ${y - 15} a7 7 0 0 1 10 0" fill="none" stroke="${TEAL}" stroke-width="1.8" stroke-linecap="round"/><line x1="${x - 13}" y1="${y - 2}" x2="${x - 16}" y2="${y - 14}" ${o}/><line x1="${x + 13}" y1="${y - 2}" x2="${x + 16}" y2="${y - 14}" ${o}/><rect x="${x - 22}" y="${y - 3}" width="44" height="16" rx="5" fill="${TW}" ${o}/>${[-10, -3, 4].map((d) => `<circle cx="${x + d}" cy="${y + 5}" r="2" fill="${TEAL}"/>`).join('')}`,
+    person: (x, y, hair, shirt) => `<path d="M${x - 16} ${y + 20} Q${x - 16} ${y + 4} ${x} ${y + 4} Q${x + 16} ${y + 4} ${x + 16} ${y + 20} Z" fill="${shirt}" ${o}/><circle cx="${x}" cy="${y - 7}" r="10" fill="${SKIN}" ${o}/><path d="M${x - 10} ${y - 8} Q${x - 10} ${y - 18} ${x} ${y - 18} Q${x + 10} ${y - 18} ${x + 10} ${y - 8} Q${x + 3} ${y - 13} ${x - 10} ${y - 8} Z" fill="${hair}" ${o}/>`,
+    pin: (x, y, fill) => `<ellipse cx="${x}" cy="${y + 19}" rx="10" ry="3" fill="#00000018"/><path d="M${x} ${y + 18} C${x - 5} ${y + 10} ${x - 14} ${y + 3} ${x - 14} ${y - 6} A14 14 0 1 1 ${x + 14} ${y - 6} C${x + 14} ${y + 3} ${x + 5} ${y + 10} ${x} ${y + 18} Z" fill="${fill}" ${o}/><circle cx="${x}" cy="${y - 6}" r="5.5" fill="${W}" ${o}/>`,
+    page: (x, y, img) => `<rect x="${x - 17}" y="${y - 21}" width="34" height="42" rx="3" fill="${W}" ${o}/><path d="M${x - 17} ${y - 13} V${y - 18} a3 3 0 0 1 3 -3 H${x + 14} a3 3 0 0 1 3 3 V${y - 13} Z" fill="${SKY}" ${o}/>${[-12, -8, -4].map((d) => `<circle cx="${x + d}" cy="${y - 17}" r="1.2" fill="${BLUE}"/>`).join('')}<rect x="${x - 12}" y="${y - 8}" width="24" height="10" rx="1.5" fill="${img}"/><line x1="${x - 12}" y1="${y + 7}" x2="${x + 12}" y2="${y + 7}" stroke="${SOFT}" stroke-width="1.2"/><line x1="${x - 12}" y1="${y + 12}" x2="${x + 6}" y2="${y + 12}" stroke="${SOFT}" stroke-width="1.2"/>`,
+  };
+  const tl = (x, y, s, q = {}) => `<text x="${x}" y="${y}" ${F} font-size="${q.size || 12}" font-weight="${q.w || 700}" fill="${q.c || INK}">${s}</text>`;
+  const card = (x0, y0, w, h, title, c) => `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="12" fill="${W}"/><path d="M${x0} ${y0 + 12} A12 12 0 0 1 ${x0 + 12} ${y0} H${x0 + w - 12} A12 12 0 0 1 ${x0 + w} ${y0 + 12} V${y0 + 8} H${x0} Z" fill="${c}"/><rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="12" fill="none" stroke="#c9ccc8" stroke-width="1.5"/>` + t(x0 + w / 2, y0 + 30, title, { size: 14.5, w: 800, c });
+  const node = (x, y, k, q = {}) => `<circle cx="${x}" cy="${y}" r="17" fill="${q.fill || W}" stroke="${q.stroke || INK}" stroke-width="1.8"/>` + t(x, y + 5, k, { size: 14, w: 800 });
+  const ln = (a, b, c, sw = 2.2, extra = '') => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"${extra}/>`;
+  return { TEAL, ORANGE, BROWN, BLUE, INK, SOFT, SKY, BUT, TW, OW, W, o, t, tl, edge, D, card, node, ln };
+}
+
+/** BFS Part 1 (chat 65 v2, realistic): a search results page years ago (keyword matching) and since 2019 (BERT). Made-up brand "Seekly". */
+export function searchThenNow() {
+  const { BROWN, BLUE, INK, SOFT, BUT, W, t, tl } = giKit();
+  const VW = 550, X = 4, WW = 542, LINK = '#1a47a8', GREEN = '#1e7a3a', GREY = '#4d5654';
+  const cwid = (s, sz) => [...s].reduce((a, ch) => a + sz * ('iltfjr.,\' '.includes(ch) ? 0.3 : 'mw'.includes(ch) ? 0.82 : ch === '?' ? 0.48 : 0.54), 0);
+  const rich = (x, y, parts, q = {}) => `<text x="${x}" y="${y}" font-family="${q.ff || 'Nunito, sans-serif'}" font-size="${q.size || 11.5}" font-weight="${q.w || 500}" fill="${q.c || GREY}"${q.u ? ' text-decoration="underline"' : ''}>` + parts.map((p) => typeof p === 'string' ? p : `<tspan font-weight="800" fill="${q.bc || INK}">${p[0]}</tspan>`).join('') + '</text>';
+  const pill = (y, label, c) => `<rect x="${X}" y="${y}" width="${cwid(label, 13) + 34}" height="26" rx="13" fill="${c}"/>` + tl(X + 16, y + 18, label, { size: 13, w: 800, c: W });
+  const browser = (y, h, url) => {
+    let r = `<rect x="${X}" y="${y}" width="${WW}" height="${h}" rx="10" fill="${W}"/><path d="M${X} ${y + 34} V${y + 10} a10 10 0 0 1 10 -10 H${X + WW - 10} a10 10 0 0 1 10 10 V${y + 34} Z" fill="#eceeed"/><line x1="${X}" y1="${y + 34}" x2="${X + WW}" y2="${y + 34}" stroke="#d5d9d7"/>`;
+    [['#ec6a5e', 18], ['#f4bf4f', 32], ['#61c554', 46]].forEach(([c, dx]) => { r += `<circle cx="${X + dx}" cy="${y + 17}" r="4.5" fill="${c}"/>`; });
+    r += `<rect x="${X + 66}" y="${y + 7}" width="${WW - 86}" height="20" rx="10" fill="${W}" stroke="#d5d9d7"/><rect x="${X + 77}" y="${y + 15}" width="7" height="6" rx="1" fill="${SOFT}"/><path d="M${X + 78.5} ${y + 15} v-2 a2 2 0 0 1 4 0 v2" fill="none" stroke="${SOFT}" stroke-width="1.2"/>` + tl(X + 90, y + 21, url, { size: 10.5, w: 600, c: SOFT });
+    return r + `<rect x="${X}" y="${y}" width="${WW}" height="${h}" rx="10" fill="none" stroke="#c9ccc8" stroke-width="1.5"/>`;
+  };
+  let s = `<svg class="objbox gi-pic" viewBox="0 0 ${VW} __VH__" role="img" aria-label="Two search results pages from a made-up search engine called Seekly. Years ago, the search was only keywords, cat severe coughing possible causes. The first result is about severe coughing in adults, and the second is a pet shop selling cat food. They only share some of the same words, shown in bold. Since 2019, with BERT, the search is a natural question, my cat keeps coughing and it sounds bad, what could it be? BERT links the word it to cat and coughing. The first result explains why a cat coughs and when to see a vet.">`;
+  // ---- Years ago: old-style page ----
+  let y = 4;
+  s += pill(y, 'Years ago', BROWN); y += 36;
+  s += browser(y, 236, 'www.seekly.com/search?q=cat+severe+coughing+possible+causes');
+  s += `<text x="${X + 20}" y="${y + 76}" font-family="Georgia, serif" font-size="24" font-weight="700" font-style="italic"><tspan fill="${LINK}">Seek</tspan><tspan fill="#e8662e">ly</tspan></text>`;
+  s += `<rect x="${X + 112}" y="${y + 54}" width="300" height="28" fill="${W}" stroke="#8d9593" stroke-width="1.3"/>` + tl(X + 120, y + 73, 'cat severe coughing possible causes', { size: 12.5, w: 600 });
+  s += `<rect x="${X + 420}" y="${y + 54}" width="68" height="28" rx="3" fill="#e9ebea" stroke="#8d9593" stroke-width="1.3"/>` + t(X + 454, y + 73, 'Search', { size: 12, w: 700 });
+  s += `<line x1="${X + 16}" y1="${y + 96}" x2="${X + WW - 16}" y2="${y + 96}" stroke="#b9c6d8" stroke-width="1.2"/>` + tl(X + 20, y + 112, 'Results 1 - 10 of about 2,140,000', { size: 10.5, w: 600, c: SOFT });
+  s += rich(X + 20, y + 136, ['Severe Coughing in Adults - Possible Causes'], { size: 13.5, w: 700, c: LINK, u: true, ff: 'Georgia, serif' });
+  s += rich(X + 20, y + 154, ['Learn the ', ['possible causes'], ' of ', ['severe coughing'], ' in adults, such as colds and smoking...']);
+  s += tl(X + 20, y + 170, 'www.healthpages.net/adults/cough.html', { size: 11, w: 600, c: GREEN });
+  s += rich(X + 20, y + 196, ['Pet Shop - ', ['Cat'], ' Food and ', ['Cat'], ' Toys'], { size: 13.5, w: 700, c: LINK, u: true, ff: 'Georgia, serif', bc: LINK });
+  s += rich(X + 20, y + 214, ['Buy ', ['cat'], ' food, ', ['cat'], ' beds, and toys online. Free delivery on orders...']);
+  s += tl(X + 20, y + 230, 'www.petshop-online.com', { size: 11, w: 600, c: GREEN });
+  y += 236 + 22;
+  s += tl(X + 4, y, 'Matched words are in bold. A page could share the words but be about something else.', { size: 11.5, w: 600, c: SOFT });
+  // ---- Since 2019: modern page ----
+  y += 30;
+  s += pill(y, 'Since 2019 (BERT)', BLUE); y += 36;
+  const H2 = 274;
+  s += browser(y, H2, 'seekly.com/search?q=my+cat+keeps+coughing+and+it+sounds+bad');
+  s += `<text x="${X + 20}" y="${y + 70}" font-family="Nunito, sans-serif" font-size="21" font-weight="800"><tspan fill="${LINK}">Seek</tspan><tspan fill="#e8662e">ly</tspan></text>`;
+  const bx = X + 100, by = y + 48, bw = 424;
+  s += `<rect x="${bx}" y="${by}" width="${bw}" height="34" rx="17" fill="${W}" stroke="#c9ccc8" stroke-width="1.5"/><circle cx="${bx + 18}" cy="${by + 16}" r="5.5" fill="none" stroke="${SOFT}" stroke-width="1.8"/><line x1="${bx + 22}" y1="${by + 20}" x2="${bx + 26}" y2="${by + 24}" stroke="${SOFT}" stroke-width="2" stroke-linecap="round"/>`;
+  const words = 'my cat keeps coughing and it sounds bad, what could it be?'.split(' '), sz = 12.5, pos = {};
+  let wx = bx + 36; const wy = by + 22;
+  words.forEach((w, i) => { const key = w + (pos[w] ? '2' : ''); pos[key] = [wx, wx + cwid(w, sz)]; wx += cwid(w + ' ', sz); });
+  for (const k of ['cat', 'coughing', 'it']) s += `<rect x="${pos[k][0] - 3}" y="${wy - 13}" width="${pos[k][1] - pos[k][0] + 6}" height="18" rx="4" fill="${BUT}"/>`;
+  wx = bx + 36; words.forEach((w) => { s += `<text x="${wx}" y="${wy}" font-family="Nunito, sans-serif" font-size="${sz}" font-weight="600" fill="${INK}" textLength="${cwid(w, sz).toFixed(1)}" lengthAdjust="spacingAndGlyphs">${w}</text>`; wx += cwid(w + ' ', sz); });
+  const mid = (k) => (pos[k][0] + pos[k][1]) / 2, ay = by + 36;
+  for (const [k, d] of [['cat', 40], ['coughing', 24]]) s += `<path d="M${mid('it')} ${ay} Q${(mid('it') + mid(k)) / 2} ${ay + d} ${mid(k)} ${ay}" fill="none" stroke="${BLUE}" stroke-width="1.8" stroke-linecap="round"/><circle cx="${mid(k)}" cy="${ay}" r="2.6" fill="${BLUE}"/>`;
+  s += `<circle cx="${mid('it')}" cy="${ay}" r="2.6" fill="${BLUE}"/>`;
+  s += tl(mid('it') + 14, ay + 22, '“it” means the coughing', { size: 11, w: 800, c: BLUE });
+  let ry = y + 128;
+  s += `<circle cx="${X + 28}" cy="${ry - 4}" r="9" fill="#d7ece9" stroke="#0e6b63" stroke-width="1.2"/>` + t(X + 28, ry, 'P', { size: 10, w: 800, c: '#0e6b63' });
+  s += tl(X + 44, ry - 6, 'Pet Health Guide', { size: 11.5, w: 700 }) + tl(X + 44, ry + 8, 'https://pethealthguide.com › cats › coughing', { size: 10.5, w: 500, c: SOFT });
+  s += tl(X + 20, ry + 32, 'Why Is My Cat Coughing? Causes and When to Worry', { size: 14.5, w: 700, c: LINK });
+  s += rich(X + 20, ry + 51, ['A cat may cough because of ', ['hairballs'], ', ', ['asthma'], ', or an ', ['infection'], '. If the cough']);
+  s += rich(X + 20, ry + 67, ['sounds bad or does not stop after a few days, ', ['see a vet'], '.']);
+  ry += 96;
+  s += `<circle cx="${X + 28}" cy="${ry - 4}" r="9" fill="#fbdccc" stroke="#e8662e" stroke-width="1.2"/>` + t(X + 28, ry, 'V', { size: 10, w: 800, c: '#b4461a' });
+  s += tl(X + 44, ry - 6, 'Vet Care Blog', { size: 11.5, w: 700 }) + tl(X + 44, ry + 8, 'https://vetcareblog.com › cat-cough-vet', { size: 10.5, w: 500, c: SOFT });
+  s += tl(X + 20, ry + 32, 'When to Take a Coughing Cat to the Vet', { size: 14.5, w: 700, c: LINK });
+  y += H2 + 22;
+  s += tl(X + 4, y, 'BERT reads each word together with the words around it, so it understands the question.', { size: 11.5, w: 600, c: SOFT });
+  return s.replace('__VH__', String(y + 10)) + '</svg>';
+}
+
+/** BFS Part 1: the tree traversals students know. Depth-first goes down one branch; level-order goes level by level. */
+export function knownTraversals() {
+  const { ORANGE, BLUE, INK, SOFT, OW, W, t, tl, card, node, ln } = giKit();
+  const PW = 264, PH = 236, VW = 550, VH = PH + 8;
+  const pos = (x0, y0) => ({ A: [x0 + 150, y0 + 68], B: [x0 + 110, y0 + 118], C: [x0 + 190, y0 + 118], D: [x0 + 88, y0 + 168], E: [x0 + 132, y0 + 168], F: [x0 + 212, y0 + 168] });
+  const E = [['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F']];
+  let s = `<svg class="objbox gi-pic kt-pic" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="The same tree twice. Depth-first: an orange path goes from the root down one branch to a leaf before coming back. Pre-order, in-order, and post-order work this way. Breadth-first: the tree is split into level 0, level 1, and level 2, and the visit goes one level at a time. This is level-order traversal.">`;
+  { const x0 = 4, y0 = 4, P = pos(x0, y0), path = ['A', 'B', 'D'];
+    s += card(x0, y0, PW, PH, 'Depth-first', ORANGE);
+    for (const [a, b] of E) s += ln(P[a], P[b], path.includes(a) && path.includes(b) ? ORANGE : '#9aa3a1', path.includes(a) && path.includes(b) ? 4 : 2);
+    for (const k in P) s += node(...P[k], k, path.includes(k) ? { fill: OW, stroke: ORANGE } : {});
+    s += t(x0 + PW / 2, y0 + 206, 'Down one branch first', { c: SOFT, w: 700 }) + t(x0 + PW / 2, y0 + 224, 'Pre-order, in-order, post-order', { c: ORANGE, w: 800 }); }
+  { const x0 = 4 + PW + 14, y0 = 4, P = pos(x0, y0);
+    s += card(x0, y0, PW, PH, 'Breadth-first', BLUE);
+    [68, 118, 168].forEach((y, i) => { s += `<rect x="${x0 + 14}" y="${y0 + y - 21}" width="${PW - 28}" height="42" rx="10" fill="${i % 2 ? '#f2f6fa' : '#e3edf7'}"/>` + tl(x0 + 22, y0 + y + 4, 'level ' + i, { size: 11.5, w: 800, c: BLUE }); });
+    for (const [a, b] of E) s += ln(P[a], P[b], '#9aa3a1', 2);
+    for (const k in P) s += node(...P[k], k);
+    s += t(x0 + PW / 2, y0 + 206, 'One level at a time', { c: SOFT, w: 700 }) + t(x0 + PW / 2, y0 + 224, 'Level-order traversal', { c: BLUE, w: 800 }); }
+  return s + '</svg>';
+}
+
+/** BFS Part 1 (redrawn chat 65 in the Graphs-lesson style): a tree (one root, no cycles) vs a graph with a cycle, and the "seen" fix. */
 export function treeVsGraph() {
-  const T = C.teal, O = C.orange, R = C.red, ink = C.ink, soft = C.soft;
-  const lab = (x, y, t, c = ink, a = 'middle', sz = 13, w = 700, f = 'Nunito, sans-serif') => `<text x="${x}" y="${y}" text-anchor="${a}" font-family='${f}' font-size="${sz}" font-weight="${w}" fill="${c}">${esc(t)}</text>`;
-  const node = (x, y, t, fill = '#fff', stroke = ink) => `<circle cx="${x}" cy="${y}" r="14" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>` + lab(x, y + 5, t, ink, 'middle', 14, 800);
-  const edge = (a, b, c = ink, extra = '') => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="1.8"${extra}/>`;
-  const card = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="#fff" stroke="#d9dedb" stroke-width="1.5"/>`;
-  const head = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 1L9 5L0 9z" fill="${c}"/></marker>`;
-  let s = `<svg class="objbox" viewBox="0 0 340 456" role="img" aria-label="A tree has one root and no cycles, so a traversal always ends. A graph has no root and can have a cycle: A, B, C, D, then back to A, again and again forever. The fix: keep a seen list. At D, the next vertex is A, but A is already seen, so it is skipped and the traversal ends."><defs>${head('tgO', O)}</defs>`;
+  const { TEAL, ORANGE, INK, SOFT, BUT, TW, OW, W, t, tl, card, node, ln } = giKit();
+  const RED = '#b23a33', PW = 264, GP = 32, VW = 4 + PW + GP + PW + 4;
+  const Y2 = 4 + 256 + GP, VH = Y2 + 196 + 4;
+  let s = `<svg class="objbox gi-pic" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="A tree has one root and no cycles, so every path ends. A graph has no root and can have a cycle: A, B, C, D, then back to A, again and again forever. The fix is to remember what you have seen. At D, the next vertex is A, but A is already in the seen list, so it is skipped. Each vertex is visited once."><defs><marker id="tvO" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0 1L9 5L0 9z" fill="${ORANGE}"/></marker></defs>`;
+  { const x0 = 4, y0 = 4, P = { A: [x0 + 132, y0 + 76], B: [x0 + 82, y0 + 128], C: [x0 + 182, y0 + 128], D: [x0 + 52, y0 + 180], E: [x0 + 112, y0 + 180], F: [x0 + 212, y0 + 180] };
+    s += card(x0, y0, PW, 256, 'Tree', TEAL);
+    for (const [a, b] of [['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F']]) s += ln(P[a], P[b], '#9aa3a1', 2);
+    for (const k in P) s += node(...P[k], k, k === 'A' ? { fill: BUT } : {});
+    s += tl(x0 + 156, y0 + 72, 'root', { size: 12.5, w: 800, c: ORANGE });
+    s += t(x0 + PW / 2, y0 + 222, 'One root and no cycles', { c: SOFT, w: 700 }) + t(x0 + PW / 2, y0 + 240, 'Every path ends.', { c: TEAL, w: 800 }); }
+  { const x0 = 4 + PW + GP, y0 = 4, P = { A: [x0 + 82, y0 + 78], B: [x0 + 182, y0 + 78], C: [x0 + 182, y0 + 178], D: [x0 + 82, y0 + 178] };
+    s += card(x0, y0, PW, 256, 'Graph', ORANGE);
+    for (const [a, b] of [['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A']]) s += ln(P[a], P[b], '#9aa3a1', 2);
+    for (const k in P) s += node(...P[k], k);
+    const cx = x0 + 132, cy = y0 + 128;
+    s += `<path d="M${cx} ${cy - 28} A28 28 0 1 1 ${cx - 26} ${cy + 10}" fill="none" stroke="${ORANGE}" stroke-width="2.4" stroke-linecap="round" marker-end="url(#tvO)"/>`;
+    s += t(x0 + PW / 2, y0 + 222, 'No root, and it can have a cycle', { c: SOFT, w: 700 }) + t(x0 + PW / 2, y0 + 240, 'A, B, C, D, A, B, … forever', { c: RED, w: 800 }); }
+  { const x0 = 4, y0 = Y2, w = VW - 8, P = { A: [x0 + 70, y0 + 72], B: [x0 + 188, y0 + 72], C: [x0 + 188, y0 + 156], D: [x0 + 70, y0 + 156] };
+    s += card(x0, y0, w, 196, 'The fix: remember what you have seen'.replace(': ', ' is to '), TEAL);
+    for (const [a, b] of [['A', 'B'], ['B', 'C'], ['C', 'D']]) s += ln(P[a], P[b], TEAL, 2.8);
+    s += ln([x0 + 70, y0 + 137], [x0 + 70, y0 + 91], '#9aa3a1', 2, ' stroke-dasharray="5 5"');
+    for (const k in P) s += node(...P[k], k, k === 'D' ? { fill: OW, stroke: ORANGE } : { fill: TW, stroke: TEAL });
+    s += `<circle cx="${x0 + 70}" cy="${y0 + 114}" r="10" fill="${W}" stroke="${RED}" stroke-width="1.6"/>` + t(x0 + 70, y0 + 119, '✗', { size: 13, w: 800, c: RED });
+    const bx = x0 + 270;
+    s += tl(bx, y0 + 58, 'Seen list', { size: 12.5, w: 800, c: TEAL });
+    s += `<rect x="${bx}" y="${y0 + 66}" width="${w - (bx - x0) - 18}" height="38" rx="8" fill="${TW}" stroke="${TEAL}" stroke-width="1.4"/>`;
+    ['A', 'B', 'C', 'D'].forEach((k, i) => { s += tl(bx + 18 + i * 62, y0 + 91, k + ' ✓', { size: 15, w: 800 }); });
+    s += tl(bx, y0 + 134, 'After D comes A.', { size: 14, w: 600 }) + tl(bx, y0 + 156, 'A is already seen, so skip it.', { size: 14, w: 800, c: RED }) + tl(bx, y0 + 178, 'Each vertex is visited once.', { size: 14, w: 600 }); }
+  return s + '</svg>';
+}
 
-  // Tree card
-  s += card(4, 4, 164, 250) + lab(18, 30, 'Tree', T, 'start', 15, 800);
-  const P = { A: [86, 70], B: [50, 122], C: [122, 122], D: [30, 174], E: [70, 174], F: [142, 174] };
-  for (const [a, b] of [['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'F']]) s += edge(P[a], P[b]);
-  for (const [k, [x, y]] of Object.entries(P)) s += node(x, y, k, k === 'A' ? C.butter : '#fff');
-  s += lab(106, 56, 'root', O, 'start', 14, 800);
-  s += lab(86, 218, 'one root', soft, 'middle', 15, 800) + lab(86, 238, 'no cycles', soft, 'middle', 15, 800);
+/** BFS Part 3 (chat 65 v2): a realistic school canteen line. Stall with awning, menu board, food trays and a server; students 1-4 in line (front at the counter), student 5 walking up to the rear. */
+export function canteenQueue() {
+  const { TEAL, ORANGE, INK, SOFT, SKY, BUT, TW, OW, W, o, t, tl } = giKit();
+  const VW = 550, VH = 300, FY = 236, SKIN = '#f1c9a0', SKIN2 = '#d9a77c';
+  let s = `<svg class="objbox gi-pic" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="A school canteen. On the left is the stall, with a striped awning, a menu board, trays of food on the counter, and a server behind it. Four students stand in line, numbered 1 to 4. Student 1 is at the front, at the counter, and is served first (dequeue). Student 4 is at the rear. A new student, 5, walks up and joins at the rear (enqueue)."><defs><marker id="cqT" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${TEAL}"/></marker><clipPath id="cqClip"><rect x="0" y="0" width="${VW}" height="${VH}" rx="12"/></clipPath></defs><g clip-path="url(#cqClip)">`;
+  // room: wall, wainscot, tiled floor
+  s += `<rect x="0" y="0" width="${VW}" height="${FY}" fill="#fbf6ec"/><rect x="0" y="${FY - 46}" width="${VW}" height="46" fill="#f1e6d2"/><line x1="0" y1="${FY - 46}" x2="${VW}" y2="${FY - 46}" stroke="#e2d3b8" stroke-width="2"/>`;
+  s += `<rect x="0" y="${FY}" width="${VW}" height="${VH - FY}" fill="#e8ded0"/>` + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => `<line x1="${i * 50}" y1="${FY}" x2="${i * 50 - 20}" y2="${VH}" stroke="#d9ccb9" stroke-width="1.2"/>`).join('') + `<line x1="0" y1="${FY + 30}" x2="${VW}" y2="${FY + 30}" stroke="#d9ccb9" stroke-width="1.2"/>`;
+  // window on the wall
+  s += `<rect x="330" y="30" width="120" height="78" rx="4" fill="#d6e8f5" stroke="#c9b99b" stroke-width="4"/><line x1="390" y1="30" x2="390" y2="108" stroke="#c9b99b" stroke-width="3"/><path d="M340 98 L370 72 L388 88 L404 76 L440 98 Z" fill="#b9d9c6"/>`;
+  // stall: back wall, menu board, awning
+  s += `<rect x="10" y="60" width="150" height="${FY - 60}" fill="#fff3dc" stroke="#d8c3a0" stroke-width="1.5"/>`;
+  s += `<rect x="22" y="84" width="100" height="54" rx="4" fill="#2f3b36" stroke="#8a6a44" stroke-width="3"/>` + t(72, 99, 'MENU', { size: 10, w: 800, c: '#f8dc95' }) + [['Rice meal', '60'], ['Pancit', '40'], ['Juice', '20']].map(([n, p], i) => tl(30, 111 + i * 10, n, { size: 8, w: 600, c: W }) + `<text x="114" y="${111 + i * 10}" text-anchor="end" font-family="Nunito, sans-serif" font-size="8" font-weight="700" fill="#f8dc95">₱${p}</text>`).join('');
+  const stripes = 6, sw = 160 / stripes;
+  for (let i = 0; i < stripes; i++) s += `<path d="M${5 + i * sw} 40 H${5 + (i + 1) * sw} V64 a${sw / 2} 9 0 0 1 ${-sw} 0 Z" fill="${i % 2 ? W : '#e8662e'}" stroke="#c4501f" stroke-width="1"/>`;
+  s += `<rect x="20" y="16" width="130" height="26" rx="6" fill="#a8650f"/>` + t(85, 34, 'CANTEEN', { size: 13, w: 800, c: W });
+  // server behind the counter
+  const sx = 146;
+  s += `<path d="M${sx - 20} 172 Q${sx - 20} 148 ${sx} 148 Q${sx + 20} 148 ${sx + 20} 172 Z" fill="${W}" stroke="${INK}" stroke-width="1.5"/><circle cx="${sx}" cy="134" r="12" fill="${SKIN2}" stroke="${INK}" stroke-width="1.5"/><path d="M${sx - 12} 131 Q${sx - 12} 118 ${sx} 118 Q${sx + 12} 118 ${sx + 12} 131 Z" fill="#9fd0c7" stroke="${INK}" stroke-width="1.3"/>`;
+  // counter with food trays
+  s += `<rect x="6" y="168" width="162" height="10" rx="3" fill="#b9c4c2" stroke="${INK}" stroke-width="1.5"/><rect x="12" y="178" width="150" height="${FY - 178}" fill="#c98f52" stroke="${INK}" stroke-width="1.5"/>` + [0, 1, 2].map((i) => `<line x1="${12 + (i + 1) * 37.5}" y1="182" x2="${12 + (i + 1) * 37.5}" y2="${FY - 4}" stroke="#a9733e" stroke-width="1.5"/>`).join('');
+  [['#f3d27a', 22], ['#e58e5a', 56], ['#a7cf86', 90]].forEach(([f, x]) => { s += `<rect x="${x}" y="160" width="28" height="9" rx="2" fill="#dfe5e4" stroke="${INK}" stroke-width="1.2"/><ellipse cx="${x + 14}" cy="161" rx="11" ry="3" fill="${f}"/>`; });
+  // a student (full body). facing: 1 = toward the counter (left)
+  const kid = (x, hair, shirt, pants, bag, opts = {}) => {
+    const y = FY; let r = '';
+    if (bag) r += `<rect x="${x + 8}" y="${y - 80}" width="16" height="34" rx="5" fill="${bag}" stroke="${INK}" stroke-width="1.4"/>`;
+    const step = opts.walk ? 6 : 0;
+    r += `<rect x="${x - 10 - step}" y="${y - 42}" width="8" height="40" rx="3" fill="${pants}" stroke="${INK}" stroke-width="1.3"/><rect x="${x + 2 + step}" y="${y - 42}" width="8" height="40" rx="3" fill="${pants}" stroke="${INK}" stroke-width="1.3"/>`;
+    r += `<ellipse cx="${x - 7 - step}" cy="${y - 1}" rx="7" ry="3.5" fill="${INK}"/><ellipse cx="${x + 5 + step}" cy="${y - 1}" rx="7" ry="3.5" fill="${INK}"/>`;
+    r += `<path d="M${x - 17} ${y - 40} V${y - 70} Q${x - 17} ${y - 84} ${x} ${y - 84} Q${x + 17} ${y - 84} ${x + 17} ${y - 70} V${y - 40} Z" fill="${shirt}" stroke="${INK}" stroke-width="1.5"/>`;
+    r += `<rect x="${x - 24}" y="${y - 78}" width="8" height="32" rx="4" fill="${shirt}" stroke="${INK}" stroke-width="1.3"/><circle cx="${x - 20}" cy="${y - 44}" r="4" fill="${SKIN}" stroke="${INK}" stroke-width="1.1"/>`;
+    if (bag) r += `<line x1="${x + 10}" y1="${y - 82}" x2="${x + 6}" y2="${y - 48}" stroke="${bag}" stroke-width="3"/>`;
+    r += `<rect x="${x - 4}" y="${y - 92}" width="8" height="10" fill="${SKIN}"/><circle cx="${x}" cy="${y - 102}" r="14" fill="${SKIN}" stroke="${INK}" stroke-width="1.5"/>`;
+    r += `<path d="M${x - 14} ${y - 102} Q${x - 15} ${y - 120} ${x} ${y - 119} Q${x + 15} ${y - 120} ${x + 14} ${y - 100} Q${x + 4} ${y - 110} ${x - 14} ${y - 102} Z" fill="${hair}" stroke="${INK}" stroke-width="1.2"/>`;
+    if (opts.long) r += `<path d="M${x + 10} ${y - 108} Q${x + 18} ${y - 96} ${x + 14} ${y - 84} L${x + 8} ${y - 90} Z" fill="${hair}" stroke="${INK}" stroke-width="1.2"/>`;
+    r += `<circle cx="${x - 6}" cy="${y - 101}" r="1.5" fill="${INK}"/><path d="M${x - 9} ${y - 95} q3 2 6 0" fill="none" stroke="${INK}" stroke-width="1.1" stroke-linecap="round"/>`;
+    return r; };
+  const X = [212, 282, 352, 422];
+  const look = [['#3b2618', OW, '#3a4a6b', '#2f6fa8', true], ['#1b2a2e', TW, '#4a3b2e', '#e8a23b', false], ['#6a3f22', SKY, '#2f3b36', '#0e6b63', true], ['#2d2a26', '#f6d6d0', '#3a4a6b', '#7a5aa8', true]];
+  look.forEach(([h, sh, p, b, lg], i) => { s += kid(X[i], h, sh, p, b, { long: lg && i % 2 === 0 }); });
+  s += `<g opacity="0.9">${kid(510, '#3a2a1e', BUT, '#2f3b36', '#e05a4f', { walk: true })}</g>`;
+  // number tags above heads
+  [...X, 510].forEach((x, i) => { s += `<circle cx="${x}" cy="${FY - 138}" r="12" fill="${i === 4 ? SOFT : INK}" stroke="${W}" stroke-width="2"/>` + t(x, FY - 133.5, String(i + 1), { size: 12, w: 800, c: W }); });
+  // front / rear tags on the floor
+  const tag = (x, y, label, c) => { const w = label.length * 7.2 + 20; return `<rect x="${x - w / 2}" y="${y - 12}" width="${w}" height="24" rx="12" fill="${c}"/>` + t(x, y + 4.5, label, { size: 12, w: 800, c: W }); };
+  s += tag(X[0], FY + 26, 'front', ORANGE) + tag(X[3], FY + 26, 'rear', TEAL);
+  // labels
+  const tag2 = (x, y, l1, l2, c) => { const w = Math.max(l1.length, l2.length) * 6.9 + 22; return `<rect x="${x - w / 2}" y="${y - 19}" width="${w}" height="38" rx="12" fill="${c}"/>` + t(x, y - 3, l1, { size: 11.5, w: 800, c: W }) + t(x, y + 12, l2, { size: 10.5, w: 700, c: W }); };
+  s += tag2(240, FY - 176, 'served first', '(dequeue)', ORANGE);
+  s += `<line x1="488" y1="${FY - 60}" x2="452" y2="${FY - 60}" stroke="${TEAL}" stroke-width="2.6" stroke-dasharray="6 4" marker-end="url(#cqT)"/>` + tag2(484, FY - 176, 'joins at the rear', '(enqueue)', TEAL);
+  return s + '</g></svg>';
+}
 
-  // Graph card
-  s += card(172, 4, 164, 250) + lab(186, 30, 'Graph', O, 'start', 15, 800);
-  const G = { A: [214, 72], B: [294, 72], C: [294, 152], D: [214, 152] };
-  for (const [a, b] of [['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A']]) s += edge(G[a], G[b]);
-  for (const [k, [x, y]] of Object.entries(G)) s += node(x, y, k);
-  // circling arrow in the middle of the cycle
-  s += `<path d="M254 88 A 24 24 0 1 1 231 118" fill="none" stroke="${O}" stroke-width="2.2" marker-end="url(#tgO)"/>`;
-  s += lab(254, 192, 'A, B, C, D, A, …', R, 'middle', 14, 800);
-  s += lab(254, 218, 'no root', soft, 'middle', 15, 800) + lab(254, 238, 'can loop forever', soft, 'middle', 15, 800);
+/** BFS Part 2 (chat 65 v2, realistic + level bands in the bfsWaves colors): friend suggestions (phone app), network hops (tracert), web crawler (queue). */
+export function bfsUsesIT() {
+  const { TEAL, ORANGE, BLUE, INK, SOFT, SKY, BUT, TW, OW, W, o, t, tl, edge, D, card, ln } = giKit();
+  const BAND = ['#fdeee6', '#fdf5e0', '#e9f4f2', '#e9f1f8'], BCOL = ['#e8662e', '#a8650f', '#0e6b63', '#2f6fa8'];
+  const VW = 550, CW = 542, GAP = 36, H1 = 392, H2 = 446, H3 = 394, VH = H1 + H2 + H3 + 2 * GAP + 8;
+  const MONO = "font-family='JetBrains Mono, Menlo, monospace'";
+  const band = (cx, bw, y0, y1, i, label) => `<rect x="${cx - bw / 2}" y="${y0}" width="${bw}" height="${y1 - y0}" rx="10" fill="${BAND[i]}"/>` + t(cx, y0 + 20, label, { size: 12, w: 800, c: BCOL[i] });
+  const cap = (y0, h, s1) => t(4 + CW / 2, y0 + h - 14, s1, { c: SOFT, w: 600 });
+  let s = `<svg class="objbox gi-pic" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="Three places where BFS is used, each sorted into levels. Friend suggestions: You are level 0. Your friends Ana and Migs are level 1. Their friends Bea and Leo are level 2, so a phone app lists them under People you may know, Bea with 2 mutual friends and Leo with 1. Network routes: data can go from your laptop to the school server two ways. Each step to the next device is one hop, and each device is marked with its hop number. The teal route goes through the home router and router A, so it takes 3 hops. The grey route goes through the home router, router B, and router C, so it takes 4 hops. A Command Prompt window shows tracert listing the 3 hops of the teal route. Web crawlers: a crawler starts at the Home page (1). It then visits the pages Home links to, News (2) and Enroll (3), which are 1 link away. Then it visits Sports (4) and Grades (5), which are 2 links away. The nearest pages come first."><defs><marker id="giArrow" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${BLUE}"/></marker></defs>`;
+  // 1. Friend suggestions: level bands + a phone app
+  { const x0 = 4, y0 = 4, c = ORANGE, X = [x0 + 64, x0 + 176, x0 + 288];
+    s += card(x0, y0, CW, H1, 'Friend suggestions', c);
+    ['level 0', 'level 1', 'level 2'].forEach((l, i) => { s += band(X[i], 104, y0 + 46, y0 + 346, i, l); });
+    const P = { You: [X[0], y0 + 196], Ana: [X[1], y0 + 132], Migs: [X[1], y0 + 262], Bea: [X[2], y0 + 132], Leo: [X[2], y0 + 262] };
+    const look = { You: ['#5a3b2a', OW], Ana: ['#1b2a2e', TW], Migs: ['#7a4b2a', SKY], Bea: ['#2d2a26', '#f6d6d0'], Leo: ['#3a2a1e', BUT] };
+    for (const [a, b] of [['You', 'Ana'], ['You', 'Migs'], ['Ana', 'Bea'], ['Migs', 'Bea'], ['Migs', 'Leo']]) s += edge(P[a], P[b], '#8d9593', { ta: 26, tb: 26, sw: 2.2 });
+    for (const k in P) s += D.person(...P[k], ...look[k]) + t(P[k][0], P[k][1] + 36, k);
+    const px = x0 + 360, py = y0 + 46, pw = 168, ph = 300, PH_ = py + ph;
+    s += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="24" fill="${INK}"/><rect x="${px + 6}" y="${py + 6}" width="${pw - 12}" height="${ph - 12}" rx="19" fill="${W}"/><rect x="${px + pw / 2 - 22}" y="${py + 12}" width="44" height="9" rx="4.5" fill="${INK}"/>`;
+    s += tl(px + 20, py + 34, '9:41', { size: 10, w: 800 }) + `<rect x="${px + pw - 40}" y="${py + 26}" width="18" height="9" rx="2" fill="none" stroke="${INK}" stroke-width="1.2"/><rect x="${px + pw - 38}" y="${py + 28}" width="11" height="5" fill="${INK}"/>` + [0, 1, 2].map((i) => `<rect x="${px + pw - 60 + i * 4}" y="${py + 32 - i * 2.5}" width="2.6" height="${3 + i * 2.5}" fill="${INK}"/>`).join('');
+    // header + search
+    s += tl(px + 16, py + 60, 'Friends', { size: 15, w: 800 }) + `<circle cx="${px + pw - 28}" cy="${py + 55}" r="11" fill="#eef0ef"/><circle cx="${px + pw - 29.5}" cy="${py + 53.5}" r="4" fill="none" stroke="${INK}" stroke-width="1.6"/><line x1="${px + pw - 26.5}" y1="${py + 56.5}" x2="${px + pw - 23.5}" y2="${py + 59.5}" stroke="${INK}" stroke-width="1.8" stroke-linecap="round"/>`;
+    // tabs
+    s += `<rect x="${px + 14}" y="${py + 70}" width="72" height="20" rx="10" fill="${OW}"/>` + t(px + 50, py + 84, 'Suggestions', { size: 10, w: 800, c: '#b4461a' }) + `<rect x="${px + 92}" y="${py + 70}" width="62" height="20" rx="10" fill="#eef0ef"/>` + t(px + 123, py + 84, 'Your friends', { size: 9.5, w: 700, c: SOFT });
+    s += tl(px + 16, py + 112, 'People you may know', { size: 10.5, w: 800, c: INK });
+    const av = (cx, cy, r, hair, shirt, bg) => { const id = 'av' + Math.round(cx) + Math.round(cy); return `<defs><clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs><circle cx="${cx}" cy="${cy}" r="${r}" fill="${bg}"/><g clip-path="url(#${id})"><path d="M${cx - r * 0.75} ${cy + r} Q${cx - r * 0.75} ${cy + r * 0.3} ${cx} ${cy + r * 0.3} Q${cx + r * 0.75} ${cy + r * 0.3} ${cx + r * 0.75} ${cy + r} Z" fill="${shirt}"/><circle cx="${cx}" cy="${cy - r * 0.15}" r="${r * 0.38}" fill="${SKIN}"/><path d="M${cx - r * 0.38} ${cy - r * 0.18} A${r * 0.38} ${r * 0.38} 0 0 1 ${cx + r * 0.38} ${cy - r * 0.18} Q${cx} ${cy - r * 0.38} ${cx - r * 0.38} ${cy - r * 0.18} Z" fill="${hair}"/></g>`; };
+    const SKIN = '#f3cfa6';
+    [['Bea', 2, look.Bea, '#fde3dd', [look.Ana, look.Migs]], ['Leo', 1, look.Leo, '#fdf0c8', [look.Migs]]].forEach(([n, m, lk, bg, mu], i) => {
+      const ry = py + 140 + i * 66;
+      s += `<rect x="${px + 10}" y="${ry - 20}" width="${pw - 20}" height="60" rx="10" fill="#f7f8f7"/>`;
+      s += av(px + 34, ry + 2, 17, lk[0], lk[1], bg) + tl(px + 58, ry - 3, n, { size: 12.5, w: 800 });
+      mu.forEach((q, j) => { s += av(px + 63 + j * 8, ry + 9, 5.5, q[0], q[1], '#e7eceb') + `<circle cx="${px + 63 + j * 8}" cy="${ry + 9}" r="5.5" fill="none" stroke="#f7f8f7" stroke-width="1.2"/>`; });
+      s += tl(px + 63 + mu.length * 8 + 2, ry + 12.5, m + ' mutual friend' + (m > 1 ? 's' : ''), { size: 9, w: 600, c: SOFT });
+      s += `<rect x="${px + 58}" y="${ry + 19}" width="52" height="17" rx="8.5" fill="${c}"/>` + t(px + 84, ry + 31, 'Add', { size: 10, w: 800, c: W }) + `<rect x="${px + 114}" y="${ry + 19}" width="40" height="17" rx="8.5" fill="#e4e7e6"/>` + t(px + 134, ry + 31, 'Hide', { size: 10, w: 800, c: INK }); });
+    // bottom navigation
+    const ny = PH_ - 30;
+    s += `<line x1="${px + 6}" y1="${ny - 14}" x2="${px + pw - 6}" y2="${ny - 14}" stroke="#e3e6e4"/>`;
+    const nx = [px + 30, px + 66, px + 102, px + 138];
+    s += `<path d="M${nx[0] - 7} ${ny + 1} L${nx[0]} ${ny - 6} L${nx[0] + 7} ${ny + 1} V${ny + 8} H${nx[0] - 7} Z" fill="none" stroke="${SOFT}" stroke-width="1.6" stroke-linejoin="round"/>`;
+    s += `<circle cx="${nx[1] - 3}" cy="${ny - 2}" r="3.5" fill="${c}"/><path d="M${nx[1] - 9} ${ny + 8} Q${nx[1] - 9} ${ny + 2} ${nx[1] - 3} ${ny + 2} Q${nx[1] + 3} ${ny + 2} ${nx[1] + 3} ${ny + 8} Z" fill="${c}"/><circle cx="${nx[1] + 5}" cy="${ny - 1}" r="3" fill="${c}" opacity="0.6"/><path d="M${nx[1] + 2} ${ny + 8} Q${nx[1] + 3} ${ny + 3} ${nx[1] + 6} ${ny + 3} Q${nx[1] + 10} ${ny + 3} ${nx[1] + 10} ${ny + 8} Z" fill="${c}" opacity="0.6"/><rect x="${nx[1] - 10}" y="${ny + 11}" width="20" height="2.5" rx="1.2" fill="${c}"/>`;
+    s += `<path d="M${nx[2] - 6} ${ny + 5} V${ny} a6 6 0 0 1 12 0 V${ny + 5} l2 2 H${nx[2] - 8} Z" fill="none" stroke="${SOFT}" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${nx[2]}" cy="${ny + 10}" r="1.6" fill="${SOFT}"/>`;
+    s += [0, 1, 2].map((i) => `<line x1="${nx[3] - 7}" y1="${ny - 3 + i * 5}" x2="${nx[3] + 7}" y2="${ny - 3 + i * 5}" stroke="${SOFT}" stroke-width="1.6" stroke-linecap="round"/>`).join('');
+    s += cap(y0, H1, 'The app suggests people at level 2. They are friends of your friends.'); }
+  // 2. Network routes: two routes with numbered hops on the edges (teal 3 hops, grey 4 hops) + tracert of the teal one
+  { const x0 = 4, y0 = 4 + H1 + GAP, c = TEAL, GR = '#8d9593';
+    s += card(x0, y0, CW, H2, 'Network routes', c);
+    const T = y0 + 118, Bm = y0 + 234, M = (T + Bm) / 2;
+    const P = { lap: [x0 + 48, M], home: [x0 + 144, M], A: [x0 + 296, T], B: [x0 + 246, Bm], C: [x0 + 372, Bm], srv: [x0 + 456, M] };
+    const route = [[['lap', 'home'], ['home', 'A'], ['A', 'srv']], [['home', 'B'], ['B', 'C'], ['C', 'srv']]];
+    route[1].forEach(([a, b]) => { s += edge(P[a], P[b], GR, { ta: 30, tb: 30, sw: 3 }); });
+    route[0].forEach(([a, b]) => { s += edge(P[a], P[b], c, { ta: 30, tb: 30, sw: 4 }); });
+    const pill = (k, n, col, dx, dy) => { const x = P[k][0] + dx, y = P[k][1] + dy; return `<rect x="${x - 24}" y="${y - 10}" width="48" height="20" rx="10" fill="${col}"/>` + t(x, y + 4.5, 'hop ' + n, { size: 11, w: 800, c: W }); };
+    const badges = () => pill('home', 1, c, 0, -42) + pill('A', 2, c, 0, -42) + pill('srv', 3, c, 52, -12) + pill('B', 2, '#55605f', -48, 6) + pill('C', 3, '#55605f', 48, 6) + pill('srv', 4, '#55605f', 52, 14);
+    s += D.laptop(...P.lap) + D.router(...P.home) + D.router(...P.A) + D.router(...P.B) + D.router(...P.C);
+    const S = P.srv; s += `<rect x="${S[0] - 16}" y="${S[1] - 24}" width="32" height="48" rx="4" fill="${INK}" ${o}/>` + [0, 1, 2].map((i) => `<rect x="${S[0] - 10}" y="${S[1] - 18 + i * 15}" width="20" height="10" rx="2" fill="#3a4a4e"/><circle cx="${S[0] + 6}" cy="${S[1] - 13 + i * 15}" r="1.7" fill="#7fd3a6"/>`).join('');
+    [['lap', 'your laptop', 30], ['home', 'home router', 30], ['A', 'router A', 30], ['B', 'router B', 30], ['srv', 'school server', -34], ['C', 'router C', 30]].forEach(([k, n, d]) => { s += t(P[k][0], P[k][1] + d, n, { size: 11.5 }); });
+    s += badges();
+    s += `<rect x="${x0 + 18}" y="${y0 + 46}" width="14" height="5" rx="2.5" fill="${c}"/>` + tl(x0 + 38, y0 + 52, 'teal route, 3 hops', { size: 11, w: 800, c }) + `<rect x="${x0 + 180}" y="${y0 + 46}" width="14" height="5" rx="2.5" fill="${GR}"/>` + tl(x0 + 200, y0 + 52, 'grey route, 4 hops', { size: 11, w: 800, c: '#55605f' });
+    const tx = x0 + 18, ty = y0 + 284, tw = CW - 36, th = 130;
+    s += `<rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="8" fill="#14191b"/><path d="M${tx} ${ty + 22} V${ty + 8} a8 8 0 0 1 8 -8 H${tx + tw - 8} a8 8 0 0 1 8 8 V${ty + 22} Z" fill="#3a4245"/>` + tl(tx + 12, ty + 15, 'Command Prompt', { size: 10.5, w: 700, c: '#d6dcda' });
+    const mono = (x, y, s1, cl = '#e6efe9', wt = 500) => `<text x="${x}" y="${y}" ${MONO} font-size="11.5" font-weight="${wt}" fill="${cl}">${s1}</text>`;
+    s += mono(tx + 12, ty + 42, 'C:\\&gt; tracert school.edu.ph', '#ffffff', 700) + mono(tx + 12, ty + 60, 'Tracing route to school.edu.ph [203.0.113.5]', '#b9c4c0');
+    [['1', '2 ms', '192.168.1.1', 'home router'], ['2', '10 ms', '10.20.0.1', 'router A'], ['3', '15 ms', '203.0.113.5', 'school server']].forEach(([h, ms, ip, nm], i) => {
+      const ly = ty + 80 + i * 16; s += mono(tx + 20, ly, h, '#7fd3a6', 800) + mono(tx + 48, ly, ms) + mono(tx + 118, ly, ip) + mono(tx + 260, ly, '← ' + nm, '#f8dc95', 600); });
+    s += cap(y0, H2, 'Teal takes 3 hops and grey takes 4. BFS finds the route with the fewest hops.'); }
+  // 3. Web crawlers (chat 65 v5): five realistic mini web pages by distance, numbered in visit order
+  { const x0 = 4, y0 = 4 + H1 + H2 + 2 * GAP, c = BLUE, WW2 = 146, WH = 124;
+    s += card(x0, y0, CW, H3, 'Web crawlers', c);
+    const CX = [x0 + 18, x0 + 198, x0 + 378], TOP = y0 + 82, BOT = y0 + 226, MID = (TOP + BOT) / 2;
+    ['start', '1 link away', '2 links away'].forEach((h, i) => { s += t(CX[i] + WW2 / 2, y0 + 64, h, { size: 12.5, w: 800, c: BCOL[i] }); });
+    const P = { home: [CX[0], MID, 0, 'Welcome!', ['News', 'Enroll'], '#f8dc95'], news: [CX[1], TOP, 1, 'Campus News', ['Sports'], '#cfe3f3'], enroll: [CX[1], BOT, 1, 'Enrollment', ['Grades'], '#d7ece9'], sports: [CX[2], TOP, 2, 'Sports Fest', [], '#fbdccc'], grades: [CX[2], BOT, 2, 'Your Grades', [], '#e9dcf3'] };
+    for (const [a, b] of [['home', 'news'], ['home', 'enroll'], ['news', 'sports'], ['enroll', 'grades']]) s += `<line x1="${P[a][0] + WW2 + 2}" y1="${P[a][1] + WH / 2}" x2="${P[b][0] - 8}" y2="${P[b][1] + WH / 2}" stroke="${c}" stroke-width="2.4" marker-end="url(#giArrow)"/>`;
+    ['home', 'news', 'enroll', 'sports', 'grades'].forEach((k, n) => {
+      const [x, y, lv, title, links, img] = P[k];
+      // browser chrome
+      s += `<rect x="${x}" y="${y}" width="${WW2}" height="${WH}" rx="7" fill="${W}" stroke="${BCOL[lv]}" stroke-width="2"/><path d="M${x} ${y + 20} V${y + 7} a7 7 0 0 1 7 -7 H${x + WW2 - 7} a7 7 0 0 1 7 7 V${y + 20} Z" fill="#e9ecea"/>`;
+      s += [0, 1, 2].map((i) => `<circle cx="${x + 24 + i * 6.5}" cy="${y + 10}" r="2.1" fill="${['#ec6a5e', '#f4bf4f', '#61c554'][i]}"/>`).join('');
+      s += `<rect x="${x + 46}" y="${y + 4}" width="${WW2 - 52}" height="12" rx="6" fill="${W}"/>` + tl(x + 51, y + 13, 'school.edu.ph/' + k, { size: 8, w: 600, c: SOFT });
+      // site header with logo and nav links
+      s += `<rect x="${x + 1}" y="${y + 20}" width="${WW2 - 2}" height="18" fill="#1f3b57"/><circle cx="${x + 11}" cy="${y + 29}" r="5" fill="#f8dc95"/>` + tl(x + 19, y + 32.5, 'Bayview University', { size: 8.5, w: 800, c: W }) + `<rect x="${x + 1}" y="${y + 38}" width="${WW2 - 2}" height="14" fill="#dce6f0"/>`;
+      links.forEach((l, i) => { const lx = x + 9 + i * 40; s += `<text x="${lx}" y="${y + 48.5}" font-family="Nunito, sans-serif" font-size="9" font-weight="800" fill="#1a47a8" text-decoration="underline">${l}</text>`; });
+      // page body
+      s += tl(x + 9, y + 68, title, { size: 11.5, w: 800 });
+      s += `<rect x="${x + 9}" y="${y + 76}" width="48" height="38" rx="4" fill="${img}"/><path d="M${x + 13} ${y + 110} l10 -12 l8 8 l6 -6 l12 10 Z" fill="#ffffff" opacity="0.7"/><circle cx="${x + 46}" cy="${y + 84}" r="3.5" fill="#ffffff" opacity="0.8"/>`;
+      [0, 1, 2, 3].forEach((i) => { s += `<rect x="${x + 64}" y="${y + 79 + i * 9}" width="${[76, 66, 72, 50][i]}" height="4.5" rx="2.2" fill="#dfe3e1"/>`; });
+      s += `<circle cx="${x + 2}" cy="${y + 2}" r="12" fill="${BCOL[lv]}" stroke="${W}" stroke-width="2"/>` + t(x + 2, y + 6.5, String(n + 1), { size: 12.5, w: 800, c: W }); });
+    s += cap(y0, H3, 'Underlined words are links. Numbers show the visit order, nearest pages first.'); }
+  return s + '</svg>';
+}
 
-  // Fix card
-  s += card(4, 266, 332, 178) + lab(18, 292, 'The fix: remember what you have seen', T, 'start', 15, 800);
-  const F = { A: [44, 330], B: [118, 330], C: [118, 400], D: [44, 400] };
-  for (const [a, b] of [['A', 'B'], ['B', 'C'], ['C', 'D']]) s += edge(F[a], F[b], T, ' stroke-width="2.4"');
-  s += edge([44, 386], [44, 344], soft, ' stroke-dasharray="4 4"');
-  for (const [k, [x, y]] of Object.entries(F)) s += node(x, y, k, k === 'D' ? C.orangeWash : C.tealWash, k === 'D' ? O : T);
-  s += `<circle cx="44" cy="365" r="9" fill="#fff" stroke="${R}" stroke-width="1.6"/>` + lab(44, 370, '✗', R, 'middle', 13, 800);
-  s += `<rect x="150" y="312" width="180" height="32" rx="7" fill="${C.tealWash}" stroke="${T}" stroke-width="1.4"/>`;
-  s += lab(158, 333, 'seen:', T, 'start', 14, 800) + lab(200, 333, 'A✓ B✓ C✓ D✓', ink, 'start', 15, 800);
-  s += lab(152, 372, 'After D comes A.', ink, 'start', 15) + lab(152, 396, 'A is seen: skip it.', R, 'start', 15, 800) + lab(152, 420, 'Each one visited once.', ink, 'start', 15);
+/** BFS Part 1: three IT graphs that get traversed, laid out by distance from the start (start, 1 edge, 2 edges). */
+export function graphsTraversedIT() {
+  const { TEAL, ORANGE, BLUE, INK, SOFT, SKY, BUT, TW, OW, W, t, edge, D, card } = giKit();
+  const VW = 550, CW = 542, CH = 222, GAP = 36, VH = 3 * CH + 2 * GAP + 8;
+  const cols = (x0) => [x0 + 92, x0 + 271, x0 + 450];
+  const frame = (x0, y0, title, c, cap) => { let r = card(x0, y0, CW, CH, title, c); const X = cols(x0);
+    ['start', '1 edge away', '2 edges away'].forEach((h, i) => { r += t(X[i], y0 + 54, h, { size: 12, w: 800, c: i ? c : SOFT }); });
+    for (const x of [x0 + 181, x0 + 361]) r += `<line x1="${x}" y1="${y0 + 44}" x2="${x}" y2="${y0 + 192}" stroke="#d9dedb" stroke-width="1.4" stroke-dasharray="4 5"/>`;
+    return r + t(x0 + CW / 2, y0 + 210, cap, { c: SOFT, w: 600 }); };
+  const top = 86, bot = 154, mid = 120;
+  let s = `<svg class="objbox gi-pic" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="Three IT graphs, each laid out from the start. Social media: You are the start. Ana and Migs, your friends, are 1 edge away. Bea and Leo, their friends, are 2 edges away. Computer network: your laptop is the start, the router is 1 edge away, and the printer, phone, and tablet are 2 edges away. The web: the Home page is the start. News and Enroll, linked from Home, are 1 edge away. Sports and Grades, linked from those pages, are 2 edges away."><defs><marker id="giArrow" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${BLUE}"/></marker></defs>`;
+  { const x0 = 4, y0 = 4, X = cols(x0), c = ORANGE;
+    const P = { You: [X[0], y0 + mid], Ana: [X[1], y0 + top], Migs: [X[1], y0 + bot], Bea: [X[2], y0 + top], Leo: [X[2], y0 + bot] };
+    const look = { You: ['#5a3b2a', OW], Ana: ['#1b2a2e', TW], Migs: ['#7a4b2a', SKY], Bea: ['#2d2a26', '#f6d6d0'], Leo: ['#3a2a1e', BUT] };
+    s += frame(x0, y0, 'Social media', c, 'Vertices are people. Edges are friendships.');
+    for (const [a, b] of [['You', 'Ana'], ['You', 'Migs'], ['Ana', 'Bea'], ['Migs', 'Bea'], ['Migs', 'Leo']]) s += edge(P[a], P[b], c, { ta: 26, tb: 26 });
+    for (const k in P) s += D.person(...P[k], ...look[k]) + t(P[k][0], P[k][1] + 36, k); }
+  { const x0 = 4, y0 = 4 + CH + GAP, X = cols(x0), c = TEAL;
+    const Lp = [X[0], y0 + mid], Rt = [X[1], y0 + mid + 4], out = [['printer', y0 + 88], ['phone', y0 + 128], ['tablet', y0 + 168]];
+    s += frame(x0, y0, 'Computer network', c, 'Vertices are devices. Edges are cables or Wi-Fi.');
+    s += edge(Lp, Rt, c, { ta: 26, tb: 26 });
+    for (const [, y] of out) s += edge(Rt, [X[2], y], c, { ta: 26, tb: 24 });
+    s += D.laptop(...Lp) + t(Lp[0], Lp[1] + 32, 'your laptop') + D.router(...Rt) + t(Rt[0], Rt[1] + 32, 'router');
+    for (const [n, y] of out) s += D[n](X[2], y) + `<text x="${X[2] + 28}" y="${y + 5}" font-family='Nunito, sans-serif' font-size="12" font-weight="700" fill="${INK}">${n}</text>`; }
+  { const x0 = 4, y0 = 4 + 2 * (CH + GAP), X = cols(x0), c = BLUE;
+    const P = { Home: [X[0], y0 + mid], News: [X[1], y0 + top - 4], Enroll: [X[1], y0 + bot - 4], Sports: [X[2], y0 + top - 4], Grades: [X[2], y0 + bot - 4] };
+    const img = { Home: BUT, News: OW, Enroll: TW, Sports: SKY, Grades: '#f6d6d0' };
+    s += frame(x0, y0, 'The web', c, 'Vertices are pages. Edges are links.');
+    for (const [a, b] of [['Home', 'News'], ['Home', 'Enroll'], ['News', 'Sports'], ['Enroll', 'Grades']]) s += edge(P[a], P[b], c, { arrow: true, ta: 26, tb: 28 });
+    for (const k in P) s += D.page(...P[k], img[k]) + t(P[k][0], P[k][1] + 36, k); }
   return s + '</svg>';
 }
 

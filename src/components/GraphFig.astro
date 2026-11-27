@@ -1,11 +1,11 @@
 ---
 // Graph drawn at build time, optionally with its adjacency matrix and/or list beside it.
 import { svgGraph, ids, matrix, neighbors } from '../lib/graph.js';
-interface Props { g: any; show?: ('graph' | 'matrix' | 'list')[]; nodeMarks?: Record<string, string>; edgeMarks?: Record<string, string>; labels?: Record<string, string>; label?: string; w?: number; h?: number; caption?: string; }
-const { g, show = ['graph'], nodeMarks, edgeMarks, labels, label = 'Graph diagram', w, h, caption } = Astro.props;
+interface Props { g: any; show?: ('graph' | 'matrix' | 'list')[]; nodeMarks?: Record<string, string>; edgeMarks?: Record<string, string>; labels?: Record<string, string>; labelAt?: Record<string, string>; label?: string; w?: number; h?: number; caption?: string; }
+const { g, show = ['graph'], nodeMarks, edgeMarks, labels, labelAt, label = 'Graph diagram', w, h, caption } = Astro.props;
 const I = ids(g);
 const M = matrix(g);
-const svg = svgGraph(g, { nodeMarks, edgeMarks, labels, label, w, h });
+const svg = svgGraph(g, { nodeMarks, edgeMarks, labels, labelAt, label, w, h });
 ---
 <div class={`gfig cols-${show.length}`}>
   {show.includes('graph') && <div class="gfig-g" set:html={svg} />}

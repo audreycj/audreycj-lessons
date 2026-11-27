@@ -2,17 +2,19 @@
 // Picture-only stepper (no code): one picture + one sentence per step, Back / Next / Start over.
 // All steps share one grid cell (reuses the CodeWalk .cw-steps styles), so the panel never changes height.
 interface Step { pic: string; say: string; label?: string }
-interface Props { id: string; steps: Step[]; cap?: string; hint?: string; }
-const { id, steps, cap = 'Step by step', hint = 'Use Next to go through the steps.' } = Astro.props;
+interface Props { id: string; steps: Step[]; cap?: string; hint?: string; legend?: string; }
+const { id, steps, cap = 'Step by step', hint = 'Use Next to go through the steps.', legend } = Astro.props;
+// legend="bfs" (chat 65): a small color key under the buttons instead of the hint line
+const KEYS: Record<string, [string, string][]> = { bfs: [['k-now', 'Being checked'], ['k-wait', 'Still in the queue'], ['k-done', 'Checked'], ['k-new', 'Just written']] };
 ---
 <figure class="fig ss" id={id}>
   <p class="fig-cap">{cap}</p>
-  <p class="fig-hint">{hint}</p>
+  {!legend && <p class="fig-hint">{hint}</p>}
   <div class="cw-steps">
     {steps.map((s, i) => (
       <div class={i === 0 ? 'cw-step' : 'cw-step is-hidden'} aria-hidden={i === 0 ? 'false' : 'true'} data-label={s.label}>
         <div class="cw-pic" set:html={s.pic} />
-        <p class="cw-say" set:html={s.say} />
+        <div class="cw-say" set:html={s.say} />
       </div>
     ))}
   </div>
@@ -22,6 +24,7 @@ const { id, steps, cap = 'Step by step', hint = 'Use Next to go through the step
     <span class="cw-count mono small" aria-live="polite">{steps[0].label || `Step 1 of ${steps.length}`}</span>
     <button type="button" class="btn primary" data-go="next">Next →</button>
   </div>
+  {legend && KEYS[legend] && <p class="ss-legend">{KEYS[legend].map(([k, l]) => <span class="ss-key"><i class={k} aria-hidden="true"></i>{l}</span>)}</p>}
 </figure>
 
 <script>

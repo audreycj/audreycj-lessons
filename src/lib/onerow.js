@@ -133,7 +133,7 @@ export function rowSvg(st, mode, opts = {}) {
     const cls = ['rw-cell', done ? 'is-done' : 'is-wait', st.now === x ? 'is-now' : '', st.fresh.includes(x) ? 'is-new' : ''].join(' ');
     s += `<g class="${cls}"><rect x="${cx - cw / 2}" y="${y0}" width="${cw}" height="${cw}" rx="6"/><text class="rw-l" x="${cx}" y="${y0 + cw / 2}">${x}</text>`;
     if (done) s += `<text class="rw-ck" x="${cx}" y="${y0 - 12}">✓</text>`;
-    if (mode === 'bfs' && st.level[x] != null) s += `<text class="rw-lv" x="${cx}" y="${y0 + cw + 18}">L${st.level[x]}</text>`;
+    if (mode === 'bfs' && !opts.noRowLevels && st.level[x] != null) s += `<text class="rw-lv" x="${cx}" y="${y0 + cw + 18}">L${st.level[x]}</text>`;
     if (mode === 'dfs' && x === topLetter) s += `<text class="rw-top" x="${cx}" y="${y0 + cw + 16}">top</text>`;
     s += '</g>';
   });
@@ -153,15 +153,15 @@ export function stepPic(g, st, mode, opts = {}) {
     const u = [...st.row.slice(0, -1)].reverse().find((x) => !st.checked.includes(x));
     if (u) edgeMarks[`${u}-${v}`] = 'look';
   }
-  const graph = svgGraph(g, { nodeMarks, edgeMarks, labels, label: opts.label || `${mode.toUpperCase()} step` });
+  const graph = svgGraph(g, { nodeMarks, edgeMarks, labels, label: opts.label || `${mode.toUpperCase()} step`, fit: true, labelAt: opts.labelAt, padR: opts.padR });
   const title = mode === 'bfs' ? 'The queue, in one row' : 'The stack, in one row';
   const N = Math.max(g.nodes.length, 6), minW = 16 + N * 38 + (N - 1) * 6;
-  return `<div class="row-pic"><div class="rp-g">${graph}</div><div class="rp-r"><p class="rp-t">${title}</p>${rowSvg(st, mode, { minW })}</div></div>`;
+  return `<div class="row-pic"><div class="rp-g">${graph}</div><div class="rp-r"><p class="rp-t">${opts.title || title}</p>${rowSvg(st, mode, { minW, noRowLevels: opts.noRowLevels })}</div></div>`;
 }
 
 /** StepShow steps for a run. */
-export function rowShow(g, run, mode) {
-  return run.steps.map((st, i) => ({ pic: stepPic(g, st, mode, { label: `${mode.toUpperCase()} step ${i + 1}` }), say: st.say }));
+export function rowShow(g, run, mode, o = {}) {
+  return run.steps.map((st, i) => ({ pic: stepPic(g, st, mode, { label: `${mode.toUpperCase()} step ${i + 1}`, ...o }), say: st.say }));
 }
 
 /* ---------------- Answer blocks (exam format) ---------------- */

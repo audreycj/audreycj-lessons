@@ -1845,9 +1845,11 @@ body.nb .flow > .concept { margin-top: 2.6rem; }
 /* ===== ITC 120 Graphs / BFS / DFS, Week 16 one-row method (chat 64) ===== */
 /* Step pictures: graph on top, the queue/stack row under it. */
 .row-pic { display: grid; gap: 0.5rem; width: 100%; justify-items: center; }
-.cw-pic .row-pic svg.graph-svg { max-height: 12.5rem; width: 100%; }
+.cw-pic .row-pic svg.graph-svg { max-height: 18rem; width: 100%; }
+.row-pic .graph-svg .g-lab { font-size: 15px !important; } /* chat 65: bigger level labels in steppers */
 .cw-pic .row-pic svg.row-svg, .row-pic svg.row-svg { max-height: none; width: 100%; height: auto; display: block; margin-inline: auto; }
 .row-pic .rp-g, .row-pic .rp-r { width: 100%; max-width: 26rem; }
+.row-pic .rp-g { max-width: 34rem; }
 .row-pic .rp-t { margin: 0; text-align: center; font-weight: 800; font-size: var(--step--1); color: var(--ink-soft); }
 .row-svg .rw-cell rect { fill: var(--card); stroke: var(--ink); stroke-width: 1.8; }
 .row-svg .rw-cell.is-wait rect { fill: var(--teal-wash); stroke: var(--teal); }
@@ -2202,3 +2204,50 @@ body:not(.theme-it110) .sub > h3:not(.blk-h):not(.cat-h), body:not(.theme-it110)
 .wpath-t:hover, .wpath-t.on, .wpath-t:focus-visible { background: var(--teal-wash); }
 .def .def-lead { padding-bottom: 0.6rem; border-bottom: 1.5px dashed var(--line); }
 .hl-mark { font-weight: 700; background-image: linear-gradient(var(--butter), var(--butter)); background-repeat: no-repeat; background-size: 100% 0.5em; background-position: 0 88%; padding: 0 0.1em; }
+
+/* BFS Part 1 (chat 65): "You already know this from trees" box. Butter, not teal or pink. */
+.known-box { background: #fdf5e0; border-left: 6px solid #e8a23b; border-radius: 4px 8px 8px 4px; padding: 0.9rem 1.1rem 1rem; display: grid; gap: 0.7rem; }
+.known-box .note-label { color: #a8650f; margin: 0; }
+.known-box p { margin: 0; }
+.known-box svg.kt-pic { display: block; width: 100%; max-width: 32rem; margin: 0.2rem auto 0; height: auto; }
+/* chat 65: clear break before each subpart (BFS; add "subgap" to a page's theme to use it) */
+body.subgap .chapter > .flow > * + h3,
+body.subgap .chapter > .flow > * + [data-toc]:not(.ex-q) { margin-top: 3.2rem; }
+body.subgap .chapter > .flow > * + .sub { margin-top: 1.9rem; }
+/* chat 65: StepShow color key (legend="bfs") and numbered say lists */
+.ss-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 1rem; margin: 0.7rem 0 0; font-size: 0.82rem; color: var(--ink-soft); }
+.ss-key { display: inline-flex; align-items: center; gap: 0.35rem; }
+.ss-key i { width: 0.95rem; height: 0.95rem; border-radius: 4px; display: inline-block; border: 2px solid transparent; }
+.ss-key i.k-now { background: var(--orange); border-color: var(--orange-ink); }
+.ss-key i.k-wait { background: var(--teal-wash); border-color: var(--teal); }
+.ss-key i.k-done { background: var(--teal); border-color: var(--teal-ink); }
+.ss-key i.k-new { background: #fff; border-color: var(--orange); border-width: 2.5px; }
+.cw-say ol.say-steps { margin: 0; padding-left: 1.4rem; display: grid; gap: 0.45rem; }
+.cw-say ol.say-steps + p, .cw-say p + ol.say-steps { margin-top: 0.5rem; }
+.cw-say > p { margin: 0; }
+/* chat 65: styled phrases in stepper text (colors match the stepper key) */
+.cw-say .vchip { font-size: 0.9em; height: 1.55em; min-width: 1.55em; margin: 0 0.08em; vertical-align: 0.05em; }
+.cw-say .vc-new { background: #fff; color: var(--ink); border-color: var(--orange); border-width: 2.5px; }
+.cw-say .vc-wait { background: var(--teal-wash); color: var(--teal-ink); border-color: var(--teal); }
+.cw-say .lv { font-family: var(--font-mono); font-weight: 700; color: var(--orange-ink); background: #fdeee6; border-radius: 6px; padding: 0.05em 0.35em; }
+.cw-say .act { color: var(--ink); }
+.cw-say .skip { color: var(--ink-soft); font-style: italic; }
+.cw-say .bfs-ans { font-family: var(--font-mono); font-weight: 800; color: var(--teal-ink); background: var(--teal-wash); border-radius: 6px; padding: 0.1em 0.45em; }
+.cw-say .vc-new, .cw-say .vc-wait { border-radius: 5px; } /* chat 65: letters in the queue look like the queue's boxes */
+.cw-say .ck { color: var(--teal); font-weight: 900; } /* same color as the ✓ in the row */
+.fig.ss .ss-legend { margin-top: 1.4rem; margin-bottom: 1.6rem; } /* chat 65: roomier key under the stepper buttons */
+/* chat 65: BFS "Why alphabetical order?" emphasis */
+.alpha-rule { font-size: 1.08em; }
+.warn-txt { font-weight: 700; background-image: linear-gradient(#f6b8b0, #f6b8b0); background-repeat: no-repeat; background-size: 100% 0.5em; background-position: 0 88%; padding: 0 0.1em; -webkit-box-decoration-break: clone; box-decoration-break: clone; } /* like .hl-mark, but red */
+/* chat 65: level table styled like her deck (dark header row, white text; level values orange bold) */
+table.lvl-tbl { border-collapse: collapse; }
+table.lvl-tbl th, table.lvl-tbl td { border: 1.5px solid #c9d3d4; }
+table.lvl-tbl tr:first-child th { background: #15292c; color: #fff; font-family: var(--font-body); font-weight: 800; }
+table.lvl-tbl tr:nth-child(2) th { background: #fff; color: var(--ink); font-weight: 600; }
+table.lvl-tbl tr:nth-child(2) td { background: #fff; color: var(--orange); font-weight: 800; font-family: var(--font-body); font-size: 1.05em; }
+/* chips usable outside steppers too (Part 4 text) */
+.lvl-text .vchip { font-size: 0.9em; height: 1.55em; min-width: 1.55em; margin: 0 0.08em; vertical-align: 0.05em; background: #fff; color: var(--ink); border-color: var(--ink); }
+.lvl-text .lv { font-family: var(--font-mono); font-weight: 700; color: var(--orange-ink); background: #fdeee6; border-radius: 6px; padding: 0.05em 0.35em; }
+table.lvl-tbl { width: auto; min-width: 0; } /* chat 65: hug the content instead of the full width */
+table.lvl-tbl th, table.lvl-tbl td { min-width: 3rem; padding: 0.45rem 0.7rem; }
+table.lvl-tbl th[scope="row"] { min-width: 0; padding-right: 1rem; }
