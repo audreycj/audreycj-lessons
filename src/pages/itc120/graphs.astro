@@ -362,7 +362,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
             <tr><td><b>Connected?</b></td><td>always</td><td>not always; some parts can be separate</td></tr>
           </tbody>
         </table>
-        <p>So: <b>every tree is a graph, but not every graph is a tree.</b></p>
+        <p class="tree-sum">So <b>every tree is a graph, but not every graph is a tree.</b></p>
       </div>
 
       <div class="remember flow">
@@ -388,10 +388,10 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <h2>Graph terminology</h2>
     </div>
     <div class="flow">
-      <p>These are the basic terms used with graphs. The examples refer to the small graph above. <b>Tap any row</b> to see it in the graph (on a computer, just point at the row).</p>
+      <p>These are the basic terms used with graphs. The examples all use the small graph shown with the table. <b>Tap any row</b> to see that term in the graph.</p>
       <div class="terms-ref">
         <aside class="tr-side" aria-label="The small graph, for reference">
-          <GraphFig g={small} label="The small graph: A connects to B and D; B connects to C and D" />
+          <GraphFig g={{ ...small, edges: [...small.edges, { a: 'C', b: 'C' }] }} label="The small graph: A connects to B and D, and B connects to C and D" />
           <p class="tr-note small">Orange = the term. Gold = the related vertices.</p>
         </aside>
         <div class="tr-main scroll-x">
@@ -400,11 +400,11 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
             <tbody>
             <tr tabindex="0" data-hl="A" data-hl2="" data-e=""><td><b>Vertex</b> (node)</td><td>one item in the graph</td><td>A</td></tr>
             <tr tabindex="0" data-hl="A,B" data-hl2="" data-e="A-B"><td><b>Edge</b></td><td>a connection between two vertices</td><td>A–B</td></tr>
-            <tr tabindex="0" data-hl="B,C" data-hl2="" data-e="B-C"><td><b>Adjacent</b> (neighbors)</td><td>two vertices joined by an edge</td><td>B and C are adjacent; A and C are not</td></tr>
+            <tr tabindex="0" data-hl="B,C" data-hl2="" data-e="B-C"><td><b>Adjacent</b> (neighbors)</td><td>two vertices joined by an edge</td><td>B and C are adjacent. You can also say <b>B is adjacent to C</b>, or <b>B is a neighbor of C</b>. A and C are not adjacent.</td></tr>
             <tr tabindex="0" data-hl="B" data-hl2="A,C,D" data-e="A-B,B-C,B-D"><td><b>Degree</b></td><td>the number of edges touching a vertex</td><td>B has degree 3</td></tr>
             <tr tabindex="0" data-hl="A,C" data-hl2="B" data-e="A-B,B-C"><td><b>Path</b></td><td>a sequence of vertices, each joined to the next by an edge</td><td>A → B → C</td></tr>
             <tr tabindex="0" data-hl="A" data-hl2="B,D" data-e="A-B,B-D,A-D"><td><b>Cycle</b></td><td>a path that starts and ends at the same vertex, without repeating any edge or any other vertex</td><td>A → B → D → A</td></tr>
-            <tr tabindex="0" data-hl="" data-hl2="" data-e=""><td><b>Loop</b></td><td>an edge from a vertex to itself</td><td>(none here)</td></tr>
+            <tr tabindex="0" data-hl="C" data-hl2="" data-e="C-C"><td><b>Loop</b></td><td>an edge from a vertex to itself</td><td>This graph has no loop. The dashed loop on C shows what one would look like.</td></tr>
             <tr tabindex="0" data-hl="A,B,C,D" data-hl2="" data-e="A-B,A-D,B-C,B-D"><td><b>Connected</b></td><td>every vertex can be reached from every other vertex</td><td>this graph is connected</td></tr>
             </tbody>
           </table>
@@ -444,15 +444,41 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
 
       <div class="sub">
         <h3>Weighted or unweighted?</h3>
-        <figure class="fig">
+        <figure class="fig wpath-fig">
           <div class="two-col">
             <GraphFig g={weighted} label="Weighted graph with numbers on the edges" />
             <div class="flow">
               <p>In a <span class="term-chip tc-w">weighted</span> graph, each edge carries a number called its <b>weight</b>, such as distance, cost, or time. In an <span class="term-chip tc-u">unweighted</span> graph, every edge counts the same.</p>
-              <p>Here the weights are made-up travel minutes. A → D → B → C takes 4 + 5 + 12 = 21, but A → B → C takes 7 + 12 = 19.</p>
+              <p>Here the weights are made-up travel minutes. <span class="wpath" tabindex="0" data-path="A,D,B,C">A → D → B → C takes 4 + 5 + 12 = 21 minutes</span>, but <span class="wpath wpath-t" tabindex="0" data-path="A,B,C" data-c="t">A → B → C takes 7 + 12 = 19 minutes</span>.</p>
+              <p class="small muted">Tap a route to see it on the graph.</p>
             </div>
           </div>
         </figure>
+        <script is:inline>
+          document.querySelectorAll('.wpath-fig').forEach(function (fig) {
+            var spans = fig.querySelectorAll('.wpath');
+            function clear() {
+              spans.forEach(function (x) { x.classList.remove('on'); });
+              fig.querySelectorAll('.g-edge.e-path, .g-edge.e-tree').forEach(function (e) { e.classList.remove('e-path', 'e-tree'); });
+              fig.querySelectorAll('.g-node.n-current, .g-node.n-done').forEach(function (n) { n.classList.remove('n-current', 'n-done'); });
+            }
+            function show(sp) {
+              clear(); sp.classList.add('on');
+              var p = sp.dataset.path.split(','), teal = sp.dataset.c === 't';
+              p.forEach(function (v) { var n = fig.querySelector('.g-node[data-id="' + v + '"]'); if (n) n.classList.add(teal ? 'n-done' : 'n-current'); });
+              for (var k = 0; k + 1 < p.length; k++) {
+                var e = fig.querySelector('.g-edge[data-e="' + p[k] + '-' + p[k + 1] + '"], .g-edge[data-e="' + p[k + 1] + '-' + p[k] + '"]');
+                if (e) e.classList.add(teal ? 'e-tree' : 'e-path');
+              }
+            }
+            spans.forEach(function (sp) {
+              sp.addEventListener('mouseenter', function () { show(sp); });
+              sp.addEventListener('focus', function () { show(sp); });
+              sp.addEventListener('click', function () { show(sp); });
+              sp.addEventListener('mouseleave', clear);
+            });
+          });
+        </script>
         <div class="remember">
           <p class="note-label">Where you see this in real life</p>
           <p>Google Maps and Waze store places as vertices and road segments as edges (a one-way street is a directed edge). The weight is the expected travel time, which changes with traffic. The app picks the path with the <b>smallest total weight</b>, so "shortest" usually means <b>fastest</b>.</p>
@@ -477,10 +503,11 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <h2>Adjacency matrix</h2>
     </div>
     <div class="flow">
-      <p>The graph drawings you have been seeing so far are for human eyes and understanding. But a computer does not store data in those drawings. It stores only the <b>connections</b>, in one of two ways. These are the <span class="term-chip tc-mx">adjacency matrix</span> (this part) and the <span class="term-chip tc-ls">adjacency list</span> (Part 4).</p>
+      <p>The graph drawings you have been seeing so far are for human eyes and understanding. But a computer does not store graphs in a drawing format. It stores only the <b>connections</b>, in one of two ways. These are the <span class="term-chip tc-hl tc-mx">adjacency matrix</span> (this part) and the <span class="term-chip tc-hl tc-ls">adjacency list</span> (Part 4).</p>
       <div class="def">
         <p class="note-label">Adjacency matrix</p>
-        <p>An <b>adjacency matrix</b> is a 2D array with one row and one column for each vertex. The cell <b>[row][column]</b> is <b>1</b> if there is an edge <b>from</b> the row vertex <b>to</b> the column vertex, and <b>0</b> if there is not.</p>
+        <p class="def-lead">An <b>adjacency matrix</b> is <span class="hl-mark">a 2D array with one row and one column for each vertex</span>. It looks like a table.</p>
+        <p>Each box <b>[row][column]</b> is <b>1</b> if there is an edge <b>from</b> the row vertex <b>to</b> the column vertex, and <b>0</b> if there is not.</p>
       </div>
       <div class="sub" id="two-d">
         <h3>What is a 2D array?</h3>
@@ -564,7 +591,8 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
     <div class="flow">
       <div class="def">
         <p class="note-label">Adjacency list</p>
-        <p>An <b>adjacency list</b> gives each vertex its own list of the vertices it has an edge to. The lists are often linked lists, so each one ends with <code>null</code>.</p>
+        <p class="def-lead">An <b>adjacency list</b> gives each vertex <span class="hl-mark">its own list of the vertices it has an edge to</span>. Or its own list of neighbors.</p>
+        <p>The lists are often linked lists, so each one ends with <code>null</code>.</p>
       </div>
       <GraphFig g={smallDir} show={['graph', 'list']} label="The directed graph and its adjacency list" />
       <p>This should look familiar. Each row uses a <Peek label="linked list" title="From the Linked lists lesson" html={llPeek} /> from the linked lists lesson. But look closely at where each list <b>starts</b>.</p>

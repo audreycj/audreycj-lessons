@@ -839,7 +839,7 @@ export function graphsInIT() {
   const TEAL = '#0e6b63', ORANGE = '#e8662e', BROWN = '#a8650f', BLUE = '#2f6fa8', INK = '#1b2a2e', SOFT = '#55605f';
   const SKY = '#cfe3f3', BUT = '#f8dc95', TW = '#d7ece9', OW = '#fbdccc', SKIN = '#f3cfa6', W = '#ffffff';
   const F = "font-family='Nunito, sans-serif'";
-  const PW = 260, PH = 256, GAP = 22, VW = 2 * PW + GAP + 8;
+  const PW = 260, PH = 276, GAP = 22, VW = 2 * PW + GAP + 8;
   const o = `stroke="${INK}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"`;
   const t = (x, y, s, q = {}) => `<text x="${x}" y="${y}" text-anchor="middle" ${F} font-size="${q.size || 12}" font-weight="${q.w || 700}" fill="${q.c || INK}">${s}</text>`;
   const trim = (a, b, ta, tb) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L; return [a[0] + ux * ta, a[1] + uy * ta, b[0] - ux * tb, b[1] - uy * tb].map((v) => v.toFixed(1)); };
@@ -854,7 +854,7 @@ export function graphsInIT() {
     pin: (x, y, fill) => `<ellipse cx="${x}" cy="${y + 19}" rx="10" ry="3" fill="#00000018"/><path d="M${x} ${y + 18} C${x - 5} ${y + 10} ${x - 14} ${y + 3} ${x - 14} ${y - 6} A14 14 0 1 1 ${x + 14} ${y - 6} C${x + 14} ${y + 3} ${x + 5} ${y + 10} ${x} ${y + 18} Z" fill="${fill}" ${o}/><circle cx="${x}" cy="${y - 6}" r="5.5" fill="${W}" ${o}/>`,
     page: (x, y, img) => `<rect x="${x - 17}" y="${y - 21}" width="34" height="42" rx="3" fill="${W}" ${o}/><path d="M${x - 17} ${y - 13} V${y - 18} a3 3 0 0 1 3 -3 H${x + 14} a3 3 0 0 1 3 3 V${y - 13} Z" fill="${SKY}" ${o}/>${[-12, -8, -4].map((d) => `<circle cx="${x + d}" cy="${y - 17}" r="1.2" fill="${BLUE}"/>`).join('')}<rect x="${x - 12}" y="${y - 8}" width="24" height="10" rx="1.5" fill="${img}"/><line x1="${x - 12}" y1="${y + 7}" x2="${x + 12}" y2="${y + 7}" stroke="${SOFT}" stroke-width="1.2"/><line x1="${x - 12}" y1="${y + 12}" x2="${x + 6}" y2="${y + 12}" stroke="${SOFT}" stroke-width="1.2"/>`,
   };
-  const panel = (x0, y0, title, c, cap1, cap2) => `<rect x="${x0}" y="${y0}" width="${PW}" height="${PH}" rx="12" fill="${W}"/><path d="M${x0} ${y0 + 12} A12 12 0 0 1 ${x0 + 12} ${y0} H${x0 + PW - 12} A12 12 0 0 1 ${x0 + PW} ${y0 + 12} V${y0 + 8} H${x0} Z" fill="${c}"/><rect x="${x0}" y="${y0}" width="${PW}" height="${PH}" rx="12" fill="none" stroke="#c9ccc8" stroke-width="1.5"/>` + t(x0 + PW / 2, y0 + 30, title, { size: 14.5, w: 800, c }) + t(x0 + PW / 2, y0 + 226, cap1, { c: SOFT, w: 600 }) + t(x0 + PW / 2, y0 + 243, cap2, { c: SOFT, w: 600 });
+  const panel = (x0, y0, title, c, cap1, cap2) => `<rect x="${x0}" y="${y0}" width="${PW}" height="${PH}" rx="12" fill="${W}"/><path d="M${x0} ${y0 + 12} A12 12 0 0 1 ${x0 + 12} ${y0} H${x0 + PW - 12} A12 12 0 0 1 ${x0 + PW} ${y0 + 12} V${y0 + 8} H${x0} Z" fill="${c}"/><rect x="${x0}" y="${y0}" width="${PW}" height="${PH}" rx="12" fill="none" stroke="#c9ccc8" stroke-width="1.5"/>` + t(x0 + PW / 2, y0 + 30, title, { size: 14.5, w: 800, c }) + t(x0 + PW / 2, y0 + 246, cap1, { c: SOFT, w: 600 }) + t(x0 + PW / 2, y0 + 263, cap2, { c: SOFT, w: 600 });
   const sq = (x0, y0) => [[x0 + 70, y0 + 88], [x0 + 190, y0 + 88], [x0 + 70, y0 + 168], [x0 + 190, y0 + 168]];
   const lab = (p, n, i) => t(p[0], i < 2 ? p[1] - 30 : p[1] + 38, n);
   const X1 = 4, X2 = 4 + PW + GAP, Y1 = 4, Y2 = 4 + PH + GAP, VH = Y2 + PH + 34;

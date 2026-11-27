@@ -2155,3 +2155,50 @@ table.cnt-adj th.cnt-win[scope="row"] { background: var(--orange); color: #fff; 
 .tc-mx::before, .tc-ls::before { content: none !important; }
 .ex-title { padding-bottom: 0.75rem; border-bottom: 2px solid var(--teal-wash); margin-bottom: 0.3rem !important; }
 .ex-sub { font-size: 1.35rem; color: var(--teal-ink); }
+/* colored text + half highlight, for normal-size text (chat 64): weighted / unweighted, and the Part 3 intro terms (.tc-hl) */
+.tc-w, .tc-u, .tc-hl { font-weight: 800 !important; text-decoration: none !important; border: 0 !important; border-radius: 0 !important; padding: 0 0.12em !important; background-repeat: no-repeat !important; background-size: 100% 0.5em !important; background-position: 0 88% !important; }
+.tc-w { color: #9a3f16 !important; background-image: linear-gradient(#f9cdb4, #f9cdb4) !important; }
+.tc-u { color: var(--teal-ink) !important; background-image: linear-gradient(#bfe0db, #bfe0db) !important; }
+.tc-mx.tc-hl { color: var(--teal-ink) !important; background-image: linear-gradient(#bfe0db, #bfe0db) !important; }
+.tc-ls.tc-hl { color: #9a3f16 !important; background-image: linear-gradient(#f9cdb4, #f9cdb4) !important; }
+/* Subsection titles stand out more when scrolling (chat 64): bigger, on a light band, more space above */
+body:not(.theme-it110) .sub > h3:not(.blk-h):not(.cat-h),
+body:not(.theme-it110) .chapter > .flow > h3:not(.blk-h):not(.cat-h) {
+  font-size: clamp(1.45rem, 1.2rem + 1vw, 1.8rem); color: var(--teal-ink);
+  background: var(--teal-wash); border-left: 7px solid var(--orange); border-radius: 4px 10px 10px 4px;
+  padding: 0.45rem 0.9rem 0.5rem; margin-top: 2.4rem;
+}
+body:not(.theme-it110) .sub:first-child > h3:not(.blk-h) { margin-top: 0.4rem; }
+/* v2: keep subsection titles clearly below the part titles (h2) */
+body:not(.theme-it110) .sub > h3:not(.blk-h):not(.cat-h),
+body:not(.theme-it110) .chapter > .flow > h3:not(.blk-h):not(.cat-h) {
+  display: table; font-size: clamp(1.2rem, 1.08rem + 0.5vw, 1.38rem);
+  border-left-width: 5px; padding: 0.3rem 0.8rem 0.35rem;
+}
+/* v3: subsection titles on a warm butter band instead of teal (teal is used for lots of other things) */
+body:not(.theme-it110) .sub > h3:not(.blk-h):not(.cat-h),
+body:not(.theme-it110) .chapter > .flow > h3:not(.blk-h):not(.cat-h) {
+  background: #fcefc9; color: var(--ink); border-left-color: var(--amber, #f0a93b);
+}
+/* v4: subsection titles in a new accent, muted plum (not teal/yellow/orange/green) */
+body:not(.theme-it110) .sub > h3:not(.blk-h):not(.cat-h),
+body:not(.theme-it110) .chapter > .flow > h3:not(.blk-h):not(.cat-h) {
+  background: #efe7f4; color: #45305f; border-left-color: #7d5ba6;
+}
+/* v5: pink accent for subsection titles */
+body:not(.theme-it110) .sub > h3:not(.blk-h):not(.cat-h),
+body:not(.theme-it110) .chapter > .flow > h3:not(.blk-h):not(.cat-h) {
+  background: #ffe1ec; color: #a3245b; border-left-color: #e8508b;
+}
+body:not(.theme-it110) .sub > h3:not(.blk-h):not(.cat-h), body:not(.theme-it110) .chapter > .flow > h3:not(.blk-h):not(.cat-h) { background: #fff0f5; }
+.tree-sum { margin-bottom: 2.2rem !important; }
+/* terms table: a pretend loop on C, shown only when the Loop row is picked (chat 64) */
+.terms-ref .g-edge[data-e="C-C"] { opacity: 0; transition: opacity 0.2s; }
+.terms-ref .g-edge[data-e="C-C"].hl { opacity: 1; stroke: var(--orange); stroke-width: 3.5; stroke-dasharray: 6 5; }
+/* hover/tap a path in the text to light it up on the weighted graph (chat 64) */
+.wpath { cursor: pointer; font-weight: 700; border-bottom: 2px dotted var(--orange); border-radius: 2px; padding: 0 0.1em; }
+.wpath:hover, .wpath.on, .wpath:focus-visible { background: #fde6da; border-bottom-style: solid; outline: none; }
+.wpath-t { border-bottom-color: var(--teal); }
+.wpath-t:hover, .wpath-t.on, .wpath-t:focus-visible { background: var(--teal-wash); }
+.def .def-lead { padding-bottom: 0.6rem; border-bottom: 1.5px dashed var(--line); }
+.hl-mark { font-weight: 700; background-image: linear-gradient(var(--butter), var(--butter)); background-repeat: no-repeat; background-size: 100% 0.5em; background-position: 0 88%; padding: 0 0.1em; }
