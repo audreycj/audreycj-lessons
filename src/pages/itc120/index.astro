@@ -134,7 +134,7 @@ terms.forEach((t) => t.units.forEach((u) => unitNum.set(u, ++n)));
   // Remember which terms the student opened or closed (this device only).
   (function () {
     document.querySelectorAll('details[data-term]').forEach(function (d) {
-      var k = 'lx:itc120:term:' + d.dataset.term;
+      var k = 'lx:itc120:term2:' + d.dataset.term; // term2 (Nov 26): fresh start so everyone sees Finals open
       try { var v = localStorage.getItem(k); if (v !== null) d.open = v === '1'; } catch (e) {}
       d.addEventListener('toggle', function () { try { localStorage.setItem(k, d.open ? '1' : '0'); } catch (e) {} });
     });

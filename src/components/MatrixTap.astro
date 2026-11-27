@@ -1,22 +1,25 @@
 ---
 // Tap a matrix cell to see the question it answers: the two vertices (and the edge, if any) light up on the drawing.
 import { svgGraph, ids, matrix } from '../lib/graph.js';
-interface Props { id: string; g: any; cap?: string; hint?: string; }
-const { id, g, cap = 'Tap a box: which question does it answer?', hint = 'Each box asks one question about the row vertex and the column vertex. Tap any box to see its question and the answer on the drawing.' } = Astro.props;
+interface Props { id: string; g: any; cap?: string; hint?: string; bare?: boolean; }
+const { id, g, bare = false, cap = 'Tap a box: which question does it answer?', hint = 'Each box asks one question about the row vertex and the column vertex. Tap any box to see its question and the answer on the drawing.' } = Astro.props;
 const I = ids(g);
 const M = matrix(g);
-const svg = svgGraph(g, { label: 'Undirected graph: A connects to B and D; B connects to C and D' });
+const svg = svgGraph(g, { label: g.directed ? 'Directed graph: A to B, A to D, B to C, C to A, D to C' : 'Undirected graph: A connects to B and D, and B connects to C and D' });
 ---
-<figure class="fig mxtap" id={id}>
-  <p class="fig-cap">{cap}</p>
+<figure class={bare ? "mxtap mxtap-bare" : "fig mxtap"} id={id} data-dir={g.directed ? "1" : "0"}>
+  {!bare && <p class="fig-cap">{cap}</p>}
   <p class="fig-hint">{hint}</p>
   <div class="mt-grid">
     <div class="mt-svg" set:html={svg} />
+    <div class="mt-side">
+    <p class="mt-tapme"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5c0 3.6-2.4 6.5-6 6.5h-.8c-2 0-3.4-.8-4.6-2.4L5 15.6a1.5 1.5 0 0 1 2.4-1.8L9 15.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>Tap any box</p>
     <div class="scroll-x">
       <table class="adj mt-table">
         <thead><tr><th></th>{I.map((c) => <th scope="col" data-c={c}>{c}</th>)}</tr></thead>
         <tbody>{I.map((r, i) => <tr><th scope="row" data-r={r}>{r}</th>{M[i].map((v, j) => <td class={`${v ? 'one' : ''} ${i === j ? 'diag' : ''}`} data-r={r} data-c={I[j]}><button type="button" aria-label={`Row ${r}, column ${I[j]}`}>{v}</button></td>)}</tr>)}</tbody>
       </table>
+    </div>
     </div>
   </div>
   <p class="mt-note" aria-live="polite">Tap any box in the matrix.</p>
@@ -25,32 +28,46 @@ const svg = svgGraph(g, { label: 'Undirected graph: A connects to B and D; B con
 <script>
   document.querySelectorAll<HTMLElement>('.mxtap').forEach((fig) => {
     const note = fig.querySelector<HTMLElement>('.mt-note')!;
-    const edgeOf = (a: string, b: string) => fig.querySelector<SVGElement>(`.g-edge[data-e="${a}-${b}"], .g-edge[data-e="${b}-${a}"]`);
+    const dir = fig.dataset.dir === '1';
+    const edgeOf = (a: string, b: string) => fig.querySelector<SVGElement>(dir ? `.g-edge[data-e="${a}-${b}"]` : `.g-edge[data-e="${a}-${b}"], .g-edge[data-e="${b}-${a}"]`);
     const clear = () => {
       fig.querySelectorAll('.mt-sel, .mt-mir').forEach((t) => t.classList.remove('mt-sel', 'mt-mir'));
       fig.querySelectorAll('.mt-hl').forEach((t) => t.classList.remove('mt-hl'));
       fig.querySelectorAll('.n-current').forEach((t) => t.classList.remove('n-current'));
-      fig.querySelectorAll('.e-path').forEach((t) => t.classList.remove('e-path'));
+      fig.querySelectorAll('.e-path').forEach((t) => { t.classList.remove('e-path'); const m = t.getAttribute('data-mk'); if (m) t.setAttribute('marker-end', m); });
     };
     fig.querySelectorAll<HTMLElement>('td[data-r]').forEach((td) => {
       td.querySelector('button')!.addEventListener('click', () => {
         clear();
         const r = td.dataset.r!, c = td.dataset.c!;
         td.classList.add('mt-sel');
+        fig.classList.add('mt-used');
         fig.querySelector(`th[data-r="${r}"]`)?.classList.add('mt-hl');
         fig.querySelector(`th[data-c="${c}"]`)?.classList.add('mt-hl');
         [r, c].forEach((v) => fig.querySelector(`.g-node[data-id="${v}"]`)?.classList.add('n-current'));
         if (r === c) {
-          note.innerHTML = `Row ${r}, column ${c} asks: is ${r} connected to <b>itself</b>? No edge goes from ${r} back to ${r}, so this box is <b>0</b>. That is why the whole diagonal is 0.`;
+          note.innerHTML = `Row ${r}, column ${c} asks if ${r} is connected to <b>itself</b>. No edge goes from ${r} back to ${r}, so this box is <b>0</b>. (A 1 on the diagonal would mean a <b>loop</b>, an edge from a vertex to itself.)`;
           return;
         }
         const e = edgeOf(r, c);
+        if (dir) {
+          const back = fig.querySelector<SVGElement>(`.g-edge[data-e="${c}-${r}"]`);
+          if (e) {
+            e.classList.add('e-path');
+            const mk = e.getAttribute('marker-end');
+            if (mk) { e.setAttribute('data-mk', mk); e.setAttribute('marker-end', mk.replace(/\)$/, 'path)')); }
+            note.innerHTML = `Row ${r}, column ${c} asks if there is an arrow <b>from ${r} to ${c}</b>. <b>Yes</b> (the orange arrow), so this box is <b>1</b>.` + (back ? ` Row ${c}, column ${r} is a different box. It asks about the arrow from ${c} to ${r}.` : ` There is no arrow back from ${c} to ${r}, so row ${c}, column ${r} stays 0.`);
+          } else {
+            note.innerHTML = `Row ${r}, column ${c} asks if there is an arrow <b>from ${r} to ${c}</b>. <b>No</b>, so this box is <b>0</b>.` + (back ? ` There is an arrow from ${c} to ${r}, but it goes the other way, so it is a 1 in row ${c}, column ${r} instead.` : '');
+          }
+          return;
+        }
         if (e) {
           e.classList.add('e-path');
           fig.querySelector(`td[data-r="${c}"][data-c="${r}"]`)?.classList.add('mt-mir');
-          note.innerHTML = `Row ${r}, column ${c} asks: is there an edge between ${r} and ${c}? <b>Yes</b> (the orange line), so this box is <b>1</b>. The dashed box, row ${c}, column ${r}, is the same edge seen from ${c}'s side, so it is 1 too.`;
+          note.innerHTML = `Row ${r}, column ${c} asks if there is an edge between ${r} and ${c}. <b>Yes</b> (the orange line), so this box is <b>1</b>. The dashed box, row ${c}, column ${r}, is the same edge seen from ${c}'s side, so it is 1 too.`;
         } else {
-          note.innerHTML = `Row ${r}, column ${c} asks: is there an edge between ${r} and ${c}? <b>No</b>, no line joins them, so this box is <b>0</b>.`;
+          note.innerHTML = `Row ${r}, column ${c} asks if there is an edge between ${r} and ${c}. <b>No</b>, no line joins them, so this box is <b>0</b>.`;
         }
       });
     });

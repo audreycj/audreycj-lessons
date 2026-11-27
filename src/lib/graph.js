@@ -109,9 +109,16 @@ export function svgGraph(g, opts = {}) {
   const P = Object.fromEntries(g.nodes.map((n) => [n.id, n]));
   const nm = opts.nodeMarks || {}, em = opts.edgeMarks || {}, lab = opts.labels || {};
   const uid = 'ah' + Math.random().toString(36).slice(2, 7);
-  let s = `<svg class="graph-svg" viewBox="0 0 ${w} ${h}" style="max-width:${Math.round(w * 1.35)}px" role="img" aria-label="${esc(opts.label || 'Graph diagram')}">`;
+  // opts.fit (chat 64): crop the drawing box to the vertices, so small graphs are drawn bigger.
+  let vb = `0 0 ${w} ${h}`, mw = Math.round(w * 1.35);
+  if (opts.fit) {
+    const xs = g.nodes.map((n) => n.x), ys = g.nodes.map((n) => n.y), pad = 30;
+    const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, fw = Math.max(...xs) - Math.min(...xs) + 2 * pad, fh = Math.max(...ys) - Math.min(...ys) + 2 * pad;
+    vb = `${x0} ${y0} ${fw} ${fh}`; mw = Math.round(fw * 1.6);
+  }
+  let s = `<svg class="graph-svg" viewBox="${vb}" style="max-width:${mw}px" role="img" aria-label="${esc(opts.label || 'Graph diagram')}">`;
   if (g.directed) {
-    s += `<defs>${['', 'tree', 'look', 'path'].map((k) => `<marker id="${uid}${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah ${k ? 'ah-' + k : ''}"/></marker>`).join('')}</defs>`;
+    s += `<defs>${['', 'tree', 'look', 'path', 'ec1', 'ec2', 'ec3', 'ec4', 'ec5'].map((k) => `<marker id="${uid}${k}" viewBox="0 0 10 10" refX="9" refY="5" ${k.startsWith('ec') || k === 'path' ? 'markerUnits="userSpaceOnUse" markerWidth="17" markerHeight="17"' : 'markerWidth="7" markerHeight="7"'} orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah ${k ? 'ah-' + k : ''}"/></marker>`).join('')}</defs>`;
   }
   for (const e of g.edges) {
     const a = P[e.a], b = P[e.b];
@@ -119,8 +126,14 @@ export function svgGraph(g, opts = {}) {
     const mk = em[key] || (!g.directed ? em[rkey] : '') || '';
     const arrow = g.directed ? ` marker-end="url(#${uid}${mk})"` : '';
     if (e.a === e.b) { // self-loop
-      s += `<path class="g-edge ${mk ? 'e-' + mk : ''}" data-e="${e.a}-${e.b}" d="M ${a.x - 8} ${a.y - NR + 2} C ${a.x - 30} ${a.y - 58}, ${a.x + 30} ${a.y - 58}, ${a.x + 8} ${a.y - NR + 2}" fill="none"${arrow}/>`;
-      if (g.weighted) s += `<text class="g-w" x="${a.x}" y="${a.y - 52}">${e.w}</text>`;
+      // loop points outward, away from the middle of the graph (chat 64); straight up if no direction
+      const cx = g.nodes.reduce((t, n) => t + n.x, 0) / g.nodes.length, cy = g.nodes.reduce((t, n) => t + n.y, 0) / g.nodes.length;
+      let ux = a.x - cx, uy = a.y - cy; const ul = Math.hypot(ux, uy);
+      if (ul < 1) { ux = 0; uy = -1; } else { ux /= ul; uy /= ul; }
+      const px = -uy, py = ux, q = (n) => n.toFixed(1);
+      const pt = (f, g2) => `${q(a.x + ux * f + px * g2)} ${q(a.y + uy * f + py * g2)}`;
+      s += `<path class="g-edge ${mk ? 'e-' + mk : ''}" data-e="${e.a}-${e.b}" d="M ${pt(NR - 2, -8)} C ${pt(58, -30)}, ${pt(58, 30)}, ${pt(NR - 2, 8)}" fill="none"${arrow}/>`;
+      if (g.weighted) s += `<text class="g-w" x="${q(a.x + ux * 52)}" y="${q(a.y + uy * 52)}">${e.w}</text>`;
       continue;
     }
     let dx = b.x - a.x, dy = b.y - a.y; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
@@ -128,7 +141,8 @@ export function svgGraph(g, opts = {}) {
     if (g.directed && g.edges.some((f) => f.a === e.b && f.b === e.a)) { ox = -dy * 5; oy = dx * 5; }
     const x1 = a.x + dx * NR + ox, y1 = a.y + dy * NR + oy;
     const x2 = b.x - dx * (NR + (g.directed ? 3 : 0)) + ox, y2 = b.y - dy * (NR + (g.directed ? 3 : 0)) + oy;
-    s += `<line class="g-edge ${mk ? 'e-' + mk : ''}" data-e="${e.a}-${e.b}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"${arrow}/>`;
+    s += `<line class="g-edge ${mk ? 'e-' + mk : ''}${e.cut ? ' e-cut' : ''}" data-e="${e.a}-${e.b}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"${arrow}/>`;
+    if (e.cut) s += `<text class="g-cut" x="${((a.x + b.x) / 2).toFixed(1)}" y="${((a.y + b.y) / 2).toFixed(1)}">✗</text>`; // flooded road (chat 64)
     if (g.weighted) {
       const mx = (a.x + b.x) / 2 + ox * 2, my = (a.y + b.y) / 2 + oy * 2;
       s += `<g class="g-wbox"><rect x="${mx - 11}" y="${my - 9}" width="22" height="18" rx="4"/><text class="g-w" x="${mx}" y="${my}">${e.w}</text></g>`;

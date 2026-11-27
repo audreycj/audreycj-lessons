@@ -4,58 +4,87 @@ import TryIt from '../../components/TryIt.astro';
 import { hiN } from '../../lib/code.js';
 import KindChips from '../../components/KindChips.astro';
 import GraphFig from '../../components/GraphFig.astro';
-import TraverseLab from '../../components/TraverseLab.astro';
 import Quiz from '../../components/Quiz.astro';
+import StepShow from '../../components/StepShow.astro';
 import Peek from '../../components/Peek.astro';
 import { course } from '../../data/itc120.js';
-import { city, oneWay, islands } from '../../data/graphs.js';
+import { city, oneWay } from '../../data/graphs.js';
+import * as W from '../../data/graphs-w16.js';
 import { dfsSteps, bfsSteps, svgGraph } from '../../lib/graph.js';
-import { dfsDive, folderDive, stackIsPath, bfsVsDfs, dfsTwoWays, dfsInIT } from '../../lib/illus.js';
-const labPeek = svgGraph(city, { label: 'The main example graph: A-B, A-D, B-C, B-E, C-F, D-E, E-F, E-G, F-G' }) + '<p class="small">The <b>Main example</b> in the Part 3 lab: the same vertices and edges. There, tap <b>Next step</b> to watch DFS move one step at a time.</p>';
-const stackSvg = stackIsPath(), folderSvg = folderDive();
+import { dfsRow, bfsRow, rowShow, rowSvg, and } from '../../lib/onerow.js';
+import { folderDive, bfsVsDfs, dfsTwoWays, dfsInIT } from '../../lib/illus.js';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hi = (src) => src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .split('\n').map((l) => l.replace(/(\/\/.*)$/, '<span class="c">$1</span>')).join('\n');
+const folderSvg = folderDive();
 
+// Part 1: the stack standing up, and the same stack lying down as a row.
+const stackUp = (() => {
+  const items = ['A', 'B', 'E'];
+  const T = (x, y, t, c, sz = 13, w = 800) => `<text x="${x}" y="${y}" font-family="Nunito, sans-serif" font-weight="${w}" font-size="${sz}" fill="${c}">${t}</text>`;
+  let s = '<svg class="row-svg stack-up" viewBox="0 0 360 212" style="max-width:24rem" role="img" aria-label="A stack standing up with A at the bottom, then B, then E on top. Push puts a letter on top and pop takes the top letter off. The same stack written as one row is A, B, E, with E as the top.">';
+  s += '<path d="M26 44 V200 H114 V44" fill="none" stroke="var(--ink)" stroke-width="2.2"/>';
+  items.forEach((x, i) => {
+    const y = 156 - i * 46;
+    s += `<g class="rw-cell ${i === 2 ? 'is-now' : 'is-wait'}"><rect x="36" y="${y}" width="68" height="38" rx="6"/><text class="rw-l" x="70" y="${y + 19}">${x}</text></g>`;
+  });
+  s += '<path d="M52 6 V54" stroke="var(--teal)" stroke-width="3" fill="none"/><path d="M45 46 L52 56 L59 46" fill="none" stroke="var(--teal)" stroke-width="3"/>';
+  s += '<path d="M88 56 V8" stroke="var(--orange)" stroke-width="3" fill="none"/><path d="M81 16 L88 6 L95 16" fill="none" stroke="var(--orange)" stroke-width="3"/>';
+  s += T(132, 22, 'push puts a letter on top', 'var(--teal-ink)') + T(132, 44, 'pop takes the top letter off', 'var(--orange-ink)');
+  s += T(156, 124, 'The same stack as one row', 'var(--ink-soft)', 12.5, 700);
+  items.forEach((x, i) => {
+    const cx = 190 + i * 46;
+    s += `<g class="rw-cell ${i === 2 ? 'is-now' : 'is-wait'}"><rect x="${cx - 19}" y="134" width="38" height="34" rx="6"/><text class="rw-l" x="${cx}" y="151">${x}</text></g>`;
+  });
+  s += '<text class="rw-top" x="282" y="186">top</text>';
+  return s + '</svg>';
+})();
+
+// Part 2: walkthrough (deck slides 65-71), same graph as the BFS walkthrough
+const walk = dfsRow(W.bfsWalk, 'A');
+const walkShow = rowShow(W.bfsWalk, walk, 'dfs');
+const bfsWalkOrder = bfsRow(W.bfsWalk, 'A').order;
+
+// Part 5: examples (graphs and answers from the Week 16 deck; the engine re-checks every answer)
+const mk = (id, title, g, start, extra = {}) => { const run = dfsRow(g, start); return { id, title, g, start, run, show: rowShow(g, run, 'dfs'), ...extra }; };
+const ex = [
+  mk('dfs-ex1', 'DFS Example 1', W.dfsEx1, 'A', {
+    note: `After D gets its ✓, E still has G, so write G. The check order (${dfsRow(W.dfsEx1, 'A').checkOrder.join(', ')}) is <b>not</b> the answer.`,
+  }),
+  mk('dfs-ex2', 'DFS Example 2', W.dfsEx2, 'C', {
+    missedQ: 'Which vertices are never visited?',
+    note: 'The answer starts with C, the start. F and G are a separate component (<a href="#pieces">Part 4</a>), so they are never visited.',
+  }),
+  mk('dfs-ex3', 'DFS Example 3', W.dfsEx3, 'B', {
+    note: 'A long backtrack: after F, check C, then A, one at a time. Write D only when you are back on B.',
+  }),
+  mk('dfs-ex4', 'DFS Example 4 (directed)', W.dfsEx4, 'A', {
+    missedQ: 'Which vertex is never visited?',
+    note: 'E → B leads back to a written letter, so DFS does not loop. No arrow comes INTO G, so G is never visited.',
+  }),
+  mk('dfs-ex5', 'DFS Example 5', W.dfsEx5, 'F', {
+    note: 'H was skipped early (B comes before H). After getting stuck at E, step back one letter at a time until C, which still has H.',
+  }),
+  mk('dfs-ex6', 'DFS Example 6 (directed)', W.dfsEx6, 'C', {
+    missedQ: 'Which vertex is never visited?',
+    note: 'Watch the two cycles (A, B, D and C, E, G). No arrow comes INTO H, so H is never visited.',
+  }),
+  mk('dfs-ex7', 'DFS Example 7', W.dfsEx7, 'D', {
+    missedQ: 'Which vertices are never visited?',
+    note: 'C, F, and G are a separate component. Also, E is written from A, not from D: DFS went deep through B and A first.',
+  }),
+  mk('dfs-ex8', 'DFS Example 8', W.dfsEx8, 'E', {
+    note: 'DFS finishes the whole left side, gets stuck at H, and steps back to B before it writes C.',
+  }),
+];
+const flood = mk('real-ex2', 'Real-life Example 2', W.townFlood, 'F');
+const townNames = { H: 'Home', M: 'Market', F: 'Fire station', P: 'Plaza', T: 'Terminal', C: 'Church', S: 'School', L: 'Library' };
+const cutNames = flood.run.missed.map((x) => townNames[x]);
+const realPeek = `<div class="town-fig">${svgGraph(W.town, { labels: townNames, w: 380, label: 'The sample town from the BFS lesson' })}</div><p class="small">The town before the flood.</p>`;
+
+// Part 3 comparison and Part 6 Java use the 7-vertex graph of DFS Example 1 (same as the old main example).
 const dfsCity = dfsSteps(city, 'A');
 const bfsCity = bfsSteps(city, 'A');
-// The stack at the moment DFS first reaches G = a path from A to G.
-const atG = dfsCity.steps.find((s) => s.ds[s.ds.length - 1] === 'G');
-const dfsPath = atG.ds;
-const pm = (path) => { const m = {}; for (let i = 0; i + 1 < path.length; i++) m[`${path[i]}-${path[i + 1]}`] = 'path'; return m; };
-const pn = (path) => Object.fromEntries(path.map((x) => [x, 'hl']));
-const bfsPath = (() => { const p = ['G']; while (bfsCity.parent[p[0]]) p.unshift(bfsCity.parent[p[0]]); return p; })();
-
-const fromF = dfsSteps(oneWay, 'F');
-const fromA = dfsSteps(oneWay, 'A');
-
-// Paper practice (same graphs as the BFS lesson, so you can compare)
-const p1 = {
-  directed: false, weighted: false,
-  nodes: [{ id: 'A', x: 40, y: 125 }, { id: 'B', x: 130, y: 50 }, { id: 'C', x: 130, y: 205 }, { id: 'D', x: 220, y: 100 }, { id: 'E', x: 220, y: 225 }, { id: 'F', x: 305, y: 160 }, { id: 'G', x: 305, y: 40 }],
-  edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'D'], ['C', 'E'], ['D', 'F'], ['E', 'F'], ['D', 'G']].map(([a, b]) => ({ a, b })),
-};
-const p2 = {
-  directed: true, weighted: false,
-  nodes: [{ id: 'A', x: 60, y: 60 }, { id: 'B', x: 190, y: 45 }, { id: 'C', x: 120, y: 170 }, { id: 'D', x: 300, y: 110 }, { id: 'E', x: 250, y: 225 }, { id: 'F', x: 40, y: 230 }],
-  edges: [['A', 'B'], ['A', 'C'], ['B', 'D'], ['C', 'B'], ['D', 'E'], ['E', 'C'], ['F', 'A']].map(([a, b]) => ({ a, b })),
-};
-const r1 = dfsSteps(p1, 'D'), r1b = bfsSteps(p1, 'D');
-const r2 = dfsSteps(p2, 'C');
-// stack snapshots for problem 1 (only the steps that change it), to show on paper
-// exam-style trace rows for problem 1 (one row per push or pop, like the prelim stack items)
-const traceRows = (run) => run.steps.map((s, i) => {
-  const prev = i ? run.steps[i - 1].ds : [];
-  const push = s.ds.length > prev.length;
-  return { act: (push ? 'push ' : 'pop ') + (push ? s.ds[s.ds.length - 1] : prev[prev.length - 1]), stack: s.ds.join(', ') || '(empty)', order: s.order.join(', ') };
-});
-const cityRows = traceRows(dfsCity);
-const r1Rows = r1.steps.map((s, i) => {
-  const prev = i ? r1.steps[i - 1].ds : [];
-  const push = s.ds.length > prev.length;
-  return { act: (push ? 'push ' : 'pop ') + (push ? s.ds[s.ds.length - 1] : prev[prev.length - 1]), stack: s.ds.join(', ') || '(empty)', order: s.order.join(', ') };
-});
-
 const code = String.raw`public class DFS {
   static char[] names = {'A', 'B', 'C', 'D', 'E', 'F', 'G'};
   static int n = names.length;
@@ -115,7 +144,7 @@ const taskCode = String.raw`public class Main {
   }
 
   public static void main(String[] args) {
-    // the one-way graph from Part 4
+    // the one-way graph in the picture above
     addArrow(0, 1); addArrow(1, 2);   // A->B, B->C
     addArrow(2, 0); addArrow(0, 3);   // C->A, A->D
     addArrow(3, 4); addArrow(5, 3);   // D->E, F->D
@@ -145,32 +174,33 @@ const taskAns = String.raw`static int countReach(int u) {
 const reachPeek = svgGraph(oneWay, { label: 'One-way graph: A to B, B to C, C to A, A to D, D to E, F to D' }) + '<p class="small">From A, DFS reaches A, B, C, D, E (5 vertices). From F, it reaches only F, D, E (3 vertices).</p>';
 
 const quiz = [
-  { q: 'Which data structure does DFS use to remember where to go back to?', opts: ['Queue', 'Stack', 'Linked list', 'Sorted array'], a: 1, why: 'DFS uses a <b>stack</b> (last in, first out). The top of the stack is where you are; popping takes you back to the vertex you came from. In recursive code, Java\'s call stack does this for you.' },
-  { q: 'In DFS, when the vertex on top of the stack has no unvisited neighbors, you:', opts: ['Stop the whole search', 'Pop it and go back to the vertex below it (backtrack)', 'Push it again', 'Start over from the first vertex'], a: 1, why: 'A dead end means <b>backtrack</b>: pop the top vertex. The new top is the vertex you came from, and you check it for other unvisited neighbors.' },
-  { q: 'Main example, starting at A (alphabetical order). What is the DFS order?', opts: ['A, B, D, C, E, F, G', 'A, B, C, F, E, D, G', 'A, D, E, G, F, C, B', 'A, B, C, D, E, F, G'], a: 1, why: `A → B → C → F → E → D. D is a dead end (A and E visited), so go back to E, then E → G. Order: <b>${dfsCity.order.join(', ')}</b>. The first choice is BFS's answer.` },
-  { q: 'In the directed example, which vertices are <b>not</b> visited by DFS starting at F?', opts: ['None', `${fromF.missed.join(', ')}`, 'D and E', 'Only F'], a: 1, why: `From F the only arrow goes to D, and D only goes to E. A, B, and C cannot be reached by following arrows from F. DFS order from F: <b>${fromF.order.join(', ')}</b>.` },
-  { q: 'DFS reaches vertex G. What do the vertices on the stack (bottom to top) form?', opts: ['The BFS order', 'A path from the start to G', 'All the vertices in the graph', 'The shortest path, always'], a: 1, why: 'The stack holds exactly the vertices you walked through to reach G, so it is a path from the start to G. But it is not always the <b>shortest</b> path; BFS guarantees that, DFS does not.' },
+  { q: 'Which data structure does DFS use to remember where to go back to?', opts: ['Queue', 'Stack', 'Linked list', 'Sorted array'], a: 1, why: 'DFS uses a <b>stack</b> (last in, first out). The top of the stack is where you are, and stepping back takes you to the vertex you came from. In recursive code, Java\'s call stack does this for you.' },
+  { q: 'On paper, which letter are you standing on in DFS?', opts: ['The first letter without a ✓', 'The last letter without a ✓', 'The letter that comes first in the alphabet', 'The last letter in the row, even if it has a ✓'], a: 1, why: 'The letters without a ✓ are the stack, and the top is the <b>last</b> one. (The first letter without a ✓ is the BFS rule.)' },
+  { q: 'You are on E. E\'s neighbors B, C, and D: B is written, C and D are not. What do you write?', opts: ['C and D', 'Only C', 'Only D', 'Nothing; check E'], a: 1, why: 'DFS writes only <b>one</b> new neighbor at a time, the first in alphabetical order: C. D waits until you come back to E.' },
+  { q: 'You are on D, and every neighbor of D is already written. What do you do?', opts: ['Stop. DFS is done', 'Write a ✓ above D and step back to the last letter without a ✓', 'Write D again', 'Start over from the first letter'], a: 1, why: 'D is a dead end, so you <b>backtrack</b>: check D and step back. The new last letter without a ✓ may still have a new neighbor, so DFS goes on until every letter has a ✓.' },
+  { q: 'What is the DFS traversal order?', opts: ['The order the letters got their ✓', 'The order the letters were written, left to right', 'Alphabetical order', 'The reverse of the BFS order'], a: 1, why: 'The answer is the row itself: the order the letters were <b>written</b>. The check order is different, and writing it is a classic mistake.' },
+  { q: `DFS Example 1, starting at A (alphabetical order). What is the DFS order?`, opts: ['A, B, D, C, E, F, G', 'A, B, C, F, E, D, G', 'A, D, E, G, F, C, B', 'A, B, C, D, E, F, G'], a: 1, why: `A → B → C → F → E → D. D is a dead end, so step back to E, which still has G. Order: <b>${dfsCity.order.join(', ')}</b>. The first choice is BFS's answer.` },
+  { q: 'DFS from C visits only C, A, B, D, and E. F and G are joined to each other but to nothing else. What are F and G?', opts: ['Vertices with a mistake in the graph', 'A separate component of the same graph', 'A different graph', 'Leaves'], a: 1, why: 'One graph can have separate pieces, called <b>components</b>. DFS and BFS only visit the component where they start.' },
   { q: 'You need the route with the <b>fewest hops</b> between two computers in a network. Which is the better choice?', opts: ['DFS', 'BFS', 'Either one always gives the same path', 'Neither can find routes'], a: 1, why: 'BFS explores level by level, so the first time it reaches a vertex is through the fewest edges. DFS may wander far away before finding it.' },
 ];
 ---
-<Base title="Depth-First Search · ITC 120" description="Depth-first search (DFS): going deep with a stack, backtracking, reachability, finding paths, and how it compares with BFS." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Depth-First Search · ITC 120" description="Depth-first search (DFS): going deep with a stack written as one row, backtracking, directed and disconnected graphs, and how it compares with BFS." course={{ code: course.code, href: base + course.href }} theme="tocall" toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Final › Graphs</p>
     <p class="kicker">Graphs · Lesson 3 of 3</p>
     <h1>Depth-First Search (DFS)</h1>
     <KindChips />
-    <p class="lede">Go as far as you can down one path. At a dead end, back up and try the next way.</p>
+    <p class="lede">Go as far as you can down one path. At a dead end, step back and try another way.</p>
     <div class="goals">
       <p class="note-label">By the end, you can:</p>
       <ol>
-        <li>run DFS by hand with a <b>stack</b> (neighbors in alphabetical order), showing each push and each <b>backtrack</b> (pop), and write the DFS order;</li>
-        <li>explain why a recursive DFS needs no stack of its own (each call is a push, each return is a pop);</li>
-        <li>use DFS to list what a vertex can <b>reach</b>, and read a <b>path</b> to a vertex off the stack;</li>
-        <li>say why that path may not be the shortest, and choose BFS or DFS for a task;</li>
-        <li>match each line of a Java DFS to the steps of the procedure.</li>
+        <li>do DFS by hand with the <b>one-row method</b>, including every <b>backtrack</b>;</li>
+        <li>give the DFS order (the <b>written</b> order) on directed and <b>disconnected</b> graphs, and the vertices never visited;</li>
+        <li>compare BFS and DFS;</li>
+        <li>match a Java DFS to the method.</li>
       </ol>
     </div>
-    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bfs/'}>BFS lesson</a>, the <a href={base + '/itc120/stacks/'}>Stacks lesson</a>, the <a href={base + '/itc120/recursion/'}>recursion lesson</a>, and scratch paper.</p>
+    <p class="muted small"><b>You need:</b> the <a href={base + '/itc120/bfs/'}>BFS lesson</a>, the <a href={base + '/itc120/stacks/'}>Stacks lesson</a>, the <a href={base + '/itc120/recursion/'}>Recursion lesson</a>, and scratch paper.</p>
   </header>
 
   <!-- 1 -->
@@ -182,184 +212,96 @@ const quiz = [
     <div class="flow">
       <div class="def">
         <p class="note-label">Depth-first search (DFS)</p>
-        <p><b>Depth-first search (DFS)</b> is a <b>graph traversal algorithm</b> that visits every vertex reachable from a starting vertex. It starts at one vertex and keeps moving to an unvisited neighbor, going as <b>deep</b> as possible. When it reaches a vertex with no unvisited neighbors (a dead end), it <b>backtracks</b>: it goes back to the previous vertex and tries another neighbor. It uses a <b>stack</b>.</p>
+        <p><b>DFS</b> is a graph traversal that keeps moving to an unvisited neighbor, as deep as it can. At a <b>dead end</b>, it <b>backtracks</b>: it goes back one step and tries another neighbor. DFS uses a <b>stack</b>.</p>
       </div>
-      <figure class="fig illus-fig"><Fragment set:html={dfsDive()} /><figcaption>DFS from A on the main example (<Peek label="the same graph as the lab in Part 3" title="Part 3 lab: main example" html={labPeek} />). It dives A → B → C → F → E → D. D is a dead end, so DFS backs up to E and dives to G. G is a dead end too, so DFS backs up step by step until the stack is empty.</figcaption></figure>
       <div class="sticky">
-        <p class="note-label">Think of opening folders</p>
-        <p>To find a file, you open a folder, then a folder inside it, and so on, until a folder has nothing more inside. Then you click <b>Back</b> once and open the next folder there. The Back button works like the stack: it remembers the way you came.</p>
+        <p class="note-label">Think of looking for a lost file</p>
+        <p>You open Documents, then ITC120, then Week 9. The file is not there, and there is nowhere deeper to go. You click <b>Back</b> to ITC120, open Week 10, and find it. Go deeper while you can; go back only when stuck.</p>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={folderSvg} /><figcaption>Documents, then ITC120, then Week 9. Week 9 is empty, so click <b>Back</b> to ITC120 and open Week 10. Keep going until every folder is seen.</figcaption></figure>
-      <p>Compare with BFS: BFS spreads out in waves (wide first). DFS dives down one path (deep first). Same graph, same start, different order:</p>
-      <table class="tbl">
-        <tbody>
-          <tr><th>BFS from A</th><td class="mono">{bfsCity.order.join(', ')}</td></tr>
-          <tr><th>DFS from A</th><td class="mono">{dfsCity.order.join(', ')}</td></tr>
-        </tbody>
-      </table>
+      <figure class="fig illus-fig illus"><Fragment set:html={folderSvg} /><figcaption>The Back button remembers the way you came, like a stack.</figcaption></figure>
+      <div class="sub">
+        <h3>Why a stack?</h3>
+        <p>Recall the <b>stack</b>: push onto the top, pop from the top. Last in, first out (<b>LIFO</b>). Like a queue, it is a behavior, built with an array or a linked list.</p>
+        <p>In DFS, the stack is the <b>path you are on</b>, and the top is where you are. Going deeper is a push. Going back is a pop, so you always return to <span class="hl">where you just came from</span>.</p>
+        <figure class="fig illus-fig"><Fragment set:html={stackUp} /><figcaption>If a row is hard to picture, draw the stack standing up. The row is the same stack lying on its side, top at the right.</figcaption></figure>
+      </div>
+      <div class="remember">
+        <p class="note-label">Where DFS is used</p>
+        <ul>
+          <li><b>Searching folders</b> inside folders on a drive.</li>
+          <li><b>Solving mazes</b> (see the picture below).</li>
+          <li><b>Finding cycles</b>, such as tasks that wait on each other in a circle, so none can start.</li>
+        </ul>
+      </div>
+      <figure class="fig illus-fig illus"><Fragment set:html={dfsInIT()} /><figcaption>A maze is a graph. The cat follows one way (1) to a dead end (2), backs up to the last fork (3), and tries the next way (4).</figcaption></figure>
     </div>
   </section>
 
   <!-- 2 -->
   <section class="chapter wrap" id="stack">
     <div class="chapter-head">
-      <p class="chapter-num">Part 2 · The tool</p>
-      <h2>Why a stack?</h2>
+      <p class="chapter-num">Part 2 · The method</p>
+      <h2>The stack, written as one row</h2>
     </div>
     <div class="flow">
-      <p>Recall the stack: you <b>push</b> onto the top and <b>pop</b> from the top. Last in, first out, like a stack of plates.</p>
-      <p>In DFS, the stack holds the <b>path you are currently on</b>. The top is where you are now. Pushing = taking one step deeper. Popping = taking one step back. Because the most recent vertex comes off first, you always back up to <span class="hl">the place you just came from</span>.</p>
-      <figure class="fig illus-fig"><Fragment set:html={stackSvg} /><figcaption>One moment of DFS from A: it has just reached D. <b>Before:</b> the stack, bottom to top, is A, B, C, F, E, D, exactly the path it walked. D is a dead end, so pop it. <b>After the pop:</b> the new top is E, the vertex DFS came from, so that is where it goes back to.</figcaption></figure>
-      <div class="sub">
-        <h3>The DFS procedure</h3>
-        <p>Like the seen list in BFS, DFS keeps a <b>visited</b> list (✓). A vertex gets its ✓ when it is pushed, and a vertex with a ✓ is never pushed again. That is how DFS knows a neighbor is "unvisited".</p>
-        <p>Every DFS follows these steps:</p>
-        <ol class="procedure">
-          <li><b>Visit</b> the start vertex and <b>push</b> it onto the stack.</li>
-          <li>While the stack is not empty, look at the vertex on <b>top</b>:
-            <ol type="a">
-              <li>If it has an unvisited neighbor, take the first one in alphabetical order (or smallest number first, if the vertices are numbers). <b>Visit</b> it and <b>push</b> it. (Go deeper.)</li>
-              <li>If all its neighbors are visited, <b>pop</b> it. (Backtrack.)</li>
-            </ol>
-          </li>
-          <li>When the stack is empty, DFS is done.</li>
-        </ol>
+      <p>DFS uses the same one row, but now it is a <b>stack</b>. You are always on the <b>last</b> (rightmost) letter without a ✓.</p>
+      <ol class="procedure">
+        <li>Write the start vertex. (Read the problem: it is not always A.)</li>
+        <li>Look at the <b>last</b> (rightmost) letter without a ✓. You are on it.</li>
+        <li><b>Not stuck</b> (it has a neighbor not written yet)? Write <b>one</b> new neighbor, the first alphabetically, and move to it.</li>
+        <li><b>Stuck</b>? Write a ✓ above it and step back. Repeat until every letter has a ✓.</li>
+      </ol>
+      <p>The finished row is the <b>DFS order</b>.</p>
+      <div class="plain">
+        <p class="note-label">The whole difference from BFS</p>
+        <p>BFS checks the <b>first</b> letter without a ✓ and writes <b>all</b> its new neighbors. DFS stands on the <b>last</b> letter without a ✓ and writes only <b>one</b>.</p>
       </div>
-      <div class="sub">
-        <h3>Writing DFS as a trace table</h3>
-        <p>On paper and on exams, you write DFS as a <b>trace table</b>. It has <b>one row for each push or pop</b>, and four columns:</p>
-        <ul>
-          <li><b>Step</b> is the row number.</li>
-          <li><b>Action</b> is what happened in this step. "push B" means DFS went deeper to B. "pop D" means D was a dead end, so DFS went back.</li>
-          <li><b>Stack (bottom → top)</b> is the whole stack after the action. The last vertex written is the top.</li>
-          <li><b>DFS order so far</b> lists every vertex pushed so far, in the order it was pushed. A pop does not change it.</li>
-        </ul>
-        <p>To fill in each row, look at the <b>top</b> of the stack. If it has a neighbor with no ✓, push the first one in alphabetical order. If it has none, pop it. Here is DFS from A on the main example (the same graph as in the BFS lesson):</p>
-        <div class="tbl-wrap">
-          <table class="tbl small">
-            <thead><tr><th>Step</th><th>Action</th><th>Stack (bottom → top)</th><th>DFS order so far</th></tr></thead>
-            <tbody>{cityRows.map((r, i) => <tr><td>{i + 1}</td><td class="nowrap">{r.act}</td><td class="mono nowrap">{r.stack}</td><td class="mono nowrap">{r.order}</td></tr>)}</tbody>
-          </table>
-        </div>
-        <p>Look at steps 6 to 8. D is pushed, but both of D's neighbors (A and E) already have a ✓, so D is popped. Now E is on top again, and E still has G with no ✓, so G is pushed. DFS ends at step 14, when the stack is empty. The DFS order is the last row's "DFS order so far": <b>{dfsCity.order.join(', ')}</b>.</p>
-      </div>
+      <StepShow id="dfs-walk" cap="DFS from A, one row" hint="Orange = where you are (the top). Light teal = on the stack. Dark teal = checked. Orange outline = just written." steps={walkShow} />
+      <p>DFS order: <b>{walk.order.join(', ')}</b>. BFS on the same graph gives {bfsWalkOrder.join(', ')}: BFS took C right after B, but DFS went deep through E first.</p>
       <div class="trap">
-        <p class="note-label">Exam traps</p>
+        <p class="note-label">Two traps</p>
         <ol class="flow">
-          <li><b>Popping is not the end.</b> After you pop, look at the <b>new top</b>: it may still have an unvisited neighbor. In <Peek label="the stack picture" title="From the start of Part 2" html={stackSvg} />, after popping D the new top is E, and E still has G. So push G. DFS stops only when the stack is <b>empty</b>.</li>
-          <li><b>Write a vertex when you push it, not when you pop it.</b> Pushing is the first visit. If you write the vertices as they are popped, you get a different list. Main example from A:
+          <li><b>A ✓ is not the end.</b> After checking C, you are back on E, and E still has D. Stop only when every letter has a ✓.</li>
+          <li><b>The answer is the written order, not the check order.</b>
             <div class="mk-ans mk-solo">
-              <p class="mk-wrong"><b>✗ Pop order (not the DFS order)</b><span class="mono">D, G, E, F, C, B, A</span></p>
-              <p class="mk-right"><b>✓ DFS order (push order)</b><span class="mono">{dfsCity.order.join(', ')}</span></p>
+              <p class="mk-wrong"><b>✗ Check order</b><span class="mono">{walk.checkOrder.join(', ')}</span></p>
+              <p class="mk-right"><b>✓ DFS order</b><span class="mono">{walk.order.join(', ')}</span></p>
             </div>
           </li>
-          <li><b>Use alphabetical order</b> for neighbors (smallest number first for numbered vertices), like in BFS. If a question gives no rule, another order can also be a correct DFS, but alphabetical is always a safe choice.</li>
         </ol>
       </div>
+      <p class="small">DFS and <b>recursion</b> work the same way: each call is a push, and each return is a pop. That is why DFS is usually written recursively (<a href="#java">Part 6</a>).</p>
       <details class="reveal"><summary>Extra: the "push-all" way in some books</summary><div class="flow">
-        <p class="xtra-note"><b>Extra topic.</b> Open this if a book or website shows DFS with a different stack routine. In this course, use the procedure above.</p>
-        <p>Some books and websites use a different stack routine: pop a vertex; if it is not visited yet, visit it and push <b>all</b> its unvisited neighbors. Its stack is a <b>to-do list</b>, not the path you are on:</p>
-        <figure class="fig illus-fig"><Fragment set:html={dfsTwoWays()} /><figcaption>Right after DFS from A visits D. Our stack is the path from A to D. The push-all stack holds D and E, which are already visited (they get skipped when popped), and G twice.</figcaption></figure>
-        <p class="after-fig">Does the push-all way visit the vertices in the same order as ours? It depends on <b>which neighbor it pushes last</b>, because a stack gives back the last thing pushed first. Look at the start, A, whose unvisited neighbors are B and D:</p>
+        <p class="xtra-note"><b>Extra topic.</b> In this course, use the one-row method.</p>
+        <p>Some books pop a vertex and, if it is not visited yet, visit it and push <b>all</b> its unvisited neighbors. That stack is a <b>to-do list</b>, not your path. The picture uses the DFS Example 1 graph, right after DFS from A visits D:</p>
+        <figure class="fig illus-fig"><Fragment set:html={dfsTwoWays()} /><figcaption>Our stack is the path from A to D. The push-all stack holds D and E (already visited, skipped when popped) and G twice.</figcaption></figure>
+        <p class="after-fig">The order depends on which neighbor is pushed <b>last</b>, since it comes off first. At A (neighbors B and D):</p>
         <ul>
-          <li><b>Push D, then B</b> (Z to A): B is on top, so B is visited next, just like ours. The whole order comes out the same: <span class="mono">A, B, C, F, E, D, G</span>.</li>
-          <li><b>Push B, then D</b> (A to Z): D is on top, so D is visited next. The order changes: <span class="mono">A, D, E, G, F, C, B</span>.</li>
+          <li><b>Push D, then B:</b> same order as ours, <span class="mono">A, B, C, F, E, D, G</span>.</li>
+          <li><b>Push B, then D:</b> a different order, <span class="mono">A, D, E, G, F, C, B</span>.</li>
         </ul>
-        <p>One warning: some versions tick a vertex as visited when it is <b>pushed</b>, instead of when it is popped. That shortcut can give an order that is not a real DFS. In this course, use the procedure above.</p>
+        <p>Some versions mark a vertex visited when it is pushed. That can give an order that is not a real DFS.</p>
       </div></details>
     </div>
   </section>
 
   <!-- 3 -->
-  <section class="chapter wrap" id="lab">
-    <div class="chapter-head">
-      <p class="chapter-num">Part 3 · Watch it</p>
-      <h2>DFS, step by step</h2>
-    </div>
-    <div class="flow">
-      <p>Tap <b>Next step</b> and watch the stack grow and shrink. Before each tap, guess: go deeper or backtrack?</p>
-      <TraverseLab id="dfs-lab" mode="dfs" cap="DFS lab" hint="Orange = where you are now (top of the stack). Light teal = on the stack. Dark teal = visited and finished. Thick teal edges = the steps DFS took." presets={[
-        { label: 'Main example', g: city, start: 'A' },
-        { label: 'Directed', g: oneWay, start: 'F' },
-        { label: 'Separate pieces', g: islands, start: 'A' },
-      ]} />
-      <p>The other buttons are different <b>graphs</b>, not different kinds of DFS. In <b>Directed</b>, DFS from F reaches only a few vertices. In <b>Separate pieces</b>, DFS from A stops after A, B, and C.</p>
-      <div class="plain">
-        <p class="note-label">DFS and recursion</p>
-        <p>"Go deeper, and when stuck, go back to where you came from" is exactly how <b>recursion</b> works. Each recursive call is a push; each return is a pop. That is why DFS is usually written as a short recursive method (Part 7), and Java's call stack does the stack work for you.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4 -->
-  <section class="chapter wrap" id="uses">
-    <div class="chapter-head">
-      <p class="chapter-num">Part 4 · What DFS is good for</p>
-      <h2>Reaching and path-finding</h2>
-    </div>
-    <div class="flow">
-      <div class="sub">
-        <h3>1. What can be reached?</h3>
-        <p>Like BFS, DFS visits <b>everything reachable</b> from the start, and nothing else. In a directed graph, this answers "where can I get to from here?"</p>
-        <figure class="fig">
-          <GraphFig g={oneWay} label="Directed example: A to B to C and back to A; A to D, D to E, F to D" />
-          <table class="tbl small">
-            <thead><tr><th>Start</th><th>DFS order</th><th>Never visited</th></tr></thead>
-            <tbody>
-              <tr><td>A</td><td class="mono">{fromA.order.join(', ')}</td><td>{fromA.missed.join(', ') || 'none'}</td></tr>
-              <tr><td>F</td><td class="mono">{fromF.order.join(', ')}</td><td>{fromF.missed.join(', ') || 'none'}</td></tr>
-            </tbody>
-          </table>
-          <p class="small">From F you can only go to D, then E. The arrows never lead back to A, B, or C. From A, everything except F is reachable, because no arrow points <i>into</i> F.</p>
-        </figure>
-      </div>
-
-      <div class="sub">
-        <h3>2. Finding a path</h3>
-        <p>The stack is the path you are on. So the moment DFS reaches a target, the stack (bottom to top) <b>is a path</b> from the start to the target.</p>
-        <div class="two-col">
-          <figure class="fig">
-            <p class="fig-cap">DFS path A → G</p>
-            <GraphFig g={city} edgeMarks={pm(dfsPath)} nodeMarks={pn(dfsPath)} label="Path found by DFS" />
-            <p class="small mono">{dfsPath.join(' → ')}</p>
-            <p class="small">{dfsPath.length - 1} edges</p>
-          </figure>
-          <figure class="fig">
-            <p class="fig-cap">BFS path A → G</p>
-            <GraphFig g={city} edgeMarks={pm(bfsPath)} nodeMarks={pn(bfsPath)} label="Shortest path found by BFS" />
-            <p class="small mono">{bfsPath.join(' → ')}</p>
-            <p class="small">{bfsPath.length - 1} edges (shortest)</p>
-          </figure>
-        </div>
-        <p>DFS found <i>a</i> path, but a long one. It wandered deep before reaching G. If you need the <b>fewest edges</b>, use BFS.</p>
-      </div>
-
-      <div class="remember">
-        <p class="note-label">Where you see DFS in IT</p>
-        <p>Searching all folders on a drive, solving mazes, and checking for <b>cycles</b>. For example, a project tool can check if tasks wait on each other in a circle (A waits for B, B for C, C for A), which means none of them can start.</p>
-      </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={dfsInIT()} /><figcaption>A maze is a graph: each fork or corner is a vertex, and each hallway is an edge. Like DFS, the cat follows one way to its end (1). At a dead end (2), it backs up to the last fork (3) and tries the next way (4). In a project plan, if DFS reaches a task that is still on its stack, it found a circle of tasks waiting for each other.</figcaption></figure>
-    </div>
-  </section>
-
-  <!-- 5 -->
   <section class="chapter wrap" id="compare">
     <div class="chapter-head">
-      <p class="chapter-num">Part 5 · Side by side</p>
+      <p class="chapter-num">Part 3 · Side by side</p>
       <h2>BFS vs. DFS</h2>
     </div>
     <div class="flow">
-      <p>Here is the same graph searched both ways from A. The small numbers show the visit order, and the arrows show how each vertex was first reached.</p>
-      <figure class="fig illus-fig"><Fragment set:html={bfsVsDfs()} /><figcaption>BFS reaches D third, straight from A, because D is one edge away. DFS reaches D sixth, at the end of a long path. Both visit all seven vertices, just in a different order.</figcaption></figure>
-      <p>Both are graph traversal algorithms: they visit every reachable vertex once. They differ in these ways:</p>
+      <p>Both visit every reachable vertex once, in a different order. Here is the DFS Example 1 graph searched both ways from A.</p>
+      <figure class="fig illus-fig"><Fragment set:html={bfsVsDfs()} /><figcaption>D is one edge from A, so BFS reaches it third. DFS reaches it sixth, at the end of a long path.</figcaption></figure>
       <table class="tbl">
         <thead><tr><th></th><th>BFS</th><th>DFS</th></tr></thead>
         <tbody>
-          <tr><td><b>Explores</b></td><td>wide first, level by level</td><td>deep first, then backtracks</td></tr>
-          <tr><td><b>Uses a</b></td><td>queue (first in, first out)</td><td>stack (last in, first out), or recursion</td></tr>
-          <tr><td><b>Shortest path (fewest edges)?</b></td><td>yes, in unweighted graphs</td><td>no, not guaranteed</td></tr>
-          <tr><td><b>Finds what is reachable?</b></td><td>yes</td><td>yes</td></tr>
-          <tr><td><b>Good for</b></td><td>fewest hops, levels, "friends of friends"</td><td>exploring every path, mazes, folders, finding cycles</td></tr>
+          <tr><td><b>Explores</b></td><td>wide first, level by level</td><td>deep first, then backs up</td></tr>
+          <tr><td><b>Uses a</b></td><td>queue (FIFO)</td><td>stack (LIFO), or recursion</td></tr>
+          <tr><td><b>On paper</b></td><td>first letter without a ✓; write all new neighbors</td><td>last letter without a ✓; write one new neighbor</td></tr>
+          <tr><td><b>Fewest edges?</b></td><td>yes (unweighted graph)</td><td>not guaranteed</td></tr>
+          <tr><td><b>Good for</b></td><td>levels, fewest hops, friends of friends</td><td>every path, mazes, folders, cycles</td></tr>
         </tbody>
       </table>
       <div class="remember">
@@ -369,77 +311,101 @@ const quiz = [
     </div>
   </section>
 
-  <!-- 6 -->
-  <section class="chapter wrap" id="paper">
+  <!-- 4 -->
+  <section class="chapter wrap" id="pieces">
     <div class="chapter-head">
-      <p class="chapter-num">Part 6 · Your turn</p>
-      <h2>Try it on paper</h2>
+      <p class="chapter-num">Part 4 · Directed and disconnected graphs</p>
+      <h2>Arrows, and separate pieces</h2>
+    </div>
+    <div class="flow">
+      <p>In a <b>directed</b> graph, follow the arrows only, as in BFS. A vertex's neighbors are the vertices its arrows point <b>to</b>.</p>
+      <div class="def">
+        <p class="note-label">Disconnected graph and component</p>
+        <p>A graph is still one graph even if some vertices cannot reach each other. It is called a <b>disconnected graph</b>, and each separate piece is a <b>(connected) component</b>.</p>
+      </div>
+      <figure class="fig">
+        <GraphFig g={W.dfsEx2} nodeMarks={{ F: 'hl', G: 'hl' }} label="One graph with two components: A, B, C, D, E in one, and F, G in the other" />
+        <p class="small">One graph, two components: A to E, and F with G (the DFS Example 2 graph).</p>
+      </figure>
+      <div class="sticky">
+        <p class="note-label">Think of roads in the Philippines</p>
+        <p>All roads form one network, but no road crosses the sea from Mindanao to Luzon. A car from Davao can reach Mindanao towns, but no town in Luzon.</p>
+      </div>
+      <p>BFS and DFS only visit the <b>component where they start</b>. So "never visited" means every vertex outside that component. (To visit everything, a program starts again from an unvisited vertex.)</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="chapter wrap" id="examples">
+    <div class="chapter-head">
+      <p class="chapter-num">Part 5 · Examples</p>
+      <h2>DFS examples</h2>
     </div>
     <div class="flow">
       <div class="remember">
-        <p class="note-label">How to set up your paper</p>
-        <ul>
-          <li>Draw the stack as a column. Write new vertices on top; cross out the top when you pop.</li>
-          <li>Write the DFS order as you <b>push</b> each vertex.</li>
-          <li>On the drawing, trace each step with a pencil so you can see the dead ends.</li>
-          <li>Or write the trace as a <b>table</b>, with one row for each push or pop. Use the four columns from <a href="#stack">Part 2</a>.</li>
-        </ul>
+        <p class="note-label">How your answers are checked</p>
+        <p>The row with ✓ is scratch work and is not graded. You hand in <b>a.</b> the DFS order and, if asked, <b>b.</b> another answer, such as the vertices never visited.</p>
       </div>
-
-      <div class="paper flow">
-        <p class="note-label">Problem 1</p>
-        <p>This is the same graph as Problem 1 in the BFS lesson.</p>
-        <GraphFig g={p1} label="Practice graph 1, undirected, vertices A to G" />
-        <ol>
-          <li>Do a DFS starting at <b>D</b> (neighbors in alphabetical order). Write the DFS order.</li>
-          <li>Compare it with your BFS order from D.</li>
-        </ol>
-        <details class="reveal">
-          <summary>Show the answer</summary>
-          <div class="flow">
-            <p><b>DFS order:</b> <span class="mono">{r1.order.join(', ')}</span></p>
-            <p><b>BFS order</b> (from the BFS lesson): <span class="mono">{r1b.order.join(', ')}</span></p>
-            <p>The trace, one row per push or pop. Each row shows the same stack, one step later (bottom → top, left to right):</p>
-            <div class="tbl-wrap">
-              <table class="tbl small">
-                <thead><tr><th>Step</th><th>Action</th><th>Stack (bottom → top)</th><th>DFS order so far</th></tr></thead>
-                <tbody>{r1Rows.map((r, i) => <tr><td>{i + 1}</td><td class="nowrap">{r.act}</td><td class="mono nowrap">{r.stack}</td><td class="mono nowrap">{r.order}</td></tr>)}</tbody>
-              </table>
+      <p>At each step ask: what is the last letter without a ✓, and does it have a neighbor not written yet? Do each example on paper first.</p>
+      {ex.map((e) => (
+        <div class="paper flow ex-q" id={e.id} data-toc={e.title.split(':')[0]}>
+          <p class="ex-title"><span class="ex-tag">{e.title.split(': ')[0]}</span>{e.title.includes(': ') && <span class="ex-sub">{e.title.split(': ')[1].replace(/^./, (c) => c.toUpperCase())}</span>}</p>
+          <p class="ex-task">Perform a DFS traversal with <b>{e.start}</b> as the starting point (neighbors in alphabetical order).</p>
+          <GraphFig g={e.g} label={`${e.title} graph`} />
+          <ol class="ex-parts">
+            <li><b>a.</b> What is the DFS traversal order?</li>
+            {e.missedQ && <li><b>b.</b> {e.missedQ}</li>}
+          </ol>
+          <details class="reveal">
+            <summary>Show the solution, step by step</summary>
+            <div class="flow">
+              <StepShow id={`${e.id}-steps`} cap={`DFS from ${e.start}`} hint="Same colors as in Part 2." steps={e.show} />
+              <div class="ex-ans">
+                <p class="ex-a-line"><b class="lbl">a.</b> <span class="ans">{e.run.order.join(', ')}</span></p>
+                {e.missedQ && <p class="ex-a-line"><b class="lbl">b.</b> <span class="ans">{and(e.run.missed)}</span></p>}
+              </div>
+              <p set:html={e.note} />
             </div>
-            <p>DFS went D → B → A → C → E → F before backing up. F was a dead end (D and E visited), so it popped back through E, C, A, and B to D, which still had G unvisited.</p>
-          </div>
-        </details>
-      </div>
+          </details>
+        </div>
+      ))}
 
-      <div class="paper flow">
-        <p class="note-label">Problem 2 (directed)</p>
-        <GraphFig g={p2} label="Practice graph 2, directed, vertices A to F" />
-        <ol>
-          <li>Do a DFS starting at <b>C</b>, following the arrows. Write the DFS order.</li>
-          <li>Which vertices are not visited?</li>
+      <div class="paper flow ex-q" id={flood.id} data-toc="Real-life Example 2">
+        <p class="ex-title"><span class="ex-tag">Real-life Example 2</span><span class="ex-sub">Rescue after a typhoon</span></p>
+        <p>The same <Peek label="sample town" title="Real-life Example 1" html={realPeek} /> as in the BFS lesson. Two roads are flooded (✗), so treat them as gone. A rescue truck leaves the Fire station. Which places are cut off?</p>
+        <p class="ex-task">Do DFS from the Fire station (<b>F</b>), neighbors in alphabetical order. Ignore the flooded roads.</p>
+        <div class="town-fig"><GraphFig g={W.townFlood} labels={townNames} w={380} label="Sample town with two flooded roads: Market to Plaza, and School to Library" /></div>
+        <ol class="ex-parts">
+          <li><b>a.</b> What is the DFS traversal order?</li>
+          <li><b>b.</b> Which places are cut off?</li>
         </ol>
         <details class="reveal">
-          <summary>Show the answer</summary>
+          <summary>Show the solution, step by step</summary>
           <div class="flow">
-            <p><b>DFS order:</b> <span class="mono">{r2.order.join(', ')}</span></p>
-            <p><b>Not visited:</b> {r2.missed.join(' and ')}. From C the arrows go C → B → D → E, and E's only arrow leads back to C (already visited). No arrow from this group points to A or F.</p>
+            <StepShow id="real-ex2-steps" cap="DFS from F (Fire station)" hint="Same colors as in Part 2. Red ✗ = flooded road." steps={flood.show} />
+            <div class="ex-ans">
+              <p class="ex-a-line"><b class="lbl">a.</b> <span class="ans">{flood.run.order.join(', ')}</span></p>
+              <p class="ex-a-line"><b class="lbl">b.</b> <span class="ans">{and(cutNames)}</span></p>
+            </div>
+            <p>The floods split the town into two components. The truck can only reach its own. The other needs a boat. (BFS would reach the same places, in a different order.)</p>
+            <p class="small">Network tools use this to see what is still connected after a failure, such as a broken cable or a downed power line.</p>
           </div>
         </details>
       </div>
     </div>
   </section>
 
-  <!-- 7 -->
+  <!-- 6 -->
   <section class="chapter wrap" id="java">
     <div class="chapter-head">
-      <p class="chapter-num">Part 7 · In code</p>
+      <p class="chapter-num">Part 6 · In code</p>
       <h2>DFS in Java</h2>
     </div>
     <div class="flow">
-      <p>DFS is short when written with recursion. This program builds the main example and runs DFS from A.</p>
+      <p>DFS is short when written with recursion. This program builds the graph of <a href="#dfs-ex1">DFS Example 1</a> and runs DFS from A.</p>
       <pre class="code"><code set:html={hi(code)} /></pre>
       <TryIt cls="DFS" />
-      <p>Most lines match the BFS program (see its <a href={base + '/itc120/bfs/#java'}>read-aloud table</a>). Three lines to read aloud:</p>
+      <p>Most lines match the BFS program (see its <a href={base + '/itc120/bfs/#java'}>read-aloud table</a>). Here are three lines to read aloud:</p>
       <div class="tbl-wrap"><table class="tbl ra">
         <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
         <tbody>
@@ -449,12 +415,12 @@ const quiz = [
         </tbody>
       </table></div>
       <div class="plain">
-        <p class="note-label">Match the code to the procedure</p>
-        <p>Calling <code>dfs(v)</code> is the <b>push</b> (go deeper). When the <code>for</code> loop ends, the method returns: that is the <b>pop</b> (backtrack). The <code>visited</code> array stops us from going around a cycle forever. Compare with BFS: there is no queue here, because Java's call stack is the stack.</p>
+        <p class="note-label">Match the code to the one-row method</p>
+        <p><code>visited[u] = true</code> means "u is now written in the row". Calling <code>dfs(v)</code> is step 3, writing one new neighbor and moving to it (a push). When the <code>for</code> loop ends, no neighbor is left that is not written, so the method returns. That is step 4, writing the ✓ and stepping back (a pop). There is no stack variable here, because Java's call stack is the stack.</p>
       </div>
       <div class="paper flow" id="task">
         <p class="note-label">Your coding task: count what DFS can reach</p>
-        <p>In <Peek label="Part 4" title="From Part 4 · What can be reached?" html={reachPeek} />, DFS from A reached 5 vertices, but DFS from F reached only 3. Now write a DFS that counts them.</p>
+        <p>In <Peek label="this one-way graph" title="A one-way (directed) graph" html={reachPeek} />, DFS from A reaches 5 vertices, but DFS from F reaches only 3. Now write a DFS that counts them.</p>
         <p>Finish <code>countReach</code> in about 8 lines where it says YOUR CODE. It is the <code>dfs</code> method from this part with a count added. Each call counts its own vertex (1), plus everything its deeper calls reach. Like <a href={base + '/itc120/recursion/#task'}>height in the Recursion lesson</a>, a recursive call gives back a number, and you add it. The graph is the one-way graph, built with <code>addArrow</code> (one direction only). <code>main</code> clears <code>visited</code> before each new test. Run it: each printed line must match its expected comment.</p>
         <pre class="code"><code set:html={hiN(taskCode)} /></pre>
         <TryIt />
@@ -483,10 +449,10 @@ const quiz = [
     </div>
   </section>
 
-  <!-- 8 -->
+  <!-- 7 -->
   <section class="chapter wrap" id="check">
     <div class="chapter-head">
-      <p class="chapter-num">Part 8 · Check yourself</p>
+      <p class="chapter-num">Part 7 · Check yourself</p>
       <h2>Self-check</h2>
     </div>
     <div class="flow">
@@ -495,11 +461,12 @@ const quiz = [
       <div class="remember">
         <p class="note-label">Key takeaways</p>
         <ol>
-          <li>DFS goes as deep as possible, then backtracks at dead ends.</li>
-          <li>It uses a <b>stack</b> (or recursion). Push = go deeper; pop = go back.</li>
-          <li>Write a vertex in the order when you first visit it.</li>
-          <li>DFS finds everything reachable and can find <i>a</i> path, but not always the shortest.</li>
-          <li>BFS = broad, queue, shortest path. DFS = deep, stack, follows one path to its end before trying another.</li>
+          <li>DFS goes as deep as possible, then backtracks at dead ends. It uses a stack (or recursion).</li>
+          <li>On paper, write the stack as one row. You are always on the <b>last</b> letter without a ✓.</li>
+          <li>Not stuck: write <b>one</b> new neighbor (the first alphabetically) and move to it. Stuck: write a ✓ and step back. Repeat until every letter has a ✓.</li>
+          <li>The DFS order is the order the letters were <b>written</b>, not the order they were checked.</li>
+          <li>In a directed graph, follow the arrows only. BFS and DFS only visit the component where they start.</li>
+          <li>BFS = broad, queue, fewest edges. DFS = deep, stack, follows one path to its end before trying another.</li>
         </ol>
       </div>
       <p><b>Next unit:</b> <a href={base + '/itc120/sets/'}>Sets in Java</a>.</p>
@@ -518,8 +485,6 @@ const quiz = [
 <style>
   .procedure { display: grid; gap: 0.4rem; }
   .procedure > li::marker { font-family: var(--font-hand); font-weight: 700; color: var(--orange); }
-  .procedure ol { margin-top: 0.3rem; display: grid; gap: 0.3rem; }
-  .trace { display: grid; gap: 0.15rem; }
   .refs .note-label { color: var(--ink-soft); font-size: var(--step-0); margin-bottom: 0.3rem; }
   .refs ol { display: grid; gap: 0.3rem; }
 </style>

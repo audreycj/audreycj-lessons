@@ -5,11 +5,17 @@ const { id } = Astro.props;
 ---
 <figure class="fig mxlab" id={id}>
   <p class="fig-cap">Build a graph: three views, one graph</p>
-  <p class="fig-hint">Tap a cell in the matrix to add or remove an edge. Watch the drawing and the adjacency list change too. Try the diagonal (A to A).</p>
-  <div class="btn-row mx-mode" role="group" aria-label="Graph type">
-    <button type="button" class="btn" data-dir="0" aria-pressed="true">Undirected</button>
-    <button type="button" class="btn" data-dir="1" aria-pressed="false">Directed</button>
-    <button type="button" class="btn" data-clear>Clear all</button>
+  <p class="fig-hint">Tap a box in the matrix to add an edge, and tap it again to remove it.</p>
+  <div class="mx-bar">
+    <div class="btn-row mx-mode" role="group" aria-label="Graph type">
+      <button type="button" class="btn" data-dir="0" aria-pressed="true">Undirected</button>
+      <button type="button" class="btn" data-dir="1" aria-pressed="false">Directed</button>
+    </div>
+    <div class="mx-tools" role="group" aria-label="Fill, clear, or reset the matrix">
+      <button type="button" class="mx-tool" data-fill>All 1s</button>
+      <button type="button" class="mx-tool" data-clear>Clear all</button>
+      <button type="button" class="mx-tool" data-reset>↺ Reset</button>
+    </div>
   </div>
   <div class="mx-grid">
     <div class="mx-svg"></div>
@@ -22,7 +28,13 @@ const { id } = Astro.props;
 </figure>
 
 <style is:global>
-  .mxlab .mx-mode { margin-bottom: 0.8rem; }
+  .mxlab .fig-cap { margin-bottom: 0.7rem; }
+  .mxlab .mx-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; margin-bottom: 0.9rem; }
+  .mxlab .mx-mode .btn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .mxlab .mx-tools { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .mxlab .mx-tool { font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--ink); background: transparent; border: 1.5px dashed var(--ink); border-radius: 999px; padding: 0.3em 0.85em; min-height: 2.1rem; cursor: pointer; }
+  .mxlab .mx-tool:hover { background: var(--paper); border-style: solid; }
+  .mxlab .mx-tool:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
   .mxlab .mx-grid { display: grid; gap: 1rem; align-items: start; }
   @media (min-width: 44rem) { .mxlab .mx-grid { grid-template-columns: 1fr 1fr; } }
   .mxlab .mx-side { display: grid; gap: 1rem; }
@@ -37,9 +49,10 @@ const { id } = Astro.props;
   import { svgGraph, neighbors, matrix } from '../lib/graph.js';
   document.querySelectorAll<HTMLElement>('.mxlab').forEach((fig) => {
     const N = ['A', 'B', 'C', 'D', 'E'];
-    const pos: Record<string, [number, number]> = { A: [170, 40], B: [290, 120], C: [245, 225], D: [95, 225], E: [50, 120] };
+    const pos: Record<string, [number, number]> = { A: [170, 52], B: [290, 130], C: [245, 232], D: [95, 232], E: [50, 130] };
     let directed = false;
-    let edges: { a: string; b: string }[] = [{ a: 'A', b: 'B' }, { a: 'A', b: 'E' }, { a: 'B', b: 'C' }, { a: 'C', b: 'D' }];
+    const START = [{ a: 'A', b: 'B' }, { a: 'A', b: 'E' }, { a: 'B', b: 'C' }, { a: 'C', b: 'D' }];
+    let edges: { a: string; b: string }[] = START.map((e) => ({ ...e }));
     const g = () => ({ directed, weighted: false, nodes: N.map((id) => ({ id, x: pos[id][0], y: pos[id][1] })), edges });
     const svgBox = fig.querySelector<HTMLElement>('.mx-svg')!;
     const table = fig.querySelector<HTMLTableElement>('.mx-table')!;
@@ -51,7 +64,7 @@ const { id } = Astro.props;
     }
     function paint(flash?: [number, number]) {
       const G = g();
-      svgBox.innerHTML = svgGraph(G, { label: 'The graph you built', w: 340, h: 270 });
+      svgBox.innerHTML = svgGraph(G, { label: 'The graph you built', w: 340, h: 285 });
       const M = matrix(G);
       table.innerHTML = `<caption>Adjacency matrix (row = from, column = to)</caption><thead><tr><th></th>${N.map((c) => `<th scope="col">${c}</th>`).join('')}</tr></thead><tbody>` +
         N.map((r, i) => `<tr><th scope="row">${r}</th>${M[i].map((v, j) => `<td class="${v ? 'one' : ''} ${i === j ? 'diag' : ''} ${flash && ((flash[0] === i && flash[1] === j) || (!directed && flash[0] === j && flash[1] === i)) ? 'flash' : ''}"><button type="button" data-i="${i}" data-j="${j}" aria-label="Edge from ${r} to ${N[j]}: ${v}">${v}</button></td>`).join('')}</tr>`).join('') + '</tbody>';
@@ -77,9 +90,8 @@ const { id } = Astro.props;
       fig.querySelectorAll('[data-dir]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
       if (want) {
         directed = true;
-        // an undirected edge = two arrows, one each way
-        edges = edges.flatMap((e) => (e.a === e.b ? [e] : [e, { a: e.b, b: e.a }]));
-        note.innerHTML = 'Now <b>directed</b>. Each undirected edge became <b>two arrows</b>, one each way, so the matrix did not change. Now tap a cell to add or remove a <b>one-way</b> edge, and the mirror image breaks.';
+        // each edge becomes ONE arrow (one way), so students see a real directed graph (chat 64)
+        note.innerHTML = 'Now <b>directed</b>. Each edge became <b>one arrow</b>, going one way only. Each arrow gives just one 1 in the matrix, so the matrix is no longer a mirror image.';
       } else {
         // make every edge two-way, dropping duplicates
         const seen = new Set<string>();
@@ -90,6 +102,19 @@ const { id } = Astro.props;
       paint();
     }));
     fig.querySelector('[data-clear]')!.addEventListener('click', () => { edges = []; note.textContent = 'All edges removed. Five vertices, no edges: every row is all 0s and every list is just null.'; paint(); });
+    fig.querySelector('[data-fill]')!.addEventListener('click', () => {
+      edges = [];
+      N.forEach((a, i) => N.forEach((c, j) => { if (directed ? true : j >= i) edges.push({ a, b: c }); }));
+      note.innerHTML = directed ? 'Every box is 1. Every vertex has an arrow to every other vertex (both ways) and a loop on itself.' : 'Every box is 1. Every vertex is connected to every other vertex, and each one also has a loop (the 1s on the diagonal).';
+      paint();
+    });
+    fig.querySelector('[data-reset]')!.addEventListener('click', () => {
+      directed = false;
+      edges = START.map((e) => ({ ...e }));
+      fig.querySelectorAll('[data-dir]').forEach((x) => x.setAttribute('aria-pressed', String(x.getAttribute('data-dir') === '0')));
+      note.textContent = 'Back to the starting graph.';
+      paint();
+    });
     paint();
   });
 </script>

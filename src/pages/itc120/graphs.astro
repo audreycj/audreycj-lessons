@@ -10,9 +10,68 @@ import MatrixLab from '../../components/MatrixLab.astro';
 import MatrixTap from '../../components/MatrixTap.astro';
 import Quiz from '../../components/Quiz.astro';
 import PinScript from '../../components/PinScript.astro';
-import { graphsInIT, llDefPic, mapAppGraph } from '../../lib/illus.js';
+import { graphsInIT, llDefPic, mapAppGraph, loopPagePic } from '../../lib/illus.js';
 import { course } from '../../data/itc120.js';
 import { small, smallDir, weighted, withLoop } from '../../data/graphs.js';
+import StepShow from '../../components/StepShow.astro';
+import * as W from '../../data/graphs-w16.js';
+import { storeSteps, fromMatrixSteps, matrixHtml, listHtml, friendsChart, matrixHowSteps, listHowSteps, cref } from '../../lib/onerow.js';
+// Weighted directed graph for the matrix how-to tabs (same positions and arrows as smallDir; made-up weights)
+const weightedDir = { ...smallDir, weighted: true, edges: smallDir.edges.map((e, i) => ({ ...e, w: [7, 4, 12, 6, 5][i] })) };
+// Storage Examples 1-4 (Week 16 deck, slides 16-23)
+// Part 6 compare pictures (chat 64): one sparse graph, three questions
+const sparse6 = { directed: false, weighted: false, nodes: [['A',170,30],['E',280,90],['D',280,190],['F',170,250],['B',60,190],['C',60,90]].map(([id,x,y]) => ({ id, x, y })), edges: [{ a:'A', b:'C' }, { a:'A', b:'E' }, { a:'B', b:'F' }, { a:'D', b:'E' }] };
+const dense5 = { directed: false, weighted: false, nodes: [['A',150,30],['B',265,115],['C',220,240],['D',80,240],['E',35,115]].map(([id,x,y]) => ({ id, x, y })), edges: [] };
+for (const a of 'ABCDE') for (const b of 'ABCDE') if (a < b) dense5.edges.push({ a, b });
+const sparse5 = { ...dense5, edges: [{ a:'A', b:'B' }, { a:'C', b:'D' }, { a:'D', b:'E' }] };
+const dense6 = { ...sparse6, edges: [] };
+for (const a of 'ABCDEF') for (const b of 'ABCDEF') if (a < b) dense6.edges.push({ a, b });
+const mxNoCap = (h) => h.replace(/<caption>.*?<\/caption>/, '');
+// "Think of your class" picture (chat 64): 40 students, each friends with a few classmates
+const classPic = (() => {
+  let seed = 7; const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const N = 40, F = Array.from({ length: N }, () => new Set());
+  let tries = 0;
+  while (tries++ < 5000) { const a = Math.floor(rnd() * N), b = Math.floor(rnd() * N); if (a === b || F[a].has(b) || F[a].size >= 5 || F[b].size >= 5) continue; F[a].add(b); F[b].add(a); if ([...F].reduce((t, x) => t + x.size, 0) >= 120) break; }
+  const ones = F.reduce((t, x) => t + x.size, 0);
+  const c = 6, g = 1, st = c + g, W = N * st;
+  let m = `<svg class="cls-svg" viewBox="0 0 ${W} ${W}" role="img" aria-label="A 40 by 40 grid of 1,600 small boxes. Only ${ones} are colored, the rest are grey.">`;
+  for (let r = 0; r < N; r++) for (let k = 0; k < N; k++) m += `<rect x="${k * st}" y="${r * st}" width="${c}" height="${c}" class="${F[r].has(k) ? 'cl-one' : 'cl-zero'}"/>`;
+  m += '</svg>';
+  const maxw = Math.max(...F.map((x) => x.size));
+  const LW = st + 3 + maxw * st;
+  let l = `<svg class="cls-svg cls-list" viewBox="0 0 ${LW} ${W}" role="img" aria-label="40 short rows. Each row has a green box and only a few white boxes, ${ones} white boxes in all.">`;
+  for (let r = 0; r < N; r++) { l += `<rect x="0" y="${r * st}" width="${c}" height="${c}" class="cl-head"/>`; [...F[r]].forEach((_, i) => { l += `<rect x="${st + 3 + i * st}" y="${r * st}" width="${c}" height="${c}" class="cl-box"/>`; }); }
+  l += '</svg>';
+  return { m, l, ones };
+})();
+// "Which vertex has the most connections?" (chat 64): matrix with a count under every column (and beside every row)
+const countMx = (g, rowSums) => {
+  const I = g.nodes.map((n) => n.id).sort(), M = {};
+  for (const e of g.edges) { M[`${e.a}-${e.b}`] = 1; if (!g.directed) M[`${e.b}-${e.a}`] = 1; }
+  const col = (c) => I.filter((r) => M[`${r}-${c}`]).length, row = (r) => I.filter((c) => M[`${r}-${c}`]).length;
+  const best = Math.max(...I.map(col)), win = I.filter((c) => col(c) === best);
+  const rbest = Math.max(...I.map(row)), rwin = rowSums ? I.filter((r) => row(r) === rbest) : [];
+  let h = `<div class="scroll-x"><table class="adj cnt-adj"><thead><tr><th></th>${I.map((c) => `<th scope="col"${win.includes(c) ? ' class="cnt-win"' : ''}>${c}</th>`).join('')}${rowSums ? '<td class="cnt-gap" aria-hidden="true"></td><th scope="col" class="cnt-h">out</th>' : ''}</tr></thead><tbody>`;
+  for (const r of I) h += `<tr><th scope="row"${rwin.includes(r) ? ' class="cnt-win"' : ''}>${r}</th>${I.map((c) => `<td class="${M[`${r}-${c}`] ? 'one' : ''}${win.includes(c) ? ' cnt-col' : ''}${rwin.includes(r) ? ' cnt-rowl' : ''}${win.includes(c) && rwin.includes(r) ? ' cnt-both' : ''}">${M[`${r}-${c}`] ? 1 : 0}</td>`).join('')}${rowSums ? `<td class="cnt-gap" aria-hidden="true"></td><td class="cnt-sum${rwin.includes(r) ? ' cnt-best' : ''}">${row(r)}</td>` : ''}</tr>`;
+  h += `<tr class="cnt-spacer" aria-hidden="true"><td colspan="${I.length + 1}"></td></tr><tr class="cnt-row"><th scope="row">${g.directed ? 'in' : '1s'}</th>${I.map((c) => `<td class="cnt-sum${win.includes(c) ? ' cnt-best' : ''}">${col(c)}</td>`).join('')}</tr></tbody></table></div>`;
+  return h;
+};
+const cellsOf = (g) => { const c = {}; for (const e of g.edges) { const v = g.weighted ? e.w : 1; c[`${e.a}-${e.b}`] = v; if (!g.directed) c[`${e.b}-${e.a}`] = v; } return c; };
+const noCapSteps = (st) => st.map((x) => ({ ...x, pic: String(x.pic).replace(/<caption>.*?<\/caption>/g, '') }));
+const inCount = (g, id) => g.edges.filter((e) => e.b === id).length;
+const store = [
+  { id: 'store-ex1', title: 'Example 1: store this graph', g: W.storeEx1, task: 'Write the adjacency matrix and the adjacency list. Use the order A, B, C, D, E.', steps: noCapSteps(storeSteps(W.storeEx1)),
+    extra: null,
+    note: '5 edges, so 10 ones, mirrored across the diagonal. D has the longest list, so D has degree 3. The arrows in a list are links, not edges, so B and C are not joined. The usual mistake is forgetting the second 1 of an edge; the count check catches it.' },
+  { id: 'store-ex2', title: 'Example 2: store this directed graph', g: W.storeEx2, task: 'Write the adjacency matrix and the adjacency list. Which vertex has the most arrows coming in?', steps: noCapSteps(storeSteps(W.storeEx2)),
+    extra: 'Most arrows coming in: B (from A and from D)',
+    note: 'Each arrow gives ONE 1 (row = from, column = to) and appears in one list only. Column B has two 1s, so B has the most arrows coming in. Usual mistakes are reading an arrow backwards or adding a mirror 1.' },
+  { id: 'store-ex3', title: 'Example 3: store this weighted graph', g: W.storeEx3, task: 'Write the matrix (store the weight; 0 means no edge) and the list (write each neighbor with its weight, like B,3).', steps: noCapSteps(storeSteps(W.storeEx3)),
+    extra: null,
+    note: 'Write the weight instead of 1, twice per edge (the graph is undirected). Usual mistakes are writing 1, forgetting the mirror box, or reading the wrong edge\'s weight.' },
+];
+const store4 = { id: 'store-ex4', title: 'Example 4: draw the graph from a matrix', g: W.storeEx4, steps: noCapSteps(fromMatrixSteps(W.storeEx4)) };
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const twoD = String.raw`int[][] seats = new int[3][4];   // 3 rows, 4 columns, all 0
 seats[1][2] = 7;                 // row 1, column 2
@@ -254,7 +313,7 @@ public class ListGraph {
 // Peeks back to earlier parts/lessons (chat 23)
 const llPeek = `<div class="illus">${llDefPic()}</div>`;
 ---
-<Base title="Graphs · ITC 120" description="Graphs: vertices and edges, directed and weighted graphs, and how to store them in an adjacency matrix or adjacency list." course={{ code: course.code, href: base + course.href }} toc>
+<Base title="Graphs · ITC 120" description="Graphs: vertices and edges, directed and weighted graphs, and how to store them in an adjacency matrix or adjacency list." course={{ code: course.code, href: base + course.href }} theme="tocall" toc>
   <header class="wrap lesson-hero flow">
     <p class="crumbs"><a href={base + course.href}>ITC 120</a> › Final › Graphs</p>
     <p class="kicker">Graphs · Lesson 1 of 3</p>
@@ -278,7 +337,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
   <section class="chapter wrap" id="what">
     <div class="chapter-head">
       <p class="chapter-num">Part 1 · The idea</p>
-      <h2>What a graph is</h2>
+      <h2>What is a graph?</h2>
     </div>
     <div class="flow">
       <div class="def">
@@ -306,17 +365,19 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
         <p>So: <b>every tree is a graph, but not every graph is a tree.</b></p>
       </div>
 
-      <div class="remember">
+      <div class="remember flow">
         <p class="note-label">Where you see graphs in IT</p>
-        <p>Graphs are everywhere in IT. Here are some examples:</p>
-        <ul>
-          <li><b>Computer networks:</b> devices (vertices) connected by cables or Wi-Fi links (edges).</li>
-          <li><b>Social media:</b> people (vertices) and friendships (edges). "People you may know" are often friends of your friends.</li>
-          <li><b>Maps and delivery apps:</b> places (vertices) and roads (edges), used to find a route.</li>
-          <li><b>The web:</b> pages (vertices) and links (edges) from one page to another.</li>
-        </ul>
+        <p>Graphs are everywhere in IT. Here are four examples. Each one has vertices (the things) and edges (the connections).</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={graphsInIT()} /><figcaption class="gi-cap">
+          <p>Here are a few things to notice in the pictures.</p>
+          <ul>
+            <li><b>Social media.</b> You are not friends with Bea yet (the dashed line). But two of your friends are, so the app may suggest her in "People you may know."</li>
+            <li><b>Maps.</b> The numbers on the roads are travel minutes. A graph with numbers on its edges is called a <b>weighted</b> graph.</li>
+            <li><b>The web.</b> A link takes you from one page to another, but not back. Home links to News, but News has no link back to Home. That is why the edges are arrows. A graph with arrows is called a <b>directed</b> graph.</li>
+          </ul>
+          <p>You will learn both words in Part 2.</p>
+        </figcaption></figure>
       </div>
-      <figure class="fig illus-fig illus"><Fragment set:html={graphsInIT()} /><figcaption>The four examples as small graphs. On social media, you are not friends with Bea yet (dashed line), but two of your friends are, so the app may suggest her. On the map, the numbers are travel minutes (made-up), so it is a <b>weighted</b> graph. On the web, a link goes one way, so the edges are arrows (a <b>directed</b> graph). You will meet both words in Part 2.</figcaption></figure>
     </div>
   </section>
 
@@ -352,33 +413,33 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
 
       <div class="sub">
         <h3>Directed or undirected?</h3>
-        <p>Graphs can be described in two ways, depending on whether edges have a direction:</p>
+        <p>Graphs come in two kinds, depending on whether the edges have a direction.</p>
         <div class="two-col">
           <figure class="fig">
-            <p class="fig-cap">Undirected</p>
+            <p class="kind-tag kt-undir">Undirected</p>
             <GraphFig g={small} label="Undirected graph" />
             <p class="small">Edges have <b>no direction</b>. A–B means you can go A to B <i>and</i> B to A. Like Facebook friends: if you are my friend, I am yours.</p>
           </figure>
           <figure class="fig">
-            <p class="fig-cap">Directed</p>
+            <p class="kind-tag kt-dir">Directed</p>
             <GraphFig g={smallDir} label="Directed graph with arrows" />
-            <p class="small">Each edge is an <b>arrow</b>. A → B lets you go from A to B, but not back. Like following someone on TikTok: they do not have to follow you back.</p>
+            <p class="small">Each edge is an <b>arrow</b>. A → B lets you go from A to B, but not back. Like following someone on TikTok. They do not have to follow you back.</p>
           </figure>
         </div>
-        <p>In a directed graph, degree splits in two. The <b>out-degree</b> counts arrows leaving a vertex; the <b>in-degree</b> counts arrows coming in. The two pictures below show both counts for vertex A in the directed graph above:</p>
+        <p>In a directed graph, degree splits in two. The <b>out-degree</b> counts arrows leaving a vertex, and the <b>in-degree</b> counts arrows coming in. Here is vertex A:</p>
         <div class="two-col">
           <figure class="fig">
-            <p class="fig-cap">Out-degree of A = 2</p>
+            <p class="kind-tag kt-out">Out-degree</p>
             <GraphFig g={smallDir} nodeMarks={{ A: 'current', B: 'seen', D: 'seen' }} edgeMarks={{ 'A-B': 'path', 'A-D': 'path' }} label="Directed graph: the arrows A to B and A to D, leaving A, are highlighted" />
-            <p class="small">Count the <b>arrows leaving A</b> (highlighted): A → B and A → D. That makes 2. In TikTok terms, this is how many accounts A <b>follows</b>.</p>
+            <p class="small">Count the <b>arrows leaving A</b> (highlighted), A → B and A → D. That makes 2, so the out-degree of A is 2. In TikTok terms, this is how many accounts A <b>follows</b>.</p>
           </figure>
           <figure class="fig">
-            <p class="fig-cap">In-degree of A = 1</p>
+            <p class="kind-tag kt-in">In-degree</p>
             <GraphFig g={smallDir} nodeMarks={{ A: 'current', C: 'seen' }} edgeMarks={{ 'C-A': 'tree' }} label="Directed graph: the arrow C to A, coming into A, is highlighted" />
-            <p class="small">Count the <b>arrows coming into A</b> (highlighted): only C → A. That makes 1. In TikTok terms, this is how many <b>followers</b> A has.</p>
+            <p class="small">Count the <b>arrows coming into A</b> (highlighted). There is only C → A, so the in-degree of A is 1. In TikTok terms, this is how many <b>followers</b> A has.</p>
           </figure>
         </div>
-        <p>Tip: look at the arrowhead. If the arrowhead touches the vertex, the arrow counts toward its in-degree; if the tail starts there, it counts toward its out-degree.</p>
+        <p><b>Tip.</b> If the arrowhead touches the vertex, it counts as <b>in</b>. If the tail starts there, it counts as <b>out</b>.</p>
       </div>
 
       <div class="sub">
@@ -387,30 +448,24 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
           <div class="two-col">
             <GraphFig g={weighted} label="Weighted graph with numbers on the edges" />
             <div class="flow">
-              <p>In a <b>weighted</b> graph, each edge carries a number called its <b>weight</b>. It can mean distance, cost, or time.</p>
-              <p>Here the weights are travel times in minutes (made-up numbers). From A to C, the path A → D → B → C takes 4 + 5 + 12 = 21 minutes, but A → B → C takes 7 + 12 = 19.</p>
-              <p>An <b>unweighted</b> graph has no numbers: every edge counts the same.</p>
+              <p>In a <span class="term-chip tc-w">weighted</span> graph, each edge carries a number called its <b>weight</b>, such as distance, cost, or time. In an <span class="term-chip tc-u">unweighted</span> graph, every edge counts the same.</p>
+              <p>Here the weights are made-up travel minutes. A → D → B → C takes 4 + 5 + 12 = 21, but A → B → C takes 7 + 12 = 19.</p>
             </div>
           </div>
         </figure>
         <div class="remember">
-          <p class="note-label">Where you see this: map apps</p>
-          <p>Map apps such as Google Maps and Waze store roads as a weighted graph. Here is what each part stands for:</p>
-          <ul>
-            <li><b>Vertices:</b> intersections and places, like your house, DOrSU, or the public market.</li>
-            <li><b>Edges:</b> the road segments between them. A one-way street is a <b>directed</b> edge.</li>
-            <li><b>Weights:</b> usually the expected travel time, updated with live traffic. That is why the app may reroute you mid-trip.</li>
-          </ul>
-          <p>The picture below shows a small made-up map in a map app (top) and the weighted graph the app stores for it (bottom). The places and minutes are the same as in the graph above, with A as your home and C as DOrSU.</p>
-          <figure class="fig illus-fig illus map-app-fig"><Fragment set:html={mapAppGraph()} /><figcaption>The blue line in the app and the orange path in the graph are the same route, A → B → C, 19 minutes. (Made-up map and travel times.)</figcaption></figure>
-          <p>The app picks the path with the <b>smallest total weight</b>. So the "shortest" route usually means the <b>fastest</b>, not the fewest kilometers.</p>
+          <p class="note-label">Where you see this in real life</p>
+          <p>Google Maps and Waze store places as vertices and road segments as edges (a one-way street is a directed edge). The weight is the expected travel time, which changes with traffic. The app picks the path with the <b>smallest total weight</b>, so "shortest" usually means <b>fastest</b>.</p>
+          <figure class="fig illus-fig illus map-app-fig"><Fragment set:html={mapAppGraph()} /><figcaption>A made-up map (top) and the weighted graph it stores (bottom). The blue route is A → B → C, 19 minutes.</figcaption></figure>
         </div>
       </div>
 
       <div class="sub">
         <h3>Loops</h3>
         <GraphFig g={withLoop} label="Directed graph where C has an arrow to itself" />
-        <p>C has a <b>loop</b>: an edge that leaves C and comes right back to C. Think of a web page that links to itself (like a "back to top" link).</p>
+        <p>C has a <b>loop</b>. A loop is an edge that leaves a vertex and comes right back to the <b>same</b> vertex.</p>
+        <p>Think of a web page that links to itself, like a "Back to top" link. The page is the vertex, and the link is an edge that points back to the same page.</p>
+        <figure class="fig illus-fig illus"><Fragment set:html={loopPagePic()} /></figure>
       </div>
     </div>
   </section>
@@ -422,76 +477,81 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <h2>Adjacency matrix</h2>
     </div>
     <div class="flow">
-      <p>A computer cannot look at a drawing. It stores only the <b>connections</b>: which vertex has an edge to which. There are two common ways to do it, the <b>adjacency matrix</b> (this part) and the <b>adjacency list</b> (Part 4). The matrix is stored in a <b>2D array</b>, so first, a quick look at one.</p>
-      <div class="sub" id="two-d">
-        <h3>First: a 2D array</h3>
-        <p>In the <a href={base + '/itc120/arrays/'}>Arrays</a> lesson, an array was <b>one row</b> of slots. Some data needs a <b>grid</b>: rows <i>and</i> columns. Think of the seat plan in your classroom. To point to one seat, you say two numbers: its row and its column.</p>
-        <div class="def"><p class="note-label">2D array</p><p>A <b>2D (two-dimensional) array</b> is a grid of slots, all holding the same type. Each slot has <b>two</b> indexes: <b>[row][column]</b>. Both count from 0, like a normal array.</p></div>
-        <table class="grid2d" aria-label="A 2D array named seats with 3 rows and 4 columns. Every slot holds 0 except seats[1][2], row 1, column 2, which holds 7.">
-          <thead><tr><th class="g2-corner">row ↓ / col →</th>{[0, 1, 2, 3].map((c) => <th>{c}</th>)}</tr></thead>
-          <tbody>{[0, 1, 2].map((r) => <tr><th>{r}</th>{[0, 1, 2, 3].map((c) => <td class={r === 1 && c === 2 ? 'hot' : ''}>{r === 1 && c === 2 ? 7 : 0}</td>)}</tr>)}</tbody>
-        </table>
-        <p class="fig-cap"><code>seats[1][2]</code> is row 1, column 2 (the orange slot). Every other slot still holds 0.</p>
-        <pre class="code"><code set:html={hi(twoD)} /></pre>
-        <p>Here is how to read each line aloud:</p>
-        <div class="tbl-wrap"><table class="tbl ra">
-          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
-          <tbody>
-            <tr><td><code>int[][] seats = new int[3][4];</code></td><td>"make a grid named seats with 3 rows and 4 columns." Every slot starts at 0. The two pairs of <code>[ ]</code> mean "rows, then columns."</td></tr>
-            <tr><td><code>seats[1][2] = 7;</code></td><td>"go to row 1, then to column 2, and store 7 there."</td></tr>
-            <tr><td><code>seats.length</code></td><td>"how many rows": 3.</td></tr>
-            <tr><td><code>seats[0].length</code></td><td>"how many columns in row 0": 4.</td></tr>
-          </tbody>
-        </table></div>
-        <div class="trap"><p class="note-label">Row first, then column</p><p><code>seats[2][1]</code> is a different slot: row 2, column 1. It still holds 0.</p></div>
-        <p>An adjacency matrix is exactly this kind of grid. Its rows are the vertices, its columns are the same vertices again, and each slot answers one question: is there an edge from this row's vertex to this column's vertex?</p>
-      <div class="remember">
-        <p class="note-label">Think of a friends chart</p>
-        <p>Four classmates, A, B, C, and D, want to record who is friends with whom. They write their names down the left side of a grid and again across the top. Each box answers one question: is the person in this <b>row</b> friends with the person in this <b>column</b>? They write <b>1</b> for yes and <b>0</b> for no.</p>
-        <p>An adjacency matrix is exactly this chart. The classmates are the vertices, and the friendships are the edges. Friendship goes both ways, so one edge gives <b>two</b> 1s. The edge A–B is a 1 in row A, column B, and another 1 in row B, column A.</p>
-      </div>
-      <MatrixTap id="mxtap" g={small} />
-      </div>
+      <p>The graph drawings you have been seeing so far are for human eyes and understanding. But a computer does not store data in those drawings. It stores only the <b>connections</b>, in one of two ways. These are the <span class="term-chip tc-mx">adjacency matrix</span> (this part) and the <span class="term-chip tc-ls">adjacency list</span> (Part 4).</p>
       <div class="def">
         <p class="note-label">Adjacency matrix</p>
         <p>An <b>adjacency matrix</b> is a 2D array with one row and one column for each vertex. The cell <b>[row][column]</b> is <b>1</b> if there is an edge <b>from</b> the row vertex <b>to</b> the column vertex, and <b>0</b> if there is not.</p>
       </div>
-      <GraphFig g={smallDir} show={['graph', 'matrix']} label="The directed graph and its adjacency matrix" />
-      <p><b>How to read it:</b> pick a row and read across. Row A is <span class="mono">0 1 0 1</span>, so A has edges to B and D. To find edges coming <i>into</i> a vertex, read <b>down its column</b>: column A has a 1 in row C, so C → A. For arrows, think of following someone on TikTok instead of friendship: A → B (A follows B) puts a 1 in row A, column B only. Row B, column A stays 0 unless B follows A back.</p>
-
-      <div class="plain">
-        <p class="note-label">How to write the matrix from a drawing</p>
-        <p>Exams often give you a drawing and ask for its matrix. Follow these steps:</p>
-        <ol>
-          <li>Write the vertices in alphabetical order across the top (these are the columns) and down the left side (these are the rows). Use the same order both ways.</li>
-          <li>Fill every cell with 0.</li>
-          <li>Go through the edges one at a time. For an arrow from X to Y, change cell [X][Y] (row X, column Y) to 1.</li>
-          <li>In an <b>undirected</b> graph, an edge X–Y goes both ways, so change <b>two</b> cells to 1: [X][Y] and [Y][X].</li>
-          <li>Check your work by counting the 1s. A directed graph has one 1 for each arrow. An undirected graph has two 1s for each edge.</li>
-        </ol>
-        <p>For example, the small undirected graph in Part 1 has 4 edges (A–B, A–D, B–C, and B–D), so its matrix has 8 ones. It is the friends chart you tapped earlier in this part.</p>
-        <p class="small">The letters A, B, C, D are labels to help you read the matrix. Inside the computer, row A and column A are index 0, B is index 1, and so on (you will see this in Part 8).</p>
+      <div class="sub" id="two-d">
+        <h3>What is a 2D array?</h3>
+        <p>A <b>2D array</b> is a grid of slots, like a classroom seat plan. Each slot has two indexes, <b>[row][column]</b>, both counting from 0. (The Java code is in <a href="#java">Part 8</a>.)</p>
+        <div class="g2-wrap">
+          <span class="g2-collab" aria-hidden="true">column →</span>
+          <span class="g2-rowlab" aria-hidden="true">row ↓</span>
+        <table class="grid2d" aria-label="A 2D array named seats with 3 rows and 4 columns. Every slot holds 0 except seats[1][2], row 1, column 2, which holds 7.">
+          <thead><tr><th class="g2-corner"></th>{[0, 1, 2, 3].map((c) => <th>{c}</th>)}</tr></thead>
+          <tbody>{[0, 1, 2].map((r) => <tr><th>{r}</th>{[0, 1, 2, 3].map((c) => <td class={r === 1 && c === 2 ? 'hot' : ''}>{r === 1 && c === 2 ? 7 : 0}</td>)}</tr>)}</tbody>
+        </table>
+        </div>
+        <p class="fig-cap g2-cap"><code>seats[1][2]</code> is row 1, column 2 (orange). Row first, then column.</p>
       </div>
-
-      <div class="sub">
-        <h3>Three things to notice</h3>
-        <p>The matrix shows you the type of graph. Look for these three things:</p>
+      <div class="remember">
+        <p class="note-label">Think of a friends chart</p>
+        <p>Ana, Ben, Cris, and Dan want to record who is friends with whom, so they make a chart on paper.</p>
         <ol>
-          <li><b>Undirected = mirror image.</b> Every undirected edge A–B is stored twice, as [A][B] and [B][A]. So the matrix matches itself across the diagonal (it is <b>symmetric</b>).</li>
-          <li><b>The diagonal means loops.</b> Cell [C][C] is an edge from C to itself. If the diagonal is all 0, there are no loops.</li>
-          <li><b>Weights replace the 1s.</b> In a weighted graph, the cell stores the weight instead of 1. In this course, 0 still means "no edge". Some books write ∞ or leave the cell blank instead, because a real edge could have weight 0.</li>
+          <li>Write the four names down the left side, then again across the top.</li>
+          <li>Each box is where one row meets one column. It asks one question: is the person in this row friends with the person in this column?</li>
+          <li>Write 1 for yes and 0 for no.</li>
         </ol>
-        <div class="two-col">
-          <figure class="fig">
-            <p class="fig-cap">Undirected: symmetric</p>
-            <GraphFig g={small} show={['matrix']} />
-          </figure>
-          <figure class="fig">
-            <p class="fig-cap">Weighted: numbers</p>
-            <GraphFig g={weighted} show={['matrix']} />
-          </figure>
+        <figure class="fig"><Fragment set:html={friendsChart()} /></figure>
+        <p>Read Ana's row across: she is friends with Ben and Dan, so her row is <span class="mono">0 1 0 1</span>. Friendship goes both ways, so the Ana–Ben friendship fills <b>two</b> boxes (orange): row Ana, column Ben, and row Ben, column Ana.</p>
+        <p>This chart <b>is</b> an adjacency matrix. The classmates are the vertices, and the friendships are the edges.</p>
+      </div>
+      <div class="fig mxtap-box how-tabs" data-tabs>
+        <p class="fig-cap">What does each box in the matrix mean?</p>
+        <div class="btn-row how-tab-row" role="tablist" aria-label="Kind of graph">
+          <button type="button" class="btn" role="tab" data-tab="tu" aria-selected="true">Undirected</button>
+          <button type="button" class="btn" role="tab" data-tab="td" aria-selected="false">Directed</button>
+        </div>
+        <div data-pane="tu" role="tabpanel"><MatrixTap id="mxtap" g={small} bare hint="Each box tells you if the vertex in its row and the vertex in its column are connected. 1 means yes, and 0 means no. Tap a box to check it on the drawing." /></div>
+        <div data-pane="td" role="tabpanel" hidden><MatrixTap id="mxtap-d" g={smallDir} bare hint="Each box tells you if there is an arrow going from the vertex in its row to the vertex in its column. 1 means yes, and 0 means no. Tap a box to check it on the drawing." /></div>
+      </div>
+      <div class="plain" data-toc="How to write the matrix">
+        <p class="note-label">How to write the matrix from a drawing</p>
+        <p>There are four steps. Pick the kind of graph, then go through the steps one at a time.</p>
+        <div class="how-tabs" data-tabs>
+          <div class="btn-row how-tab-row" role="tablist" aria-label="Kind of graph">
+            <button type="button" class="btn" role="tab" data-tab="u" aria-selected="true">Undirected</button>
+            <button type="button" class="btn" role="tab" data-tab="d" aria-selected="false">Directed</button>
+            <button type="button" class="btn" role="tab" data-tab="w" aria-selected="false">Weighted undirected</button>
+            <button type="button" class="btn" role="tab" data-tab="wd" aria-selected="false">Weighted directed</button>
+          </div>
+          <div data-pane="u" role="tabpanel"><StepShow id="matrix-how-u" cap="Undirected graph (the friends chart graph)" hint="Each edge and its two boxes share the same color." steps={matrixHowSteps(small)} /></div>
+          <div data-pane="d" role="tabpanel" hidden><StepShow id="matrix-how-d" cap="Directed graph (from Part 2)" hint="Each arrow and its one box share the same color." steps={matrixHowSteps(smallDir)} /></div>
+          <div data-pane="w" role="tabpanel" hidden><StepShow id="matrix-how-w" cap="Weighted undirected graph (the travel-time graph from Part 2)" hint="Each edge and its two boxes share the same color." steps={matrixHowSteps(weighted)} /></div>
+          <div data-pane="wd" role="tabpanel" hidden><StepShow id="matrix-how-wd" cap="Weighted directed graph (the directed graph from Part 2, with weights)" hint="Each arrow and its one box share the same color." steps={matrixHowSteps(weightedDir)} /></div>
+        </div>
+        <p class="small">Inside the computer, A is index 0, B is index 1, and so on. The letters are only labels.</p>
+      </div>
+      <h3 id="most">Which vertex has the most connections?</h3>
+      <p>Some questions ask which vertex has the most edges. You can answer straight from the matrix.</p>
+      <div class="rule-box"><span class="rule-tag">Rule</span><p>Look for the <b>column</b> with the <b>most 1s</b>.</p></div>
+      <div class="cmp-two cnt-two">
+        <div class="cmp-side">
+          <p class="kind-tag kt-undir">Undirected graph</p>
+          <GraphFig g={small} label="The undirected graph from the friends chart" />
+          <Fragment set:html={countMx(small, false)} />
+          <p class="small">Count the 1s in each column. Column B has the most, <b>3</b>, so B has the most connections (B has degree 3). In an undirected graph, row B gives the same count, because the matrix is a mirror image.</p>
+        </div>
+        <div class="cmp-side">
+          <p class="kind-tag kt-dir">Directed graph</p>
+          <GraphFig g={smallDir} label="The directed graph from above" />
+          <Fragment set:html={countMx(smallDir, true)} />
+          <p class="small">A column counts the arrows <b>coming in</b> (the in-degree). Column C has the most, <b>2</b>, so C has the most arrows coming in (from B and from D).</p>
+          <p class="small">A row counts the arrows <b>going out</b> (the out-degree), shown in the "out" column. Row A has the most, <b>2</b>, so A has the most arrows going out (to B and to D).</p>
         </div>
       </div>
+      <p>Practice all of this in the <a href="#read">practice problems</a>.</p>
     </div>
   </section>
 
@@ -507,18 +567,43 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
         <p>An <b>adjacency list</b> gives each vertex its own list of the vertices it has an edge to. The lists are often linked lists, so each one ends with <code>null</code>.</p>
       </div>
       <GraphFig g={smallDir} show={['graph', 'list']} label="The directed graph and its adjacency list" />
-      <p>This should look familiar: each row is a <Peek label="linked list" title="From the Linked lists lesson" html={llPeek} /> from the linked lists lesson. A's list is <span class="mono">B → D → null</span>, so A has edges to B and D.</p>
-      <p><b>How to write the list from a drawing:</b> go through the vertices in alphabetical order. For each one, write every vertex its edges lead to, in alphabetical order, and end the list with <code>null</code>.</p>
-      <p>For an <b>undirected</b> graph, each edge appears in <b>two</b> lists: A–B puts B in A's list and A in B's list. For a <b>weighted</b> graph, each cell also stores the weight, for example (B, 7).</p>
-
-      <div class="trap">
-        <p class="note-label">Exam traps</p>
-        <ul>
-          <li>A row (or a list) shows edges going <b>out</b>. To find edges coming <b>in</b>, read the column, or look for the vertex inside the <i>other</i> lists.</li>
-          <li>The order inside a list does not change the graph. A → B → D and A → D → B describe the same edges.</li>
-          <li>A vertex with an empty list (just <code>null</code>) has no outgoing edges, but it can still have incoming ones.</li>
-        </ul>
+      <p>This should look familiar. Each row uses a <Peek label="linked list" title="From the Linked lists lesson" html={llPeek} /> from the linked lists lesson. But look closely at where each list <b>starts</b>.</p>
+      <div class="hn-fig" aria-label="A's row: the vertex A, then its list B, D, null">
+        <span class="adjlist hn-head"><span class="head">A</span></span>
+        <span class="hn-arr">→</span>
+        <span class="adjlist hn-list"><span class="cell"><b>B</b><i></i></span><span class="arr">→</span><span class="cell"><b>D</b><i></i></span><span class="arr">→</span><span class="null">null</span></span>
+        <p class="hn-lbl hn-lbl-a">The <b>vertex</b>, kept in an array.<br><b class="hn-not">Not part of the list.</b></p>
+        <p class="hn-lbl hn-lbl-l"><b>A's linked list.</b><br>It starts at the <b>first neighbor</b>, B.</p>
       </div>
+      <p class="hn-key">The green-filled box only <b>points to</b> where the list starts. The list itself is <span class="mono">B → D → null</span>. It has <b>two boxes</b>, B and D, so A has edges to B and D.</p>
+      <div class="plain" data-toc="How to write the list">
+        <p class="note-label">How to write an adjacency list from a drawing</p>
+        <p>There are two steps. Pick the kind of graph, then go through the steps one at a time.</p>
+        <div class="how-tabs" data-tabs>
+          <div class="btn-row how-tab-row" role="tablist" aria-label="Kind of graph">
+            <button type="button" class="btn" role="tab" data-tab="u" aria-selected="true">Undirected</button>
+            <button type="button" class="btn" role="tab" data-tab="d" aria-selected="false">Directed</button>
+            <button type="button" class="btn" role="tab" data-tab="w" aria-selected="false">Weighted undirected</button>
+            <button type="button" class="btn" role="tab" data-tab="wd" aria-selected="false">Weighted directed</button>
+          </div>
+          <div data-pane="u" role="tabpanel"><StepShow id="list-how-u" cap="How to write an adjacency list: undirected graph" hint="Orange = the vertex you are on and its edges." steps={listHowSteps(small)} /></div>
+          <div data-pane="d" role="tabpanel" hidden><StepShow id="list-how-d" cap="How to write an adjacency list: directed graph" hint="Orange = the vertex you are on and the arrows that start there." steps={listHowSteps(smallDir)} /></div>
+          <div data-pane="w" role="tabpanel" hidden><StepShow id="list-how-w" cap="How to write an adjacency list: weighted undirected graph" hint="Orange = the vertex you are on and its edges." steps={listHowSteps(weighted)} /></div>
+          <div data-pane="wd" role="tabpanel" hidden><StepShow id="list-how-wd" cap="How to write an adjacency list: weighted directed graph" hint="Orange = the vertex you are on and the arrows that start there." steps={listHowSteps(weightedDir)} /></div>
+        </div>
+        <script is:inline>
+          document.querySelectorAll('[data-tabs]').forEach(function (box) {
+            var tabs = box.querySelectorAll('[data-tab]');
+            tabs.forEach(function (t) {
+              t.addEventListener('click', function () {
+                tabs.forEach(function (x) { x.setAttribute('aria-selected', String(x === t)); });
+                box.querySelectorAll('[data-pane]').forEach(function (p) { p.hidden = p.dataset.pane !== t.dataset.tab; });
+              });
+            });
+          });
+        </script>
+      </div>
+
     </div>
   </section>
 
@@ -529,12 +614,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <h2>Build your own</h2>
     </div>
     <div class="flow">
-      <p>All three views below show the same graph. Change one and watch the others follow. Try these:</p>
-      <ol>
-        <li>In <b>undirected</b> mode, tap [B][E]. Two cells change. Why?</li>
-        <li>Switch to <b>directed</b> and tap [E][D]. Now only one cell changes.</li>
-        <li>Tap a diagonal cell to make a loop.</li>
-      </ol>
+      <p>Here, one graph is shown three ways at once: as a drawing, a matrix, and a list. Change the matrix and watch the other two follow.</p>
       <MatrixLab id="mxlab" />
     </div>
   </section>
@@ -546,19 +626,82 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <h2>Matrix or list?</h2>
     </div>
     <div class="flow">
-      <p>Both store the same graph. They differ in memory and in which questions they answer quickly:</p>
-      <table class="tbl">
-        <thead><tr><th>Question</th><th>Adjacency matrix</th><th>Adjacency list</th></tr></thead>
-        <tbody>
-          <tr><td><b>Memory used</b></td><td>always vertices × vertices cells (100 vertices → 10,000 cells), even with few edges</td><td>one list per vertex, plus one cell per edge that exists (two for an undirected edge)</td></tr>
-          <tr><td><b>"Is there an edge A → B?"</b></td><td>look at one cell: [A][B]. Fast.</td><td>walk through A's list until you find B</td></tr>
-          <tr><td><b>"Who are A's neighbors?"</b></td><td>scan the whole row, including all the 0s</td><td>walk A's list: only real neighbors</td></tr>
-          <tr><td><b>Best when</b></td><td>the graph is <b>dense</b> (many edges) or small</td><td>the graph is <b>sparse</b> (few edges per vertex)</td></tr>
-        </tbody>
-      </table>
+      <p>Both ways store the same graph. They differ in how much memory they use and in how fast they answer two common questions. The three cards below compare them.</p>
+
+      <div class="paper flow cmp-q">
+        <h3>1. Which one uses less memory?</h3>
+        <p>It depends on how many edges the graph has. Keep in mind that a <span class="term-chip tc-ls">list box</span> <b>is bigger than</b> a <span class="term-chip tc-mx">matrix box</span>. A <span class="term-chip tc-mx">matrix box</span> holds just one number. A <span class="term-chip tc-ls">list box</span> holds a vertex <b>and</b> a link to the next box (the small square on its right).</p>
+        <div class="how-tabs" data-tabs>
+          <div class="btn-row how-tab-row" role="tablist" aria-label="How many edges">
+            <button type="button" class="btn" role="tab" data-tab="few" aria-selected="true">Few edges</button>
+            <button type="button" class="btn" role="tab" data-tab="many" aria-selected="false">Many edges</button>
+          </div>
+          <div data-pane="few" role="tabpanel" class="flow">
+            <div class="cmp-gline"><GraphFig g={sparse6} w={340} h={280} label="Graph with 6 vertices: A–C, A–E, B–F, D–E" /><p>Here the 6 vertices have only <b>4 edges</b>. Most pairs of vertices are not connected.</p></div>
+            <div class="cmp-two cmp-rows">
+              <div class="cmp-side cmp-dim0"><p class="cmp-lbl">Matrix</p><p class="bk-line">Each <span class="term-chip tc-mx">matrix box</span> is one <b>pair of vertices</b>. A 1 means that pair has an <b>edge</b>.</p><Fragment set:html={mxNoCap(matrixHtml(sparse6, cellsOf(sparse6)))} /><p class="small">A matrix <b>always</b> stores every box, even when there is no edge. Here that is 6 × 6 = <span class="term-chip tc-mx">36 matrix boxes</span>, but only 8 of them hold a 1.</p><p class="small cmp-key"><b>28 grey boxes hold 0.</b> They use memory, yet they store nothing.</p></div>
+              <div class="cmp-side"><p class="cmp-lbl">List</p><p class="bk-line">Each white <span class="term-chip tc-ls">list box</span> is one <b>neighbor</b> of the vertex in the green-filled box.</p><Fragment set:html={listHtml(sparse6)} /><div class="cmp-count"><p class="small">Count the white boxes in each row. That gives only <span class="term-chip tc-ls">8 list boxes</span>.</p><p class="tally"><span class="tc"><b>A</b>2</span><span class="tc"><b>B</b>1</span><span class="tc"><b>C</b>1</span><span class="tc"><b>D</b>1</span><span class="tc"><b>E</b>2</span><span class="tc"><b>F</b>1</span></p></div><p class="small cmp-side-note"><b>Green-filled boxes and null are not counted.</b> They are not part of the linked lists.</p></div>
+            </div>
+            <p class="cmp-win"><b>The list uses less memory.</b> <span class="term-chip tc-ls">8 list boxes</span> are far less than <span class="term-chip tc-mx">36 matrix boxes</span>, even though list boxes are bigger.</p>
+          </div>
+          <div data-pane="many" role="tabpanel" class="flow" hidden>
+            <div class="cmp-gline"><GraphFig g={dense6} w={340} h={280} label="The same 6 vertices, now with every vertex connected to every other vertex" /><p>The <b>same 6 vertices</b>, but now every vertex is connected to every other vertex. That makes <b>15 edges</b>.</p></div>
+            <div class="cmp-two cmp-rows">
+              <div class="cmp-side cmp-dim0"><p class="cmp-lbl">Matrix</p><p class="bk-line">Each <span class="term-chip tc-mx">matrix box</span> is one <b>pair of vertices</b>. A 1 means that pair has an <b>edge</b>.</p><Fragment set:html={mxNoCap(matrixHtml(dense6, cellsOf(dense6)))} /><p class="small">A matrix <b>always</b> stores every box. Here that is still 6 × 6 = <span class="term-chip tc-mx">36 matrix boxes</span>, and now 30 of them hold a 1.</p><p class="small cmp-key"><b>Only 6 grey boxes hold 0.</b> Almost nothing is wasted.</p></div>
+              <div class="cmp-side cmp-dense"><p class="cmp-lbl">List</p><p class="bk-line">Each white <span class="term-chip tc-ls">list box</span> is one <b>neighbor</b> of the vertex in the green-filled box.</p><Fragment set:html={listHtml(dense6)} /><div class="cmp-count"><p class="small">Count the white boxes in each row. That gives <span class="term-chip tc-ls">30 list boxes</span>.</p><p class="tally"><span class="tc"><b>A</b>5</span><span class="tc"><b>B</b>5</span><span class="tc"><b>C</b>5</span><span class="tc"><b>D</b>5</span><span class="tc"><b>E</b>5</span><span class="tc"><b>F</b>5</span></p></div><p class="small cmp-side-note"><b>Each <span class="term-chip tc-ls">list box</span> is bigger.</b> It holds a vertex and a link, so <span class="term-chip tc-ls">30 list boxes</span> take more memory than the matrix's 36.</p></div>
+            </div>
+            <p class="cmp-win"><b>The matrix uses less memory.</b> In Java, one <span class="term-chip tc-ls">list box</span> takes several times the memory of one <span class="term-chip tc-mx">matrix box</span>, so <span class="term-chip tc-ls">30 list boxes</span> take more space than <span class="term-chip tc-mx">36 matrix boxes</span>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="paper flow cmp-q">
+        <h3>2. Which one tells you faster if two vertices are connected?</h3>
+        <div class="cmp-ex"><span class="cmp-ex-tag">Example</span><p>Are <span class="vchip">A</span> and <span class="vchip">E</span> connected?</p></div>
+        <GraphFig g={sparse6} w={340} h={280} nodeMarks={{ A: 'current', E: 'current' }} edgeMarks={{ 'A-E': 'path' }} label="Graph with 6 vertices: A–C, A–E, B–F, D–E. A and E are highlighted." />
+        <div class="cmp-two">
+          <div class="cmp-side"><p class="cmp-lbl">Matrix</p><Fragment set:html={mxNoCap(matrixHtml(sparse6, cellsOf(sparse6), ['A-E']))} /><p class="small">You just go to the box where <b>row A meets column E</b>. You immediately know where to go. It holds 1, so A and E are connected.</p></div>
+          <div class="cmp-side"><p class="cmp-lbl">List</p><Fragment set:html={listHtml(sparse6, null, 'A', ['A-C', 'A-E'])} /><p class="small">There is no single box to represent the connection between A and E. You have to go to <b>A's list</b> and check each box from the start until you find E (or reach null). A longer list means more checking.</p></div>
+        </div>
+        <p class="cmp-win"><b>The matrix is faster.</b> It always takes one box.</p>
+      </div>
+
+      <div class="paper flow cmp-q">
+        <h3>3. Which one finds a vertex's neighbors faster?</h3>
+        <div class="cmp-ex"><span class="cmp-ex-tag">Example</span><p>What are <span class="vchip">A</span>'s neighbors?</p></div>
+        <GraphFig g={sparse6} w={340} h={280} nodeMarks={{ A: 'current', C: 'seen', E: 'seen' }} edgeMarks={{ 'A-C': 'path', 'A-E': 'path' }} label="Graph with 6 vertices: A–C, A–E, B–F, D–E. A and its neighbors C and E are highlighted." />
+        <div class="cmp-two">
+          <div class="cmp-side"><p class="cmp-lbl">Matrix</p><Fragment set:html={mxNoCap(matrixHtml(sparse6, cellsOf(sparse6), ['A-A','A-B','A-C','A-D','A-E','A-F'], 'A'))} /><p class="small">You have to go through <b>row A</b> and read <b>every box</b> in it. A 1 means "neighbor," and a 0 means "not a neighbor." The 1s are under C and E. You read <b>6 boxes</b>, but only 2 of them matter.</p></div>
+          <div class="cmp-side"><p class="cmp-lbl">List</p><Fragment set:html={listHtml(sparse6, null, 'A', ['A-C', 'A-E'])} /><p class="small">You just go to <b>A's list</b>, where everything listed in it is that vertex's neighbor. A's neighbors are C and E. You read only <b>2 boxes</b>. Vertices that are not neighbors are never stored.</p></div>
+        </div>
+        <p class="cmp-win"><b>The list is faster.</b> It has no 0s to skip.</p>
+      </div>
+      <script is:inline>
+        document.querySelectorAll('#compare [data-tabs]').forEach(function (box) {
+          var tabs = box.querySelectorAll('[data-tab]');
+          tabs.forEach(function (t) { t.addEventListener('click', function () {
+            tabs.forEach(function (x) { x.setAttribute('aria-selected', String(x === t)); });
+            box.querySelectorAll('[data-pane]').forEach(function (p) { p.hidden = p.dataset.pane !== t.dataset.tab; });
+          }); });
+        });
+      </script>
+
+      <h3 class="cmp-which">So which one should you use?</h3>
+      <p>It depends on how many edges the graph has. A graph with many edges is called <b>dense</b>. A graph with only a few edges is called <b>sparse</b>.</p>
+      <div class="cmp-two cmp-graphs">
+        <figure class="fig"><Fragment set:html={svgGraph(dense5, { label: 'Dense graph: every vertex is connected to every other vertex', w: 300, h: 270 })} /><figcaption><span class="kind-tag kt-dense">Dense graph</span>Most boxes in its matrix would be 1, so no space is wasted. Use a <b>matrix</b>.</figcaption></figure>
+        <figure class="fig"><Fragment set:html={svgGraph(sparse5, { label: 'Sparse graph: only three edges', w: 300, h: 270 })} /><figcaption><span class="kind-tag kt-sparse">Sparse graph</span>Most boxes in its matrix would be 0. Use a <b>list</b>.</figcaption></figure>
+      </div>
       <div class="sticky">
         <p class="note-label">Think of your class</p>
-        <p>To record who is friends with whom in a class of 40, a matrix is a 40 × 40 grid: 1,600 boxes, mostly empty. A list is like each student writing just their friends' names on an index card. Most real graphs (social networks, roads) are sparse, so lists are used more often.</p>
+        <p>Say you want to record who is friends with whom in a class of <b>40 students</b>.</p>
+        <p>With a <b>matrix</b>, you need a 40 × 40 grid. That is <b>1,600 boxes</b>, one for every pair of students. But each student is friends with only a few classmates, so almost all of the boxes would be 0.</p>
+        <p>With a <b>list</b>, each student writes only their friends' names on an index card. Nothing is written for classmates who are not their friends.</p>
+        <div class="cls-pics">
+          <figure><p class="cls-big"><span>Matrix</span><b>1,600</b> boxes</p><Fragment set:html={classPic.m} /><figcaption>Only the {classPic.ones} <b class="cls-or">orange</b> boxes hold a 1. All the grey boxes hold 0.</figcaption></figure>
+          <figure><p class="cls-big"><span>List</span><b>{classPic.ones}</b> boxes</p><Fragment set:html={classPic.l} /><figcaption>One <b class="cls-or">orange</b> box per friend. Nothing for the rest.</figcaption></figure>
+        </div>
+        <p>Most real graphs are like your class. In a social network or a map of roads, each point connects to only a few others. These graphs are sparse, so lists are used more often.</p>
       </div>
     </div>
   </section>
@@ -567,9 +710,48 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
   <section class="chapter wrap" id="read">
     <div class="chapter-head">
       <p class="chapter-num">Part 7 · Your turn</p>
-      <h2>Reading practice</h2>
+      <h2>Practice problems</h2>
     </div>
     <div class="flow">
+      <p>Answer on paper first, then check it step by step.</p>
+      {store.map((x) => (
+        <div class="paper flow ex-q" id={x.id} data-toc={x.title.split(':')[0]}>
+          <p class="ex-title"><span class="ex-tag">{x.title.split(': ')[0]}</span>{x.title.includes(': ') && <span class="ex-sub">{x.title.split(': ')[1].replace(/^./, (c) => c.toUpperCase())}</span>}</p>
+          <p class="ex-task">{x.task}</p>
+          <GraphFig g={x.g} label={`${x.title} graph`} />
+          <div class="st-pic"><div class="st-m"><Fragment set:html={mxNoCap(matrixHtml(x.g, {}, [], null, true))} /></div><div><Fragment set:html={listHtml(x.g, [])} /></div></div>
+          <details class="reveal">
+            <summary>Show the solution, step by step</summary>
+            <div class="flow">
+              <StepShow id={`${x.id}-steps`} cap={x.title} hint="Orange = what changes in this step." steps={x.steps} />
+              <div class="ex-ans">
+                <p class="ex-a-line"><b class="lbl">Answer.</b> Here are the matrix and the list.</p>
+                <div class="st-pic"><div class="st-m"><Fragment set:html={mxNoCap(matrixHtml(x.g, cellsOf(x.g)))} /></div><div><Fragment set:html={listHtml(x.g)} /></div></div>
+                {x.extra && <p class="ex-a-line"><span class="ans">{x.extra}</span></p>}
+              </div>
+              <p>{x.note}</p>
+            </div>
+          </details>
+        </div>
+      ))}
+      <div class="paper flow ex-q" id={store4.id} data-toc={store4.title.split(':')[0]}>
+        <p class="ex-title"><span class="ex-tag">{store4.title.split(': ')[0]}</span>{store4.title.includes(': ') && <span class="ex-sub">{store4.title.split(': ')[1].replace(/^./, (c) => c.toUpperCase())}</span>}</p>
+        <p class="ex-task">Here is the matrix of a directed graph. Draw the graph and write its list. Which vertex has no outgoing edges?</p>
+        <Fragment set:html={mxNoCap(matrixHtml(store4.g, cellsOf(store4.g)))} />
+        <details class="reveal">
+          <summary>Show the solution, step by step</summary>
+          <div class="flow">
+            <StepShow id="store-ex4-steps" cap={store4.title} hint="Orange = the row being read and the arrows it gives." steps={store4.steps} />
+            <div class="ex-ans">
+              <p class="ex-a-line"><b class="lbl">Answer.</b> The graph and the list:</p>
+              <div class="st-pic"><div><GraphFig g={store4.g} label="The graph drawn from the matrix" /></div><div><Fragment set:html={listHtml(store4.g)} /></div></div>
+              <p class="ex-a-line">No outgoing edges: <span class="ans">D</span></p>
+            </div>
+            <p>D's row is all 0, so no arrows leave D, though {inCount(store4.g, 'D')} arrive (column D). Usual mistakes are drawing arrows backwards (row = from, column = to) or leaving out the arrowheads.</p>
+          </div>
+        </details>
+      </div>
+      <h3 id="reading">More reading practice</h3>
       <p>Exams often give you only the matrix or only the list, with no drawing. Use these two views of the same graph to answer the questions. Try sketching the graph on paper first.</p>
       <figure class="fig">
         <GraphFig g={practiceG} show={['matrix', 'list']} />
@@ -592,6 +774,18 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
       <p>In Java, we usually number the vertices 0, 1, 2, … and keep their names in a separate array. So A is 0, B is 1, C is 2, and D is 3.</p>
       <div class="sub">
         <h3>Adjacency matrix: a 2D array</h3>
+        <p>First, a plain 2D array in Java, the seat plan from <a href="#two-d">Part 3</a>:</p>
+        <pre class="code"><code set:html={hi(twoD)} /></pre>
+        <div class="tbl-wrap"><table class="tbl ra">
+          <thead><tr><th>Code</th><th>Read it as</th></tr></thead>
+          <tbody>
+            <tr><td><code>int[][] seats = new int[3][4];</code></td><td>"make a grid named seats with 3 rows and 4 columns." Every slot starts at 0.</td></tr>
+            <tr><td><code>seats[1][2] = 7;</code></td><td>"go to row 1, then column 2, and store 7 there." (<code>seats[2][1]</code> is a different slot.)</td></tr>
+            <tr><td><code>seats.length</code></td><td>"how many rows": 3.</td></tr>
+            <tr><td><code>seats[0].length</code></td><td>"how many columns in row 0": 4.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Now the graph. The matrix is a 2D array of 0s and 1s:</p>
         <pre class="code"><code set:html={hi(code1)} /></pre>
         <TryIt cls="MatrixGraph" />
         <p>Here is how to read the new lines aloud:</p>
@@ -698,7 +892,7 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
           <li>Matrix: quick edge checks, but lots of memory. List: saves memory for sparse graphs.</li>
         </ol>
       </div>
-      <p><b>Next lesson:</b> Breadth-first search (BFS), a way to visit every vertex of a graph, level by level.</p>
+      <p><b>Next lesson:</b> <a href={base + '/itc120/bfs/'}>Breadth-first search (BFS)</a>, a way to visit every vertex of a graph, level by level.</p>
       <div class="refs small muted">
         <p class="note-label">References</p>
         <ol>

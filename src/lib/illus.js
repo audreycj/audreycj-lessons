@@ -835,96 +835,58 @@ export function pedicabTilt() {
 
 /** Four everyday IT graphs: a home network, friends on social media, a map with travel minutes, and web pages with links. */
 export function graphsInIT() {
-  const s = new Sketch(340, 504, 73);
-  const BLUE = '#2f6fa8', DARK = '#a8650f';
-  // line from a to b, trimmed ta units at a and tb units at b
-  const seg = (a, b, ta, tb, o = {}, arrow = false) => {
-    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
-    const p = [a[0] + ux * ta, a[1] + uy * ta, b[0] - ux * tb, b[1] - uy * tb].map((v) => Math.round(v * 10) / 10);
-    return arrow ? s.arrow(...p, o) : s.line(...p, o);
+  // Clean flat drawings (chat 64, v2): same outline weight and palette in all four panels.
+  const TEAL = '#0e6b63', ORANGE = '#e8662e', BROWN = '#a8650f', BLUE = '#2f6fa8', INK = '#1b2a2e', SOFT = '#55605f';
+  const SKY = '#cfe3f3', BUT = '#f8dc95', TW = '#d7ece9', OW = '#fbdccc', SKIN = '#f3cfa6', W = '#ffffff';
+  const F = "font-family='Nunito, sans-serif'";
+  const PW = 260, PH = 256, GAP = 22, VW = 2 * PW + GAP + 8;
+  const o = `stroke="${INK}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"`;
+  const t = (x, y, s, q = {}) => `<text x="${x}" y="${y}" text-anchor="middle" ${F} font-size="${q.size || 12}" font-weight="${q.w || 700}" fill="${q.c || INK}">${s}</text>`;
+  const trim = (a, b, ta, tb) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L; return [a[0] + ux * ta, a[1] + uy * ta, b[0] - ux * tb, b[1] - uy * tb].map((v) => v.toFixed(1)); };
+  const edge = (a, b, c, q = {}) => { const [x1, y1, x2, y2] = trim(a, b, q.ta || 26, q.tb || 26); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${q.dash ? '#9aa3a1' : c}" stroke-width="${q.sw || 2.6}" stroke-linecap="round"${q.dash ? ' stroke-dasharray="5 5"' : ''}${q.arrow ? ' marker-end="url(#giArrow)"' : ''}/>`; };
+  const D = {
+    laptop: (x, y) => `<rect x="${x - 17}" y="${y - 15}" width="34" height="22" rx="2.5" fill="${INK}" ${o}/><rect x="${x - 14}" y="${y - 12}" width="28" height="16" rx="1" fill="${SKY}"/><path d="M${x - 22} ${y + 7} H${x + 22} L${x + 19} ${y + 13} H${x - 19} Z" fill="${BUT}" ${o}/>`,
+    phone: (x, y) => `<rect x="${x - 10}" y="${y - 18}" width="20" height="36" rx="4" fill="${INK}" ${o}/><rect x="${x - 7.5}" y="${y - 13}" width="15" height="24" rx="1" fill="${SKY}"/><circle cx="${x}" cy="${y + 14.5}" r="1.6" fill="${W}"/>`,
+    printer: (x, y) => `<rect x="${x - 10}" y="${y - 18}" width="20" height="12" fill="${W}" ${o}/><rect x="${x - 19}" y="${y - 8}" width="38" height="17" rx="4" fill="${BUT}" ${o}/><circle cx="${x + 12}" cy="${y - 2}" r="1.8" fill="${TEAL}"/><rect x="${x - 10}" y="${y + 4}" width="20" height="13" fill="${W}" ${o}/><line x1="${x - 6}" y1="${y + 9}" x2="${x + 6}" y2="${y + 9}" stroke="${SOFT}" stroke-width="1.2"/><line x1="${x - 6}" y1="${y + 13}" x2="${x + 3}" y2="${y + 13}" stroke="${SOFT}" stroke-width="1.2"/>`,
+    tablet: (x, y) => `<rect x="${x - 18}" y="${y - 14}" width="36" height="28" rx="4" fill="${INK}" ${o}/><rect x="${x - 14}" y="${y - 10.5}" width="28" height="21" rx="1" fill="${SKY}"/>`,
+    router: (x, y) => `<path d="M${x - 10} ${y - 20} a14 14 0 0 1 20 0" fill="none" stroke="${TEAL}" stroke-width="1.8" stroke-linecap="round"/><path d="M${x - 5} ${y - 15} a7 7 0 0 1 10 0" fill="none" stroke="${TEAL}" stroke-width="1.8" stroke-linecap="round"/><line x1="${x - 13}" y1="${y - 2}" x2="${x - 16}" y2="${y - 14}" ${o}/><line x1="${x + 13}" y1="${y - 2}" x2="${x + 16}" y2="${y - 14}" ${o}/><rect x="${x - 22}" y="${y - 3}" width="44" height="16" rx="5" fill="${TW}" ${o}/>${[-10, -3, 4].map((d) => `<circle cx="${x + d}" cy="${y + 5}" r="2" fill="${TEAL}"/>`).join('')}`,
+    person: (x, y, hair, shirt) => `<path d="M${x - 16} ${y + 20} Q${x - 16} ${y + 4} ${x} ${y + 4} Q${x + 16} ${y + 4} ${x + 16} ${y + 20} Z" fill="${shirt}" ${o}/><circle cx="${x}" cy="${y - 7}" r="10" fill="${SKIN}" ${o}/><path d="M${x - 10} ${y - 8} Q${x - 10} ${y - 18} ${x} ${y - 18} Q${x + 10} ${y - 18} ${x + 10} ${y - 8} Q${x + 3} ${y - 13} ${x - 10} ${y - 8} Z" fill="${hair}" ${o}/>`,
+    pin: (x, y, fill) => `<ellipse cx="${x}" cy="${y + 19}" rx="10" ry="3" fill="#00000018"/><path d="M${x} ${y + 18} C${x - 5} ${y + 10} ${x - 14} ${y + 3} ${x - 14} ${y - 6} A14 14 0 1 1 ${x + 14} ${y - 6} C${x + 14} ${y + 3} ${x + 5} ${y + 10} ${x} ${y + 18} Z" fill="${fill}" ${o}/><circle cx="${x}" cy="${y - 6}" r="5.5" fill="${W}" ${o}/>`,
+    page: (x, y, img) => `<rect x="${x - 17}" y="${y - 21}" width="34" height="42" rx="3" fill="${W}" ${o}/><path d="M${x - 17} ${y - 13} V${y - 18} a3 3 0 0 1 3 -3 H${x + 14} a3 3 0 0 1 3 3 V${y - 13} Z" fill="${SKY}" ${o}/>${[-12, -8, -4].map((d) => `<circle cx="${x + d}" cy="${y - 17}" r="1.2" fill="${BLUE}"/>`).join('')}<rect x="${x - 12}" y="${y - 8}" width="24" height="10" rx="1.5" fill="${img}"/><line x1="${x - 12}" y1="${y + 7}" x2="${x + 12}" y2="${y + 7}" stroke="${SOFT}" stroke-width="1.2"/><line x1="${x - 12}" y1="${y + 12}" x2="${x + 6}" y2="${y + 12}" stroke="${SOFT}" stroke-width="1.2"/>`,
   };
-  const panel = (x0, y0, title, color, l1, l2) => {
-    s.round(x0, y0, 164, 230, 12, { fill: C.card, sw: 1.4, stroke: C.soft, rough: 0.5 });
-    s.text(x0 + 82, y0 + 24, title, { font: 'body', size: 15, weight: 800, color });
-    s.text(x0 + 82, y0 + 200, l1, { font: 'body', size: 12, weight: 700, color: C.soft });
-    s.text(x0 + 82, y0 + 217, l2, { font: 'body', size: 12, weight: 700, color: C.soft });
-  };
-  const label = (x, y, t) => s.text(x, y, t, { font: 'body', size: 12, weight: 700 });
-
-  // 1. Home network: four devices linked to one Wi-Fi router
-  {
-    const x0 = 4, y0 = 4;
-    panel(x0, y0, 'Computer network', C.teal, 'vertices: devices', 'edges: cables or Wi-Fi');
-    const R = [x0 + 82, y0 + 112];
-    const D = [[x0 + 34, y0 + 60, 'laptop'], [x0 + 130, y0 + 60, 'phone'], [x0 + 34, y0 + 146, 'printer'], [x0 + 130, y0 + 146, 'tablet']];
-    D.forEach(([x, y]) => seg([x, y], R, 20, 22, { sw: 1.6, stroke: C.teal }));
-    s.line(R[0] - 8, R[1] - 10, R[0] - 12, R[1] - 24, { sw: 1.5 }); s.line(R[0] + 8, R[1] - 10, R[0] + 12, R[1] - 24, { sw: 1.5 });
-    s.round(R[0] - 20, R[1] - 10, 40, 20, 5, { fill: C.tealWash, sw: 1.6, rough: 0.6 });
-    [-8, 0, 8].forEach((d) => s.circle(R[0] + d, R[1], 3, { fill: C.teal, sw: 0.8 }));
-    label(R[0], R[1] + 26, 'router');
-    D.forEach(([x, y, n]) => {
-      if (n === 'laptop') { s.rect(x - 15, y - 14, 30, 20, { fill: C.sky, sw: 1.5, rough: 0.6 }); s.path(`M${x - 19} ${y + 6} H${x + 19} L${x + 16} ${y + 11} H${x - 16} Z`, { fill: C.butter, sw: 1.4 }); }
-      else if (n === 'phone') { s.round(x - 9, y - 16, 18, 30, 4, { fill: C.sky, sw: 1.5, rough: 0.6 }); s.circle(x, y + 9, 3, { fill: C.card, sw: 0.8 }); }
-      else if (n === 'printer') { s.rect(x - 9, y - 16, 18, 10, { fill: C.card, sw: 1.3, rough: 0.5 }); s.round(x - 16, y - 7, 32, 16, 4, { fill: C.butter, sw: 1.5, rough: 0.6 }); s.rect(x - 9, y + 5, 18, 9, { fill: C.card, sw: 1.3, rough: 0.5 }); }
-      else { s.round(x - 15, y - 13, 30, 24, 4, { fill: C.sky, sw: 1.5, rough: 0.6 }); }
-      label(x, y + 30, n);
-    });
-  }
-
-  // 2. Social media: friendships; Bea is a friend of two of your friends
-  {
-    const x0 = 172, y0 = 4;
-    panel(x0, y0, 'Social media', C.orange, 'vertices: people', 'edges: friendships');
-    const P = { You: [x0 + 38, y0 + 72], Ana: [x0 + 126, y0 + 72], Migs: [x0 + 38, y0 + 146], Bea: [x0 + 126, y0 + 146] };
-    [['You', 'Ana'], ['You', 'Migs'], ['Ana', 'Bea'], ['Migs', 'Bea']].forEach(([a, b]) => seg(P[a], P[b], 24, 24, { sw: 1.8, stroke: C.orange }));
-    const a = P.You, b = P.Bea, L = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L;
-    s.raw(`<line x1="${(a[0] + ux * 24).toFixed(1)}" y1="${(a[1] + uy * 24).toFixed(1)}" x2="${(b[0] - ux * 24).toFixed(1)}" y2="${(b[1] - uy * 24).toFixed(1)}" stroke="${C.soft}" stroke-width="1.6" stroke-dasharray="5 5" stroke-linecap="round"/>`);
-    const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-    s.circle(m[0], m[1], 22, { fill: C.paper, sw: 1.3, stroke: C.soft });
-    s.text(m[0], m[1] + 6, '?', { font: 'body', size: 16, weight: 800, color: C.soft });
-    Object.entries(P).forEach(([n, [x, y]], i) => {
-      const shirt = [C.orangeWash, C.tealWash, C.sky, C.pink][i];
-      s.circle(x, y - 8, 18, { fill: C.butter, sw: 1.5 });
-      s.path(`M${x - 13} ${y + 14} Q${x} ${y - 4} ${x + 13} ${y + 14} Z`, { fill: shirt, sw: 1.5 });
-      label(x, i < 2 ? y - 24 : y + 30, n);
-    });
-  }
-
-  // 3. Map: places joined by roads, with travel minutes (made-up)
-  {
-    const x0 = 4, y0 = 242;
-    panel(x0, y0, 'Maps and delivery', DARK, 'vertices: places', 'edges: roads (minutes)');
-    const P = { Home: [x0 + 36, y0 + 74], School: [x0 + 128, y0 + 74], Market: [x0 + 36, y0 + 150], Beach: [x0 + 128, y0 + 150] };
-    const roads = [['Home', 'School', 10], ['Home', 'Market', 6], ['Market', 'Beach', 7], ['School', 'Beach', 4]];
-    roads.forEach(([a, b]) => seg(P[a], P[b], 16, 16, { sw: 4, stroke: '#d9cfb8', single: true }));
-    roads.forEach(([a, b, w]) => {
-      const m = [(P[a][0] + P[b][0]) / 2, (P[a][1] + P[b][1]) / 2];
-      s.circle(m[0], m[1], 22, { fill: C.card, sw: 1.3, stroke: DARK });
-      s.text(m[0], m[1] + 5, String(w), { font: 'body', size: 13, weight: 800, color: DARK });
-    });
-    Object.entries(P).forEach(([n, [x, y]], i) => {
-      s.path(`M${x} ${y + 10} C${x - 4} ${y + 2} ${x - 11} ${y - 3} ${x - 11} ${y - 10} A11 11 0 1 1 ${x + 11} ${y - 10} C${x + 11} ${y - 3} ${x + 4} ${y + 2} ${x} ${y + 10} Z`, { fill: C.orangeWash, sw: 1.5, stroke: C.red });
-      s.circle(x, y - 10, 7, { fill: C.card, sw: 1 });
-      label(x, i < 2 ? y - 27 : y + 28, n);
-    });
-  }
-
-  // 4. The web: pages and one-way links (arrows)
-  {
-    const x0 = 172, y0 = 242;
-    panel(x0, y0, 'The web', BLUE, 'vertices: pages', 'edges: links (one way)');
-    const P = { Home: [x0 + 82, y0 + 74], News: [x0 + 34, y0 + 148], Enroll: [x0 + 130, y0 + 148] };
-    [['Home', 'News'], ['Home', 'Enroll'], ['News', 'Enroll']].forEach(([a, b]) => seg(P[a], P[b], 26, 30, { sw: 1.8, stroke: BLUE, head: 9 }, true));
-    Object.entries(P).forEach(([n, [x, y]]) => {
-      s.rect(x - 15, y - 19, 30, 38, { fill: C.card, sw: 1.5, rough: 0.6 });
-      s.rect(x - 15, y - 19, 30, 8, { fill: C.sky, sw: 1.2, rough: 0.4 });
-      [-3, 4, 11].forEach((d, i) => s.line(x - 9, y + d, x + (i === 2 ? 3 : 9), y + d, { sw: 1, stroke: C.soft, single: true }));
-      label(x, n === 'Home' ? y - 26 : y + 34, n);
-    });
-  }
-
-  s.text(170, 498, 'Same idea every time: things + connections', { size: 16, color: C.teal });
-  return s.svg('Four graphs from IT. Computer network: a laptop, phone, printer, and tablet each linked to one Wi-Fi router. Social media: You are friends with Ana and Migs; both are friends with Bea, so the app asks "You may know Bea?". Maps and delivery: Home, School, Market, and Beach joined by roads marked with travel minutes 10, 6, 7, and 4. The web: the Home page links to News and Enroll, and News links to Enroll; links are one-way arrows.').replace(/(\d+\.\d)\d+/g, '$1');
+  const panel = (x0, y0, title, c, cap1, cap2) => `<rect x="${x0}" y="${y0}" width="${PW}" height="${PH}" rx="12" fill="${W}"/><path d="M${x0} ${y0 + 12} A12 12 0 0 1 ${x0 + 12} ${y0} H${x0 + PW - 12} A12 12 0 0 1 ${x0 + PW} ${y0 + 12} V${y0 + 8} H${x0} Z" fill="${c}"/><rect x="${x0}" y="${y0}" width="${PW}" height="${PH}" rx="12" fill="none" stroke="#c9ccc8" stroke-width="1.5"/>` + t(x0 + PW / 2, y0 + 30, title, { size: 14.5, w: 800, c }) + t(x0 + PW / 2, y0 + 226, cap1, { c: SOFT, w: 600 }) + t(x0 + PW / 2, y0 + 243, cap2, { c: SOFT, w: 600 });
+  const sq = (x0, y0) => [[x0 + 70, y0 + 88], [x0 + 190, y0 + 88], [x0 + 70, y0 + 168], [x0 + 190, y0 + 168]];
+  const lab = (p, n, i) => t(p[0], i < 2 ? p[1] - 30 : p[1] + 38, n);
+  const X1 = 4, X2 = 4 + PW + GAP, Y1 = 4, Y2 = 4 + PH + GAP, VH = Y2 + PH + 34;
+  let s = `<svg class="objbox gi-pic" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="Four graphs from IT. Computer network: a laptop, phone, printer, and tablet each linked to one Wi-Fi router. Social media: You are friends with Ana and Migs, and both are friends with Bea, so the app may suggest Bea. Maps and delivery: Home, School, Market, and Beach joined by roads marked with travel minutes 10, 6, 7, and 4. The web: the Home page links to News and Enroll, and News links to Enroll. Links are one-way arrows."><defs><marker id="giArrow" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${BLUE}"/></marker></defs>`;
+  { const x0 = X1, y0 = Y1, c = TEAL, P = sq(x0, y0), Rt = [x0 + 130, y0 + 128];
+    s += panel(x0, y0, 'Computer network', c, 'Vertices are devices.', 'Edges are cables or Wi-Fi.');
+    P.forEach((p) => { s += edge(p, Rt, c, { ta: 24, tb: 24 }); });
+    s += D.router(...Rt);
+    ['laptop', 'phone', 'printer', 'tablet'].forEach((n, i) => { s += D[n](...P[i]) + lab(P[i], n, i); });
+    s += t(Rt[0], Rt[1] + 30, 'router', { size: 11 }); }
+  { const x0 = X2, y0 = Y1, c = ORANGE, P = sq(x0, y0), N = ['You', 'Ana', 'Migs', 'Bea'];
+    const look = [['#5a3b2a', OW], ['#1b2a2e', TW], ['#7a4b2a', SKY], ['#2d2a26', '#f6d6d0']];
+    s += panel(x0, y0, 'Social media', c, 'Vertices are people.', 'Edges are friendships.');
+    [[0, 1], [0, 2], [1, 3], [2, 3]].forEach(([a, b]) => { s += edge(P[a], P[b], c); });
+    s += edge(P[0], P[3], c, { dash: true });
+    const m = [(P[0][0] + P[3][0]) / 2, (P[0][1] + P[3][1]) / 2];
+    s += `<circle cx="${m[0]}" cy="${m[1]}" r="9" fill="${W}" stroke="#9aa3a1" stroke-width="1.4"/>` + t(m[0], m[1] + 4.5, '?', { size: 12, w: 800, c: SOFT });
+    N.forEach((n, i) => { s += D.person(...P[i], ...look[i]) + lab(P[i], n, i); }); }
+  { const x0 = X1, y0 = Y2, c = BROWN, P = sq(x0, y0), N = ['Home', 'School', 'Market', 'Beach'];
+    s += panel(x0, y0, 'Maps and delivery', c, 'Vertices are places.', 'Edges are roads.');
+    const roads = [[0, 1, 10], [0, 2, 6], [2, 3, 7], [1, 3, 4]];
+    roads.forEach(([a, b]) => { s += edge(P[a], P[b], '#cdbf9f', { sw: 6 }); });
+    roads.forEach(([a, b, w]) => { const mx = (P[a][0] + P[b][0]) / 2, my = (P[a][1] + P[b][1]) / 2; s += `<rect x="${mx - 12}" y="${my - 9}" width="24" height="18" rx="9" fill="${W}" stroke="${c}" stroke-width="1.5"/>` + t(mx, my + 4.5, w, { size: 12, w: 800, c }); });
+    const pins = ['#e05a4f', '#2f6fa8', '#0e6b63', '#e8a23b'];
+    N.forEach((n, i) => { s += D.pin(...P[i], pins[i]) + lab(P[i], n, i); }); }
+  { const x0 = X2, y0 = Y2, c = BLUE, P = [[x0 + 130, y0 + 88], [x0 + 70, y0 + 168], [x0 + 190, y0 + 168]], N = ['Home', 'News', 'Enroll'];
+    s += panel(x0, y0, 'The web', c, 'Vertices are pages.', 'Edges are links.');
+    [[0, 1], [0, 2], [1, 2]].forEach(([a, b]) => { s += edge(P[a], P[b], c, { arrow: true, ta: 26, tb: 28 }); });
+    const img = [BUT, OW, TW];
+    N.forEach((n, i) => { s += D.page(...P[i], img[i]) + t(P[i][0], i === 0 ? P[i][1] - 30 : P[i][1] + 38, n); }); }
+  s += t(VW / 2, VH - 10, 'Every one is just things and connections.', { size: 14, w: 800, c: TEAL });
+  return s + '</svg>';
 }
 
 /* ---------------- BFS lesson, Part 1 (chat 10) ---------------- */
@@ -4572,4 +4534,44 @@ export function mapAppGraph() {
   });
   s.text(170, 568, 'A → B → C = 7 + 12 = 19 minutes', { font: 'body', size: 13, weight: 800, color: C.orange });
   return s.svg('Top: a map app showing Home (A), Plaza (B), DOrSU (C), and Market (D) joined by roads, with the fastest route Home to Plaza to DOrSU drawn in blue and a bubble saying 19 min, fastest route. Bottom: the same map stored as a weighted graph: vertices A, B, C, D; edges A–B 7, A–D 4, B–C 12, B–D 5 minutes; the path A to B to C is highlighted, 7 + 12 = 19 minutes.');
+}
+
+/** Loops (chat 64): a web page whose "Back to top" link points to the same page. Same flat style as graphsInIT. */
+export function loopPagePic() {
+  // v2 (chat 64): a realistic browser window. Tab, address bar, site menu, photo, text, scrollbar, footer link.
+  const INK = '#1b2a2e', ORANGE = '#e8662e', TEAL = '#0e6b63', SOFT = '#55605f';
+  const F = "font-family='Nunito, sans-serif'";
+  const x = 36, y = 14, w = 206, h = 262;
+  const T = (tx, ty, s, q = {}) => `<text x="${tx}" y="${ty}" ${q.mid ? 'text-anchor="middle" ' : ''}${F} font-size="${q.size || 9}" font-weight="${q.w || 700}" fill="${q.c || INK}">${s}</text>`;
+  let s = `<svg class="objbox loop-pic" viewBox="0 0 350 312" role="img" aria-label="A browser window showing a school web page, scrolled down to the bottom. In the footer is a Back to top link. An orange arrow leaves the link, curves around the right side of the window, and points back to the top of the same page. That arrow is a loop."><defs><marker id="lpArr" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="${ORANGE}"/></marker><clipPath id="lpWin"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/></clipPath></defs>`;
+  s += `<rect x="${x + 3}" y="${y + 4}" width="${w}" height="${h}" rx="8" fill="#00000014"/>`;
+  s += `<g clip-path="url(#lpWin)"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff"/>`;
+  // browser chrome: tab strip + address bar
+  s += `<rect x="${x}" y="${y}" width="${w}" height="24" fill="#dfe3e6"/>`;
+  s += [['#ee6a5f', 10], ['#f5bd4f', 20], ['#61c454', 30]].map(([c, d]) => `<circle cx="${x + d}" cy="${y + 12}" r="3.6" fill="${c}"/>`).join('');
+  s += `<path d="M${x + 44} ${y + 24} V${y + 9} a5 5 0 0 1 5 -5 H${x + 136} a5 5 0 0 1 5 5 V${y + 24} Z" fill="#fff"/>` + T(x + 52, y + 18, 'Home · My School', { size: 8.5 });
+  s += `<rect x="${x}" y="${y + 24}" width="${w}" height="22" fill="#fff"/><line x1="${x}" y1="${y + 46}" x2="${x + w}" y2="${y + 46}" stroke="#d5d9dc"/>`;
+  s += T(x + 9, y + 39, '‹  ›', { size: 11, c: '#8a9396' });
+  s += `<rect x="${x + 34}" y="${y + 29}" width="${w - 44}" height="13" rx="6.5" fill="#eef1f3"/>`;
+  s += `<path d="M${x + 41} ${y + 35} v-1.5 a2.5 2.5 0 0 1 5 0 v1.5" fill="none" stroke="#6b7477" stroke-width="1.1"/><rect x="${x + 40}" y="${y + 35}" width="7" height="5" rx="1" fill="#6b7477"/>`;
+  s += T(x + 52, y + 39, 'myschool.edu/home', { size: 8, w: 600, c: '#4a5356' });
+  // the page (scrolled down: we see the end of the article and the footer)
+  s += `<rect x="${x}" y="${y + 47}" width="${w}" height="20" fill="${TEAL}"/><circle cx="${x + 13}" cy="${y + 57}" r="5.5" fill="#f8dc95"/>` + T(x + 24, y + 60.5, 'My School', { size: 8.5, w: 800, c: '#fff' }) + T(x + 108, y + 60.5, 'Home   News   Enroll', { size: 7.5, w: 600, c: '#d7ece9' });
+  // photo
+  s += `<rect x="${x + 12}" y="${y + 76}" width="${w - 30}" height="62" rx="3" fill="#bfe0f5"/><circle cx="${x + 140}" cy="${y + 92}" r="8" fill="#f8d46a"/><path d="M${x + 12} ${y + 138} L${x + 58} ${y + 100} L${x + 92} ${y + 126} L${x + 120} ${y + 108} L${x + w - 18} ${y + 138} Z" fill="#6fb37f"/><path d="M${x + 12} ${y + 138} L${x + 40} ${y + 118} L${x + 70} ${y + 138} Z" fill="#4f9a63"/>`;
+  // heading + paragraph lines
+  s += `<rect x="${x + 12}" y="${y + 148}" width="104" height="7" rx="2" fill="${INK}"/>`;
+  s += [162, 171, 180, 189, 198].map((d, i) => `<rect x="${x + 12}" y="${y + d}" width="${[w - 30, w - 44, w - 30, w - 60, w - 90][i]}" height="4" rx="2" fill="#c3c8c6"/>`).join('');
+  // footer with the link
+  s += `<rect x="${x}" y="${y + 214}" width="${w}" height="48" fill="#26353a"/>` + T(x + 12, y + 231, '© My School', { size: 7.5, w: 600, c: '#9fb0b3' });
+  s += `<rect x="${x + 104}" y="${y + 224}" width="82" height="18" rx="9" fill="${ORANGE}"/>` + T(x + 145, y + 236.5, '↑ Back to top', { size: 9, w: 800, c: '#fff', mid: true });
+  // scrollbar, thumb near the bottom (we are scrolled down)
+  s += `<rect x="${x + w - 9}" y="${y + 50}" width="5" height="${h - 56}" rx="2.5" fill="#00000010"/><rect x="${x + w - 9}" y="${y + 170}" width="5" height="70" rx="2.5" fill="#00000040"/>`;
+  s += '</g>';
+  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="none" stroke="#9aa3a6" stroke-width="1.4"/>`;
+  // the loop arrow: from the link, around the right side, back to the top of the same page
+  s += `<path d="M${x + 186} ${y + 233} C${x + w + 70} ${y + 233}, ${x + w + 70} ${y + 57}, ${x + w + 4} ${y + 57}" fill="none" stroke="${ORANGE}" stroke-width="3" stroke-linecap="round" marker-end="url(#lpArr)"/>`;
+  s += T(x + w + 60, y + 148, 'loop', { size: 13, w: 800, c: ORANGE });
+  s += T(175, 304, 'The link points back to the top of the same page.', { size: 11.5, w: 700, c: SOFT, mid: true });
+  return s + '</svg>';
 }
