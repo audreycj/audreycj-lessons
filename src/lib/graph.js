@@ -147,7 +147,7 @@ export function svgGraph(g, opts = {}) {
   }
   let s = `<svg class="graph-svg" viewBox="${vb}" style="max-width:${mw}px" role="img" aria-label="${esc(opts.label || 'Graph diagram')}">`;
   if (g.directed) {
-    s += `<defs>${['', 'tree', 'look', 'path', 'ec1', 'ec2', 'ec3', 'ec4', 'ec5'].map((k) => `<marker id="${uid}${k}" viewBox="0 0 10 10" refX="9" refY="5" ${k.startsWith('ec') || k === 'path' ? 'markerUnits="userSpaceOnUse" markerWidth="17" markerHeight="17"' : 'markerWidth="7" markerHeight="7"'} orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah ${k ? 'ah-' + k : ''}"/></marker>`).join('')}</defs>`;
+    s += `<defs>${['', 'tree', 'look', 'path', 'ec1', 'ec2', 'ec3', 'ec4', 'ec5'].map((k) => `<marker id="${uid}${k}" viewBox="0 0 10 10" refX="9" refY="5" ${k.startsWith('ec') || k === 'path' || k === 'look' ? 'markerUnits="userSpaceOnUse" markerWidth="17" markerHeight="17"' : 'markerWidth="7" markerHeight="7"'} orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah ${k ? 'ah-' + k : ''}"/></marker>`).join('')}</defs>`;
   }
   for (const e of g.edges) {
     const a = P[e.a], b = P[e.b];

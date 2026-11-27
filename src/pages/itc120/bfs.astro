@@ -58,7 +58,17 @@ const trapShow = [
   { pic: stepPic(W.pathEg, tr.steps[4], 'bfs', { ...tO, label: 'BFS from F, checking B' }), say: `<ol class="say-steps"><li><b class="mk-right">✓ The answer is B.</b> Check the <b>first letter without a <span class="ck">✓</span></b>. That is ${tc('B', 'vc-now')}, because B was written first (while checking C).</li><li>B's neighbors, A and C, are already in the queue, so write nothing. Then A is checked last.</li><li>Do <b>not</b> check A first just because A comes before B in the alphabet. B was written before A, so B goes first.</li><li>The BFS order is <span class="bfs-ans">${tr.order.join(', ')}</span>.</li></ol>` }];
 // Part 6: directed walkthrough (deck slides 49-54)
 const dirRun = bfsRow(W.bfsDirWalk, 'A');
-const dirShow = rowShow(W.bfsDirWalk, dirRun, 'bfs', { noRowLevels: true, title: 'The queue' });
+const dirSay = [
+  '<ol class="say-steps"><li>The problem says we start at <span class="vchip vc-now">A</span>.</li><li>We <b class="act">put <span class="vchip vc-new">A</span> in our queue</b>.</li><li>Then label its level in the drawn graph as <span class="lv">L0</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above <span class="vchip vc-now">A</span> to remind us where we are.</li><li>In a directed graph, the neighbors are only the vertices that the arrows <b>point to</b>. A\'s arrows point to B and D.</li><li><b class="act">Put them in the queue alphabetically</b>, so <span class="vchip vc-new">B</span> first, then <span class="vchip vc-new">D</span>.</li><li>Then put their levels on the graph as <span class="lv">L1</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s move to the next vertex in the queue, which is <span class="vchip vc-now">B</span>. Let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above it.</li><li>B\'s only arrow points to E.</li><li>So we <b class="act">put <span class="vchip vc-new">E</span> in the queue</b>.</li><li>Then label its level on the graph as <span class="lv">L2</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now we move to the next vertex in the queue, which is <span class="vchip vc-now">D</span>. Let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above it.</li><li>D\'s only arrow points to <span class="vchip vc-wait">B</span>, which is already in the queue, <span class="skip">so there is no need to write it again</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s move to the next vertex in the queue, which is <span class="vchip vc-now">E</span>. Let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above it.</li><li>E\'s only arrow points to C.</li><li>So we <b class="act">put <span class="vchip vc-new">C</span> in the queue</b>.</li><li>Then label its level on the graph as <span class="lv">L3</span>.</li></ol>',
+  '<ol class="say-steps"><li>Now let\'s move to the next vertex in the queue, which is <span class="vchip vc-now">C</span>. Let\'s <b class="act">put a check mark <span class="ck">✓</span></b> above it.</li><li>No arrows go out of C, <span class="skip">so there is nothing to write</span>.</li></ol>',
+  '<p>Double-check these three things.</p>' + '<ol class="say-steps"><li>Every vertex in the queue has a check mark <span class="ck">✓</span>, meaning all vertices have been checked for neighbors.</li><li>The neighbors were written in the queue in the correct order.</li><li>The levels in the graph are correct.</li></ol>' + '<p>The queue is the BFS traversal order: <span class="bfs-ans">A, B, D, E, C</span>. F was never written, because no arrow leads to F.</p>'];
+const dirBase = rowShow(W.bfsDirWalk, dirRun, 'bfs', { noRowLevels: true, title: 'The queue' });
+const dirEnd = { ...dirRun.steps[dirRun.steps.length - 1], now: null, fresh: [], look: [] };
+const dirShow = [...dirBase, { pic: stepPic(W.bfsDirWalk, dirEnd, 'bfs', { label: 'BFS finished', noRowLevels: true, title: 'The queue' }), say: '' }].map((st, i) => ({ ...st, say: dirSay[i] ?? st.say }));
 
 // Part 7: examples. Graphs and answers come from the Week 16 deck; the engine re-checks every answer.
 const townNames = { H: 'Home', M: 'Market', F: 'Fire station', P: 'Plaza', T: 'Terminal', C: 'Church', S: 'School', L: 'Library' };
@@ -285,7 +295,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
   <section class="chapter wrap" id="bfs">
     <div class="chapter-head">
       <p class="chapter-num">Part 2 · Breadth-first search</p>
-      <h2>BFS: the nearest vertices first</h2>
+      <h2>BFS visits the nearest vertices first</h2>
     </div>
     <div class="flow">
       <h3>What is BFS?</h3>
@@ -386,26 +396,27 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
     <div class="flow">
       <h3>Follow the arrows</h3>
       <p>Same steps, one new rule: <b>follow the arrows</b>. A vertex's neighbors are only the vertices its arrows point <b>to</b>.</p>
-      <StepShow id="bfs-dir" cap="BFS from A on a directed graph" legend="bfs" steps={dirShow} />
+      <StepShow id="bfs-dir" cap="Finding the BFS traversal order of a directed graph" legend="bfs" steps={dirShow} />
       <h3>Vertices that BFS never reaches</h3>
       <p>BFS order: <b>{dirRun.order.join(', ')}</b>. No arrow leads to F, so F is <b>never visited</b>. A vertex that is never visited has no level, so it gets a <b>dash (–)</b> in the level table.</p>
+      <figure class="fig"><Fragment set:html={levelTable(vertsOf(W.bfsDirWalk), dirRun.level)} /><p class="small">F was never visited, so its level is a dash (–).</p></figure>
     </div>
   </section>
 
   <!-- 7 -->
   <section class="chapter wrap" id="examples">
     <div class="chapter-head">
-      <p class="chapter-num">Part 6 · Examples</p>
-      <h2>BFS examples</h2>
+      <p class="chapter-num">Part 6 · Your turn</p>
+      <h2>Practice problems</h2>
     </div>
     <div class="flow">
       <div class="remember" data-toc="How your answers are checked">
         <p class="note-label">How your answers are checked</p>
-        <p>The row with ✓ and levels is scratch work and is not graded. You hand in:</p>
+        <p>The queue with check marks <span class="ck">✓</span> and the levels on the graph are <b>scratch work</b>, and they are <b>not graded</b>. You hand in these three answers.</p>
         <ul>
-          <li><b>a.</b> the BFS traversal order;</li>
-          <li><b>b.</b> the level table (vertices in alphabetical order; a dash (–) for never visited);</li>
-          <li><b>c.</b> other questions, such as a shortest path (any path with the fewest edges) or which vertices are never visited.</li>
+          <li><b>a.</b> The <span class="hl-mark">BFS traversal order</span>.</li>
+          <li><b>b.</b> The <span class="hl-mark">level table</span>, with the vertices in alphabetical order and a dash (–) for any vertex that is never visited.</li>
+          <li><b>c.</b> <span class="hl-mark">Other questions</span>, such as a shortest path (any path with the fewest edges) or which vertices are never visited.</li>
         </ul>
       </div>
       <p>Do each example on paper first, then check it step by step.</p>

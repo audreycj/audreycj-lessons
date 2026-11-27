@@ -2259,3 +2259,4 @@ table.lvl-tbl th[scope="row"] { min-width: 0; padding-right: 1rem; }
 .do-dont .dont .dd-mark { background: #b23a33; }
 .cw-say .ck, .alpha-rule .ck { color: var(--teal); font-weight: 900; }
 .cw-say .vc-done { background: var(--teal); color: #fff; border-color: var(--teal-ink); border-radius: 5px; } /* checked letters, dark teal like the picture */
+.remember .ck { color: var(--teal); font-weight: 900; }
