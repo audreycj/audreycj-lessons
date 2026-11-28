@@ -281,7 +281,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       </div>
       <p>Traversal is the <b>job</b>. <b>Breadth-first search (BFS)</b> and <b>depth-first search (DFS)</b> are two <b>algorithms</b> that do it. They visit the same vertices in a different order: BFS goes <b>wide</b> first (breadth means width), and DFS goes <b>deep</b> first.</p>
       <div class="known-box">
-        <p class="note-label">You already know this from trees</p>
+        <p class="note-label">Tree traversals you already know</p>
         <p>You already know three <a href={base + '/itc120/traversals/'}>tree traversals</a>. Pre-order, in-order, and post-order go down one branch before coming back, so they are <b>depth-first</b>. Visiting a tree level by level is called <b>level-order traversal</b>, which is BFS on a tree.</p>
         <Fragment set:html={knownTraversals()} />
       </div>
@@ -295,7 +295,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
   <section class="chapter wrap" id="bfs">
     <div class="chapter-head">
       <p class="chapter-num">Part 2 · Breadth-first search</p>
-      <h2>BFS visits the nearest vertices first</h2>
+      <h2>What BFS is and where it is used</h2>
     </div>
     <div class="flow">
       <h3>What is BFS?</h3>
@@ -370,7 +370,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
         <p>If two neighbors are both one level lower, either gives a shortest path.</p>
       </div>
       <div class="trap">
-        <p class="note-label">Careful</p>
+        <p class="note-label">Shortest means fewest edges</p>
         <p>"Shortest" here means <b>fewest edges</b>. In a <Peek label="weighted graph" title="From the Graphs lesson" html={travelPeek} />, fewest edges is not always fastest. Map apps use other algorithms, such as Dijkstra's.</p>
       </div>
       <div class="trap" id="no-sort" data-toc="Never re-sort the queue">
@@ -380,7 +380,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
           <li class="dont"><span class="dd-mark">✗</span><span><span class="warn-txt">Don't move letters</span> that are <span class="warn-txt">already in the queue</span>.</span></li>
         </ul>
         <p class="alpha-rule">Always check the <b>first letter without a <span class="ck">✓</span></b>, in the order the letters were written.</p>
-        <StepShow id="bfs-trap" cap="The re-sort trap" legend="bfs" steps={trapShow} />
+        <StepShow id="bfs-trap" cap="An example of the re-sort mistake" legend="bfs" steps={trapShow} />
         <p class="small">This trap returns in BFS Examples 4, 5, 7 and Real-life Example 1.</p>
       </div>
     </div>
@@ -394,7 +394,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
       <h2>BFS on a directed graph</h2>
     </div>
     <div class="flow">
-      <h3>Follow the arrows</h3>
+      <h3>Neighbors in a directed graph</h3>
       <p>Same steps, one new rule: <b>follow the arrows</b>. A vertex's neighbors are only the vertices its arrows point <b>to</b>.</p>
       <StepShow id="bfs-dir" cap="Finding the BFS traversal order of a directed graph" legend="bfs" steps={dirShow} />
       <h3>Vertices that BFS never reaches</h3>
@@ -504,7 +504,7 @@ const travelPeek = `${svgGraph(W.storeEx3, { label: 'Weighted graph: travel minu
         <p>The Java queue holds exactly the letters <b>without a ✓</b>. <code>seen[v] = true</code> means "v is now written in the row". <code>queue.poll()</code> is step 2, writing the ✓ on the first letter without one. The <code>for</code> loop is step 3: it checks row <code>u</code> of the matrix from A to Z and writes (enqueues) every neighbor that is not written yet.</p>
       </div>
       <div class="paper flow" id="task" data-toc="Your coding task">
-        <p class="note-label">Your coding task: BFS with levels</p>
+        <p class="note-label">Your coding task (BFS with levels)</p>
         <p>In <Peek label="this picture" title="Levels from A" html={levelPeek} />, every vertex has a level, the fewest edges from the start. Now make the BFS program find the levels too. Instead of <code>seen</code>, it keeps one <code>int</code> array named <code>level</code>. A level of <code>-1</code> means "not seen yet". Any other number is the vertex's level.</p>
         <p>Write the <code>for</code> loop in about 6 lines where it says YOUR CODE. It is the neighbor loop from the program above, with two changes: check <code>level[v] == -1</code> instead of <code>!seen[v]</code>, and set <code>v</code>'s level instead of <code>seen[v] = true</code>. The graph is the Example 2 graph plus H, a vertex with no edges, which BFS can never reach from the others. Run it: each printed line must match its expected comment.</p>
         <pre class="code"><code set:html={hiN(taskCode)} /></pre>
