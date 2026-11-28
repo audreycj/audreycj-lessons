@@ -15,6 +15,7 @@ import { course } from '../../data/itc120.js';
 import { small, smallDir, weighted, withLoop } from '../../data/graphs.js';
 import StepShow from '../../components/StepShow.astro';
 import * as W from '../../data/graphs-w16.js';
+import { islandRoads } from '../../lib/dfs-pics.js';
 import { storeSteps, fromMatrixSteps, matrixHtml, listHtml, friendsChart, matrixHowSteps, listHowSteps, cref } from '../../lib/onerow.js';
 // Weighted directed graph for the matrix how-to tabs (same positions and arrows as smallDir; made-up weights)
 const weightedDir = { ...smallDir, weighted: true, edges: smallDir.edges.map((e, i) => ({ ...e, w: [7, 4, 12, 6, 5][i] })) };
@@ -492,6 +493,25 @@ const llPeek = `<div class="illus">${llDefPic()}</div>`;
         <p>C has a <b>loop</b>. A loop is an edge that leaves a vertex and comes right back to the <b>same</b> vertex.</p>
         <p>Think of a web page that links to itself, like a "Back to top" link. The page is the vertex, and the link is an edge that points back to the same page.</p>
         <figure class="fig illus-fig illus"><Fragment set:html={loopPagePic()} /></figure>
+      </div>
+
+      <div class="sub" id="disconnected">
+        <h3>Connected and disconnected graphs</h3>
+        <p>A graph is <b>connected</b> when every vertex can be reached from every other vertex. But a graph does not have to be connected.</p>
+        <div class="def">
+          <p class="note-label">Disconnected graph and component</p>
+          <p>A graph is still one graph even if some vertices cannot reach each other. It is called a <b>disconnected graph</b>, and each separate piece is called a <b>component</b>.</p>
+          <p class="small">Some books call a component a <b>connected component</b>.</p>
+        </div>
+        <figure class="fig">
+          <Fragment set:html={svgGraph(W.dfsEx2, { nodeMarks: { F: 'hl', G: 'hl' }, label: 'One graph with two components: A, B, C, D, E in one, and F, G in the other' })} />
+          <p class="small">This is one graph with two components. A, B, C, D, and E are one component. F and G are the other component, because no edge joins them to the rest.</p>
+        </figure>
+        <div class="sticky">
+          <p class="note-label">Think of roads in the Philippines</p>
+          <p>All the roads in the country form one road network, but no road crosses the sea from Mindanao to Luzon. A car in Davao can reach Mati or Cagayan de Oro by road, but it cannot reach Manila by road. So the towns of Luzon are one component, and the towns of Mindanao are another.</p>
+        </div>
+        <figure class="fig illus-fig illus"><Fragment set:html={islandRoads()} /><figcaption>Each road network is one component. The two components are still part of one country's road network, just as the two pieces are still one graph.</figcaption></figure>
       </div>
     </div>
   </section>

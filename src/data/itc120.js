@@ -55,9 +55,9 @@ export const terms = [
     note: 'After the midterm: graphs, sets, maps, searching, sorting, hashing, and algorithm complexity.',
     units: [
       { name: 'Graphs', icon: 'graph', lessons: [
-        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: FIN, kind: ['ds'], blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
-        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: FIN, kind: ['algo'], blurb: 'Visit a graph level by level with a queue written as one row. Find levels, shortest paths, and what is never visited.' },
-        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: FIN, kind: ['algo'], blurb: 'Go deep with a stack written as one row, and backtrack at dead ends. Directed and disconnected graphs, and how DFS compares with BFS.' },
+        { title: 'Graphs, and how to store them', href: '/itc120/graphs/', status: 'live', kind: ['ds'], blurb: 'Vertices, edges, directed and weighted graphs. Build a graph by tapping an adjacency matrix and watch the list update.' },
+        { title: 'Breadth-first search (BFS)', href: '/itc120/bfs/', status: 'live', kind: ['algo'], blurb: 'Visit a graph level by level with a queue written as one row. Find levels, shortest paths, and what is never visited.' },
+        { title: 'Depth-first search (DFS)', href: '/itc120/dfs/', status: 'live', kind: ['algo'], blurb: 'Go deep with a stack written as one row, and backtrack at dead ends. Directed and disconnected graphs, and how DFS compares with BFS.' },
       ] },
       { name: 'Sets and maps', icon: 'venn', lessons: [
         { title: 'Sets in Java', href: '/itc120/sets/', status: FIN, kind: ['adt'], blurb: 'Unique, unordered collections. Union, intersection, difference, and symmetric difference on a Venn diagram, then in Java.' },

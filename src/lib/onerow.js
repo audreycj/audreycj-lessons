@@ -148,6 +148,9 @@ export function stepPic(g, st, mode, opts = {}) {
   if (mode === 'bfs') {
     for (const x of st.row) labels[x] = 'L' + st.level[x];
     if (st.now) for (const v of st.look) edgeMarks[`${st.now}-${v}`] = 'look';
+  } else if (st.nbLook) {
+    // chat 66: a 'we are on X' step, looking at X's neighbors before anything is written
+    for (const v of st.nbLook) edgeMarks[`${st.now}-${v}`] = 'look';
   } else if (st.fresh.length && st.row.length > 1) {
     const v = st.fresh[0];
     const u = [...st.row.slice(0, -1)].reverse().find((x) => !st.checked.includes(x));

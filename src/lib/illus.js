@@ -1575,7 +1575,7 @@ export function stackIsPath() {
 export function dfsTwoWays() {
   const O = C.orange, T = C.teal, G = '#9aa5a2';
   let s = `<svg class="objbox" viewBox="0 0 340 352" role="img" aria-label="The same moment in two stack routines, right after DFS from A visits D. Our way: the stack holds A, B, C, F, E, D, the path from A to D. Push-all way: the stack holds D, E, G, G from bottom to top. D and E are already visited and will be skipped, and G is in it twice. It is a to-do list, not a path.">`;
-  s += dfsLab(170, 22, 'Just visited D: what is on each stack?', C.ink, 'middle', 15, 800);
+  s += dfsLab(170, 22, 'What is on each stack after visiting D?', C.ink, 'middle', 15, 800);
   const bw = 64, bh = 32, base = 286;
   const col = (cx, items, head, sub) => {
     const x = cx - bw / 2, n = items.length;
@@ -1589,7 +1589,7 @@ export function dfsTwoWays() {
     return o;
   };
   s += col(70, [['A'], ['B'], ['C'], ['F'], ['E'], ['D', 'top']], 'Our way', 'this course');
-  s += col(220, [['D', 'stale', 'visited: skip'], ['E', 'stale', 'visited: skip'], ['G', 'todo', 'to do'], ['G', 'todo', 'again!']], 'Push-all way', 'some books');
+  s += col(220, [['D', 'stale', 'visited, skip'], ['E', 'stale', 'visited, skip'], ['G', 'todo', 'to do'], ['G', 'todo', 'again!']], 'Push-all way', 'some books');
   s += dfsLab(70, 316, 'the path A → … → D', T, 'middle', 12.5, 800);
   s += dfsLab(244, 316, 'a to-do list, not a path', C.red, 'middle', 12.5, 800);
   s += dfsLab(170, 342, 'Both end with the same visit order here: A B C F E D G.', C.soft, 'middle', 12, 700);
@@ -1674,7 +1674,7 @@ export function dfsInIT() {
   s.text(40, y0 + 122, 'waits for', { font: 'body', size: 11.5, weight: 700, color: C.soft });
   s.text(170, y0 + 140, 'stuck!', { font: 'body', size: 14, weight: 800, color: C.red });
   s.text(170, y0 + 156, 'no task can start', { font: 'body', size: 11.5, weight: 700, color: C.red });
-  s.text(170, y0 + 250, 'DFS finds it: it reaches a task that is still on its stack.', { font: 'body', size: 11.5, weight: 700, color: C.soft });
+  s.text(170, y0 + 250, 'DFS finds it when it reaches a task still on its stack.', { font: 'body', size: 11.5, weight: 700, color: C.soft });
   return s.svg('Two places DFS is used. Solving a maze: from Start, try one hallway to its end; at a dead end, back up and try the next hallway, until you reach the Exit. Finding a cycle in a project plan: Task A waits for Task B, B waits for C, and C waits for A, so no task can start. DFS finds this because it reaches a task that is still on its stack.').replace(/(\d+\.\d)\d+/g, '$1');
 }
 
@@ -1697,10 +1697,10 @@ export function bfsVsDfs() {
     return s;
   };
   let s = `<svg class="objbox" viewBox="0 0 340 680" role="img" aria-label="The same graph searched two ways from A. BFS, wide first with a queue, visits A, B, D, C, E, F, G: level by level. DFS, deep first with a stack, visits A, B, C, F, E, D, G: it follows one path down, backs up at dead ends, then goes on to G.">`;
-  s += panel(4, 'BFS: wide first', 'uses a queue', 'ABDCEFG', [['A', 'B'], ['A', 'D'], ['B', 'C'], ['B', 'E'], ['C', 'F'], ['E', 'G']], C.orange,
-    (k) => [lvFill[lv[k]], lvStroke[lv[k]]], 'Order: A B D C E F G (level by level)');
-  s += panel(346, 'DFS: deep first', 'uses a stack', 'ABCFEDG', [['A', 'B'], ['B', 'C'], ['C', 'F'], ['F', 'E'], ['E', 'D'], ['E', 'G']], C.teal,
-    () => [C.tealWash, C.teal], 'Order: A B C F E D G (one path, then back up)');
+  s += panel(4, 'BFS goes wide first', 'uses a queue', 'ABDCEFG', [['A', 'B'], ['A', 'D'], ['B', 'C'], ['B', 'E'], ['C', 'F'], ['E', 'G']], C.orange,
+    (k) => [lvFill[lv[k]], lvStroke[lv[k]]], 'Visits A, B, D, C, E, F, G, level by level.');
+  s += panel(346, 'DFS goes deep first', 'uses a stack', 'ABCFEDG', [['A', 'B'], ['B', 'C'], ['C', 'F'], ['F', 'E'], ['E', 'D'], ['E', 'G']], C.teal,
+    () => [C.tealWash, C.teal], 'Visits A, B, C, F, E, D, G, deep first.');
   return s + '</svg>';
 }
 

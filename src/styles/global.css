@@ -2260,3 +2260,39 @@ table.lvl-tbl th[scope="row"] { min-width: 0; padding-right: 1rem; }
 .cw-say .ck, .alpha-rule .ck { color: var(--teal); font-weight: 900; }
 .cw-say .vc-done { background: var(--teal); color: #fff; border-color: var(--teal-ink); border-radius: 5px; } /* checked letters, dark teal like the picture */
 .remember .ck { color: var(--teal); font-weight: 900; }
+
+/* chat 66 (DFS): a letter that is not written yet (plain chip) */
+.cw-say .vc-plain { background: #fff; color: var(--ink); border-color: var(--ink-soft); }
+
+/* chat 66 (DFS round 2): folder and file names in text, roomier boxes */
+.fname { display: inline-flex; align-items: center; gap: 0.3em; padding: 0.02em 0.45em 0.02em 0.35em; border-radius: 6px; background: #fdf3d6; border: 1px solid #ecd391; font-weight: 700; color: var(--ink); white-space: nowrap; line-height: 1.35; }
+.fname::before { content: ""; width: 1.05em; height: 0.82em; flex: none; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 17'%3E%3Cpath d='M0 3Q0 0 3 0H8l2.5 2.5H19q3 0 3 3V15q0 2-2 2H2q-2 0-2-2Z' fill='%23e0a72e'/%3E%3Cpath d='M0 6H22V15q0 2-2 2H2q-2 0-2-2Z' fill='%23f6c552'/%3E%3C/svg%3E"); }
+.fname.is-file { background: #fdeee6; border-color: #f2c2a8; }
+.fname.is-file::before { width: 0.8em; height: 1em; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 22'%3E%3Cpath d='M2 1H12L17 6V20Q17 21 16 21H2Q1 21 1 20V2Q1 1 2 1Z' fill='white' stroke='%238d9593'/%3E%3Crect x='0' y='12' width='14' height='6' rx='1.5' fill='%23e8662e'/%3E%3C/svg%3E"); }
+.flow > .plain.gap-above { margin-top: 2.6rem; }
+.trap.roomy { padding: 1.6rem 1.8rem 1.8rem; }
+.trap.roomy > .note-label { margin-bottom: 1rem; }
+.trap.roomy > ol { display: grid; gap: 1.6rem; padding-left: 1.4rem; }
+.trap.roomy .mk-ans { margin-top: 0.9rem; }
+svg.objbox.stack-row-pic { max-width: 34rem; }
+
+/* chat 66 (DFS round 3): lighter file/folder chips (no box), lost-file story as numbered steps */
+.fname { display: inline; padding: 0 0.15em; border: 0; border-radius: 4px; background: none; white-space: nowrap; line-height: inherit; }
+.fname::before { display: inline-block; vertical-align: -0.08em; margin-right: 0.28em; }
+.fname.is-file { background: none; }
+.lost-steps { list-style: none; counter-reset: ls; padding: 0; margin: 0.9rem 0 1rem; display: grid; gap: 0.75rem; }
+.lost-steps > li { counter-increment: ls; position: relative; padding-left: 2.3rem; line-height: 1.6; }
+.lost-steps > li::before { content: counter(ls); position: absolute; left: 0; top: 0.1em; display: grid; place-items: center; width: 1.55rem; height: 1.55rem; border-radius: 50%; background: var(--orange); color: #fff; font-weight: 800; font-size: 0.85rem; }
+
+/* chat 66 (DFS round 4): push / pop list under 'Why DFS uses a stack' */
+.push-pop { list-style: none; padding: 0; margin: 0.6rem 0 0; display: grid; gap: 0.7rem; }
+.push-pop > li { padding: 0.7rem 1rem; border-radius: 10px; background: var(--card); box-shadow: 0 1px 4px var(--shadow); line-height: 1.6; }
+.push-pop > li:first-child { border-left: 5px solid var(--teal); }
+.push-pop > li:last-child { border-left: 5px solid var(--orange); }
+.push-pop .pp-push { color: var(--teal-ink); }
+.push-pop .pp-pop { color: var(--orange-ink); }
+
+/* chat 66 (DFS round 5): more space above subpart titles. The chat-65 subgap rule lost to the pink-title rule
+   (2.4rem, higher specificity), so this one is written to win. Pages with "subgap" in their theme: BFS, DFS. */
+body.subgap:not(.theme-it110) .chapter > .flow > * + h3:not(.blk-h):not(.cat-h) { margin-top: 4.6rem; }
+body.subgap:not(.theme-it110) .chapter > .flow > * + [data-toc]:not(.ex-q) { margin-top: 4.2rem; }
